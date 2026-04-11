@@ -1,0 +1,308 @@
+name: deploy
+
+# Manual-only by default. When you're ready to wire this to push-to-main,
+# add `push: { branches: [main] }` here AND ensure the WIF prerequisites
+# in .github/workflows/README.md are configured in your GCP project.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to (dev/prod)"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+
+# Required GitHub secrets (set per environment):
+#   GCP_PROJECT_ID            e.g. kyrk-projekt-dev
+#   GCP_REGION                e.g. europe-north1
+#   GCP_WIF_PROVIDER          projects/<num>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
+#   GCP_DEPLOYER_SA           sa-deployer@<project>.iam.gserviceaccount.com
+#   PROPELAUTH_URL            https://auth.<tenant>.propelauthtest.com
+#   ADMIN_NOTIFY_WEBHOOK      https://<n8n>/webhook/...
+#
+# Built artifacts: pushed to Artifact Registry
+#   <region>-docker.pkg.dev/<project>/kyrk/<service>:<sha>
+#
+# Service URLs are read back from `gcloud run services describe` after each
+# deploy and propagated to dependent services (admin-web → intake/cert,
+# membership-intake → membership-service).
+
+permissions:
+  contents: read
+  id-token: write  # required for Workload Identity Federation
+
+env:
+  REPO: kyrk
+  REGION: ${{ secrets.GCP_REGION }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  TAG: ${{ github.sha }}
+
+jobs:
+  # ------------------------------------------------------------------ build
+  # Builds and pushes images for all services in parallel. Each service is
+  # an independent matrix slot — failures don't block the others.
+  build-and-push:
+    name: build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - membership-service
+          - membership-intake
+          - certificate-service
+          - activity-service
+          - reporting-service
+          - admin-web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: kyrk-projekt/services/${{ matrix.service }}
+          file: kyrk-projekt/services/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ matrix.service }}:${{ env.TAG }}
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ matrix.service }}:latest
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  # ------------------------------------------------------------ tier-1 deploys
+  # Deploy services with no in-cluster dependencies first.
+  deploy-membership-service:
+    name: deploy membership-service
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: membership-service
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/membership-service:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-membership-service@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --no-allow-unauthenticated
+            --max-instances=3
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+            KMS_KEY_NAME=projects/${{ env.PROJECT_ID }}/locations/${{ env.REGION }}/keyRings/kyrk/cryptoKeys/member-pn
+          secrets: |
+            PROPELAUTH_API_KEY=propelauth-api-key:latest
+
+  deploy-certificate-service:
+    name: deploy certificate-service
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: certificate-service
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/certificate-service:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-certificate-service@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --no-allow-unauthenticated
+            --max-instances=3
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+          secrets: |
+            PROPELAUTH_API_KEY=propelauth-api-key:latest
+
+  deploy-activity-service:
+    name: deploy activity-service
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: activity-service
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/activity-service:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-activity-service@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --no-allow-unauthenticated
+            --max-instances=3
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+          secrets: |
+            PROPELAUTH_API_KEY=propelauth-api-key:latest
+
+  deploy-reporting-service:
+    name: deploy reporting-service
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: reporting-service
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/reporting-service:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-reporting-service@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --no-allow-unauthenticated
+            --max-instances=3
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+            BIGQUERY_PROJECT_ID=${{ env.PROJECT_ID }}
+            BIGQUERY_DATASET_ID=kyrk_analytics
+          secrets: |
+            PROPELAUTH_API_KEY=propelauth-api-key:latest
+
+  # ------------------------------------------------------------ tier-2 deploys
+  # membership-intake depends on membership-service being live so the
+  # approval flow can reach it. The MEMBERSHIP_SERVICE_URL is read from the
+  # tier-1 deploy output.
+  deploy-membership-intake:
+    name: deploy membership-intake
+    needs: deploy-membership-service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve membership-service URL
+        id: ms
+        run: |
+          URL=$(gcloud run services describe membership-service \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: membership-intake
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/membership-intake:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-membership-intake@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --allow-unauthenticated
+            --max-instances=5
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+            MEMBERSHIP_SERVICE_URL=${{ steps.ms.outputs.url }}
+            ADMIN_NOTIFY_WEBHOOK=${{ secrets.ADMIN_NOTIFY_WEBHOOK }}
+          secrets: |
+            PROPELAUTH_API_KEY=propelauth-api-key:latest
+
+  # admin-web depends on intake + certificate.
+  deploy-admin-web:
+    name: deploy admin-web
+    needs:
+      - deploy-membership-intake
+      - deploy-certificate-service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve downstream service URLs
+        id: urls
+        run: |
+          INTAKE=$(gcloud run services describe membership-intake \
+            --region=${{ env.REGION }} --format='value(status.url)')
+          CERT=$(gcloud run services describe certificate-service \
+            --region=${{ env.REGION }} --format='value(status.url)')
+          echo "intake=$INTAKE" >> $GITHUB_OUTPUT
+          echo "cert=$CERT" >> $GITHUB_OUTPUT
+
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: admin-web
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/admin-web:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-admin-web@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --allow-unauthenticated
+            --max-instances=3
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            INTAKE_BASE_URL=${{ steps.urls.outputs.intake }}
+            CERTIFICATE_BASE_URL=${{ steps.urls.outputs.cert }}
+            ADMIN_WEB_COOKIE_SECURE=true
+
+  # --------------------------------------------------------------- summary
+  summary:
+    name: deploy summary
+    needs:
+      - deploy-membership-service
+      - deploy-membership-intake
+      - deploy-certificate-service
+      - deploy-activity-service
+      - deploy-reporting-service
+      - deploy-admin-web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Print all service URLs
+        run: |
+          echo "## Deploy summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          for svc in membership-service membership-intake certificate-service activity-service reporting-service admin-web; do
+            URL=$(gcloud run services describe $svc --region=${{ env.REGION }} --format='value(status.url)' || echo "n/a")
+            echo "| $svc | $URL |" >> $GITHUB_STEP_SUMMARY
+          done

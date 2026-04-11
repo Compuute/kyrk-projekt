@@ -22,18 +22,26 @@ Modular, secure, mobile-first church platform on Google Cloud Platform.
 
 | Service | Zone | Purpose |
 |---|---|---|
-| `services/membership-intake` | RED | Public intake form (pending status) |
+| `services/membership-intake` | RED | Public intake form + admin approval flow |
 | `services/membership-service` | RED | Member lifecycle, RBAC, audit |
 | `services/certificate-service` | RED | Digital certificates + privacy-preserving verification |
 | `services/activity-service` | YELLOW | Activity tracking (aggregated counts only) |
 | `services/reporting-service` | YELLOW | KPI / ROI reports, OpenClaw input |
+| `services/admin-web` | mixed | Server-rendered admin UI (HTML, no frameworks) |
+
+Each service ships a `Dockerfile`, runs as a non-root user, and exposes
+`/healthz`. Each service has two adapter modes selected by `ADAPTER_MODE`:
+`memory` (default, in-process) for tests and local dev, `production`
+(Firestore + KMS + PropelAuth + BigQuery) for Cloud Run.
 
 ## Frontend
 
 | Module | Zone | Stack |
 |---|---|---|
-| `frontend/mobile-web` | mixed | (future) admin/member portal |
 | `frontend/wifi-intake-portal` | GREEN | static HTML + vanilla JS |
+| `frontend/mobile-web` | mixed | placeholder for a future React/native client |
+
+The day-to-day admin UI lives in `services/admin-web` — see above.
 
 ## Automation
 
@@ -43,6 +51,19 @@ Modular, secure, mobile-first church platform on Google Cloud Platform.
 ## Infra
 
 - `infra/terraform` — GCP baseline (Cloud Run, Firestore, GCS, Secret Manager, IAM, BigQuery)
+
+## CI / CD
+
+Two GitHub Actions workflows live at the repo root in
+[`.github/workflows/`](../.github/workflows/):
+
+- `ci.yml` — runs pytest across all services, the wifi-portal Node tests,
+  syntax-check, and `terraform validate` on every push and PR. No secrets,
+  no GCP access.
+- `deploy.yml` — manual workflow that builds container images, pushes
+  them to Artifact Registry, and deploys to Cloud Run via Workload
+  Identity Federation (no static GCP keys in GitHub). See the README in
+  the workflows folder for the one-time GCP setup.
 
 ## Docs
 

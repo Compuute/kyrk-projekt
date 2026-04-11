@@ -1,0 +1,104 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel in-progress runs on the same ref so PRs always show the latest result.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-tests:
+    name: pytest (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - membership-service
+          - membership-intake
+          - certificate-service
+          - activity-service
+          - reporting-service
+          - admin-web
+    defaults:
+      run:
+        working-directory: kyrk-projekt/services/${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: kyrk-projekt/services/${{ matrix.service }}/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pytest
+        run: pytest -q
+
+  wifi-portal-tests:
+    name: wifi-intake-portal (Node)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kyrk-projekt/frontend/wifi-intake-portal
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run content decision tests
+        run: node tests/test_content_decision.js
+
+  syntax-check:
+    name: python syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Lightweight gate that catches obvious breakage in any service.
+      # We deliberately avoid pinning a linter (ruff/black) at this stage —
+      # add one when the team agrees on a style.
+      - name: Compile all .py files under kyrk-projekt
+        run: |
+          python -m compileall -q kyrk-projekt/services kyrk-projekt/automation/openclaw/import
+
+  terraform-validate:
+    name: terraform validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kyrk-projekt/infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: terraform init -backend=false
+        run: terraform init -backend=false
+
+      - name: terraform validate
+        run: terraform validate
+
+      - name: terraform fmt -check
+        run: terraform fmt -check -recursive
