@@ -1,0 +1,6 @@
+project_id  = "kyrk-projekt-dev"
+region      = "europe-north1"
+environment = "dev"
+
+# Copy this file to terraform.tfvars and edit with your values.
+# Do not commit terraform.tfvars.
