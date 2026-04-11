@@ -1,0 +1,11 @@
+CERTIFICATE OF BAPTISM
+
+Church: {church_name}
+Issued: {issued_date}
+To: {member_name}
+
+This certifies that the above-named person was baptized in the presence of
+the congregation at {church_name}.
+
+Verification: {verification_url}
+Certificate ID: {certificate_id}
