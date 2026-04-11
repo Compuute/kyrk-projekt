@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ActivityExport",
+  "description": "Aggregated activity export consumed by reporting-service. YELLOW zone only — no identity fields allowed.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "activity_id",
+      "church_id",
+      "activity_type",
+      "date",
+      "location",
+      "funding_tag",
+      "participants_total",
+      "age_band_counts"
+    ],
+    "properties": {
+      "activity_id": { "type": "string" },
+      "church_id": { "type": "string" },
+      "activity_type": {
+        "type": "string",
+        "enum": ["youth_tech", "coding", "sunday_school", "leadership", "debate", "community_hub", "other"]
+      },
+      "date": { "type": "string", "format": "date" },
+      "location": { "type": "string" },
+      "funding_tag": { "type": "string" },
+      "participants_total": { "type": "integer", "minimum": 0 },
+      "age_band_counts": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "0-6": { "type": "integer", "minimum": 0 },
+          "7-12": { "type": "integer", "minimum": 0 },
+          "13-17": { "type": "integer", "minimum": 0 },
+          "18-25": { "type": "integer", "minimum": 0 },
+          "26+": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

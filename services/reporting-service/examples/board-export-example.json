@@ -1,0 +1,28 @@
+{
+  "report_id": "33333333-3333-3333-3333-333333333333",
+  "kind": "board_export",
+  "period": "2025-Q2",
+  "payload": {
+    "period": "2025-Q2",
+    "summary": {
+      "participants_total": 90,
+      "activities_count": 6,
+      "cost_per_participant": 1100.0,
+      "grant_leverage_ratio": 1.8
+    },
+    "breakdown": {
+      "by_type": {
+        "youth_tech": 60,
+        "coding": 30
+      },
+      "by_age_band": {
+        "0-6": 0,
+        "7-12": 45,
+        "13-17": 30,
+        "18-25": 15,
+        "26+": 0
+      }
+    },
+    "openclaw_ready": true
+  }
+}

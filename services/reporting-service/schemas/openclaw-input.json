@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenClawInput",
+  "description": "Board-ready export shape. This is the canonical input that OpenClaw prompt templates consume. YELLOW only — no identity fields permitted.",
+  "type": "object",
+  "required": ["period", "summary", "breakdown", "openclaw_ready"],
+  "properties": {
+    "period": { "type": "string", "description": "e.g. 2025-06, 2025-Q2, 2025-annual" },
+    "summary": {
+      "type": "object",
+      "required": ["participants_total", "activities_count"],
+      "properties": {
+        "participants_total": { "type": "integer", "minimum": 0 },
+        "activities_count": { "type": "integer", "minimum": 0 },
+        "cost_per_participant": { "type": ["number", "null"] },
+        "grant_leverage_ratio": { "type": ["number", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "breakdown": {
+      "type": "object",
+      "required": ["by_type", "by_age_band"],
+      "properties": {
+        "by_type": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "by_age_band": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "openclaw_ready": { "type": "boolean", "const": true }
+  },
+  "additionalProperties": false
+}

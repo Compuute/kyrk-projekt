@@ -1,0 +1,24 @@
+{
+  "report_id": "22222222-2222-2222-2222-222222222222",
+  "kind": "quarterly",
+  "period": "2025-Q2",
+  "payload": {
+    "period": "2025-Q2",
+    "activities_count": 6,
+    "participants_total": 90,
+    "participants_by_type": {
+      "youth_tech": 60,
+      "coding": 30
+    },
+    "participants_by_age_band": {
+      "0-6": 0,
+      "7-12": 45,
+      "13-17": 30,
+      "18-25": 15,
+      "26+": 0
+    },
+    "cost_per_participant": 1100.0,
+    "grant_leverage_ratio": 1.8,
+    "variance_input": true
+  }
+}

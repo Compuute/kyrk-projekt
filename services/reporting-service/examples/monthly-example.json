@@ -1,0 +1,23 @@
+{
+  "report_id": "11111111-1111-1111-1111-111111111111",
+  "kind": "monthly",
+  "period": "2025-06",
+  "payload": {
+    "period": "2025-06",
+    "activities_count": 2,
+    "participants_total": 30,
+    "participants_by_type": {
+      "youth_tech": 20,
+      "coding": 10
+    },
+    "participants_by_age_band": {
+      "0-6": 0,
+      "7-12": 15,
+      "13-17": 10,
+      "18-25": 5,
+      "26+": 0
+    },
+    "cost_per_participant": 1000.0,
+    "grant_leverage_ratio": 2.0
+  }
+}
