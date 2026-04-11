@@ -1,0 +1,16 @@
+tests/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.coverage
+htmlcov/
+.env
+.env.*
+README.md
+pytest.ini
+.git/
+.gitignore
+Dockerfile
+.dockerignore
