@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from fastapi import Depends, Header, HTTPException, status
 
-from app.adapters.fake_auth import FakeAuthAdapter
-from app.adapters.in_memory_audit import InMemoryAuditAdapter
-from app.adapters.in_memory_certificate_repository import InMemoryCertificateRepository
+from app.adapters.factory import (
+    make_audit,
+    make_auth,
+    make_certificate_repository,
+)
 from app.domain.errors import NotAuthorized
 from app.domain.models import Actor
 from app.ports.audit import AuditPort
@@ -13,20 +15,29 @@ from app.ports.certificate_repository import CertificateRepository
 from app.services.certificate_service import CertificateService
 
 
-_REPO: CertificateRepository = InMemoryCertificateRepository()
-_AUTH: AuthPort = FakeAuthAdapter()
-_AUDIT: AuditPort = InMemoryAuditAdapter()
+_REPO: CertificateRepository | None = None
+_AUTH: AuthPort | None = None
+_AUDIT: AuditPort | None = None
 
 
 def get_repo() -> CertificateRepository:
+    global _REPO
+    if _REPO is None:
+        _REPO = make_certificate_repository()
     return _REPO
 
 
 def get_auth() -> AuthPort:
+    global _AUTH
+    if _AUTH is None:
+        _AUTH = make_auth()
     return _AUTH
 
 
 def get_audit() -> AuditPort:
+    global _AUDIT
+    if _AUDIT is None:
+        _AUDIT = make_audit()
     return _AUDIT
 
 
@@ -42,9 +53,13 @@ def current_actor(
     auth: AuthPort = Depends(get_auth),
 ) -> Actor:
     if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="missing bearer token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="missing bearer token"
+        )
     token = authorization.split(" ", 1)[1]
     try:
         return auth.authenticate(token)
     except NotAuthorized as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+        ) from exc
