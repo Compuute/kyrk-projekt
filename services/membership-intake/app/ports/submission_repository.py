@@ -1,0 +1,11 @@
+from __future__ import annotations
+
+from typing import Protocol
+
+from app.domain.models import IntakeSubmission
+
+
+class SubmissionRepository(Protocol):
+    def add(self, submission: IntakeSubmission) -> None: ...
+    def get(self, submission_id: str) -> IntakeSubmission | None: ...
+    def list_pending(self, church_id: str) -> list[IntakeSubmission]: ...
