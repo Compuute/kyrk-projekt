@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Intake — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <h1>Väntande intake</h1>
+
+  {% if error_message %}
+  <div class="flash flash-error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if not submissions %}
+  <div class="card empty">
+    <p>Inga väntande ansökningar just nu.</p>
+  </div>
+  {% else %}
+  <div class="list">
+    {% for s in submissions %}
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-name">{{ s.first_name }} {{ s.last_name }}</div>
+        <div class="list-meta muted small">
+          {{ s.received_at }} · {{ s.church_id }} · id <code>{{ s.submission_id[:8] }}</code>
+        </div>
+      </div>
+      <div class="list-actions">
+        <form method="post" action="/submissions/{{ s.submission_id }}/approve" class="inline-form">
+          <button type="submit" class="primary">Godkänn</button>
+        </form>
+        <form method="post" action="/submissions/{{ s.submission_id }}/reject" class="inline-form">
+          <button type="submit" class="danger">Avslå</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

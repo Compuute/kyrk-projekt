@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>{% block title %}Admin — kyrk-projekt{% endblock %}</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand">kyrk-projekt <span class="brand-sub">admin</span></a>
+      {% if session %}
+      <nav class="nav">
+        <a href="/submissions">Intake</a>
+        <a href="/certificates/new">Utfärda certifikat</a>
+        <form method="post" action="/logout" class="inline-form">
+          <button type="submit" class="linkish">Logga ut ({{ session.user_id }})</button>
+        </form>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="container">
+    {% if flash %}
+    <div class="flash flash-{{ level or 'success' }}">{{ flash }}</div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="foot">
+    <p class="small muted">
+      Alla handlingar loggas. Inget spårar dig utöver din session.
+    </p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Logga in — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="card centered">
+  <h1>Logga in</h1>
+  <p class="muted">
+    MVP använder ett lokalt test-token. I produktion ersätts detta med
+    PropelAuth-inloggning.
+  </p>
+  <form method="post" action="/login" class="stacked">
+    <label>
+      Användar-id
+      <input type="text" name="user_id" required autocomplete="username" />
+    </label>
+    <label>
+      Kyrka (church_id)
+      <input type="text" name="church_id" required />
+    </label>
+    <label>
+      Roll
+      <select name="role" required>
+        <option value="admin">admin</option>
+        <option value="pastor">pastor</option>
+        <option value="secretary">secretary</option>
+        <option value="viewer">viewer</option>
+      </select>
+    </label>
+    <button type="submit" class="primary">Logga in</button>
+  </form>
+</section>
+{% endblock %}

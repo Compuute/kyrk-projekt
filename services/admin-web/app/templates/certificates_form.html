@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Utfärda certifikat — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Utfärda certifikat</h1>
+  <p class="muted small">
+    Endast <code>admin</code> och <code>pastor</code> kan utfärda. Action loggas i audit-trail.
+  </p>
+
+  <form method="post" action="/certificates/new" class="stacked">
+    <label>
+      Typ
+      <select name="certificate_type" required>
+        <option value="baptism">Dop (baptism)</option>
+        <option value="confirmation">Konfirmation</option>
+        <option value="marriage">Vigsel</option>
+        <option value="funeral">Begravning</option>
+      </select>
+    </label>
+    <label>
+      Datum
+      <input type="date" name="issued_date" value="{{ today }}" required />
+    </label>
+    <label>
+      Medlems-id
+      <input type="text" name="member_id" required placeholder="t.ex. f7a9…" />
+    </label>
+    <label>
+      Kyrkans namn
+      <input type="text" name="church_name" required placeholder="Sankt Johannes kyrka" />
+    </label>
+    <button type="submit" class="primary">Utfärda</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,244 @@
+/* Minimal, mobile-first admin UI. */
+:root {
+  --bg: #f7f7f5;
+  --fg: #1f2230;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #ffffff;
+  --accent: #3b5bdb;
+  --accent-hover: #2f4bb8;
+  --danger: #c0392b;
+  --danger-hover: #a23121;
+  --success-bg: #e8f5e9;
+  --success-fg: #256029;
+  --error-bg: #fde8e6;
+  --error-fg: #8b1f14;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+}
+
+.topbar {
+  background: var(--fg);
+  color: white;
+}
+
+.topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.brand-sub {
+  color: #a3a8ba;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.inline-form {
+  display: inline;
+  margin: 0;
+}
+
+.linkish {
+  background: none;
+  border: none;
+  color: #a3a8ba;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.hero h1 {
+  margin: 0 0 6px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.centered {
+  max-width: 420px;
+  margin: 40px auto;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+}
+
+h1 {
+  font-size: 22px;
+  margin-top: 0;
+}
+
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+
+.flash {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.flash-success { background: var(--success-bg); color: var(--success-fg); }
+.flash-error { background: var(--error-bg); color: var(--error-fg); }
+
+.stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 420px;
+}
+
+.stacked label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--muted);
+  gap: 6px;
+}
+
+.stacked input,
+.stacked select {
+  font-size: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--fg);
+}
+
+button.primary,
+button.danger {
+  font-size: 15px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+button.primary { background: var(--accent); }
+button.primary:hover { background: var(--accent-hover); }
+button.danger { background: var(--danger); }
+button.danger:hover { background: var(--danger-hover); }
+
+.grid-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.stat {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-decoration: none;
+  color: var(--fg);
+}
+
+.stat-number {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.list-meta code {
+  background: #eef0f3;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.list-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.foot {
+  text-align: center;
+  padding: 16px;
+}
+
+@media (min-width: 720px) {
+  .grid-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .list-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Hej {{ session.user_id }}</h1>
+  <p class="muted">Roll: <strong>{{ session.role }}</strong> · Kyrka: <strong>{{ session.church_id }}</strong></p>
+</section>
+
+<div class="grid-stats">
+  <a class="stat" href="/submissions">
+    <div class="stat-number">{{ pending_count }}</div>
+    <div class="stat-label">väntande intake</div>
+  </a>
+  <a class="stat" href="/certificates/new">
+    <div class="stat-number">+</div>
+    <div class="stat-label">utfärda certifikat</div>
+  </a>
+</div>
+{% endblock %}
