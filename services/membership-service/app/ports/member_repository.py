@@ -1,0 +1,13 @@
+"""Member repository port."""
+from __future__ import annotations
+
+from typing import Protocol
+
+from app.domain.models import Member
+
+
+class MemberRepository(Protocol):
+    def add(self, member: Member) -> None: ...
+    def get(self, church_id: str, member_id: str) -> Member | None: ...
+    def update(self, member: Member) -> None: ...
+    def list_by_church(self, church_id: str) -> list[Member]: ...
