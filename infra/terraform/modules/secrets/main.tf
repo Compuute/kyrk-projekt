@@ -17,3 +17,19 @@ resource "google_secret_manager_secret" "secret" {
     }
   }
 }
+
+# Per-secret accessor bindings. Each entry in `var.accessors` is
+# `{secret = "<name>", member = "serviceAccount:..."}`. We bind ONE
+# accessor at a time so revoking access for a single SA is a one-line
+# Terraform diff and never affects the others.
+resource "google_secret_manager_secret_iam_member" "accessor" {
+  for_each = {
+    for binding in var.accessors :
+    "${binding.secret}::${binding.member}" => binding
+  }
+
+  project   = var.project_id
+  secret_id = google_secret_manager_secret.secret[each.value.secret].secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = each.value.member
+}

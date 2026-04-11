@@ -14,3 +14,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "github_repository" {
+  description = "Owner/repo of the GitHub repository allowed to impersonate sa-deployer via WIF."
+  type        = string
+  default     = "Compuute/.github"
+}

@@ -1,6 +1,7 @@
-project_id  = "kyrk-projekt-dev"
-region      = "europe-north1"
-environment = "dev"
+project_id        = "kyrk-projekt-dev"
+region            = "europe-north1"
+environment       = "dev"
+github_repository = "Compuute/.github"
 
 # Copy this file to terraform.tfvars and edit with your values.
 # Do not commit terraform.tfvars.
