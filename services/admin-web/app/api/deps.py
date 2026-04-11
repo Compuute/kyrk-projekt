@@ -3,16 +3,14 @@ from __future__ import annotations
 from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 
-from app.adapters.fake_clients import FakeCertificateClient, FakeIntakeClient
+from app.adapters.factory import make_certificate_client, make_intake_client
 from app.adapters.fake_session import SessionInfo, parse_session_cookie
 from app.config import Settings, load_settings
 from app.ports.clients import CertificateClientPort, IntakeClientPort
 
 
-# Singleton in-memory clients for MVP / local dev / tests.
-# Production wires the httpx adapters here (see config.py + README).
-_INTAKE: IntakeClientPort = FakeIntakeClient()
-_CERTIFICATE: CertificateClientPort = FakeCertificateClient()
+_INTAKE: IntakeClientPort | None = None
+_CERTIFICATE: CertificateClientPort | None = None
 _SETTINGS: Settings = load_settings()
 
 
@@ -21,10 +19,16 @@ def get_settings() -> Settings:
 
 
 def get_intake_client() -> IntakeClientPort:
+    global _INTAKE
+    if _INTAKE is None:
+        _INTAKE = make_intake_client()
     return _INTAKE
 
 
 def get_certificate_client() -> CertificateClientPort:
+    global _CERTIFICATE
+    if _CERTIFICATE is None:
+        _CERTIFICATE = make_certificate_client()
     return _CERTIFICATE
 
 
@@ -33,8 +37,6 @@ def current_session(
 ) -> SessionInfo:
     info = parse_session_cookie(kyrk_session)
     if info is None:
-        # For full-page routes we prefer a redirect; callers that want 401
-        # wrap this in a different dependency.
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="not authenticated",
@@ -46,11 +48,7 @@ def current_session(
 def redirect_if_unauthenticated(
     kyrk_session: str | None = Cookie(default=None),
 ) -> SessionInfo | RedirectResponse:
-    """Alternative to current_session that returns a RedirectResponse on miss.
-
-    Used by GET page handlers so anonymous users see the login page instead
-    of a raw 401.
-    """
+    """Alternative to current_session that returns a RedirectResponse on miss."""
     info = parse_session_cookie(kyrk_session)
     if info is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
