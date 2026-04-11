@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-06-01T09:00:00Z",
+  "events": [
+    { "key": "youth_tech_week", "from": "2025-06-15", "to": "2025-06-22" }
+  ],
+  "languages": {
+    "sv": {
+      "base": {
+        "title": "Välkommen",
+        "subtitle": "Fri Wi-Fi i församlingen",
+        "links": {
+          "member": "/intake",
+          "youth": "/unga",
+          "kids": "/barn",
+          "tech": "/tech",
+          "donate": "/ge"
+        }
+      },
+      "sections": {
+        "default": {
+          "title": "Välkommen",
+          "subtitle": "Fri Wi-Fi i församlingen",
+          "today": ["Kaffe kl 10", "Bibelstudium kl 14"]
+        },
+        "sunday": {
+          "title": "Välkommen till söndag",
+          "subtitle": "Gudstjänst kl 11",
+          "today": ["Gudstjänst kl 11", "Söndagsskola samtidigt", "Fika efteråt"]
+        },
+        "weekday": {
+          "title": "Välkommen",
+          "subtitle": "Öppet i dag",
+          "today": ["Öppet hus kl 14–18"]
+        },
+        "youth_tech_week": {
+          "title": "Youth Tech Week",
+          "subtitle": "Kodning, robotik, samtal",
+          "today": ["Kodning kl 16", "Robotverkstad kl 17", "Samtal om etik kl 18"]
+        }
+      }
+    },
+    "en": {
+      "base": {
+        "title": "Welcome",
+        "subtitle": "Free Wi-Fi at the parish",
+        "links": {
+          "member": "/intake",
+          "youth": "/youth",
+          "kids": "/kids",
+          "tech": "/tech",
+          "donate": "/give"
+        }
+      },
+      "sections": {
+        "default": {
+          "title": "Welcome",
+          "subtitle": "Free Wi-Fi",
+          "today": ["Coffee at 10", "Bible study at 14"]
+        },
+        "sunday": {
+          "title": "Welcome — Sunday",
+          "subtitle": "Service at 11",
+          "today": ["Service at 11", "Sunday school", "Coffee after"]
+        }
+      }
+    }
+  }
+}

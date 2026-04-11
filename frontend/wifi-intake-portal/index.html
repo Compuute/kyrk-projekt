@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Välkommen</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container" id="app">
+    <header class="hero">
+      <h1 id="hero-title">Välkommen</h1>
+      <p id="hero-subtitle" class="muted"></p>
+    </header>
+
+    <section class="card" id="today">
+      <h2 id="today-title">I dag</h2>
+      <ul id="today-list"></ul>
+    </section>
+
+    <nav class="grid">
+      <a class="tile" id="link-member" href="#">Bli medlem</a>
+      <a class="tile" id="link-youth" href="#">Unga</a>
+      <a class="tile" id="link-kids" href="#">Barn</a>
+      <a class="tile" id="link-tech" href="#">Tech</a>
+      <a class="tile" id="link-donate" href="#">Ge en gåva</a>
+    </nav>
+
+    <footer class="foot">
+      <p class="muted small">
+        Den här sidan använder inga kakor och spårar dig inte.
+      </p>
+    </footer>
+  </main>
+
+  <script src="content.js"></script>
+  <script>
+    (async function () {
+      const config = await (window.loadContent
+        ? window.loadContent('./content-config.example.json')
+        : Promise.resolve(window.DEFAULT_CONTENT));
+      const lang = (navigator.language || 'sv').slice(0, 2) === 'en' ? 'en' : 'sv';
+      const now = new Date();
+      const view = window.decideContent(config, { date: now, lang });
+      window.renderContent(view);
+    })();
+  </script>
+</body>
+</html>
