@@ -5,8 +5,9 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
 
-from app.api.deps import get_service
+from app.api.deps import current_actor, current_token, get_service
 from app.domain.errors import ConsentMissing, RateLimited
+from app.domain.models import Actor
 from app.services.intake_service import IntakePayload, IntakeService
 
 
@@ -25,6 +26,26 @@ class IntakeRequest(BaseModel):
 
 
 class IntakeResponse(BaseModel):
+    submission_id: str
+    status: str
+
+
+class PendingSubmissionSummary(BaseModel):
+    submission_id: str
+    church_id: str
+    first_name: str
+    last_name: str
+    received_at: datetime
+    status: str
+
+
+class ApprovalResponseModel(BaseModel):
+    submission_id: str
+    status: str
+    created_member_id: str
+
+
+class RejectResponseModel(BaseModel):
     submission_id: str
     status: str
 

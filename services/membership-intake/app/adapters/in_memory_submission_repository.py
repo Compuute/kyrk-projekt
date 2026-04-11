@@ -13,6 +13,9 @@ class InMemorySubmissionRepository:
     def get(self, submission_id: str) -> IntakeSubmission | None:
         return self._items.get(submission_id)
 
+    def update(self, submission: IntakeSubmission) -> None:
+        self._items[submission.submission_id] = submission
+
     def list_pending(self, church_id: str) -> list[IntakeSubmission]:
         return [
             s for s in self._items.values()
