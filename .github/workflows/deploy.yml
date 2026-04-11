@@ -47,6 +47,7 @@ jobs:
   build-and-push:
     name: build ${{ matrix.service }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     strategy:
       fail-fast: false
       matrix:
@@ -93,6 +94,7 @@ jobs:
     name: deploy membership-service
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -120,6 +122,7 @@ jobs:
     name: deploy certificate-service
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -146,6 +149,7 @@ jobs:
     name: deploy activity-service
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -172,6 +176,7 @@ jobs:
     name: deploy reporting-service
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -204,6 +209,7 @@ jobs:
     name: deploy membership-intake
     needs: deploy-membership-service
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -245,6 +251,7 @@ jobs:
       - deploy-membership-intake
       - deploy-certificate-service
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
@@ -290,6 +297,7 @@ jobs:
       - deploy-reporting-service
       - deploy-admin-web
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - uses: google-github-actions/auth@v2
         with:
