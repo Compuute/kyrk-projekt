@@ -1,0 +1,122 @@
+{
+  "version": "1.0",
+  "description": "Sanitizer profiles. A profile is applied to a payload BEFORE it reaches the Anthropic API (or any GREEN destination). Violations abort the workflow.",
+  "profiles": {
+    "yellow-only": {
+      "description": "Allows aggregated YELLOW data (counts, buckets, KPIs). Blocks all identity fields.",
+      "allowed_fields": [
+        "report_id",
+        "kind",
+        "period",
+        "church_id",
+        "activity_id",
+        "activity_type",
+        "date",
+        "location",
+        "funding_tag",
+        "participants_total",
+        "age_band_counts",
+        "payload",
+        "summary",
+        "breakdown",
+        "by_type",
+        "by_age_band",
+        "participants_by_type",
+        "participants_by_age_band",
+        "activities_count",
+        "cost_per_participant",
+        "grant_leverage_ratio",
+        "revenue_total",
+        "cost_total",
+        "operating_cost",
+        "grants",
+        "own_contribution",
+        "openclaw_ready",
+        "variance_input",
+        "0-6",
+        "7-12",
+        "13-17",
+        "18-25",
+        "26+"
+      ],
+      "blocked_patterns": [
+        "(?i)personal[_-]?number",
+        "(?i)personnummer",
+        "(?i)\\bssn\\b",
+        "(?i)first[_-]?name",
+        "(?i)last[_-]?name",
+        "(?i)\\bfull[_-]?name\\b",
+        "(?i)\\bname\\b",
+        "(?i)email",
+        "(?i)phone",
+        "(?i)address",
+        "(?i)street",
+        "(?i)birth[_-]?date",
+        "(?i)member[_-]?id",
+        "(?i)submission[_-]?id",
+        "(?i)user[_-]?id"
+      ],
+      "max_payload_size_bytes": 65536,
+      "rejection_action": "fail"
+    },
+    "green-only": {
+      "description": "Strictest profile. Allows only GREEN content (portal copy, calendar events, category labels).",
+      "allowed_fields": [
+        "version",
+        "generated_at",
+        "events",
+        "languages",
+        "sections",
+        "base",
+        "title",
+        "subtitle",
+        "today",
+        "links",
+        "member",
+        "youth",
+        "kids",
+        "tech",
+        "donate",
+        "key",
+        "from",
+        "to",
+        "sv",
+        "en"
+      ],
+      "blocked_patterns": [
+        "(?i)personal[_-]?number",
+        "(?i)personnummer",
+        "(?i)\\bssn\\b",
+        "(?i)first[_-]?name",
+        "(?i)last[_-]?name",
+        "(?i)\\bfull[_-]?name\\b",
+        "(?i)email",
+        "(?i)phone",
+        "(?i)address",
+        "(?i)member[_-]?id",
+        "(?i)submission[_-]?id"
+      ],
+      "max_payload_size_bytes": 32768,
+      "rejection_action": "fail"
+    },
+    "red-admin-notify": {
+      "description": "Used by new_pending_membership_notification. Allows only submission_id, church_id, timestamps, status. Never includes identity even though an admin is the destination — the notification carries only a pointer, not the data.",
+      "allowed_fields": [
+        "submission_id",
+        "church_id",
+        "received_at",
+        "status",
+        "consent_timestamp"
+      ],
+      "blocked_patterns": [
+        "(?i)personal[_-]?number",
+        "(?i)first[_-]?name",
+        "(?i)last[_-]?name",
+        "(?i)email",
+        "(?i)phone"
+      ],
+      "max_payload_size_bytes": 2048,
+      "rejection_action": "fail"
+    }
+  }
+}

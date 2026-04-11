@@ -1,0 +1,12 @@
+{
+  "church_id": "default",
+  "description": "Default church-specific context prepended to OpenClaw prompts. Safe defaults; override per church as needed.",
+  "context": {
+    "denomination": "Svenska kyrkan (default)",
+    "region": "Sverige",
+    "language": "sv",
+    "tone": "warm, inclusive, plain",
+    "grant_priorities": ["arvsfonden", "kommunala_bidrag"],
+    "avoid_topics": ["politics", "individuals"]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "quarterly_openclaw_analysis",
+  "zone": { "source": "YELLOW", "destination": "GREEN-sanitized" },
+  "trigger": {
+    "type": "cron",
+    "cron_expression": "0 7 1 1,4,7,10 *",
+    "description": "07:00 on the 1st of Jan/Apr/Jul/Oct, Europe/Stockholm."
+  },
+  "description": "Quarterly analysis. Fetches board-ready YELLOW export, sanitizes it, calls Anthropic API via OpenClaw quarterly-variance template, stores result as pending_review.",
+  "sanitizerProfile": "yellow-only",
+  "allowedFields": [
+    "report_id",
+    "kind",
+    "period",
+    "payload.period",
+    "payload.summary",
+    "payload.breakdown",
+    "payload.openclaw_ready"
+  ],
+  "blockedFields": ["personal_number", "name", "email", "phone", "address"],
+  "steps": [
+    { "id": "1-cron", "node": "n8n-nodes-base.cron", "notes": "Fires quarterly." },
+    {
+      "id": "2-fetch-board-export",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "POST reporting-service /reports/board-export with previous quarter period and aggregated inputs."
+    },
+    {
+      "id": "3-sanitize",
+      "node": "n8n-nodes-base.function",
+      "notes": "Run yellow-only sanitizer. Abort workflow on any violation — do not continue to Anthropic."
+    },
+    {
+      "id": "4-load-prompt",
+      "node": "n8n-nodes-base.readFile",
+      "notes": "Load automation/openclaw/core/quarterly-variance.json"
+    },
+    {
+      "id": "5-render-prompt",
+      "node": "n8n-nodes-base.function",
+      "notes": "Substitute {{data}} in user_prompt_template with the sanitized payload."
+    },
+    {
+      "id": "6-call-anthropic",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "POST https://api.anthropic.com/v1/messages with system_prompt, user_prompt, response_format=json, model, max_tokens from template."
+    },
+    {
+      "id": "7-validate-response",
+      "node": "n8n-nodes-base.function",
+      "notes": "Validate the response against expected_output_schema. Abort on invalid JSON."
+    },
+    {
+      "id": "8-store-pending",
+      "node": "n8n-nodes-base.googleCloudStorage",
+      "notes": "Upload to gs://<project>-openclaw-pending/quarterly/<run_id>.json"
+    },
+    {
+      "id": "9-notify-admin",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "POST ADMIN_NOTIFY_WEBHOOK with review URL."
+    }
+  ],
+  "secrets": ["REPORTING_SERVICE_TOKEN", "ANTHROPIC_API_KEY", "ADMIN_NOTIFY_WEBHOOK"],
+  "schedule": "quarterly"
+}

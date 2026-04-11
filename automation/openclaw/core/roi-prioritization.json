@@ -1,0 +1,37 @@
+{
+  "template_id": "roi-prioritization",
+  "version": "1.0",
+  "description": "Rank activity types by ROI signal to guide next-period investment decisions.",
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 1500,
+  "response_format": "json",
+  "sanitizer_profile": "yellow-only",
+  "system_prompt": "You are an ROI assistant for a Swedish church nonprofit. You receive ONLY aggregated activity and finance data. No personal data. If any identity field is present, return {\"error\": \"pii_detected\"}. You respond ONLY in valid JSON. Rank activity types by three dimensions — reach, cost efficiency, and grant leverage — using the numbers provided. Do not invent data.",
+  "user_prompt_template": "Given this aggregated data, rank activity types for next-period prioritization.\n\nData:\n{{data}}\n\nReturn JSON with:\n- ranking (array of objects with {activity_type, rank, reach_score, cost_efficiency_score, grant_leverage_score, rationale})\n- top_pick_activity_type (string)\n- notes (string)",
+  "expected_output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["ranking", "top_pick_activity_type", "notes"],
+    "properties": {
+      "ranking": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["activity_type", "rank", "reach_score", "cost_efficiency_score", "grant_leverage_score", "rationale"],
+          "properties": {
+            "activity_type": { "type": "string" },
+            "rank": { "type": "integer", "minimum": 1 },
+            "reach_score": { "type": "number" },
+            "cost_efficiency_score": { "type": "number" },
+            "grant_leverage_score": { "type": "number" },
+            "rationale": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "top_pick_activity_type": { "type": "string" },
+      "notes": { "type": "string" }
+    },
+    "additionalProperties": false
+  }
+}

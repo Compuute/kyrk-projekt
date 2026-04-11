@@ -1,0 +1,33 @@
+{
+  "template_id": "content-planning",
+  "version": "1.0",
+  "description": "Draft a week of Wi-Fi portal content based on the upcoming calendar and activity mix. GREEN in, GREEN out.",
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 2000,
+  "response_format": "json",
+  "sanitizer_profile": "green-only",
+  "system_prompt": "You are a content editor for a Swedish church Wi-Fi landing portal. You receive ONLY public calendar events and activity categories. No personal data. If any identity field is present, return {\"error\": \"pii_detected\"}. You respond ONLY in valid JSON matching the declared schema. Tone: warm, inclusive, plain Swedish. Short sentences. No AI jargon.",
+  "user_prompt_template": "Given the week ahead, draft the Wi-Fi portal content sections.\n\nCalendar + categories:\n{{data}}\n\nReturn JSON with:\n- sections (object keyed by section key with {title, subtitle, today: string[]})\n- notes_for_reviewer (string)",
+  "expected_output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["sections", "notes_for_reviewer"],
+    "properties": {
+      "sections": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "required": ["title", "today"],
+          "properties": {
+            "title": { "type": "string", "maxLength": 120 },
+            "subtitle": { "type": "string", "maxLength": 200 },
+            "today": { "type": "array", "items": { "type": "string", "maxLength": 200 } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "notes_for_reviewer": { "type": "string" }
+    },
+    "additionalProperties": false
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "monthly_kpi_export",
+  "zone": { "source": "YELLOW", "destination": "YELLOW-storage" },
+  "trigger": {
+    "type": "cron",
+    "cron_expression": "0 6 1 * *",
+    "description": "06:00 on the 1st of every month, Europe/Stockholm."
+  },
+  "description": "Pulls monthly KPI aggregates from reporting-service and stores the JSON in Cloud Storage for board access.",
+  "sanitizerProfile": "yellow-only",
+  "allowedFields": [
+    "report_id",
+    "kind",
+    "period",
+    "payload.period",
+    "payload.activities_count",
+    "payload.participants_total",
+    "payload.participants_by_type",
+    "payload.participants_by_age_band",
+    "payload.cost_per_participant",
+    "payload.grant_leverage_ratio"
+  ],
+  "blockedFields": ["personal_number", "name", "email", "phone"],
+  "steps": [
+    { "id": "1-cron", "node": "n8n-nodes-base.cron", "notes": "Fires at 06:00 on day 1." },
+    {
+      "id": "2-call-reporting",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "POST reporting-service /reports/monthly with the previous month's period and activity list fetched from activity-service."
+    },
+    {
+      "id": "3-sanitize",
+      "node": "n8n-nodes-base.function",
+      "notes": "Runs yellow-only sanitizer against the response before upload."
+    },
+    {
+      "id": "4-upload",
+      "node": "n8n-nodes-base.googleCloudStorage",
+      "notes": "Upload to gs://<project>-reports/monthly/<period>.json"
+    }
+  ],
+  "secrets": ["REPORTING_SERVICE_TOKEN"],
+  "schedule": "monthly"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "wifi_portal_content_update",
+  "zone": { "source": "GREEN", "destination": "GREEN-storage" },
+  "trigger": {
+    "type": "cron",
+    "cron_expression": "0 4 * * 1",
+    "description": "04:00 every Monday, Europe/Stockholm. Also triggerable manually."
+  },
+  "description": "Generates the Wi-Fi portal content.json and uploads it to Cloud Storage. GREEN zone only — nothing personal, ever.",
+  "sanitizerProfile": "green-only",
+  "allowedFields": [
+    "version", "generated_at", "events", "languages",
+    "base.title", "base.subtitle", "base.links",
+    "sections"
+  ],
+  "blockedFields": ["personal_number", "name", "email", "phone", "address", "member_id"],
+  "steps": [
+    { "id": "1-cron", "node": "n8n-nodes-base.cron", "notes": "Weekly Monday 04:00." },
+    {
+      "id": "2-load-calendar",
+      "node": "n8n-nodes-base.function",
+      "notes": "Read a small calendar/events source (git-managed JSON) — no RED/YELLOW inputs."
+    },
+    {
+      "id": "3-compose",
+      "node": "n8n-nodes-base.function",
+      "notes": "Compose the content-config JSON matching frontend/wifi-intake-portal/content-config.example.json shape."
+    },
+    {
+      "id": "4-sanitize",
+      "node": "n8n-nodes-base.function",
+      "notes": "Run green-only sanitizer. Abort on any blocked field."
+    },
+    {
+      "id": "5-upload",
+      "node": "n8n-nodes-base.googleCloudStorage",
+      "notes": "Upload to gs://<project>-wifi-portal-content/content.json (public-read)."
+    }
+  ],
+  "secrets": [],
+  "schedule": "weekly"
+}

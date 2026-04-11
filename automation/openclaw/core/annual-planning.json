@@ -1,0 +1,46 @@
+{
+  "template_id": "annual-planning",
+  "version": "1.0",
+  "description": "Annual planning input. Produces a draft annual plan outline from four quarterly board exports.",
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 3000,
+  "response_format": "json",
+  "sanitizer_profile": "yellow-only",
+  "system_prompt": "You are a planning assistant for a Swedish church nonprofit. You will receive four quarters of aggregated data. You will never receive personal data. If the input contains any identity field, stop and return {\"error\": \"pii_detected\"}. You respond ONLY in valid JSON matching the declared schema. The output is a DRAFT for human review — it will not be used until an admin approves it.",
+  "user_prompt_template": "Given four quarters of KPI data, draft next year's annual plan outline.\n\nQuarterly data:\n{{data}}\n\nReturn JSON with:\n- year_theme (string, <= 200 chars)\n- focus_areas (array of objects with {name, rationale, kpi_target})\n- grant_opportunities (array of objects with {funding_tag, rationale})\n- risks (array of strings)",
+  "expected_output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["year_theme", "focus_areas", "grant_opportunities", "risks"],
+    "properties": {
+      "year_theme": { "type": "string", "maxLength": 200 },
+      "focus_areas": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "rationale", "kpi_target"],
+          "properties": {
+            "name": { "type": "string" },
+            "rationale": { "type": "string" },
+            "kpi_target": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "grant_opportunities": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["funding_tag", "rationale"],
+          "properties": {
+            "funding_tag": { "type": "string" },
+            "rationale": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "risks": { "type": "array", "items": { "type": "string" } }
+    },
+    "additionalProperties": false
+  }
+}

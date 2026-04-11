@@ -1,0 +1,24 @@
+{
+  "template_id": "quarterly-variance",
+  "version": "1.0",
+  "description": "Quarterly variance commentary for board review. Consumes the board-ready YELLOW export from reporting-service.",
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 2000,
+  "response_format": "json",
+  "sanitizer_profile": "yellow-only",
+  "system_prompt": "You are a board analyst assistant for a Swedish church nonprofit. You receive ONLY aggregated, anonymous data. You will never receive personal data. If the input contains any name, personnummer, phone, email, or other identity field, stop and return {\"error\": \"pii_detected\"}. You respond ONLY in valid JSON matching the declared schema. Do not invent facts. Do not request additional personal information. Commentary must be concrete, neutral, and based solely on the numbers provided.",
+  "user_prompt_template": "Analyze this quarter's KPI data for the church and produce a variance commentary.\n\nData (aggregated, YELLOW zone only):\n{{data}}\n\nReturn JSON with these keys:\n- headline (string, <= 140 chars)\n- participant_trend (string, 1-2 sentences)\n- funding_variance (string, 1-2 sentences)\n- risks (array of strings, each <= 120 chars)\n- recommendations (array of strings, each <= 140 chars)",
+  "expected_output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["headline", "participant_trend", "funding_variance", "risks", "recommendations"],
+    "properties": {
+      "headline": { "type": "string", "maxLength": 140 },
+      "participant_trend": { "type": "string" },
+      "funding_variance": { "type": "string" },
+      "risks": { "type": "array", "items": { "type": "string", "maxLength": 120 } },
+      "recommendations": { "type": "array", "items": { "type": "string", "maxLength": 140 } }
+    },
+    "additionalProperties": false
+  }
+}

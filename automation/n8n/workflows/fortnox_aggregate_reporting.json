@@ -1,0 +1,41 @@
+{
+  "name": "fortnox_aggregate_reporting",
+  "zone": { "source": "YELLOW (external)", "destination": "YELLOW" },
+  "trigger": {
+    "type": "cron",
+    "cron_expression": "0 5 2 * *",
+    "description": "05:00 on the 2nd of every month, Europe/Stockholm."
+  },
+  "description": "Pulls aggregated finance data from Fortnox (bucketed by funding_tag). No personal data or invoice-level detail is fetched.",
+  "sanitizerProfile": "yellow-only",
+  "allowedFields": [
+    "period",
+    "funding_tag",
+    "revenue_total",
+    "cost_total",
+    "operating_cost",
+    "grants",
+    "own_contribution"
+  ],
+  "blockedFields": ["name", "personal_number", "email", "phone", "invoice_number", "customer"],
+  "steps": [
+    { "id": "1-cron", "node": "n8n-nodes-base.cron", "notes": "Fires monthly." },
+    {
+      "id": "2-fortnox-aggregate",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "Call Fortnox with filters that return bucketed totals only. Never request line-item or customer data."
+    },
+    {
+      "id": "3-sanitize",
+      "node": "n8n-nodes-base.function",
+      "notes": "Reject any response containing a blocked field (e.g. a customer name)."
+    },
+    {
+      "id": "4-push-to-reporting",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "POST to reporting-service /reports/monthly with activities (from activity-service) + finance from Fortnox."
+    }
+  ],
+  "secrets": ["FORTNOX_CLIENT_ID", "FORTNOX_CLIENT_SECRET", "REPORTING_SERVICE_TOKEN"],
+  "schedule": "monthly"
+}

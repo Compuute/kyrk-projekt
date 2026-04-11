@@ -1,0 +1,33 @@
+{
+  "name": "new_pending_membership_notification",
+  "zone": { "source": "RED", "destination": "RED-admin" },
+  "trigger": {
+    "type": "webhook",
+    "path": "/n8n/webhooks/new-pending",
+    "http_method": "POST",
+    "source_service": "membership-intake"
+  },
+  "description": "Notify church admin when a new pending intake submission arrives. No personal data leaves the VPC.",
+  "sanitizerProfile": "red-admin-notify",
+  "allowedFields": ["submission_id", "church_id", "received_at", "status"],
+  "blockedFields": ["personal_number", "first_name", "last_name", "email", "phone"],
+  "steps": [
+    {
+      "id": "1-webhook-receive",
+      "node": "n8n-nodes-base.webhook",
+      "notes": "Receives POST from membership-intake with only safe fields."
+    },
+    {
+      "id": "2-sanitize",
+      "node": "n8n-nodes-base.function",
+      "notes": "Calls sanitizer profile 'red-admin-notify'. Fails loudly on any unknown field."
+    },
+    {
+      "id": "3-notify-admin",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "POST to ADMIN_NOTIFY_WEBHOOK with message: 'New pending submission for church <church_id>, id <submission_id>.'"
+    }
+  ],
+  "secrets": ["ADMIN_NOTIFY_WEBHOOK"],
+  "schedule": null
+}
