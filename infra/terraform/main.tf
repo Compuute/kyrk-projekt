@@ -96,18 +96,22 @@ resource "google_service_account" "deployer" {
   project      = var.project_id
 }
 
-# Firestore — native mode, EU region.
-module "firestore" {
-  source     = "./modules/firestore"
-  project_id = var.project_id
-  region     = var.region
-}
-
-# Cloud KMS keyring + member-pn key for membership-service.
+# Cloud KMS keyring + keys. Must be created BEFORE Firestore CMEK.
 module "kms" {
   source     = "./modules/kms"
   project_id = var.project_id
   region     = var.region
+}
+
+# Firestore — native mode, EU region, CMEK-encrypted.
+# Revoking the KMS key makes all Firestore data unreadable — a last-resort
+# incident response option. Day-to-day access control stays in IAM.
+module "firestore" {
+  source         = "./modules/firestore"
+  project_id     = var.project_id
+  region         = var.region
+  project_number = data.google_project.current.number
+  cmek_key_id    = module.kms.member_pn_key_id
 }
 
 # Storage buckets with lifecycle rules per purpose.
