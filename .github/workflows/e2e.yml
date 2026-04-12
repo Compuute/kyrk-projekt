@@ -1,0 +1,175 @@
+name: e2e
+
+# Runs automatically after deploy.yml completes successfully, and can
+# also be triggered manually to re-check an already-deployed environment.
+on:
+  workflow_run:
+    workflows: [deploy]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to smoke-test"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: ${{ secrets.GCP_REGION }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  # ----------------------------------------------------- gate on success only
+  # When triggered by workflow_run, skip the whole thing if the deploy
+  # actually failed. workflow_dispatch runs regardless.
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+      environment: ${{ steps.decide.outputs.environment }}
+    steps:
+      - id: decide
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" = "success" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            # workflow_run doesn't expose the originating environment input,
+            # so we default to `dev`. Override via manual dispatch for prod.
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+
+  # ---------------------------------------------------------------- healthz
+  healthz:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.gate.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Curl /healthz on every service
+        run: |
+          set -e
+          SERVICES="membership-service membership-intake certificate-service activity-service reporting-service admin-web"
+          FAIL=0
+          echo "| Service | URL | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          for svc in $SERVICES; do
+            URL=$(gcloud run services describe $svc --region=${{ env.REGION }} --format='value(status.url)' 2>/dev/null || true)
+            if [ -z "$URL" ]; then
+              echo "| $svc | n/a | NOT DEPLOYED |" >> $GITHUB_STEP_SUMMARY
+              FAIL=1
+              continue
+            fi
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL/healthz" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "| $svc | $URL | ✅ 200 |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| $svc | $URL | ❌ $CODE |" >> $GITHUB_STEP_SUMMARY
+              FAIL=1
+            fi
+          done
+          exit $FAIL
+
+  # -------------------------------------------------------------- smoke tests
+  # Public, anonymous checks that the golden path responds at all. These
+  # are intentionally minimal — the full functional suite runs in ci.yml
+  # against in-memory adapters. Here we just confirm the deployed services
+  # can accept a request end-to-end.
+  smoke:
+    needs: [gate, healthz]
+    if: needs.gate.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.gate.outputs.environment }}
+    steps:
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Public intake POST returns 202
+        run: |
+          URL=$(gcloud run services describe membership-intake --region=${{ env.REGION }} --format='value(status.url)')
+          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          CODE=$(curl -s -o /tmp/intake.json -w "%{http_code}" \
+            -X POST "$URL/intake" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"church_id\": \"e2e-smoke\",
+              \"first_name\": \"E2E\",
+              \"last_name\": \"Smoke\",
+              \"phone\": \"+4670000000\",
+              \"email\": \"e2e@example.com\",
+              \"personal_number\": \"19800101-0000\",
+              \"gdpr_consent\": true,
+              \"consent_timestamp\": \"$TS\"
+            }")
+          if [ "$CODE" != "202" ]; then
+            echo "Expected 202 from intake POST, got $CODE"
+            cat /tmp/intake.json
+            exit 1
+          fi
+          echo "intake POST ok (202)"
+
+      - name: Public certificate verify returns 404 for unknown id
+        run: |
+          URL=$(gcloud run services describe certificate-service --region=${{ env.REGION }} --format='value(status.url)')
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL/certificates/verify/does-not-exist")
+          if [ "$CODE" != "404" ]; then
+            echo "Expected 404 for unknown certificate, got $CODE"
+            exit 1
+          fi
+          echo "cert verify returns 404 for unknown ok"
+
+      - name: Admin-web login page renders
+        run: |
+          URL=$(gcloud run services describe admin-web --region=${{ env.REGION }} --format='value(status.url)')
+          BODY=$(curl -s "$URL/login")
+          echo "$BODY" | grep -q "Logga in" || { echo "Login page missing 'Logga in' heading"; exit 1; }
+          echo "admin-web login page ok"
+
+  # ---------------------------------------------------------------- summary
+  summary:
+    name: e2e summary
+    needs: [gate, healthz, smoke]
+    if: always() && needs.gate.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report overall result
+        run: |
+          HEALTHZ="${{ needs.healthz.result }}"
+          SMOKE="${{ needs.smoke.result }}"
+          echo "## e2e summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- healthz: $HEALTHZ" >> $GITHUB_STEP_SUMMARY
+          echo "- smoke:   $SMOKE" >> $GITHUB_STEP_SUMMARY
+          if [ "$HEALTHZ" = "success" ] && [ "$SMOKE" = "success" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All green." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ One or more checks failed. See the healthz/smoke job logs." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
