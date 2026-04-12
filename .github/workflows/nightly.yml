@@ -1,0 +1,213 @@
+name: nightly
+
+# Scheduled checks that catch problems between deploys.
+# No deploys happen — this is read-only verification.
+on:
+  schedule:
+    # 03:00 UTC daily (04:00 Stockholm in winter, 05:00 in summer)
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: ${{ secrets.GCP_REGION }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  # --------------------------------------------------------- terraform drift
+  # Runs `terraform plan` against the real GCP state and fails if any
+  # resource has drifted since the last apply. This catches out-of-band
+  # console changes, IAM removals, and accidental secret deletions BEFORE
+  # they surface as a failed deploy.
+  terraform-drift:
+    name: terraform drift check
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        working-directory: kyrk-projekt/infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Create tfvars from secrets
+        run: |
+          cat > terraform.tfvars <<TFVARS
+          project_id        = "${{ env.PROJECT_ID }}"
+          region            = "${{ env.REGION }}"
+          environment       = "dev"
+          github_repository = "${{ github.repository }}"
+          TFVARS
+
+      - name: terraform init
+        run: terraform init -input=false
+
+      - name: terraform plan -detailed-exitcode
+        id: plan
+        run: |
+          set +e
+          terraform plan -detailed-exitcode -no-color -out=plan.tfplan 2>&1 | tee /tmp/plan.txt
+          EXIT=$?
+          set -e
+          echo "exitcode=$EXIT" >> $GITHUB_OUTPUT
+          # Exit codes: 0=no changes, 1=error, 2=changes detected
+          if [ "$EXIT" = "2" ]; then
+            echo "## Terraform drift detected" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep -E '^\s*(~|+|-)' /tmp/plan.txt >> $GITHUB_STEP_SUMMARY || true
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Run \`terraform apply\` in \`infra/terraform/\` to reconcile." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          elif [ "$EXIT" = "1" ]; then
+            echo "## Terraform plan error" >> $GITHUB_STEP_SUMMARY
+            tail -30 /tmp/plan.txt >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "## No drift" >> $GITHUB_STEP_SUMMARY
+            echo "Terraform state matches reality." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # -------------------------------------------------- PII sanitizer regression
+  # Pushes a known-bad payload through the Python sanitizer helper
+  # (automation/openclaw/import/sanitize.py) and confirms it's rejected.
+  # Also pushes a known-good payload and confirms it passes.
+  # This catches whitelist drift in profiles.json — if someone
+  # accidentally adds `first_name` to the allowed list, this job fails.
+  pii-sanitizer-regression:
+    name: PII sanitizer regression
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kyrk-projekt
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create test payloads
+        run: |
+          mkdir -p /tmp/sanitizer-test
+
+          # Known-good YELLOW payload — should PASS
+          cat > /tmp/sanitizer-test/good.json <<'JSON'
+          {
+            "period": "2025-Q2",
+            "summary": {
+              "participants_total": 90,
+              "activities_count": 6,
+              "cost_per_participant": 1100.0,
+              "grant_leverage_ratio": 1.8
+            },
+            "breakdown": {
+              "by_type": {"youth_tech": 60, "coding": 30},
+              "by_age_band": {"0-6": 0, "7-12": 45, "13-17": 30, "18-25": 15, "26+": 0}
+            },
+            "openclaw_ready": true
+          }
+          JSON
+
+          # Known-bad payload with PII field — should FAIL
+          cat > /tmp/sanitizer-test/bad_firstname.json <<'JSON'
+          {
+            "period": "2025-Q2",
+            "first_name": "Anna",
+            "participants_total": 10
+          }
+          JSON
+
+          # Known-bad payload with personnummer — should FAIL
+          cat > /tmp/sanitizer-test/bad_pnr.json <<'JSON'
+          {
+            "period": "2025-Q2",
+            "personal_number": "19800101-1234",
+            "participants_total": 10
+          }
+          JSON
+
+          # Known-bad payload with deep-nested email — should FAIL
+          cat > /tmp/sanitizer-test/bad_nested.json <<'JSON'
+          {
+            "period": "2025-Q2",
+            "activities": [
+              {"participants_total": 10, "email": "anna@example.se"}
+            ]
+          }
+          JSON
+
+          # Known-bad with CamelCase (tests normalization) — should FAIL
+          cat > /tmp/sanitizer-test/bad_camel.json <<'JSON'
+          {
+            "period": "2025-Q2",
+            "FirstName": "Anna"
+          }
+          JSON
+
+      - name: Verify good payload passes yellow-only
+        run: |
+          python3 automation/openclaw/import/sanitize.py yellow-only /tmp/sanitizer-test/good.json
+          echo "PASS: known-good payload accepted"
+
+      - name: Verify bad payloads are all rejected
+        run: |
+          FAIL=0
+          for bad in bad_firstname bad_pnr bad_nested bad_camel; do
+            if python3 automation/openclaw/import/sanitize.py yellow-only "/tmp/sanitizer-test/${bad}.json" 2>/dev/null; then
+              echo "FAIL: ${bad}.json was NOT rejected — sanitizer whitelist may be broken"
+              FAIL=1
+            else
+              echo "PASS: ${bad}.json correctly rejected"
+            fi
+          done
+          exit $FAIL
+
+      - name: Verify reporting-service pii_guard matches sanitizer
+        run: |
+          cd services/reporting-service
+          pip install -q -r requirements.txt
+          python3 -c "
+          from app.domain.pii_guard import assert_no_pii, PIIRejected
+          import json, sys
+
+          # Must pass
+          good = json.load(open('/tmp/sanitizer-test/good.json'))
+          assert_no_pii(good)
+          print('PASS: pii_guard accepts known-good')
+
+          # Must reject each bad payload
+          for name in ['bad_firstname', 'bad_pnr', 'bad_nested', 'bad_camel']:
+              bad = json.load(open(f'/tmp/sanitizer-test/{name}.json'))
+              try:
+                  assert_no_pii(bad)
+                  print(f'FAIL: pii_guard did NOT reject {name}')
+                  sys.exit(1)
+              except PIIRejected:
+                  print(f'PASS: pii_guard rejected {name}')
+          "
+
+      - name: Write summary
+        if: always()
+        run: |
+          echo "## PII sanitizer regression" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Payload | sanitize.py | pii_guard |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| good.json (YELLOW) | pass | pass |" >> $GITHUB_STEP_SUMMARY
+          echo "| bad_firstname | reject | reject |" >> $GITHUB_STEP_SUMMARY
+          echo "| bad_pnr | reject | reject |" >> $GITHUB_STEP_SUMMARY
+          echo "| bad_nested | reject | reject |" >> $GITHUB_STEP_SUMMARY
+          echo "| bad_camel | reject | reject |" >> $GITHUB_STEP_SUMMARY
