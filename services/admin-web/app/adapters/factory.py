@@ -3,21 +3,28 @@
 ADAPTER_MODE=memory (default): in-process fake clients with seedable
 state. Used by tests, local dev, and the screenshot harness.
 
-ADAPTER_MODE=production: HttpxIntakeClient + HttpxCertificateClient
-pointing at real Cloud Run service URLs from env. The bearer token
-forwarded to the downstream services is the user's session token —
-admin-web never holds privileged credentials of its own.
+ADAPTER_MODE=production: Httpx clients pointing at real Cloud Run
+service URLs from env. The bearer token forwarded to the downstream
+services is the user's session token — admin-web never holds
+privileged credentials of its own.
 
 Required env vars in production mode:
 - INTAKE_BASE_URL          e.g. https://intake-xyz.a.run.app
 - CERTIFICATE_BASE_URL     e.g. https://certificates-xyz.a.run.app
+- ACTIVITY_BASE_URL        e.g. https://activity-xyz.a.run.app
+- REPORTING_BASE_URL       e.g. https://reporting-xyz.a.run.app
 """
 from __future__ import annotations
 
 import os
 import sys
 
-from app.ports.clients import CertificateClientPort, IntakeClientPort
+from app.ports.clients import (
+    ActivityClientPort,
+    CertificateClientPort,
+    IntakeClientPort,
+    ReportingClientPort,
+)
 
 
 def _mode() -> str:
@@ -42,6 +49,26 @@ def make_certificate_client() -> CertificateClientPort:
     from app.adapters.fake_clients import FakeCertificateClient
 
     return FakeCertificateClient()
+
+
+def make_activity_client() -> ActivityClientPort:
+    if _mode() == "production":
+        from app.adapters.httpx_clients import HttpxActivityClient
+
+        return HttpxActivityClient(base_url=_require_env("ACTIVITY_BASE_URL"))
+    from app.adapters.fake_clients import FakeActivityClient
+
+    return FakeActivityClient()
+
+
+def make_reporting_client() -> ReportingClientPort:
+    if _mode() == "production":
+        from app.adapters.httpx_clients import HttpxReportingClient
+
+        return HttpxReportingClient(base_url=_require_env("REPORTING_BASE_URL"))
+    from app.adapters.fake_clients import FakeReportingClient
+
+    return FakeReportingClient()
 
 
 def _require_env(name: str) -> str:

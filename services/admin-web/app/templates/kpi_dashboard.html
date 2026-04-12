@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}KPI — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <h1>KPI-dashboard</h1>
+  <p class="muted small">
+    Hämtar aggregat från <code>activity-service</code> och genererar en
+    monthly report via <code>reporting-service</code>. All data är
+    YELLOW-zon — inga identitetsfält kan läckas hit.
+  </p>
+
+  {% if error_message %}
+  <div class="flash flash-error">{{ error_message }}</div>
+  {% endif %}
+
+  <div class="card">
+    <form method="post" action="/kpi" class="stacked">
+      <label>
+        Period (YYYY-MM)
+        <input type="text" name="period" value="{{ period }}" required pattern="\d{4}-\d{2}" />
+      </label>
+      <label>
+        Driftskostnad (SEK)
+        <input type="number" name="operating_cost" step="1" value="{{ operating_cost or 0 }}" />
+      </label>
+      <label>
+        Bidrag (SEK)
+        <input type="number" name="grants" step="1" value="{{ grants or 0 }}" />
+      </label>
+      <label>
+        Egen insats (SEK)
+        <input type="number" name="own_contribution" step="1" value="{{ own_contribution or 0 }}" />
+      </label>
+      <button type="submit" class="primary">Generera</button>
+    </form>
+  </div>
+
+  {% if report %}
+  <div class="card">
+    <h2>{{ report.period }}</h2>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-number">{{ report.payload.participants_total }}</div>
+        <div class="kpi-label">deltagare totalt</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number">{{ report.payload.activities_count }}</div>
+        <div class="kpi-label">aktiviteter</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number">
+          {% if report.payload.cost_per_participant is not none %}
+            {{ "%.0f"|format(report.payload.cost_per_participant) }} kr
+          {% else %}
+            —
+          {% endif %}
+        </div>
+        <div class="kpi-label">kostnad / deltagare</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-number">
+          {% if report.payload.grant_leverage_ratio is not none %}
+            {{ "%.2f"|format(report.payload.grant_leverage_ratio) }}x
+          {% else %}
+            —
+          {% endif %}
+        </div>
+        <div class="kpi-label">grant leverage</div>
+      </div>
+    </div>
+
+    {% if report.payload.participants_by_type %}
+    <h3>Per aktivitetstyp</h3>
+    <ul class="bars">
+      {% for t, n in report.payload.participants_by_type.items() %}
+      <li class="bar-row">
+        <span class="bar-label">{{ t }}</span>
+        <span class="bar-value">{{ n }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if report.payload.participants_by_age_band %}
+    <h3>Per åldersband</h3>
+    <ul class="bars">
+      {% for band, n in report.payload.participants_by_age_band.items() %}
+      <li class="bar-row">
+        <span class="bar-label">{{ band }}</span>
+        <span class="bar-value">{{ n }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

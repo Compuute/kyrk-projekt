@@ -9,6 +9,9 @@ from dataclasses import dataclass
 from typing import Protocol
 
 
+# --------------------------------------------------------------------- intake
+
+
 @dataclass(frozen=True)
 class PendingSubmission:
     submission_id: str
@@ -38,6 +41,9 @@ class IntakeClientPort(Protocol):
     def reject(self, token: str, submission_id: str) -> RejectResult: ...
 
 
+# ---------------------------------------------------------------- certificates
+
+
 @dataclass(frozen=True)
 class IssueCertificateRequest:
     certificate_type: str
@@ -57,3 +63,46 @@ class IssuedCertificate:
 
 class CertificateClientPort(Protocol):
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate: ...
+
+
+# -------------------------------------------------------------------- activity
+
+
+@dataclass(frozen=True)
+class ActivityAggregate:
+    """A single activity row from activity-service's YELLOW-only export."""
+    activity_id: str
+    church_id: str
+    activity_type: str
+    date: str
+    location: str
+    funding_tag: str
+    participants_total: int
+    age_band_counts: dict[str, int]
+
+
+class ActivityClientPort(Protocol):
+    def export_period(
+        self, token: str, start: str, end: str
+    ) -> list[ActivityAggregate]: ...
+
+
+# ------------------------------------------------------------------- reporting
+
+
+@dataclass(frozen=True)
+class MonthlyReport:
+    report_id: str
+    kind: str
+    period: str
+    payload: dict  # see reporting-service monthly schema
+
+
+class ReportingClientPort(Protocol):
+    def generate_monthly(
+        self,
+        token: str,
+        period: str,
+        activities: list[dict],
+        finance: dict,
+    ) -> MonthlyReport: ...

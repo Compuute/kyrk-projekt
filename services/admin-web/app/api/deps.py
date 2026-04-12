@@ -3,14 +3,26 @@ from __future__ import annotations
 from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 
-from app.adapters.factory import make_certificate_client, make_intake_client
+from app.adapters.factory import (
+    make_activity_client,
+    make_certificate_client,
+    make_intake_client,
+    make_reporting_client,
+)
 from app.adapters.fake_session import SessionInfo, parse_session_cookie
 from app.config import Settings, load_settings
-from app.ports.clients import CertificateClientPort, IntakeClientPort
+from app.ports.clients import (
+    ActivityClientPort,
+    CertificateClientPort,
+    IntakeClientPort,
+    ReportingClientPort,
+)
 
 
 _INTAKE: IntakeClientPort | None = None
 _CERTIFICATE: CertificateClientPort | None = None
+_ACTIVITY: ActivityClientPort | None = None
+_REPORTING: ReportingClientPort | None = None
 _SETTINGS: Settings = load_settings()
 
 
@@ -30,6 +42,20 @@ def get_certificate_client() -> CertificateClientPort:
     if _CERTIFICATE is None:
         _CERTIFICATE = make_certificate_client()
     return _CERTIFICATE
+
+
+def get_activity_client() -> ActivityClientPort:
+    global _ACTIVITY
+    if _ACTIVITY is None:
+        _ACTIVITY = make_activity_client()
+    return _ACTIVITY
+
+
+def get_reporting_client() -> ReportingClientPort:
+    global _REPORTING
+    if _REPORTING is None:
+        _REPORTING = make_reporting_client()
+    return _REPORTING
 
 
 def current_session(

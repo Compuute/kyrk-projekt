@@ -3,10 +3,15 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from app.adapters.fake_clients import FakeCertificateClient, FakeIntakeClient
+from app.adapters.fake_clients import (
+    FakeActivityClient,
+    FakeCertificateClient,
+    FakeIntakeClient,
+    FakeReportingClient,
+)
 from app.api import deps
 from app.main import create_app
-from app.ports.clients import PendingSubmission
+from app.ports.clients import ActivityAggregate, PendingSubmission
 
 
 @pytest.fixture
@@ -20,10 +25,22 @@ def certificates() -> FakeCertificateClient:
 
 
 @pytest.fixture
-def client(intake, certificates) -> TestClient:
+def activity() -> FakeActivityClient:
+    return FakeActivityClient()
+
+
+@pytest.fixture
+def reporting() -> FakeReportingClient:
+    return FakeReportingClient()
+
+
+@pytest.fixture
+def client(intake, certificates, activity, reporting) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_intake_client] = lambda: intake
     app.dependency_overrides[deps.get_certificate_client] = lambda: certificates
+    app.dependency_overrides[deps.get_activity_client] = lambda: activity
+    app.dependency_overrides[deps.get_reporting_client] = lambda: reporting
     # TestClient must not follow redirects by default — we test the flow explicitly.
     return TestClient(app, follow_redirects=False)
 
@@ -51,3 +68,32 @@ def seeded_submission(intake) -> PendingSubmission:
     )
     intake.seed(item)
     return item
+
+
+@pytest.fixture
+def seeded_activities(activity) -> list[ActivityAggregate]:
+    items = [
+        ActivityAggregate(
+            activity_id="act-1",
+            church_id="c1",
+            activity_type="youth_tech",
+            date="2025-06-05",
+            location="Storgatan 1",
+            funding_tag="arvsfonden",
+            participants_total=20,
+            age_band_counts={"0-6": 0, "7-12": 5, "13-17": 10, "18-25": 5, "26+": 0},
+        ),
+        ActivityAggregate(
+            activity_id="act-2",
+            church_id="c1",
+            activity_type="coding",
+            date="2025-06-10",
+            location="Storgatan 1",
+            funding_tag="kommunala",
+            participants_total=10,
+            age_band_counts={"0-6": 0, "7-12": 10, "13-17": 0, "18-25": 0, "26+": 0},
+        ),
+    ]
+    for a in items:
+        activity.seed(a)
+    return items

@@ -1,4 +1,4 @@
-"""Production httpx-backed clients for membership-intake and certificate-service.
+"""Production httpx-backed clients for downstream services.
 
 Lazy-imports httpx so that test code using the fake clients never needs
 the library installed.
@@ -7,9 +7,11 @@ from __future__ import annotations
 
 from app.ports.client_errors import ClientError
 from app.ports.clients import (
+    ActivityAggregate,
     ApprovalResult,
     IssueCertificateRequest,
     IssuedCertificate,
+    MonthlyReport,
     PendingSubmission,
     RejectResult,
 )
@@ -118,4 +120,81 @@ class HttpxCertificateClient:
             issued_date=data["issued_date"],
             status=data["status"],
             verification_url=data["verification_url"],
+        )
+
+
+class HttpxActivityClient:
+    def __init__(self, base_url: str, timeout_seconds: float = 5.0) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._timeout = timeout_seconds
+
+    def export_period(
+        self, token: str, start: str, end: str
+    ) -> list[ActivityAggregate]:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.get(
+                f"{self._base_url}/activities/export/period",
+                params={"start": start, "end": end},
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        return [
+            ActivityAggregate(
+                activity_id=row["activity_id"],
+                church_id=row["church_id"],
+                activity_type=row["activity_type"],
+                date=row["date"],
+                location=row["location"],
+                funding_tag=row["funding_tag"],
+                participants_total=row["participants_total"],
+                age_band_counts=dict(row["age_band_counts"]),
+            )
+            for row in r.json()
+        ]
+
+
+class HttpxReportingClient:
+    def __init__(self, base_url: str, timeout_seconds: float = 5.0) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._timeout = timeout_seconds
+
+    def generate_monthly(
+        self,
+        token: str,
+        period: str,
+        activities: list[dict],
+        finance: dict,
+    ) -> MonthlyReport:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        body = {
+            "period": period,
+            "activities": activities,
+            "finance": finance,
+        }
+        try:
+            r = httpx.post(
+                f"{self._base_url}/reports/monthly",
+                json=body,
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 201:
+            raise ClientError(r.text, status_code=r.status_code)
+        data = r.json()
+        return MonthlyReport(
+            report_id=data["report_id"],
+            kind=data["kind"],
+            period=data["period"],
+            payload=data["payload"],
         )

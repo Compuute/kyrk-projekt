@@ -1,6 +1,7 @@
 """HTML routes. Each route either renders a template or redirects."""
 from __future__ import annotations
 
+from dataclasses import asdict
 from datetime import date
 
 from fastapi import APIRouter, Depends, Form, Request, status
@@ -9,16 +10,20 @@ from fastapi.templating import Jinja2Templates
 
 from app.adapters.fake_session import SessionInfo, parse_session_cookie
 from app.api.deps import (
+    get_activity_client,
     get_certificate_client,
     get_intake_client,
+    get_reporting_client,
     get_settings,
 )
 from app.config import Settings
 from app.ports.client_errors import ClientError
 from app.ports.clients import (
+    ActivityClientPort,
     CertificateClientPort,
     IntakeClientPort,
     IssueCertificateRequest,
+    ReportingClientPort,
 )
 
 
@@ -254,6 +259,103 @@ def issue_certificate(
         "/certificates/new",
         f"Utfärdat. Verifieringslänk: {issued.verification_url}",
         level="success",
+    )
+
+
+# ------------------------------------------------------------------- KPI dash
+
+
+def _month_bounds(period: str) -> tuple[str, str]:
+    """Return ISO start and end of a `YYYY-MM` period."""
+    year, month = period.split("-")
+    y = int(year)
+    m = int(month)
+    start = f"{y:04d}-{m:02d}-01"
+    # last day of month: first day of next month minus one
+    if m == 12:
+        ny, nm = y + 1, 1
+    else:
+        ny, nm = y, m + 1
+    import calendar
+
+    last = calendar.monthrange(y, m)[1]
+    end = f"{y:04d}-{m:02d}-{last:02d}"
+    return start, end
+
+
+@router.get("/kpi", response_class=HTMLResponse)
+def kpi_dashboard_form(
+    request: Request,
+    period: str | None = None,
+    flash: str | None = None,
+    level: str = "success",
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    today = date.today()
+    default_period = period or f"{today.year:04d}-{today.month:02d}"
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="kpi_dashboard.html",
+        context={
+            "session": session,
+            "period": default_period,
+            "report": None,
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.post("/kpi", response_class=HTMLResponse)
+def kpi_dashboard_generate(
+    request: Request,
+    period: str = Form(...),
+    operating_cost: float = Form(0.0),
+    grants: float = Form(0.0),
+    own_contribution: float = Form(0.0),
+    activity: ActivityClientPort = Depends(get_activity_client),
+    reporting: ReportingClientPort = Depends(get_reporting_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    start, end = _month_bounds(period)
+
+    error_message: str | None = None
+    report = None
+    try:
+        aggregates = activity.export_period(session.token, start, end)
+        activities_payload = [asdict(a) for a in aggregates]
+        report = reporting.generate_monthly(
+            token=session.token,
+            period=period,
+            activities=activities_payload,
+            finance={
+                "operating_cost": operating_cost,
+                "grants": grants,
+                "own_contribution": own_contribution,
+            },
+        )
+    except ClientError as exc:
+        error_message = f"KPI-genereringen misslyckades: {exc}"
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="kpi_dashboard.html",
+        context={
+            "session": session,
+            "period": period,
+            "report": report,
+            "error_message": error_message,
+            "operating_cost": operating_cost,
+            "grants": grants,
+            "own_contribution": own_contribution,
+        },
     )
 
 
