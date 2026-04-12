@@ -6,18 +6,22 @@
 #   make test-<service>  # e.g. make test-membership-service
 #   make install         # pip install all service requirements
 #   make lint            # python -m compileall + terraform fmt check
+#   make local-ci        # run scripts/local-ci.sh (mirrors ci.yml)
+#   make docs-serve      # serve docs/ as HTML on http://127.0.0.1:8090
+#   make onboarding      # build build/onboarding.html (new-hire pack)
 #   make bootstrap ENV=dev   # runs scripts/bootstrap.sh
 #   make deploy ENV=dev      # triggers the deploy workflow via gh
 #   make smoke ENV=dev       # curls /healthz on all six services
-#   make clean           # remove __pycache__, .pytest_cache, etc.
+#   make clean           # remove __pycache__, .pytest_cache, build/
 
 SHELL := /bin/bash
 PYTHON := python3
 PIP := pip
 SERVICES := membership-service membership-intake certificate-service activity-service reporting-service admin-web
 ENV ?= dev
+DOCS_PORT ?= 8090
 
-.PHONY: help install test test-% lint tf-validate bootstrap deploy smoke screenshots clean
+.PHONY: help install test test-% lint local-ci tf-validate docs-serve onboarding bootstrap deploy smoke screenshots clean
 
 help:
 	@echo "kyrk-projekt — common targets"
@@ -26,7 +30,10 @@ help:
 	@echo "  make test             run full test suite (Python + Node)"
 	@echo "  make test-<service>   run tests for one service, e.g. test-admin-web"
 	@echo "  make lint             python syntax check + terraform fmt"
+	@echo "  make local-ci         run scripts/local-ci.sh (mirrors ci.yml)"
 	@echo "  make tf-validate      terraform init -backend=false + validate"
+	@echo "  make docs-serve       live docs viewer on http://127.0.0.1:$(DOCS_PORT)"
+	@echo "  make onboarding       build build/onboarding.html for new hires"
 	@echo "  make bootstrap ENV=dev  run scripts/bootstrap.sh"
 	@echo "  make deploy ENV=dev     trigger deploy.yml via gh CLI"
 	@echo "  make smoke ENV=dev      curl /healthz on all six services"
@@ -63,6 +70,15 @@ lint:
 tf-validate:
 	@(cd infra/terraform && terraform init -backend=false && terraform validate)
 
+local-ci:
+	@./scripts/local-ci.sh
+
+docs-serve:
+	@$(PYTHON) scripts/docs-serve.py $(DOCS_PORT)
+
+onboarding:
+	@$(PYTHON) scripts/build-onboarding.py
+
 bootstrap:
 	@./scripts/bootstrap.sh $(ENV)
 
@@ -93,4 +109,5 @@ clean:
 	@find . -type d -name .pytest_cache -prune -exec rm -rf {} \;
 	@find . -type d -name .ruff_cache -prune -exec rm -rf {} \;
 	@find . -type d -name "*.egg-info" -prune -exec rm -rf {} \;
+	@rm -rf build/
 	@echo "clean complete"
