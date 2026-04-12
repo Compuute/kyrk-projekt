@@ -1,18 +1,15 @@
 """Adapter factory for admin-web.
 
-ADAPTER_MODE=memory (default): in-process fake clients with seedable
-state. Used by tests, local dev, and the screenshot harness.
-
-ADAPTER_MODE=production: Httpx clients pointing at real Cloud Run
-service URLs from env. The bearer token forwarded to the downstream
-services is the user's session token — admin-web never holds
-privileged credentials of its own.
+ADAPTER_MODE=memory (default): fake clients + fake session (colon token).
+ADAPTER_MODE=production: httpx clients + JWT session (PropelAuth RS256).
 
 Required env vars in production mode:
-- INTAKE_BASE_URL          e.g. https://intake-xyz.a.run.app
-- CERTIFICATE_BASE_URL     e.g. https://certificates-xyz.a.run.app
-- ACTIVITY_BASE_URL        e.g. https://activity-xyz.a.run.app
-- REPORTING_BASE_URL       e.g. https://reporting-xyz.a.run.app
+- INTAKE_BASE_URL
+- CERTIFICATE_BASE_URL
+- ACTIVITY_BASE_URL
+- REPORTING_BASE_URL
+- PROPELAUTH_VERIFIER_KEY   RS256 public key PEM (from Secret Manager)
+- PROPELAUTH_ISSUER          tenant issuer URL
 """
 from __future__ import annotations
 
@@ -25,6 +22,7 @@ from app.ports.clients import (
     IntakeClientPort,
     ReportingClientPort,
 )
+from app.ports.session import SessionPort
 
 
 def _mode() -> str:
@@ -69,6 +67,18 @@ def make_reporting_client() -> ReportingClientPort:
     from app.adapters.fake_clients import FakeReportingClient
 
     return FakeReportingClient()
+
+
+def make_session_adapter() -> SessionPort:
+    if _mode() == "production":
+        from app.adapters.jwt_session import JWTSessionAdapter
+
+        key = _require_env("PROPELAUTH_VERIFIER_KEY")
+        issuer = _require_env("PROPELAUTH_ISSUER")
+        return JWTSessionAdapter(verifier_key=key, issuer=issuer)
+    from app.adapters.fake_session import FakeSessionAdapter
+
+    return FakeSessionAdapter()
 
 
 def _require_env(name: str) -> str:

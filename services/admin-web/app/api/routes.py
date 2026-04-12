@@ -8,14 +8,15 @@ from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from app.adapters.fake_session import SessionInfo, parse_session_cookie
 from app.api.deps import (
     get_activity_client,
     get_certificate_client,
     get_intake_client,
     get_reporting_client,
+    get_session_adapter,
     get_settings,
 )
+from app.ports.session import SessionInfo, SessionPort
 from app.config import Settings
 from app.ports.client_errors import ClientError
 from app.ports.clients import (
@@ -46,7 +47,8 @@ TEMPLATES = _templates()
 
 def _require_session(request: Request) -> SessionInfo | RedirectResponse:
     cookie = request.cookies.get("kyrk_session")
-    info = parse_session_cookie(cookie)
+    adapter = get_session_adapter()
+    info = adapter.validate(cookie)
     if info is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
     return info

@@ -1,26 +1,32 @@
-"""Fake session handling for MVP.
+"""Fake session adapter for MVP and tests.
 
 The cookie value is the raw bearer token in `user_id:church_id:role` form.
-This is intentionally trivial — production swaps this for a PropelAuth
-cookie + JWT validator without changing the route code.
+Implements the SessionPort protocol so route code uses `session_port.validate()`
+without knowing that the cookie format is fake.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from app.ports.session import SessionInfo
 
 
-@dataclass(frozen=True)
-class SessionInfo:
-    token: str
-    user_id: str
-    church_id: str
-    role: str
+class FakeSessionAdapter:
+    """Trivial session adapter — parses `user:church:role` tokens."""
+
+    def validate(self, cookie_value: str | None) -> SessionInfo | None:
+        if not cookie_value or cookie_value.count(":") != 2:
+            return None
+        user_id, church_id, role = cookie_value.split(":")
+        if role not in {"admin", "pastor", "secretary", "viewer"}:
+            return None
+        return SessionInfo(
+            token=cookie_value,
+            user_id=user_id,
+            church_id=church_id,
+            role=role,
+        )
 
 
+# Backwards-compatible alias used by routes.py until all call sites
+# switch to the port-based pattern.
 def parse_session_cookie(value: str | None) -> SessionInfo | None:
-    if not value or value.count(":") != 2:
-        return None
-    user_id, church_id, role = value.split(":")
-    if role not in {"admin", "pastor", "secretary", "viewer"}:
-        return None
-    return SessionInfo(token=value, user_id=user_id, church_id=church_id, role=role)
+    return FakeSessionAdapter().validate(value)
