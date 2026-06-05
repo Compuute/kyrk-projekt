@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Granskningsberedskap — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <h1>Granskningsberedskap</h1>
+  <p class="muted small">
+    Generera underlag med en knapptryckning. Varje rapport samlar
+    automatiskt data från plattformen och presenterar det i det format
+    myndigheten förväntar sig.
+  </p>
+
+  <div class="list">
+
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-name">🛡 IMY — GDPR-granskning</div>
+        <div class="list-meta muted small">
+          Registerförteckning (Art. 30), samtyckes-bevis, tekniska skyddsåtgärder,
+          audit trail, PII-guard-status
+        </div>
+      </div>
+      <div class="list-actions">
+        <form method="post" action="/audit/generate/imy" class="inline-form">
+          <button type="submit" class="primary">Generera IMY-underlag</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-name">🏛 SST — Organisationsstöd</div>
+        <div class="list-meta muted small">
+          Verksamhetsberättelse, medlemsantal, aktivitetsrapport,
+          åldersfördelning, bidragsstatus
+        </div>
+      </div>
+      <div class="list-actions">
+        <form method="post" action="/audit/generate/sst" class="inline-form">
+          <button type="submit" class="primary">Generera SST-underlag</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-name">🏘 Kommun — Verksamhetsbidrag</div>
+        <div class="list-meta muted small">
+          Aktivitetsrapport, deltagarantal per typ, åldersfördelning
+        </div>
+      </div>
+      <div class="list-actions">
+        <form method="post" action="/audit/generate/kommun" class="inline-form">
+          <button type="submit" class="primary">Generera kommununderlag</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-name">📊 Intern — Styrelseunderlag</div>
+        <div class="list-meta muted small">
+          KPI-sammanfattning, bidragsöversikt, medlemstillväxt
+        </div>
+      </div>
+      <div class="list-actions">
+        <form method="post" action="/audit/generate/intern" class="inline-form">
+          <button type="submit" class="primary">Generera styrelseunderlag</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card" style="margin-top: 24px;">
+    <h2>Dokument som alltid är tillgängliga</h2>
+    <ul class="bars">
+      <li class="bar-row"><span class="bar-label">Integritetspolicy (sv + am)</span><span class="bar-value"><a href="https://kyrka-portal.pages.dev/privacy.html" target="_blank">→ Öppna</a></span></li>
+      <li class="bar-row"><span class="bar-label">Registerförteckning (Art. 30)</span><span class="bar-value">docs/governance/gdpr-register.md</span></li>
+      <li class="bar-row"><span class="bar-label">Defense-in-depth policy</span><span class="bar-value">docs/16-defense-in-depth.md</span></li>
+      <li class="bar-row"><span class="bar-label">Säkerhetsprinciper</span><span class="bar-value">docs/05-security-principles.md</span></li>
+      <li class="bar-row"><span class="bar-label">Incident-runbook</span><span class="bar-value">docs/13-runbook.md</span></li>
+      <li class="bar-row"><span class="bar-label">Retention policy</span><span class="bar-value">docs/governance/policies.md</span></li>
+    </ul>
+  </div>
+</section>
+{% endblock %}

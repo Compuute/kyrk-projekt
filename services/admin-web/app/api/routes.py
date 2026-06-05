@@ -968,6 +968,86 @@ def content_add_activity_save(
     )
 
 
+# ---------------------------------------------------------------- audit reports
+
+
+@router.get("/audit", response_class=HTMLResponse)
+def audit_dashboard(request: Request):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="audit_dashboard.html",
+        context={"session": session},
+    )
+
+
+@router.post("/audit/generate/{report_type}", response_class=HTMLResponse)
+def generate_audit_report(
+    report_type: str,
+    request: Request,
+    activity: ActivityClientPort = Depends(get_activity_client),
+    reporting: ReportingClientPort = Depends(get_reporting_client),
+    tracker: GrantTrackerPort = Depends(get_grant_tracker),
+):
+    """Generate a one-click audit report for a specific authority."""
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    today = date.today()
+    year_start = f"{today.year}-01-01"
+    year_end = today.isoformat()
+
+    kpi_data = None
+    error_message = None
+    try:
+        aggregates = activity.export_period(session.token, year_start, year_end)
+        activities_payload = [asdict(a) for a in aggregates]
+        total_participants = sum(a.get("participants_total", 0) for a in activities_payload)
+        total_activities = len(activities_payload)
+        by_type: dict[str, int] = {}
+        by_age: dict[str, int] = {}
+        for a in activities_payload:
+            by_type[a["activity_type"]] = by_type.get(a["activity_type"], 0) + a.get("participants_total", 0)
+            for band, n in a.get("age_band_counts", {}).items():
+                by_age[band] = by_age.get(band, 0) + n
+        kpi_data = {
+            "period": f"{today.year}",
+            "total_activities": total_activities,
+            "total_participants": total_participants,
+            "by_type": by_type,
+            "by_age_band": by_age,
+        }
+    except ClientError as exc:
+        error_message = f"Kunde inte hämta KPI-data: {exc}"
+
+    grants = tracker.list_applications(session.church_id)
+    grant_summary = {
+        "total": len(grants),
+        "submitted": sum(1 for g in grants if g.status == "submitted"),
+        "approved": sum(1 for g in grants if g.status == "approved"),
+        "rejected": sum(1 for g in grants if g.status == "rejected"),
+    }
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="audit_report.html",
+        context={
+            "session": session,
+            "report_type": report_type,
+            "kpi": kpi_data,
+            "grants": grant_summary,
+            "error_message": error_message,
+            "generated_at": today.isoformat(),
+            "church_name": "Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan",
+            "org_number": "802492-9237",
+        },
+    )
+
+
 @router.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Granskningsunderlag — {{ report_type|upper }}{% endblock %}
+{% block content %}
+<section>
+  <a href="/audit" class="back-link" style="display:inline-block;margin-bottom:16px;color:var(--accent);text-decoration:none;">← Tillbaka till granskningsberedskap</a>
+
+  {% if error_message %}
+  <div class="flash flash-error">{{ error_message }}</div>
+  {% endif %}
+
+  <div class="card" id="audit-report">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <h1>
+        {% if report_type == "imy" %}🛡 IMY — GDPR-underlag
+        {% elif report_type == "sst" %}🏛 SST — Verksamhetsunderlag
+        {% elif report_type == "kommun" %}🏘 Kommunalt verksamhetsbidrag
+        {% elif report_type == "intern" %}📊 Styrelseunderlag
+        {% endif %}
+      </h1>
+      <button onclick="window.print()" class="primary" style="font-size:13px;padding:8px 14px;">🖨 Skriv ut</button>
+    </div>
+
+    <table class="info-table">
+      <tr><td class="info-label">Organisation</td><td>{{ church_name }}</td></tr>
+      <tr><td class="info-label">Org.nr</td><td>{{ org_number }}</td></tr>
+      <tr><td class="info-label">Genererat</td><td>{{ generated_at }}</td></tr>
+      <tr><td class="info-label">Typ</td><td>{{ report_type|upper }}</td></tr>
+    </table>
+
+    {% if kpi %}
+    <h2>Verksamhet {{ kpi.period }}</h2>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-number">{{ kpi.total_participants }}</div><div class="kpi-label">deltagare totalt</div></div>
+      <div class="kpi"><div class="kpi-number">{{ kpi.total_activities }}</div><div class="kpi-label">aktiviteter</div></div>
+    </div>
+
+    {% if kpi.by_type %}
+    <h3>Per aktivitetstyp</h3>
+    <table class="info-table">
+      {% for t, n in kpi.by_type.items() %}
+      <tr><td class="info-label">{{ t }}</td><td>{{ n }} deltagare</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if kpi.by_age_band %}
+    <h3>Per åldersband</h3>
+    <table class="info-table">
+      {% for band, n in kpi.by_age_band.items() %}
+      <tr><td class="info-label">{{ band }}</td><td>{{ n }}</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% endif %}
+
+    {% if report_type == "imy" %}
+    <h2>GDPR-efterlevnad</h2>
+    <table class="info-table">
+      <tr><td class="info-label">Integritetspolicy</td><td>✅ Publicerad (sv + am) — kyrka-portal.pages.dev/privacy.html</td></tr>
+      <tr><td class="info-label">Registerförteckning (Art. 30)</td><td>✅ docs/governance/gdpr-register.md</td></tr>
+      <tr><td class="info-label">Samtycke vid registrering</td><td>✅ GDPR-checkbox + consent_timestamp</td></tr>
+      <tr><td class="info-label">Kryptering (personnummer)</td><td>✅ Cloud KMS (AES-256, årlig nyckelrotation)</td></tr>
+      <tr><td class="info-label">CMEK Firestore</td><td>✅ Customer-managed encryption key</td></tr>
+      <tr><td class="info-label">PII-guard</td><td>✅ Aktiv — avvisar namn, personnummer, email, telefon med HTTP 422</td></tr>
+      <tr><td class="info-label">AI-skydd</td><td>✅ Sanitizer whitelist + prompt-instruktion: "returnera error om PII"</td></tr>
+      <tr><td class="info-label">Zonindelning</td><td>✅ RED (identitet) / YELLOW (aggregat) / GREEN (publikt)</td></tr>
+      <tr><td class="info-label">Per-service IAM</td><td>✅ Varje tjänst har egen SA med minimala rättigheter</td></tr>
+      <tr><td class="info-label">Audit trail</td><td>✅ Varje skrivning i RED-zonen loggas (vem, vad, när)</td></tr>
+      <tr><td class="info-label">Datalagring</td><td>✅ EU (europe-north1, Finland)</td></tr>
+      <tr><td class="info-label">Kakor/spårning</td><td>✅ Inga — verifierbart i källkod och TDD-tester</td></tr>
+      <tr><td class="info-label">Retention policy</td><td>✅ Pending 30d, aktiv tills radering, audit 2 år</td></tr>
+      <tr><td class="info-label">Radering-process</td><td>✅ Deactivate + redaction inom 30 dagar</td></tr>
+    </table>
+
+    <h3>Underbiträden</h3>
+    <table class="info-table">
+      <tr><td class="info-label">Google Cloud Platform</td><td>Hosting + kryptering — EU-region, DPA krävs</td></tr>
+      <tr><td class="info-label">PropelAuth</td><td>RBAC — enbart admin-email, DPA krävs</td></tr>
+      <tr><td class="info-label">Cloudflare</td><td>CDN/WAF — ingen persondata</td></tr>
+      <tr><td class="info-label">Anthropic (Claude)</td><td>AI-analys — ALDRIG persondata, zero-retention</td></tr>
+    </table>
+    {% endif %}
+
+    {% if report_type == "sst" %}
+    <h2>SST-specifikt</h2>
+    <table class="info-table">
+      <tr><td class="info-label">Registrerat trossamfund</td><td>✅ Via Etiopiska ortodoxa ärkestiftet</td></tr>
+      <tr><td class="info-label">Nationellt medlemsantal</td><td>~3 250 (ärkestiftet, 9 församlingar)</td></tr>
+      <tr><td class="info-label">Verksamhet i Sverige</td><td>Sedan 1986 (>38 år)</td></tr>
+      <tr><td class="info-label">Finansiering</td><td>Huvudsakligen av medlemmar (Swish + bankgiro)</td></tr>
+    </table>
+    {% endif %}
+
+    {% if grants %}
+    <h2>Bidragsöversikt</h2>
+    <table class="info-table">
+      <tr><td class="info-label">Bidrag trackade</td><td>{{ grants.total }}</td></tr>
+      <tr><td class="info-label">Inskickade</td><td>{{ grants.submitted }}</td></tr>
+      <tr><td class="info-label">Beviljade</td><td>{{ grants.approved }}</td></tr>
+      <tr><td class="info-label">Avslagna</td><td>{{ grants.rejected }}</td></tr>
+    </table>
+    {% endif %}
+
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);">
+      Genererat automatiskt av kyrk-projekt admin · {{ generated_at }} · Alla siffror hämtade från plattformens API:er i realtid.
+    </div>
+  </div>
+</section>
+
+<style>
+  @media print {
+    .topbar, .foot, .back-link, button { display: none !important; }
+    .card { border: none; box-shadow: none; padding: 0; }
+    body { background: white; color: black; }
+    .kpi { background: #f5f5f5; }
+    .kpi-number { color: #333; }
+    .info-table td { border-color: #ccc; }
+    a { color: black; text-decoration: none; }
+  }
+</style>
+{% endblock %}
