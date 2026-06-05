@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Live — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 */
+      height: 0;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #111;
+      margin-bottom: 16px;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .no-stream {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      background: #1a1a2e;
+      border-radius: 14px;
+      color: #888;
+      text-align: center;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .schedule-card {
+      background: var(--card, #222);
+      border: 1px solid var(--border, #333);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #333;
+      font-size: 15px;
+    }
+    .schedule-item:last-child { border-bottom: none; }
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .cta-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .cta-primary { background: var(--accent, #3b5bdb); color: white; }
+    .cta-secondary { background: #c0392b; color: white; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <a href="./index.html" class="back-link" id="back-link">← Tillbaka</a>
+
+    <h1 id="live-title">Gudstjänst live</h1>
+    <p id="live-subtitle" style="color:#aaa;font-size:14px;margin-bottom:16px;">
+      Följ vår gudstjänst direkt. Välkommen att be med oss.
+    </p>
+
+    <!-- Video embed — populated by JS from content.json -->
+    <div id="video-area">
+      <div class="no-stream" id="no-stream">
+        <div>
+          <p id="no-stream-text" style="font-size:16px;">Ingen livestream just nu</p>
+          <p style="font-size:13px;margin-top:8px;" id="check-schedule-text">Se schemat nedan för kommande gudstjänster</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly schedule -->
+    <div class="schedule-card">
+      <h2 id="schedule-title">Gudstjänstschema</h2>
+      <div id="schedule-list">
+        <div class="schedule-item"><span>Söndag</span><span>11:00 — ቅዳሴ / Gudstjänst</span></div>
+        <div class="schedule-item"><span>Onsdag</span><span>18:00 — ጸሎት / Bön</span></div>
+        <div class="schedule-item"><span>Lördag</span><span>16:00 — የሰንበት ት/ት / Söndagsskola</span></div>
+      </div>
+    </div>
+
+    <!-- Call-to-action buttons -->
+    <div class="cta-row">
+      <a class="cta-btn cta-primary" href="./intake.html" id="cta-member">Bli medlem / አባል ይሁኑ</a>
+      <a class="cta-btn cta-secondary" href="./donate.html" id="cta-donate">Ge en gåva / ስጦታ ይስጡ</a>
+    </div>
+
+    <p style="color:#666;font-size:12px;text-align:center;margin-top:24px;" id="footer-note">
+      Ingen inspelning sparas av ditt besök. Inga kakor.
+    </p>
+  </main>
+
+  <script>
+    // Load YouTube channel from content.json (modulärt per kyrka)
+    fetch('./content.json', { credentials: 'omit' })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(config) {
+        if (!config) return;
+
+        // If church has a YouTube channel, show the embed
+        var channelId = config.church && config.church.youtube_channel_id;
+        if (channelId) {
+          var videoArea = document.getElementById('video-area');
+          videoArea.innerHTML =
+            '<div class="video-container">' +
+            '<iframe src="https://www.youtube.com/embed/live_stream?channel=' + channelId + '&autoplay=1" ' +
+            'allow="autoplay; encrypted-media" allowfullscreen></iframe>' +
+            '</div>' +
+            '<p style="font-size:12px;color:#888;text-align:center;">' +
+            'Om streamen inte visas — <a href="https://www.youtube.com/channel/' + channelId + '/live" ' +
+            'target="_blank" style="color:var(--accent)">öppna på YouTube</a></p>';
+        }
+
+        // Update church name in title if available
+        var lang = (navigator.language || 'sv').slice(0,2) === 'am' ? 'am' : 'sv';
+        if (config.church && config.church.name) {
+          document.title = (lang === 'am' ? 'ቀጥታ — ' : 'Live — ') +
+            (config.church.name[lang] || config.church.name.sv || '');
+        }
+
+        // Amharic translations
+        if (lang === 'am') {
+          document.getElementById('live-title').textContent = 'የቀጥታ ቅዳሴ';
+          document.getElementById('live-subtitle').textContent = 'ቅዳሴያችንን በቀጥታ ይከታተሉ። ከእኛ ጋር ይጸልዩ።';
+          document.getElementById('back-link').textContent = '← ተመለስ';
+          document.getElementById('no-stream-text').textContent = 'አሁን ቀጥታ ስርጭት የለም';
+          document.getElementById('check-schedule-text').textContent = 'ለመጪ ቅዳሴዎች ከታች ያለውን መርሐ ግብር ይመልከቱ';
+          document.getElementById('schedule-title').textContent = 'የቅዳሴ መርሐ ግብር';
+          document.getElementById('footer-note').textContent = 'ምንም ቀረጻ አይቀመጥም። ኩኪዎች የሉም።';
+        }
+      })
+      .catch(function() {});
+  </script>
+</body>
+</html>

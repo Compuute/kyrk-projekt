@@ -2,7 +2,10 @@
   "version": "2.0",
   "church": {
     "name": {"sv": "Abune Tekle Haymanot Etiopiska Ortodoxa Kyrkan", "am": "አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን"},
-    "tagline": {"sv": "Välkommen hem — Nacka", "am": "እንኳን ወደ ቤትዎ ደህና መጡ — ናካ"}
+    "tagline": {"sv": "Välkommen hem — Nacka", "am": "እንኳን ወደ ቤትዎ ደህና መጡ — ናካ"},
+    "youtube_channel_id": "",
+    "address": "Saltsjö-Boo, Nacka",
+    "swish_number": "1234567890"
   },
   "upcoming": [
     {
@@ -35,7 +38,8 @@
     "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "./intake.html"},
     "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "./donate.html"},
     "telegram": {"sv": "Följ oss på Telegram", "am": "በቴሌግራም ይከተሉን", "url": "https://t.me/kyrka_kanal"},
-    "youth": {"sv": "Ungdomsverksamhet", "am": "የወጣቶች ፕሮግራም", "url": "./index.html"}
+    "youth": {"sv": "Ungdomsverksamhet", "am": "የወጣቶች ፕሮግራም", "url": "./index.html"},
+    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live.html"}
   },
   "footer": {
     "privacy": {
