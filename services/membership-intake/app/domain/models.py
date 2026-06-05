@@ -41,6 +41,7 @@ class IntakeSubmission:
     personal_number: str
     gdpr_consent: bool
     consent_timestamp: datetime
+    source: str = ""  # wifi, telegram, donate, event, referral, direct
     status: SubmissionStatus = SubmissionStatus.PENDING
     submission_id: str = field(default_factory=_new_id)
     received_at: datetime = field(default_factory=_now)

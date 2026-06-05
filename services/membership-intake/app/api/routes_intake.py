@@ -23,6 +23,7 @@ class IntakeRequest(BaseModel):
     personal_number: str = Field(min_length=10, max_length=13)
     gdpr_consent: bool
     consent_timestamp: datetime
+    source: str = Field(default="direct", max_length=32)
 
 
 class IntakeResponse(BaseModel):

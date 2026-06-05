@@ -34,6 +34,7 @@ class IntakePayload:
     personal_number: str
     gdpr_consent: bool
     consent_timestamp: datetime
+    source: str = "direct"
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,7 @@ class IntakeService:
             personal_number=payload.personal_number,
             gdpr_consent=payload.gdpr_consent,
             consent_timestamp=payload.consent_timestamp,
+            source=payload.source,
         )
         self._repo.add(submission)
         self._notifier.notify_new_pending(submission)
