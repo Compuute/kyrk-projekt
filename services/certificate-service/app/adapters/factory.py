@@ -20,6 +20,7 @@ import sys
 from app.ports.audit import AuditPort
 from app.ports.auth import AuthPort
 from app.ports.certificate_repository import CertificateRepository
+from app.ports.pdf_generator import PdfGeneratorPort
 
 
 def _mode() -> str:
@@ -46,6 +47,16 @@ def make_audit() -> AuditPort:
     from app.adapters.in_memory_audit import InMemoryAuditAdapter
 
     return InMemoryAuditAdapter()
+
+
+def make_pdf_generator() -> PdfGeneratorPort:
+    if _mode() == "production":
+        from app.adapters.html_pdf_generator import HtmlPdfGenerator
+
+        return HtmlPdfGenerator()
+    from app.adapters.stub_pdf_generator import StubPdfGenerator
+
+    return StubPdfGenerator()
 
 
 def make_auth() -> AuthPort:

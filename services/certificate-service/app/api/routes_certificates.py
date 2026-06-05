@@ -3,15 +3,17 @@ from __future__ import annotations
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
-from app.api.deps import current_actor, get_service
+from app.api.deps import current_actor, get_pdf_generator, get_service
 from app.domain.errors import (
     CertificateNotFound,
     InvalidStateTransition,
     NotAuthorized,
 )
 from app.domain.models import Actor, CertificateType
+from app.ports.pdf_generator import PdfGeneratorPort
 from app.services.certificate_service import (
     CertificateService,
     IssueCertificateInput,
@@ -102,6 +104,30 @@ def freeze_certificate(
     except (NotAuthorized, CertificateNotFound, InvalidStateTransition) as exc:
         raise _translate(exc) from exc
     return _to_response(cert)
+
+
+@router.get("/{certificate_id}/download")
+def download_certificate(
+    certificate_id: str,
+    actor: Actor = Depends(current_actor),
+    svc: CertificateService = Depends(get_service),
+    pdf: PdfGeneratorPort = Depends(get_pdf_generator),
+) -> Response:
+    """Download a rendered HTML certificate. Requires admin or pastor role."""
+    try:
+        cert = svc.get_for_download(actor, certificate_id)
+    except NotAuthorized as exc:
+        raise _translate(exc) from exc
+    except CertificateNotFound as exc:
+        raise _translate(exc) from exc
+    rendered = pdf.render(cert, member_full_name=f"Member {cert.member_id}")
+    return Response(
+        content=rendered,
+        media_type="text/html; charset=utf-8",
+        headers={
+            "Content-Disposition": f'inline; filename="certificate-{certificate_id}.html"',
+        },
+    )
 
 
 @router.get("/verify/{certificate_id}", response_model=VerificationResponse)

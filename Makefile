@@ -53,6 +53,8 @@ test:
 	  printf "==> %s\n" "$$svc"; \
 	  (cd services/$$svc && $(PYTHON) -m pytest -q); \
 	done
+	@echo "==> member-portal"
+	@(cd frontend/member-portal && for t in tests/test_*.js; do node "$$t"; done)
 	@echo "==> wifi-intake-portal"
 	@(cd frontend/wifi-intake-portal && node tests/test_content_decision.js)
 

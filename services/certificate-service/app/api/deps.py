@@ -6,18 +6,21 @@ from app.adapters.factory import (
     make_audit,
     make_auth,
     make_certificate_repository,
+    make_pdf_generator,
 )
 from app.domain.errors import NotAuthorized
 from app.domain.models import Actor
 from app.ports.audit import AuditPort
 from app.ports.auth import AuthPort
 from app.ports.certificate_repository import CertificateRepository
+from app.ports.pdf_generator import PdfGeneratorPort
 from app.services.certificate_service import CertificateService
 
 
 _REPO: CertificateRepository | None = None
 _AUTH: AuthPort | None = None
 _AUDIT: AuditPort | None = None
+_PDF: PdfGeneratorPort | None = None
 
 
 def get_repo() -> CertificateRepository:
@@ -39,6 +42,13 @@ def get_audit() -> AuditPort:
     if _AUDIT is None:
         _AUDIT = make_audit()
     return _AUDIT
+
+
+def get_pdf_generator() -> PdfGeneratorPort:
+    global _PDF
+    if _PDF is None:
+        _PDF = make_pdf_generator()
+    return _PDF
 
 
 def get_service(

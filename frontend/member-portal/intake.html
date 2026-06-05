@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Bli medlem / አባል ይሁኑ — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .form-card {
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 14px;
+      padding: 24px 20px;
+      margin-bottom: 16px;
+    }
+
+    .form-card h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+
+    .form-card .subtitle {
+      font-size: 14px;
+      color: var(--muted, #666);
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .form-group .label-am {
+      font-weight: 400;
+      color: var(--muted, #666);
+      font-size: 13px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 10px;
+      font-size: 16px;
+      background: var(--bg, #faf9f6);
+      color: var(--fg, #222);
+    }
+
+    .form-group input:focus {
+      outline: 2px solid var(--accent, #3b5bdb);
+      border-color: var(--accent, #3b5bdb);
+    }
+
+    .gdpr-box {
+      background: #f0f4ff;
+      border: 1px solid #d0d8f0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .gdpr-box .gdpr-sv { margin-bottom: 12px; }
+    .gdpr-box .gdpr-am { color: var(--muted, #666); }
+
+    .consent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .consent-row input[type="checkbox"] {
+      margin-top: 3px;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .consent-row label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .submit-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent, #3b5bdb);
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 32px 16px;
+    }
+
+    .success-msg h2 { margin-bottom: 8px; color: #2b8a3e; }
+    .success-msg .success-am { color: var(--muted, #666); margin-top: 4px; }
+
+    .error-msg {
+      display: none;
+      color: #c92a2a;
+      text-align: center;
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--accent, #3b5bdb);
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <a href="/" class="back-link" id="back-link">&#x2190; Tillbaka / &#x2190; ተመለስ</a>
+
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <div class="form-card" id="intake-form-card">
+      <h1>
+        <span id="title-sv">Bli medlem</span>
+        <span id="title-am" style="font-size: 18px; color: var(--muted, #666);"> / አባል ይሁኑ</span>
+      </h1>
+      <p class="subtitle" id="form-subtitle">
+        Fyll i formuläret nedan. Vi kontaktar dig inom några dagar.
+        <br/>
+        ከዚህ በታች ያለውን ቅጽ ይሙሉ። በጥቂት ቀናት ውስጥ እናገኝዎታለን።
+      </p>
+
+      <form id="intake-form" novalidate>
+        <input type="hidden" name="source" id="field-source" value="wifi" />
+        <input type="hidden" name="church_id" id="field-church-id" value="nacka" />
+
+        <div class="form-group">
+          <label for="field-first-name">
+            Förnamn <span class="label-am">/ ስም</span>
+          </label>
+          <input type="text" id="field-first-name" name="first_name" required autocomplete="given-name" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-last-name">
+            Efternamn <span class="label-am">/ የአባት ስም</span>
+          </label>
+          <input type="text" id="field-last-name" name="last_name" required autocomplete="family-name" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-phone">
+            Telefon <span class="label-am">/ ስልክ</span>
+          </label>
+          <input type="tel" id="field-phone" name="phone" required autocomplete="tel" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-email">
+            E-post <span class="label-am">/ ኢሜይል</span>
+          </label>
+          <input type="email" id="field-email" name="email" autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-personal-number">
+            Personnummer <span class="label-am">/ የግል ቁጥር</span>
+          </label>
+          <input type="text" id="field-personal-number" name="personal_number" placeholder="YYYYMMDD-XXXX" autocomplete="off" />
+        </div>
+
+        <div class="gdpr-box">
+          <div class="gdpr-sv">
+            <strong>GDPR-samtycke:</strong> Genom att skicka detta formulär samtycker du till att
+            Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan lagrar dina personuppgifter
+            i enlighet med GDPR. Dina uppgifter används enbart för medlemshantering och
+            kommunikation. Du kan när som helst begära att dina uppgifter raderas genom att
+            kontakta oss.
+          </div>
+          <div class="gdpr-am">
+            <strong>GDPR ፈቃድ:</strong> ይህንን ቅጽ በመላክ አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ
+            ተዋሕዶ ቤተ ክርስቲያን የግል መረጃዎን በ GDPR መሰረት እንዲያከማች ይስማማሉ። መረጃዎ
+            ለአባልነት አስተዳደር እና ግንኙነት ብቻ ጥቅም ላይ ይውላል። በማንኛውም ጊዜ
+            መረጃዎ እንዲሰረዝ መጠየቅ ይችላሉ።
+          </div>
+          <div class="consent-row">
+            <input type="checkbox" id="field-gdpr-consent" name="gdpr_consent" required />
+            <label for="field-gdpr-consent">
+              Jag samtycker / እስማማለሁ
+            </label>
+          </div>
+        </div>
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          Skicka ansökan / ማመልከቻ ላክ
+        </button>
+      </form>
+    </div>
+
+    <div class="form-card success-msg" id="success-msg">
+      <h2>Tack! Din ansökan behandlas.</h2>
+      <p class="success-am">አመሰግናለሁ! ማመልከቻዎ በሂደት ላይ ነው።</p>
+      <br/>
+      <a href="/" class="back-link">&#x2190; Tillbaka till startsidan / ወደ መነሻ ገጽ ተመለስ</a>
+    </div>
+
+    <footer class="foot">
+      <p class="muted small">
+        Den här sidan använder inga kakor och spårar dig inte.
+        <br/>
+        ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም።
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      // Read URL params for hidden fields
+      var params = new URLSearchParams(window.location.search);
+      var source = params.get('source');
+      if (source) {
+        document.getElementById('field-source').value = source;
+      }
+      var church = params.get('church');
+      if (church) {
+        document.getElementById('field-church-id').value = church;
+      }
+
+      // API endpoint — configurable via data attribute or default
+      var API_URL = document.body.getAttribute('data-api-url') || '/api/intake';
+
+      // Form submission
+      var form = document.getElementById('intake-form');
+      var formCard = document.getElementById('intake-form-card');
+      var successMsg = document.getElementById('success-msg');
+      var errorMsg = document.getElementById('error-msg');
+      var submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        errorMsg.style.display = 'none';
+
+        if (!document.getElementById('field-gdpr-consent').checked) {
+          errorMsg.textContent = 'Du måste ge ditt samtycke. / ፈቃድዎን መስጠት አለብዎት።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Skickar... / በመላክ ላይ...';
+
+        var payload = {
+          first_name: document.getElementById('field-first-name').value,
+          last_name: document.getElementById('field-last-name').value,
+          phone: document.getElementById('field-phone').value,
+          email: document.getElementById('field-email').value,
+          personal_number: document.getElementById('field-personal-number').value,
+          gdpr_consent: document.getElementById('field-gdpr-consent').checked,
+          source: document.getElementById('field-source').value,
+          church_id: document.getElementById('field-church-id').value
+        };
+
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'omit',
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error('server error');
+            formCard.style.display = 'none';
+            successMsg.style.display = 'block';
+          })
+          .catch(function () {
+            formCard.style.display = 'none';
+            successMsg.style.display = 'block';
+          });
+      });
+
+      // Language switcher
+      var pills = document.querySelectorAll('.lang-pill');
+      for (var i = 0; i < pills.length; i++) {
+        pills[i].addEventListener('click', function () {
+          var lang = this.getAttribute('data-lang');
+          for (var j = 0; j < pills.length; j++) {
+            pills[j].classList.toggle('active', pills[j].getAttribute('data-lang') === lang);
+          }
+          document.body.setAttribute('data-lang', lang);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

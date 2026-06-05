@@ -100,10 +100,9 @@ def make_content_store() -> ContentStorePort:
 
 def make_translator() -> TranslationPort:
     if _mode() == "production":
-        # HttpxTranslator would call Anthropic API for real translation
-        from app.adapters.fake_translator import FakeTranslator
+        from app.adapters.anthropic_translator import AnthropicTranslator
 
-        return FakeTranslator()
+        return AnthropicTranslator(api_key=_require_env("ANTHROPIC_API_KEY"))
     from app.adapters.fake_translator import FakeTranslator
 
     return FakeTranslator()

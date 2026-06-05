@@ -57,3 +57,27 @@ def test_double_revoke_returns_409(client):
     client.post(f"/certificates/{cert_id}/revoke", headers=_headers("admin"))
     r = client.post(f"/certificates/{cert_id}/revoke", headers=_headers("admin"))
     assert r.status_code == 409
+
+
+def test_download_requires_auth(client):
+    r = client.get("/certificates/fake-id/download")
+    assert r.status_code == 401
+
+
+def test_download_forbidden_for_secretary(client):
+    cert_id = client.post("/certificates", json=_body(), headers=_headers("pastor")).json()["certificate_id"]
+    r = client.get(f"/certificates/{cert_id}/download", headers=_headers("secretary"))
+    assert r.status_code == 403
+
+
+def test_download_returns_html(client):
+    cert_id = client.post("/certificates", json=_body(), headers=_headers("pastor")).json()["certificate_id"]
+    r = client.get(f"/certificates/{cert_id}/download", headers=_headers("admin"))
+    assert r.status_code == 200
+    assert "text/html" in r.headers["content-type"]
+    assert "CERTIFICATE" in r.text or "certificate" in r.text.lower()
+
+
+def test_download_unknown_is_404(client):
+    r = client.get("/certificates/does-not-exist/download", headers=_headers("admin"))
+    assert r.status_code == 404

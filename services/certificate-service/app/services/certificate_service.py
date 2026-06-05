@@ -112,6 +112,11 @@ class CertificateService:
             status=cert.status.value,
         )
 
+    def get_for_download(self, actor: Actor, certificate_id: str) -> Certificate:
+        """Load a certificate for download. Requires admin or pastor role."""
+        self._require_role(actor, _ISSUE_ROLES)
+        return self._load_scoped(actor, certificate_id)
+
     # --------------------------------------------------------------- internals
 
     def _require_role(self, actor: Actor, allowed: set[Role]) -> None:

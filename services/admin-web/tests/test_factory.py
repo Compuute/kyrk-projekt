@@ -5,6 +5,7 @@ from app.adapters.factory import (
     make_certificate_client,
     make_intake_client,
     make_reporting_client,
+    make_translator,
 )
 from app.adapters.fake_clients import (
     FakeActivityClient,
@@ -12,6 +13,7 @@ from app.adapters.fake_clients import (
     FakeIntakeClient,
     FakeReportingClient,
 )
+from app.adapters.fake_translator import FakeTranslator
 
 
 @pytest.fixture(autouse=True)
@@ -21,6 +23,7 @@ def _clear_env(monkeypatch):
         "INTAKE_BASE_URL",
         "CERTIFICATE_BASE_URL",
         "REPORTING_BASE_URL",
+        "ANTHROPIC_API_KEY",
     ):
         monkeypatch.delenv(key, raising=False)
 
@@ -30,6 +33,7 @@ def test_default_mode_is_memory():
     assert isinstance(make_certificate_client(), FakeCertificateClient)
     assert isinstance(make_activity_client(), FakeActivityClient)
     assert isinstance(make_reporting_client(), FakeReportingClient)
+    assert isinstance(make_translator(), FakeTranslator)
 
 
 def test_production_intake_requires_base_url(monkeypatch):
@@ -68,3 +72,12 @@ def test_production_reporting_requires_base_url(monkeypatch):
     monkeypatch.setenv("REPORTING_BASE_URL", "https://reporting.example")
     client = make_reporting_client()
     assert type(client).__name__ == "HttpxReportingClient"
+
+
+def test_production_translator_requires_api_key(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
+        make_translator()
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-key")
+    translator = make_translator()
+    assert type(translator).__name__ == "AnthropicTranslator"

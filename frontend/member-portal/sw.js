@@ -3,6 +3,7 @@ const OFFLINE_URLS = [
   '/',
   '/index.html',
   '/donate.html',
+  '/intake.html',
   '/styles.css',
   '/app.js',
   '/content.json',

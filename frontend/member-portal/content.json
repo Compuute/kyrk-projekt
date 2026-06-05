@@ -32,7 +32,7 @@
     }
   ],
   "links": {
-    "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "/intake"},
+    "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "/intake.html"},
     "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "/donate.html"},
     "telegram": {"sv": "Följ oss på Telegram", "am": "በቴሌግራም ይከተሉን", "url": "https://t.me/kyrka_kanal"},
     "youth": {"sv": "Ungdomsverksamhet", "am": "የወጣቶች ፕሮግራም", "url": "/youth"}
