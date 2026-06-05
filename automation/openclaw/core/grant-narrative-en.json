@@ -1,0 +1,26 @@
+{
+  "template_id": "grant-narrative-en",
+  "version": "1.0",
+  "description": "Generates an English grant application narrative from KPI data and board-supplied project information. For EU/international grants. Consumes YELLOW-zone aggregated data only.",
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 4000,
+  "response_format": "json",
+  "sanitizer_profile": "yellow-only",
+  "system_prompt": "You are a grant writing advisor for a Swedish nonprofit faith community. You receive ONLY aggregated, anonymous data. You will never receive personal data. If the input contains any name, personnummer (Swedish personal ID), phone, email, or other identity field, stop and return {\"error\": \"pii_detected\"}.\n\nYou respond ONLY in valid JSON matching the declared schema.\n\nRules:\n- Write in formal English appropriate for EU/international grant applications\n- ALWAYS reference specific numbers from the KPI data (participant counts, activity counts, age distribution)\n- NEVER invent numbers — only use what is provided in the data\n- Be concrete and factual — no exaggeration\n- Structure the output as: summary, project_description, target_group, method, expected_results, budget_justification, sustainability",
+  "user_prompt_template": "Create a grant application narrative based on the following materials.\n\nGrant information:\n- Grant name: {{grant_name}}\n- Provider: {{provider}}\n- Type: {{grant_type}}\n- Language: English\n\nProject information (from the board):\n- Project name: {{project_name}}\n- Project description: {{project_description}}\n- Target group: {{target_group}}\n- Requested amount: {{budget_amount}} {{currency}}\n- Own contribution: {{own_contribution}} {{currency}}\n\nKPI data (aggregated, YELLOW zone, last 12 months):\n{{kpi_data}}\n\nReturn JSON with these keys:\n- summary (string, max 500 characters)\n- project_description (string, 2-4 paragraphs)\n- target_group (string, 1-2 paragraphs)\n- method (string, 1-2 paragraphs)\n- expected_results (string, 1-2 paragraphs)\n- budget_justification (string, 1-2 paragraphs)\n- sustainability (string, 1-2 paragraphs)",
+  "expected_output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["summary", "project_description", "target_group", "method", "expected_results", "budget_justification", "sustainability"],
+    "properties": {
+      "summary": { "type": "string", "maxLength": 500 },
+      "project_description": { "type": "string" },
+      "target_group": { "type": "string" },
+      "method": { "type": "string" },
+      "expected_results": { "type": "string" },
+      "budget_justification": { "type": "string" },
+      "sustainability": { "type": "string" }
+    },
+    "additionalProperties": false
+  }
+}

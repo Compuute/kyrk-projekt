@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Bidrag — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <h1>Bidragsöversikt</h1>
+  <p class="muted small">
+    Här hittar du alla bidrag som kyrkan kan söka. Klicka på ett bidrag för att se detaljer och starta en ansökan.
+  </p>
+
+  {% if upcoming_deadlines > 0 %}
+  <div class="flash flash-error">
+    {{ upcoming_deadlines }} bidrag har deadline inom 60 dagar!
+  </div>
+  {% endif %}
+
+  {% if grants %}
+  <div class="list">
+    {% for g in grants %}
+    <div class="list-item">
+      <div>
+        <div class="list-name">
+          {{ g.country_flag }} {{ g.name }}
+        </div>
+        <div class="list-meta">
+          <span class="small muted">{{ g.provider }}</span><br/>
+          <span class="small muted">Belopp: {{ g.amount_display }}</span><br/>
+          <span class="deadline-badge deadline-{{ g.deadline_color }}">
+            Deadline: {{ g.next_deadline }}
+          </span>
+        </div>
+        <div class="grant-status-badge status-{{ g.app_status }}">
+          {{ g.app_status_label }}
+        </div>
+      </div>
+      <div class="list-actions">
+        <a href="/grants/{{ g.grant_id }}" class="btn-link">Visa detaljer</a>
+        {% if g.app_status == 'not_started' %}
+        <a href="/grants/{{ g.grant_id }}/apply" class="btn-primary-link">Starta ansökan</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty card">
+    <p>Inga bidrag i databasen.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

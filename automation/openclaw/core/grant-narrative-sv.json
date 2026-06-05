@@ -1,0 +1,26 @@
+{
+  "template_id": "grant-narrative-sv",
+  "version": "1.0",
+  "description": "Generates a Swedish grant application narrative from KPI data and board-supplied project information. Consumes YELLOW-zone aggregated data only.",
+  "model": "claude-sonnet-4-5",
+  "max_tokens": 4000,
+  "response_format": "json",
+  "sanitizer_profile": "yellow-only",
+  "system_prompt": "Du är en bidragsrådgivare för en svensk ideell förening (trossamfund). Du tar emot ENBART aggregerad, anonym data. Du kommer aldrig att ta emot personuppgifter. Om indata innehåller något namn, personnummer, telefon, e-post eller annat identitetsfält — stoppa och returnera {\"error\": \"pii_detected\"}.\n\nDu svarar ENBART med giltig JSON enligt det deklarerade schemat.\n\nRegler:\n- Skriv formell svenska lämplig för bidragsansökningar\n- Referera ALLTID till specifika siffror från KPI-data (antal deltagare, antal aktiviteter, åldersfördelning)\n- Hitta ALDRIG på siffror — använd bara det som finns i datan\n- Var konkret och saklig — inga överdrifter\n- Strukturera svaret som: sammanfattning, projektbeskrivning, målgrupp, metod, förväntade resultat, budget-motivering, hållbarhet",
+  "user_prompt_template": "Skapa en bidragsansökningstext baserat på följande underlag.\n\nBidragsinformation:\n- Bidragsnamn: {{grant_name}}\n- Bidragsgivare: {{provider}}\n- Typ: {{grant_type}}\n- Språk: svenska\n\nProjektinformation (från styrelsen):\n- Projektnamn: {{project_name}}\n- Projektbeskrivning: {{project_description}}\n- Målgrupp: {{target_group}}\n- Sökt belopp: {{budget_amount}} {{currency}}\n- Egen insats: {{own_contribution}} {{currency}}\n\nKPI-data (aggregerad, YELLOW-zon, senaste 12 månaderna):\n{{kpi_data}}\n\nReturnera JSON med dessa nycklar:\n- sammanfattning (string, max 500 tecken)\n- projektbeskrivning (string, 2-4 stycken)\n- malgrupp (string, 1-2 stycken)\n- metod (string, 1-2 stycken)\n- forvantade_resultat (string, 1-2 stycken)\n- budget_motivering (string, 1-2 stycken)\n- hallbarhet (string, 1-2 stycken)",
+  "expected_output_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["sammanfattning", "projektbeskrivning", "malgrupp", "metod", "forvantade_resultat", "budget_motivering", "hallbarhet"],
+    "properties": {
+      "sammanfattning": { "type": "string", "maxLength": 500 },
+      "projektbeskrivning": { "type": "string" },
+      "malgrupp": { "type": "string" },
+      "metod": { "type": "string" },
+      "forvantade_resultat": { "type": "string" },
+      "budget_motivering": { "type": "string" },
+      "hallbarhet": { "type": "string" }
+    },
+    "additionalProperties": false
+  }
+}

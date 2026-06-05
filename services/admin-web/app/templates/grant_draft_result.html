@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Genererat underlag — {{ grant.name }} — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <p class="small"><a href="/grants/{{ grant.grant_id }}">&larr; Tillbaka till {{ grant.name }}</a></p>
+
+  <h1>Genererat ansökningsunderlag</h1>
+  <p class="muted">{{ grant.name }} — {{ grant.provider }}</p>
+
+  {% if error_message %}
+  <div class="flash flash-error">{{ error_message }}</div>
+  {% endif %}
+
+  <div class="card draft-result" id="draft-content">
+    {% if grant.language == 'en' %}
+      <h2>Summary</h2>
+      <p>{{ draft.summary }}</p>
+
+      <h2>Project Description</h2>
+      <p>{{ draft.project_description }}</p>
+
+      <h2>Target Group</h2>
+      <p>{{ draft.target_group }}</p>
+
+      <h2>Method</h2>
+      <p>{{ draft.method }}</p>
+
+      <h2>Expected Results</h2>
+      <p>{{ draft.expected_results }}</p>
+
+      <h2>Budget Justification</h2>
+      <p>{{ draft.budget_justification }}</p>
+
+      <h2>KPI Evidence</h2>
+      <p>{{ draft.kpi_evidence }}</p>
+
+      <h2>Sustainability</h2>
+      <p>{{ draft.sustainability }}</p>
+    {% else %}
+      <h2>Sammanfattning</h2>
+      <p>{{ draft.sammanfattning }}</p>
+
+      <h2>Projektbeskrivning</h2>
+      <p>{{ draft.projektbeskrivning }}</p>
+
+      <h2>Målgrupp</h2>
+      <p>{{ draft["målgrupp"] }}</p>
+
+      <h2>Metod</h2>
+      <p>{{ draft.metod }}</p>
+
+      <h2>Förväntade resultat</h2>
+      <p>{{ draft["förväntade_resultat"] }}</p>
+
+      <h2>Budget-motivering</h2>
+      <p>{{ draft.budget_motivering }}</p>
+
+      <h2>KPI-underlag</h2>
+      <p>{{ draft.kpi_underlag }}</p>
+
+      <h2>Hållbarhet</h2>
+      <p>{{ draft["hållbarhet"] }}</p>
+    {% endif %}
+  </div>
+
+  <div class="draft-actions">
+    <button class="primary" onclick="copyDraft()">Kopiera text</button>
+    <button class="primary" onclick="window.print()">Skriv ut</button>
+    <a href="/grants/{{ grant.grant_id }}/apply" class="btn-link">Redigera underlag</a>
+  </div>
+</section>
+
+<script>
+function copyDraft() {
+  var el = document.getElementById('draft-content');
+  var text = el.innerText || el.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+</script>
+{% endblock %}

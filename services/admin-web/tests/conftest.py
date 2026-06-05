@@ -9,6 +9,7 @@ from app.adapters.fake_clients import (
     FakeIntakeClient,
     FakeReportingClient,
 )
+from app.adapters.fake_grant_tracker import FakeGrantTracker
 from app.api import deps
 from app.main import create_app
 from app.ports.clients import ActivityAggregate, PendingSubmission
@@ -35,12 +36,18 @@ def reporting() -> FakeReportingClient:
 
 
 @pytest.fixture
-def client(intake, certificates, activity, reporting) -> TestClient:
+def grant_tracker() -> FakeGrantTracker:
+    return FakeGrantTracker()
+
+
+@pytest.fixture
+def client(intake, certificates, activity, reporting, grant_tracker) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_intake_client] = lambda: intake
     app.dependency_overrides[deps.get_certificate_client] = lambda: certificates
     app.dependency_overrides[deps.get_activity_client] = lambda: activity
     app.dependency_overrides[deps.get_reporting_client] = lambda: reporting
+    app.dependency_overrides[deps.get_grant_tracker] = lambda: grant_tracker
     # TestClient must not follow redirects by default — we test the flow explicitly.
     return TestClient(app, follow_redirects=False)
 

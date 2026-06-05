@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Ansökan — {{ grant.name }} — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <p class="small"><a href="/grants/{{ grant.grant_id }}">&larr; Tillbaka till {{ grant.name }}</a></p>
+
+  <h1>Ansökningsformulär</h1>
+  <p class="muted">{{ grant.name }} — {{ grant.provider }}</p>
+
+  <div class="card">
+    <p class="small muted">
+      Fyll i uppgifterna nedan. Plattformen hämtar automatiskt KPI-data (antal deltagare, aktiviteter, etc.)
+      när du klickar "Generera underlag". Du behöver bara fylla i det som beskriver ert projekt.
+    </p>
+
+    <form method="post" action="/grants/{{ grant.grant_id }}/apply" class="stacked">
+      <label>
+        Projektnamn
+        <input type="text" name="project_name" value="{{ application.project_name if application else '' }}" placeholder="T.ex. Ungdomsverksamhet 2026" required />
+      </label>
+
+      <label>
+        Projektbeskrivning
+        <textarea name="project_description" rows="5" placeholder="Beskriv vad ni vill göra. Var konkret: vilka aktiviteter, hur ofta, var.">{{ application.project_description if application else '' }}</textarea>
+      </label>
+
+      <label>
+        Målgrupp
+        <input type="text" name="target_group" value="{{ application.target_group if application else '' }}" placeholder="T.ex. Ungdomar 13-25 år i Malmö kommun" />
+      </label>
+
+      <label>
+        Sökt belopp ({{ grant.amount_range.currency }})
+        <input type="number" name="budget_amount" step="1" value="{{ application.budget_amount|int if application and application.budget_amount else '' }}" placeholder="T.ex. 150000" />
+      </label>
+
+      <label>
+        Egen insats ({{ grant.amount_range.currency }})
+        <input type="number" name="own_contribution" step="1" value="{{ application.own_contribution|int if application and application.own_contribution else '' }}" placeholder="T.ex. 50000" />
+      </label>
+
+      <label>
+        Anteckningar
+        <input type="text" name="notes" value="{{ application.notes if application else '' }}" placeholder="Frivilligt: egna anteckningar" />
+      </label>
+
+      <button type="submit" class="primary">Spara</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

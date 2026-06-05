@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ grant.name }} — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <p class="small"><a href="/grants">&larr; Tillbaka till bidragsöversikten</a></p>
+
+  <h1>{{ country_flag }} {{ grant.name }}</h1>
+  <p class="muted">{{ grant.provider }}</p>
+
+  <div class="card">
+    <h2>Sammanfattning</h2>
+    <table class="info-table">
+      <tr><td class="info-label">Typ</td><td>{{ grant.type }}</td></tr>
+      <tr><td class="info-label">Land</td><td>{{ grant.country }}</td></tr>
+      <tr><td class="info-label">Språk</td><td>{{ grant.language }}</td></tr>
+      <tr><td class="info-label">Belopp</td><td>{{ amount_display }}</td></tr>
+      <tr>
+        <td class="info-label">Deadline</td>
+        <td>
+          <span class="deadline-badge deadline-{{ deadline_color }}">
+            {{ grant.next_deadline }}
+          </span>
+          <span class="small muted">({{ grant.deadline_pattern }})</span>
+        </td>
+      </tr>
+      <tr><td class="info-label">Svårighetsgrad</td><td>{{ grant.difficulty }}</td></tr>
+      <tr><td class="info-label">Status</td><td class="grant-status-badge status-{{ application.status if application else 'not_started' }}">{{ app_status_label }}</td></tr>
+      {% if grant.url %}
+      <tr><td class="info-label">Webbplats</td><td><a href="{{ grant.url }}" target="_blank" rel="noopener">{{ grant.url }}</a></td></tr>
+      {% endif %}
+    </table>
+  </div>
+
+  {% if grant.notes_sv %}
+  <div class="card">
+    <h2>Information</h2>
+    <p>{{ grant.notes_sv }}</p>
+  </div>
+  {% endif %}
+
+  {% if eligibility_checks %}
+  <div class="card">
+    <h2>Krav och behörighet</h2>
+    <ul class="eligibility-list">
+      {% for item in eligibility_checks %}
+      <li class="eligibility-item">
+        {% if item.auto %}
+        <span class="check-auto" title="Plattformen har data som kan styrka detta">&#9745;</span>
+        {% else %}
+        <span class="check-manual" title="Kontrollera manuellt">&#9744;</span>
+        {% endif %}
+        {{ item.text }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if grant.required_data %}
+  <div class="card">
+    <h2>Dokument och data som behövs</h2>
+    <ul>
+      {% for doc in grant.required_data %}
+      <li>{{ doc }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Hantera ansökan</h2>
+    <div class="grant-actions">
+      <a href="/grants/{{ grant.grant_id }}/apply" class="btn-primary-link">
+        {% if application and application.status != 'not_started' %}
+        Redigera ansökningsunderlag
+        {% else %}
+        Starta ansökan
+        {% endif %}
+      </a>
+
+      {% if application and application.project_name %}
+      <form method="post" action="/grants/{{ grant.grant_id }}/generate" class="inline-form">
+        <button type="submit" class="primary">Generera underlag</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Uppdatera status</h2>
+    <form method="post" action="/grants/{{ grant.grant_id }}/status" class="stacked">
+      <label>
+        Status
+        <select name="new_status">
+          <option value="not_started" {% if not application or application.status == 'not_started' %}selected{% endif %}>Ej startad</option>
+          <option value="in_progress" {% if application and application.status == 'in_progress' %}selected{% endif %}>Pågår</option>
+          <option value="submitted" {% if application and application.status == 'submitted' %}selected{% endif %}>Inskickad</option>
+          <option value="approved" {% if application and application.status == 'approved' %}selected{% endif %}>Beviljad</option>
+          <option value="rejected" {% if application and application.status == 'rejected' %}selected{% endif %}>Avslagen</option>
+        </select>
+      </label>
+      <label>
+        Sökt belopp
+        <input type="number" name="amount_requested" step="1" value="{{ application.amount_requested or 0 if application else 0 }}" />
+      </label>
+      <label>
+        Beviljat belopp
+        <input type="number" name="amount_granted" step="1" value="{{ application.amount_granted or 0 if application else 0 }}" />
+      </label>
+      <label>
+        Anteckningar
+        <input type="text" name="notes" value="{{ application.notes if application else '' }}" placeholder="Fritext, t.ex. referensnummer" />
+      </label>
+      <button type="submit" class="primary">Spara status</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

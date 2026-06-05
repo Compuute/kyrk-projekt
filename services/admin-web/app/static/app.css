@@ -279,9 +279,127 @@ button.danger:hover { background: var(--danger-hover); }
 .bar-label { color: var(--fg); }
 .bar-value { color: var(--accent); font-weight: 600; }
 
+/* Grant module styles */
+.deadline-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.deadline-green { background: var(--success-bg); color: var(--success-fg); }
+.deadline-yellow { background: #fff8e1; color: #7c6b00; }
+.deadline-red { background: var(--error-bg); color: var(--error-fg); }
+
+.grant-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.status-not_started { background: #eef0f3; color: var(--muted); }
+.status-in_progress { background: #e3f2fd; color: #1565c0; }
+.status-submitted { background: #fff8e1; color: #7c6b00; }
+.status-approved { background: var(--success-bg); color: var(--success-fg); }
+.status-rejected { background: var(--error-bg); color: var(--error-fg); }
+
+.btn-link {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: 14px;
+  background: white;
+}
+.btn-link:hover { background: #f2f4f8; }
+
+.btn-primary-link {
+  display: inline-block;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--accent);
+}
+.btn-primary-link:hover { background: var(--accent-hover); }
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.info-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  vertical-align: top;
+}
+.info-label {
+  font-weight: 600;
+  color: var(--muted);
+  width: 140px;
+}
+
+.eligibility-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.eligibility-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.check-auto { color: var(--success-fg); margin-right: 6px; }
+.check-manual { color: var(--muted); margin-right: 6px; }
+
+.grant-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.draft-result {
+  white-space: pre-wrap;
+}
+.draft-result h2 {
+  font-size: 16px;
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+.draft-result p {
+  margin: 0 0 12px;
+}
+
+.draft-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stacked textarea {
+  font-size: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--fg);
+  font-family: inherit;
+  resize: vertical;
+}
+
 @media (min-width: 720px) {
   .grid-stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
   .kpi-grid {
     grid-template-columns: repeat(4, 1fr);

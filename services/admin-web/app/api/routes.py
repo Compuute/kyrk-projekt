@@ -124,12 +124,23 @@ def dashboard(
     except ClientError:
         pending = []
 
+    # Count upcoming grant deadlines (<60 days)
+    grants_upcoming = 0
+    try:
+        for g in _load_grant_database():
+            color = _deadline_color(g.get("next_deadline", ""))
+            if color in ("red", "yellow"):
+                grants_upcoming += 1
+    except Exception:
+        pass
+
     return TEMPLATES.TemplateResponse(
         request=request,
         name="dashboard.html",
         context={
             "session": session,
             "pending_count": len(pending),
+            "grants_upcoming": grants_upcoming,
             "flash": flash,
             "level": level,
         },
