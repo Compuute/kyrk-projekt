@@ -1,8 +1,8 @@
 {
   "version": "2.0",
   "church": {
-    "name": {"sv": "Sankt Johannes Ortodoxa Kyrka", "am": "ቅዱስ ዮሐንስ ኦርቶዶክስ ቤተ ክርስቲያን"},
-    "tagline": {"sv": "Välkommen hem", "am": "እንኳን ወደ ቤትዎ ደህና መጡ"}
+    "name": {"sv": "Abune Tekle Haymanot Etiopiska Ortodoxa Kyrkan", "am": "አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን"},
+    "tagline": {"sv": "Välkommen hem — Nacka", "am": "እንኳን ወደ ቤትዎ ደህና መጡ — ናካ"}
   },
   "upcoming": [
     {
