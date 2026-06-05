@@ -63,6 +63,29 @@ jobs:
       - name: Run content decision tests
         run: node tests/test_content_decision.js
 
+      - name: Run Cloudflare-ready tests
+        run: node tests/test_cloudflare_ready.js
+
+  member-portal-tests:
+    name: member-portal (Node)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kyrk-projekt/frontend/member-portal
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run app tests
+        run: node tests/test_app.js
+
+      - name: Run Cloudflare-ready tests
+        run: node tests/test_cloudflare_ready.js
+
   syntax-check:
     name: python syntax check
     runs-on: ubuntu-latest
