@@ -8,15 +8,38 @@ How to deploy, roll back, monitor, and respond to incidents.
 # First time: bootstrap GCP + GitHub secrets
 ./scripts/bootstrap.sh dev
 
-# Every deploy: trigger the workflow
+# Deploy backend services (Cloud Run)
 gh workflow run deploy.yml -f environment=dev
 gh run watch
 
-# Rollback a bad service
+# Deploy public sites (Cloudflare Pages)
+wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
+wrangler pages deploy frontend/wifi-intake-portal --project-name=kyrka-wifi
+
+# Rollback a backend service
 gcloud run services update-traffic <service> \
   --region=europe-north1 \
   --to-revisions=<previous-revision>=100
+
+# Rollback a static site
+wrangler pages deployment rollback --project-name=kyrka-portal
 ```
+
+## Architecture overview
+
+```
+Internet → Cloudflare (DNS + CDN + WAF + DDoS, free)
+  ├→ Cloudflare Pages: member-portal (sv+am) + wifi-intake-portal
+  └→ Cloudflare proxy → GCP Cloud Run: 4 backend services + admin-web
+                              → Firestore (EU, CMEK)
+                              → Cloud KMS
+                              → BigQuery
+                              → Secret Manager
+```
+
+Static sites on Cloudflare edge. Dynamic services on GCP. All data in
+EU. See [`architecture/cloudflare-edge.md`](architecture/cloudflare-edge.md)
+for the full diagram and failure modes.
 
 ## First-time setup
 

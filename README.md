@@ -54,23 +54,31 @@ Each service:
 
 ## Frontend
 
-| Module | Zone | Stack |
-|---|---|---|
-| `frontend/wifi-intake-portal` | GREEN | static HTML + vanilla JS, content pushed by n8n |
-| `frontend/mobile-web` | mixed | placeholder for a future member-facing client |
+| Module | Zone | Hosted on | Stack |
+|---|---|---|---|
+| `frontend/member-portal` | GREEN | **Cloudflare Pages** (global edge) | static HTML + vanilla JS, sv + am, content from GCS |
+| `frontend/wifi-intake-portal` | GREEN | **Cloudflare Pages** (global edge) | static HTML + vanilla JS, dynamic content via n8n |
 
-The day-to-day admin UI lives in `services/admin-web` — see above.
+Both static sites are served from Cloudflare's edge network — zero cold
+start, free SSL, free CDN, free DDoS. See
+[`docs/architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md).
+
+The admin UI lives in `services/admin-web` on Cloud Run (not Cloudflare).
 
 ## Automation
 
-- `automation/n8n` — five workflow definitions (self-hosted n8n on Cloud Run)
+- `automation/n8n` — seven workflow definitions (self-hosted n8n on Cloud Run)
 - `automation/openclaw` — prompt templates + sanitizer profiles (Anthropic API via n8n)
+- `automation/grants` — grant database (12 real Swedish/EU/Nordic grants)
 
 ## Infra
 
 - `infra/terraform` — GCP baseline: Cloud Run, Firestore, GCS, Secret
   Manager, IAM, KMS, BigQuery, Workload Identity Federation, Artifact
-  Registry. One `terraform apply` provisions the entire platform.
+  Registry. One `terraform apply` provisions the backend.
+- **Cloudflare** — DNS, CDN, WAF, DDoS for public-facing sites. Configured
+  via Cloudflare dashboard or wrangler CLI (not Terraform). See
+  [ADR-012](docs/14-architecture-decisions.md).
 
 ## CI / CD
 

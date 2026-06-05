@@ -1,0 +1,9 @@
+name = "kyrka-portal"
+compatibility_date = "2025-06-01"
+
+# Cloudflare Pages project. Deploy with:
+#   wrangler pages deploy . --project-name=kyrka-portal
+#
+# Or connect this repo in the Cloudflare dashboard for auto-deploy on push.
+# Build command: (none — static files, no build step)
+# Output directory: frontend/member-portal

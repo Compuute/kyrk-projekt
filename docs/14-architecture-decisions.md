@@ -265,3 +265,42 @@ description or new ADR). No merge across zone boundaries without a
 full security review + DPIA update.
 **When to revisit:** when new zones or trust levels are introduced
 (e.g., a BLUE zone for financial transactions).
+
+---
+
+## ADR-012: Cloudflare Pages + proxy for public-facing sites
+
+**Date:** 2025-06
+**Status:** accepted
+**Context:** the platform has two static sites (member-portal,
+wifi-intake-portal) and four dynamic services. Hosting static sites
+on GCS requires 5 GCP resources (bucket + IAM + Cloud CDN + SSL cert
++ load balancer) per site. Each resource needs Terraform, costs money,
+and adds an ops surface. Meanwhile, the public intake endpoint needs
+DDoS protection, which Cloud Armor charges $5/policy/month for.
+**Decision:** host static sites on Cloudflare Pages (free tier, global
+edge, auto-SSL, auto-CDN, free DDoS). Route dynamic traffic through
+Cloudflare proxy to Cloud Run (free WAF, bot detection, DDoS). All
+data stays in GCP (Firestore, KMS, BigQuery in EU regions).
+**Consequence:**
+- Static deploys: one command (`wrangler pages deploy`) instead of 5
+  GCP resources. No Terraform needed for Pages.
+- DDoS + WAF: free, automatic, no Cloud Armor cost.
+- Resilience: static sites survive a GCP outage (edge-served).
+- Ops: one more vendor (Cloudflare) but fewer things to configure.
+- Sovereignty: Cloudflare edge caches are EU-restricted on free plan
+  for .se domains. All persistent data (Firestore, KMS) stays in GCP
+  `europe-north1`. Cloudflare sees only the HTTP request/response, not
+  the database contents.
+- New failure mode: if Cloudflare goes down, flip DNS to direct Cloud
+  Run URLs (5 min manual rollback). Documented in
+  [`architecture/cloudflare-edge.md`](architecture/cloudflare-edge.md).
+**What we do NOT move to Cloudflare:**
+- Backend services (need Python + Firestore + KMS — Cloudflare Workers
+  can't run our stack)
+- Secrets (stay in GCP Secret Manager with per-secret IAM)
+- Encryption keys (stay in GCP KMS with CMEK)
+- Database (stays in GCP Firestore with EU multi-region)
+**When to revisit:** if Cloudflare changes their free-tier terms, or if
+we need to serve dynamic content from edge (evaluate Cloudflare Workers
+at that point, but it would require a JS rewrite).

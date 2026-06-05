@@ -88,6 +88,14 @@ deploy:
 	@echo "Watching run…"
 	gh run watch
 
+deploy-sites:
+	@command -v wrangler >/dev/null 2>&1 || { echo "wrangler CLI is required (npm i -g wrangler)"; exit 1; }
+	wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
+	wrangler pages deploy frontend/wifi-intake-portal --project-name=kyrka-wifi
+	@echo "Static sites deployed to Cloudflare Pages."
+
+deploy-all: deploy deploy-sites
+
 smoke:
 	@command -v gcloud >/dev/null 2>&1 || { echo "gcloud is required for 'make smoke'"; exit 1; }
 	@REGION=$$(gh secret list --env $(ENV) 2>/dev/null | grep -q GCP_REGION && echo europe-north1 || echo europe-north1); \

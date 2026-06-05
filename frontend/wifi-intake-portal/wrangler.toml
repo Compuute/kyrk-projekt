@@ -1,0 +1,6 @@
+name = "kyrka-wifi"
+compatibility_date = "2025-06-01"
+
+# Cloudflare Pages project for the Wi-Fi captive portal.
+# Deploy with:
+#   wrangler pages deploy . --project-name=kyrka-wifi
