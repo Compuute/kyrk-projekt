@@ -21,11 +21,13 @@ data "google_project" "current" {
 
 locals {
   # Services that deploy as Cloud Run. Each gets its own service account.
+  # NOTE: activity-service was merged into reporting-service (same YELLOW
+  # trust level, same asset class). The reporting-service SA now needs
+  # both datastore.user and bigquery.dataEditor.
   services = [
     "membership-intake",
     "membership-service",
     "certificate-service",
-    "activity-service",
     "reporting-service",
     "admin-web",
   ]
@@ -147,7 +149,6 @@ module "secrets" {
         "membership-service",
         "membership-intake",
         "certificate-service",
-        "activity-service",
         "reporting-service",
       ] : {
         secret = "propelauth-api-key"

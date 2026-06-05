@@ -1,7 +1,8 @@
-"""Adapter factory for reporting-service.
+"""Adapter factory for reporting-service (activity + reporting).
 
 YELLOW zone. Production wires Firestore for storage and BigQuery for
 analytics export. Both are restricted to a single dataset/collection.
+Activities use a separate `activities` Firestore collection.
 
 Required env vars in production mode:
 - PROPELAUTH_URL
@@ -14,6 +15,7 @@ from __future__ import annotations
 import os
 import sys
 
+from app.ports.activity_repository import ActivityRepository
 from app.ports.auth import AuthPort
 from app.ports.bigquery_export import BigQueryExportPort
 from app.ports.report_repository import ReportRepository
@@ -21,6 +23,18 @@ from app.ports.report_repository import ReportRepository
 
 def _mode() -> str:
     return os.getenv("ADAPTER_MODE", "memory").lower()
+
+
+def make_activity_repository() -> ActivityRepository:
+    if _mode() == "production":
+        from app.adapters.firestore_activity_repository import (
+            FirestoreActivityRepository,
+        )
+
+        return FirestoreActivityRepository()
+    from app.adapters.in_memory_activity_repository import InMemoryActivityRepository
+
+    return InMemoryActivityRepository()
 
 
 def make_report_repository() -> ReportRepository:

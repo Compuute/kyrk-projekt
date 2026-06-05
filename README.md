@@ -41,9 +41,8 @@ Then pick one of:
 | `services/membership-intake` | RED | Public intake form + admin approval flow |
 | `services/membership-service` | RED | Member lifecycle, RBAC, audit, field-level encryption |
 | `services/certificate-service` | RED | Digital certificates + privacy-preserving verification |
-| `services/activity-service` | YELLOW | Activity tracking (aggregated counts only) |
-| `services/reporting-service` | YELLOW | KPI / ROI reports, OpenClaw input, BigQuery export |
-| `services/admin-web` | mixed | Server-rendered admin UI (HTML, no frameworks). Intake approval, certificate issuance, **KPI dashboard** |
+| `services/reporting-service` | YELLOW | Activity tracking + KPI/ROI reports + BigQuery export (merged from activity+reporting — see [ADR-010](docs/14-architecture-decisions.md)) |
+| `services/admin-web` | mixed | Server-rendered admin UI. Intake approval, certificate issuance, **KPI dashboard** |
 
 Each service:
 - Ships a `Dockerfile` and runs as a non-root user
@@ -112,6 +111,10 @@ the one-time GCP setup.
 | [`docs/governance/rbac.md`](docs/governance/rbac.md) | Role matrix |
 | [`docs/governance/policies.md`](docs/governance/policies.md) | Retention, deletion, access reviews |
 | [`docs/governance/security-review-template.md`](docs/governance/security-review-template.md) | PR checklist for RED / sanitizer / IAM changes |
+| [`docs/13-runbook.md`](docs/13-runbook.md) | Incident playbooks for 5 common scenarios |
+| **[`docs/14-architecture-decisions.md`](docs/14-architecture-decisions.md)** | **11 ADRs — why every major choice was made** |
+| [`docs/15-ab-testing-strategy.md`](docs/15-ab-testing-strategy.md) | When to introduce A/B testing (Phase 3) |
+| **[`docs/16-defense-in-depth.md`](docs/16-defense-in-depth.md)** | **Defense-in-depth policy — how to evaluate service merges/splits** |
 | [`docs/architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE walkthrough |
 | [`docs/impact/impact-blueprint.md`](docs/impact/impact-blueprint.md) | Reusable module spec + three initial modules |
 | [`.github/workflows/README.md`](../.github/workflows/README.md) | Full CI/CD reference |
@@ -124,7 +127,7 @@ make test-membership-service # one service
 make lint                    # syntax check + terraform fmt
 make bootstrap ENV=dev       # first-time GCP + GitHub setup
 make deploy ENV=dev          # trigger deploy.yml via gh
-make smoke ENV=dev           # curl /healthz on all six services
+make smoke ENV=dev           # curl /healthz on all five services
 make clean                   # remove caches
 ```
 

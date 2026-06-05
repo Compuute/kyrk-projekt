@@ -70,7 +70,7 @@ jobs:
       - name: Curl /healthz on every service
         run: |
           set -e
-          SERVICES="membership-service membership-intake certificate-service activity-service reporting-service admin-web"
+          SERVICES="membership-service membership-intake certificate-service reporting-service admin-web"
           FAIL=0
           echo "| Service | URL | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY

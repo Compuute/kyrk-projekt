@@ -70,7 +70,7 @@ class CertificateClientPort(Protocol):
 
 @dataclass(frozen=True)
 class ActivityAggregate:
-    """A single activity row from activity-service's YELLOW-only export."""
+    """A single activity row from reporting-service's YELLOW-only activity export."""
     activity_id: str
     church_id: str
     activity_type: str

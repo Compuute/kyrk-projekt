@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from enum import Enum
 from uuid import uuid4
 
@@ -12,11 +12,24 @@ class ReportKind(str, Enum):
     BOARD_EXPORT = "board_export"
 
 
+class ActivityType(str, Enum):
+    YOUTH_TECH = "youth_tech"
+    CODING = "coding"
+    SUNDAY_SCHOOL = "sunday_school"
+    LEADERSHIP = "leadership"
+    DEBATE = "debate"
+    COMMUNITY_HUB = "community_hub"
+    OTHER = "other"
+
+
 class Role(str, Enum):
     ADMIN = "admin"
     PASTOR = "pastor"
     SECRETARY = "secretary"
     VIEWER = "viewer"
+
+
+AGE_BANDS = ("0-6", "7-12", "13-17", "18-25", "26+")
 
 
 def _now() -> datetime:
@@ -35,6 +48,18 @@ class Report:
     payload: dict  # structured JSON; schema depends on kind
     report_id: str = field(default_factory=_new_id)
     created_at: datetime = field(default_factory=_now)
+
+
+@dataclass
+class Activity:
+    church_id: str
+    activity_type: ActivityType
+    date: date
+    location: str
+    funding_tag: str
+    participants_total: int
+    age_band_counts: dict[str, int]
+    activity_id: str = field(default_factory=_new_id)
 
 
 @dataclass

@@ -6,10 +6,12 @@ ADAPTER_MODE=production: httpx clients + JWT session (PropelAuth RS256).
 Required env vars in production mode:
 - INTAKE_BASE_URL
 - CERTIFICATE_BASE_URL
-- ACTIVITY_BASE_URL
-- REPORTING_BASE_URL
+- REPORTING_BASE_URL          (activity endpoints are now served here too)
 - PROPELAUTH_VERIFIER_KEY   RS256 public key PEM (from Secret Manager)
 - PROPELAUTH_ISSUER          tenant issuer URL
+
+NOTE: ACTIVITY_BASE_URL is no longer needed -- activity-service was merged
+into reporting-service. The activity client now defaults to REPORTING_BASE_URL.
 """
 from __future__ import annotations
 
@@ -53,7 +55,9 @@ def make_activity_client() -> ActivityClientPort:
     if _mode() == "production":
         from app.adapters.httpx_clients import HttpxActivityClient
 
-        return HttpxActivityClient(base_url=_require_env("ACTIVITY_BASE_URL"))
+        # activity-service was merged into reporting-service; activity
+        # endpoints (/activities/*) are now served by REPORTING_BASE_URL.
+        return HttpxActivityClient(base_url=_require_env("REPORTING_BASE_URL"))
     from app.adapters.fake_clients import FakeActivityClient
 
     return FakeActivityClient()

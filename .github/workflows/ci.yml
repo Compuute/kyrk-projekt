@@ -23,7 +23,6 @@ jobs:
           - membership-service
           - membership-intake
           - certificate-service
-          - activity-service
           - reporting-service
           - admin-web
     defaults:

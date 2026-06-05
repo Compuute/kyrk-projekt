@@ -12,3 +12,11 @@ class ReportNotFound(DomainError):
 
 class NotAuthorized(DomainError):
     pass
+
+
+class InvalidAgeBands(DomainError):
+    pass
+
+
+class ActivityNotFound(DomainError):
+    pass

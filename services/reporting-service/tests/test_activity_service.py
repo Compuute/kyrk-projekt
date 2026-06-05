@@ -24,35 +24,35 @@ def _payload(**overrides) -> CreateActivityInput:
     return CreateActivityInput(**defaults)
 
 
-def test_admin_can_create(service):
-    a = service.create(_actor(Role.ADMIN), _payload())
+def test_admin_can_create(activity_service):
+    a = activity_service.create(_actor(Role.ADMIN), _payload())
     assert a.participants_total == 20
 
 
-def test_viewer_cannot_create(service):
+def test_viewer_cannot_create(activity_service):
     with pytest.raises(NotAuthorized):
-        service.create(_actor(Role.VIEWER), _payload())
+        activity_service.create(_actor(Role.VIEWER), _payload())
 
 
-def test_age_band_sum_must_match(service):
+def test_age_band_sum_must_match(activity_service):
     with pytest.raises(InvalidAgeBands):
-        service.create(
+        activity_service.create(
             _actor(Role.ADMIN),
             _payload(age_band_counts={"0-6": 0, "7-12": 5, "13-17": 5, "18-25": 5, "26+": 0}),
         )
 
 
-def test_unknown_band_rejected(service):
+def test_unknown_band_rejected(activity_service):
     with pytest.raises(InvalidAgeBands):
-        service.create(
+        activity_service.create(
             _actor(Role.ADMIN),
             _payload(age_band_counts={"weird": 20}),
         )
 
 
-def test_export_period_is_aggregate_only(service):
-    service.create(_actor(Role.ADMIN), _payload())
-    out = service.export_period(_actor(Role.VIEWER), date(2025, 1, 1), date(2025, 12, 31))
+def test_export_period_is_aggregate_only(activity_service):
+    activity_service.create(_actor(Role.ADMIN), _payload())
+    out = activity_service.export_period(_actor(Role.VIEWER), date(2025, 1, 1), date(2025, 12, 31))
     assert len(out) == 1
     row = out[0]
     # No identity fields must appear in aggregate export
@@ -60,9 +60,9 @@ def test_export_period_is_aggregate_only(service):
         assert forbidden not in row
 
 
-def test_export_is_scoped_by_church(service):
-    service.create(_actor(Role.ADMIN, "c1"), _payload())
-    service.create(_actor(Role.ADMIN, "c2"), _payload())
-    out = service.export_period(_actor(Role.VIEWER, "c1"), date(2025, 1, 1), date(2025, 12, 31))
+def test_export_is_scoped_by_church(activity_service):
+    activity_service.create(_actor(Role.ADMIN, "c1"), _payload())
+    activity_service.create(_actor(Role.ADMIN, "c2"), _payload())
+    out = activity_service.export_period(_actor(Role.VIEWER, "c1"), date(2025, 1, 1), date(2025, 12, 31))
     assert len(out) == 1
     assert out[0]["church_id"] == "c1"

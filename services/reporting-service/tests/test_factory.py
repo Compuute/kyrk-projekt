@@ -1,11 +1,13 @@
 import pytest
 
 from app.adapters.factory import (
+    make_activity_repository,
     make_auth,
     make_bigquery_export,
     make_report_repository,
 )
 from app.adapters.fake_auth import FakeAuthAdapter
+from app.adapters.in_memory_activity_repository import InMemoryActivityRepository
 from app.adapters.in_memory_report_repository import InMemoryReportRepository
 from app.adapters.stub_bigquery_export import StubBigQueryExport
 
@@ -24,6 +26,7 @@ def _clear_env(monkeypatch):
 
 def test_default_mode_is_memory():
     assert isinstance(make_report_repository(), InMemoryReportRepository)
+    assert isinstance(make_activity_repository(), InMemoryActivityRepository)
     assert isinstance(make_bigquery_export(), StubBigQueryExport)
     assert isinstance(make_auth(), FakeAuthAdapter)
 
@@ -31,6 +34,11 @@ def test_default_mode_is_memory():
 def test_production_repo_picks_firestore(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
     assert type(make_report_repository()).__name__ == "FirestoreReportRepository"
+
+
+def test_production_activity_repo_picks_firestore(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    assert type(make_activity_repository()).__name__ == "FirestoreActivityRepository"
 
 
 def test_production_bigquery_requires_env(monkeypatch):

@@ -50,17 +50,10 @@ resource "google_project_iam_member" "certificate_service_firestore" {
 }
 
 # ============================================================================
-# activity-service — Firestore only
-# ============================================================================
-
-resource "google_project_iam_member" "activity_service_firestore" {
-  project = var.project_id
-  role    = "roles/datastore.user"
-  member  = "serviceAccount:${local.service_account_emails["activity-service"]}"
-}
-
-# ============================================================================
 # reporting-service — Firestore + BigQuery (specific dataset)
+# activity-service was merged into reporting-service. The reporting-service
+# SA now covers both the `activities` and `reports` Firestore collections
+# and the BigQuery analytics dataset.
 # ============================================================================
 
 resource "google_project_iam_member" "reporting_service_firestore" {

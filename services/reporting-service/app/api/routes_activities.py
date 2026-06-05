@@ -5,7 +5,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from app.api.deps import current_actor, get_service
+from app.api.deps import current_actor, get_activity_service
 from app.domain.errors import ActivityNotFound, InvalidAgeBands, NotAuthorized
 from app.domain.models import Activity, ActivityType, Actor
 from app.services.activity_service import ActivityService, CreateActivityInput
@@ -61,7 +61,7 @@ def _translate(exc: Exception) -> HTTPException:
 def create_activity(
     body: CreateActivityRequest,
     actor: Actor = Depends(current_actor),
-    svc: ActivityService = Depends(get_service),
+    svc: ActivityService = Depends(get_activity_service),
 ) -> ActivityResponse:
     try:
         activity = svc.create(actor, CreateActivityInput(**body.model_dump()))
@@ -74,7 +74,7 @@ def create_activity(
 def get_activity(
     activity_id: str,
     actor: Actor = Depends(current_actor),
-    svc: ActivityService = Depends(get_service),
+    svc: ActivityService = Depends(get_activity_service),
 ) -> ActivityResponse:
     try:
         activity = svc.get(actor, activity_id)
@@ -88,7 +88,7 @@ def export_period(
     start: date = Query(...),
     end: date = Query(...),
     actor: Actor = Depends(current_actor),
-    svc: ActivityService = Depends(get_service),
+    svc: ActivityService = Depends(get_activity_service),
 ) -> list[dict]:
     try:
         return svc.export_period(actor, start, end)

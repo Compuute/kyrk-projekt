@@ -55,7 +55,6 @@ jobs:
           - membership-service
           - membership-intake
           - certificate-service
-          - activity-service
           - reporting-service
           - admin-web
     steps:
@@ -145,32 +144,6 @@ jobs:
           secrets: |
             PROPELAUTH_API_KEY=propelauth-api-key:latest
 
-  deploy-activity-service:
-    name: deploy activity-service
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
-      - uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: activity-service
-          region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/activity-service:${{ env.TAG }}
-          flags: >-
-            --service-account=sa-activity-service@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-            --no-allow-unauthenticated
-            --max-instances=3
-            --memory=512Mi
-          env_vars: |
-            ADAPTER_MODE=production
-            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
-          secrets: |
-            PROPELAUTH_API_KEY=propelauth-api-key:latest
 
   deploy-reporting-service:
     name: deploy reporting-service
@@ -293,7 +266,6 @@ jobs:
       - deploy-membership-service
       - deploy-membership-intake
       - deploy-certificate-service
-      - deploy-activity-service
       - deploy-reporting-service
       - deploy-admin-web
     runs-on: ubuntu-latest
@@ -310,7 +282,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          for svc in membership-service membership-intake certificate-service activity-service reporting-service admin-web; do
+          for svc in membership-service membership-intake certificate-service reporting-service admin-web; do
             URL=$(gcloud run services describe $svc --region=${{ env.REGION }} --format='value(status.url)' || echo "n/a")
             echo "| $svc | $URL |" >> $GITHUB_STEP_SUMMARY
           done

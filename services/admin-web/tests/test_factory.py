@@ -20,7 +20,6 @@ def _clear_env(monkeypatch):
         "ADAPTER_MODE",
         "INTAKE_BASE_URL",
         "CERTIFICATE_BASE_URL",
-        "ACTIVITY_BASE_URL",
         "REPORTING_BASE_URL",
     ):
         monkeypatch.delenv(key, raising=False)
@@ -51,11 +50,13 @@ def test_production_certificate_requires_base_url(monkeypatch):
     assert type(client).__name__ == "HttpxCertificateClient"
 
 
-def test_production_activity_requires_base_url(monkeypatch):
+def test_production_activity_uses_reporting_base_url(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    with pytest.raises(RuntimeError, match="ACTIVITY_BASE_URL"):
+    # activity-service was merged into reporting-service; activity client
+    # now reads REPORTING_BASE_URL instead of a separate ACTIVITY_BASE_URL.
+    with pytest.raises(RuntimeError, match="REPORTING_BASE_URL"):
         make_activity_client()
-    monkeypatch.setenv("ACTIVITY_BASE_URL", "https://activity.example")
+    monkeypatch.setenv("REPORTING_BASE_URL", "https://reporting.example")
     client = make_activity_client()
     assert type(client).__name__ == "HttpxActivityClient"
 

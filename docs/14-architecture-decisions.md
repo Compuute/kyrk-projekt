@@ -5,21 +5,29 @@ Each decision below records **what** we chose, **why**, and
 
 ---
 
-## ADR-001: Six services instead of one monolith
+## ADR-001: Service-per-zone-boundary (originally six, now five)
 
 **Date:** 2025-06
-**Status:** accepted
+**Status:** amended by ADR-010 (activity+reporting merge)
 **Context:** kyrk-projekt handles three sensitivity levels of data
 (RED identity, YELLOW aggregates, GREEN content). A single monolith
 would share a single service account, a single DB connection, and a
 single deploy pipeline — making least-privilege impossible.
-**Decision:** split into six services, each with its own service
-account, Firestore collection, IAM scope, Dockerfile, and test suite.
-**Consequence:** slightly more operational complexity (6 deploys
-instead of 1) but each service has exactly the permissions it needs
-and nothing more.
-**When to revisit:** if the number of services exceeds ~12, consider
-whether a monolith with strong module boundaries would be simpler.
+**Decision:** split into services along zone and trust boundaries.
+The original prompt specified six; after 33 commits of empirical
+data we consolidated to five by merging the two YELLOW services
+(see ADR-010). The surviving boundaries are:
+- membership-intake (RED, public)
+- membership-service (RED, authenticated, KMS)
+- certificate-service (RED, authenticated)
+- reporting-service (YELLOW, authenticated, BigQuery)
+- admin-web (UI, stateless)
+**Consequence:** five services instead of six. Each service still has
+its own SA, Firestore collections, IAM scope, Dockerfile, and test
+suite. The operational overhead is reduced by one deploy job, one SA,
+and ~350 lines of infrastructure code.
+**When to revisit:** if a future requirement moves activity data into
+RED (e.g., participant-level tracking with names), split them back.
 
 ---
 
@@ -175,3 +183,85 @@ phased introduction plan and the criteria that trigger it.
 Downside: we can't measure the impact of feature changes on user
 behavior until the pipeline is in place.
 **When to revisit:** see the trigger criteria in `15-ab-testing-strategy.md`.
+
+---
+
+## ADR-010: Merge activity-service into reporting-service
+
+**Date:** 2025-06
+**Status:** accepted
+**Supersedes:** the implicit 5-service split in the original prompt (B)
+
+**Context:** after building all six services with production adapters,
+CI/CD, and operational docs (33 commits of empirical data), we
+measured the actual overhead and security properties of each service
+boundary. Data showed:
+
+- `activity-service` had 30% infrastructure overhead (243 lines of
+  boilerplate out of 798 total) — the highest ratio of any service.
+- `propelauth_auth.py` was copy-pasted identically across 5 services
+  (261 lines of pure duplication).
+- `activity-service` and `reporting-service` are both YELLOW-zone,
+  both `--no-allow-unauthenticated`, both PropelAuth-protected, and
+  share domain concepts (`activity_type`, `age_band_counts`,
+  `participants_total`). Reporting's `GenerateReportInput` takes
+  `activities: list[dict]` — it already knows what an activity is.
+- The only IAM difference was BigQuery access (reporting had
+  `bigquery.dataEditor`, activity did not). This prevented a
+  theoretical activity→BigQuery write — but that threat requires a
+  code change which would be caught by code review + CI.
+
+We evaluated against the Israeli defense-in-depth principle:
+"multiple independent barriers, each sufficient alone." The SA
+isolation between two YELLOW services was a barrier that protected
+the same asset (aggregate data) against the same threats at the same
+trust level. Removing it leaves five independent layers intact. See
+[`docs/16-defense-in-depth.md`](16-defense-in-depth.md) for the full
+analysis.
+
+**Decision:** merge `activity-service` into `reporting-service`.
+The combined service handles activity tracking (create, get, export)
+AND report generation (monthly, quarterly, board export). It runs
+under one Cloud Run service, one SA, one Dockerfile.
+
+**Consequence:**
+- ~350 lines of infrastructure code removed
+- 1 fewer deploy job, SA, IAM binding, healthz target
+- HTTP hop in admin-web KPI dashboard eliminated (export_period is
+  now an internal function call)
+- Duplicated PropelAuth + FakeAuth adapters eliminated
+- 3 of 8 defense layers changed; 5 of 5 independent layers preserved
+- Combined SA has `datastore.user` + `bigquery.dataEditor`
+- Activity endpoints still cannot reach BigQuery — no code path
+  exists; adding one requires review + CI
+
+**What we kept:**
+- Firestore collections remain separate (`activities` vs `reports`)
+- `pii_guard` runs on every reporting ingest path
+- Activity endpoints validate age-band sums via Pydantic
+- PropelAuth RBAC on every endpoint
+
+**When to revisit:** if a future requirement places activity data in
+a different zone (e.g., participant-level tracking that becomes RED),
+split them back. The port pattern makes this a one-day operation.
+
+---
+
+## ADR-011: Defense-in-depth policy as a permanent document
+
+**Date:** 2025-06
+**Status:** accepted
+**Context:** the activity+reporting merge decision required a
+structured evaluation of which service boundaries earn their keep.
+That evaluation should be repeatable for any future merge or split.
+**Decision:** create [`docs/16-defense-in-depth.md`](16-defense-in-depth.md)
+as the permanent reference for how kyrk-projekt applies defense-in-
+depth. It defines the decision matrix (5 yes/no questions), the
+non-negotiable RED-zone boundaries, and the evaluation process for
+future changes.
+**Consequence:** any future service merge or split must reference this
+document and answer the five evaluation questions in writing (PR
+description or new ADR). No merge across zone boundaries without a
+full security review + DPIA update.
+**When to revisit:** when new zones or trust levels are introduced
+(e.g., a BLUE zone for financial transactions).
