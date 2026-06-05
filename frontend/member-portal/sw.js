@@ -2,6 +2,7 @@ const CACHE_NAME = 'kyrka-v1';
 const OFFLINE_URLS = [
   '/',
   '/index.html',
+  '/donate.html',
   '/styles.css',
   '/app.js',
   '/content.json',

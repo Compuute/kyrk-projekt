@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Ge en gåva — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .donate-card {
+      background: var(--card, #222);
+      border: 1px solid var(--border, #333);
+      border-radius: 14px;
+      padding: 24px 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .amount-btn {
+      padding: 14px;
+      border: 2px solid var(--accent, #3b5bdb);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--accent, #3b5bdb);
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .amount-btn.selected {
+      background: var(--accent, #3b5bdb);
+      color: white;
+    }
+    .amount-custom {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid var(--border, #333);
+      border-radius: 10px;
+      background: transparent;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .swish-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #5bbf2e;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      margin: 12px 0;
+    }
+    .swish-btn:hover { opacity: 0.9; }
+    .other-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .method-btn {
+      display: block;
+      padding: 14px;
+      border: 1px solid var(--border, #333);
+      border-radius: 10px;
+      background: transparent;
+      color: white;
+      font-size: 15px;
+      text-decoration: none;
+      text-align: center;
+    }
+    .receipt-note {
+      font-size: 13px;
+      color: #888;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--accent, #3b5bdb);
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <a href="/" class="back-link" id="back-link">← Tillbaka</a>
+
+    <div class="donate-card">
+      <h1 id="donate-title">Ge en gåva</h1>
+      <p id="donate-desc" style="color: #aaa; font-size: 14px;">
+        Ditt stöd gör vår verksamhet möjlig. Alla gåvor går till församlingens arbete.
+      </p>
+
+      <div class="amount-grid" id="amount-grid">
+        <button class="amount-btn" data-amount="50">50 kr</button>
+        <button class="amount-btn" data-amount="100">100 kr</button>
+        <button class="amount-btn selected" data-amount="200">200 kr</button>
+        <button class="amount-btn" data-amount="500">500 kr</button>
+        <button class="amount-btn" data-amount="1000">1000 kr</button>
+        <button class="amount-btn" data-amount="custom">Annat</button>
+      </div>
+
+      <input type="number" class="amount-custom" id="custom-amount"
+             placeholder="Ange belopp i SEK" style="display:none;" />
+
+      <a class="swish-btn" id="swish-btn" href="#">
+        Swish — betala nu
+      </a>
+
+      <div class="other-methods">
+        <a class="method-btn" id="bankgiro-btn" href="#bankgiro">
+          Bankgiro: 5123-4567
+        </a>
+      </div>
+
+      <div class="receipt-note" id="receipt-note">
+        <strong>Gåvokvitto:</strong> Gåvor över 200 kr ger rätt till skattereduktion.
+        Ange din e-post nedan så skickar vi ett gåvokvitto.
+        <br/><br/>
+        Org.nr: 802492-9237 · Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Swish configuration — change these to the church's real values
+    var SWISH_NUMBER = '1234567890';  // Church Swish number (replace with real)
+    var SWISH_PAYEE_ALIAS = '1234567890';
+
+    var selectedAmount = 200;
+    var buttons = document.querySelectorAll('.amount-btn');
+    var customInput = document.getElementById('custom-amount');
+    var swishBtn = document.getElementById('swish-btn');
+
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        buttons.forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        if (btn.dataset.amount === 'custom') {
+          customInput.style.display = 'block';
+          customInput.focus();
+          selectedAmount = parseInt(customInput.value) || 0;
+        } else {
+          customInput.style.display = 'none';
+          selectedAmount = parseInt(btn.dataset.amount);
+        }
+        updateSwishLink();
+      });
+    });
+
+    customInput.addEventListener('input', function() {
+      selectedAmount = parseInt(customInput.value) || 0;
+      updateSwishLink();
+    });
+
+    function updateSwishLink() {
+      if (selectedAmount > 0) {
+        // Swish deep link format
+        // On mobile: opens Swish app directly
+        // On desktop: shows a message to use mobile
+        var msg = encodeURIComponent('Gåva till Abune Tekle Haymanot');
+        swishBtn.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
+          SWISH_PAYEE_ALIAS + '"},"amount":{"value":' + selectedAmount +
+          '},"message":{"value":"' + decodeURIComponent(msg) + '","editable":false}}';
+        swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+      } else {
+        swishBtn.href = '#';
+        swishBtn.textContent = 'Swish — välj belopp';
+      }
+    }
+
+    updateSwishLink();
+
+    // Language support
+    var translations = {
+      sv: {
+        title: 'Ge en gåva',
+        desc: 'Ditt stöd gör vår verksamhet möjlig. Alla gåvor går till församlingens arbete.',
+        back: '← Tillbaka',
+        receipt: 'Gåvokvitto: Gåvor över 200 kr ger rätt till skattereduktion. Org.nr: 802492-9237',
+        custom: 'Annat',
+        pay: 'Swish — betala nu'
+      },
+      am: {
+        title: 'ስጦታ ይስጡ',
+        desc: 'ድጋፍዎ ሥራችንን ይቻላል ያደርጋል። ሁሉም ስጦታዎች ለቤተ ክርስቲያኑ ሥራ ይውላሉ።',
+        back: '← ተመለስ',
+        receipt: 'የስጦታ ደረሰኝ: ከ200 ክር በላይ ስጦታዎች ለግብር ቅናሽ ያስተዋውቃሉ። Org.nr: 802492-9237',
+        custom: 'ሌላ',
+        pay: 'Swish — አሁን ይክፈሉ'
+      }
+    };
+
+    // Check if parent page set a language preference
+    var lang = (navigator.language || 'sv').slice(0,2) === 'am' ? 'am' : 'sv';
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('lang') === 'am') lang = 'am';
+
+    if (lang === 'am') {
+      var t = translations.am;
+      document.getElementById('donate-title').textContent = t.title;
+      document.getElementById('donate-desc').textContent = t.desc;
+      document.getElementById('back-link').textContent = t.back;
+    }
+  </script>
+</body>
+</html>
