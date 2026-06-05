@@ -1,0 +1,37 @@
+{
+  "name": "telegram_activity_broadcast",
+  "zone": {"source": "GREEN", "destination": "GREEN"},
+  "trigger": {
+    "type": "webhook",
+    "path": "/n8n/webhooks/activity-published",
+    "http_method": "POST",
+    "source_service": "admin-web"
+  },
+  "description": "Broadcasts new activities to the church Telegram channel in both Swedish and Amharic.",
+  "steps": [
+    {
+      "id": "1-webhook-receive",
+      "node": "n8n-nodes-base.webhook",
+      "notes": "Receives POST from admin-web /content-editor/publish with the new activity data."
+    },
+    {
+      "id": "2-format-message",
+      "node": "n8n-nodes-base.function",
+      "notes": "Formats bilingual message: emoji + sv title + am title + date/time + sv description + am description. Example: '📢 Söndagsgudstjänst / የእሁድ ቅዳሴ\n🗓 8 juni kl 11:00\n📍 Storgatan 1\n\nGudstjänst med nattvard.\nቅዳሴ ለቁርባን ገር።'"
+    },
+    {
+      "id": "3-send-telegram",
+      "node": "n8n-nodes-base.telegram",
+      "notes": "POST to Telegram Bot API sendMessage with chat_id=@kyrka_kanal. parse_mode=HTML for formatting."
+    },
+    {
+      "id": "4-optional-email",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "Optional: send email via Mailgun to members without Telegram. Only if email list is configured."
+    }
+  ],
+  "secrets": ["TELEGRAM_BOT_TOKEN"],
+  "schedule": null,
+  "allowedFields": ["title_sv", "title_am", "date", "time", "location", "description_sv", "description_am"],
+  "blockedFields": ["personal_number", "name", "email", "phone"]
+}

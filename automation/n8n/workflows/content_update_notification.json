@@ -1,0 +1,32 @@
+{
+  "name": "content_update_notification",
+  "zone": {"source": "GREEN", "destination": "GREEN"},
+  "trigger": {
+    "type": "webhook",
+    "path": "/n8n/webhooks/content-updated",
+    "http_method": "POST",
+    "source_service": "admin-web"
+  },
+  "description": "Notifies the Telegram channel when content is updated in the member portal. Sends a short bilingual summary of what changed.",
+  "steps": [
+    {
+      "id": "1-webhook-receive",
+      "node": "n8n-nodes-base.webhook",
+      "notes": "Receives POST from admin-web /content-editor/save with a summary of changed keys."
+    },
+    {
+      "id": "2-format-message",
+      "node": "n8n-nodes-base.function",
+      "notes": "Formats a notification message listing which content sections were updated. Example: '✅ Innehållet uppdaterat / ይዘት ተቀይሯል\n\nÄndrade sektioner: Meddelanden, Kommande aktiviteter\nየተቀየሩ ክፍሎች: ማስታወቂያዎች, የቀረቡ ዝግጅቶች'"
+    },
+    {
+      "id": "3-send-telegram",
+      "node": "n8n-nodes-base.telegram",
+      "notes": "POST to Telegram Bot API sendMessage with chat_id=@kyrka_kanal. parse_mode=HTML for formatting."
+    }
+  ],
+  "secrets": ["TELEGRAM_BOT_TOKEN"],
+  "schedule": null,
+  "allowedFields": ["changed_sections", "editor_user_id", "timestamp"],
+  "blockedFields": ["personal_number", "name", "email", "phone"]
+}

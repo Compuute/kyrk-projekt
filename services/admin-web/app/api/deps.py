@@ -6,10 +6,12 @@ from fastapi.responses import RedirectResponse
 from app.adapters.factory import (
     make_activity_client,
     make_certificate_client,
+    make_content_store,
     make_grant_tracker,
     make_intake_client,
     make_reporting_client,
     make_session_adapter,
+    make_translator,
 )
 from app.config import Settings, load_settings
 from app.ports.clients import (
@@ -18,8 +20,10 @@ from app.ports.clients import (
     IntakeClientPort,
     ReportingClientPort,
 )
+from app.ports.content_store import ContentStorePort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.session import SessionInfo, SessionPort
+from app.ports.translation import TranslationPort
 
 
 _INTAKE: IntakeClientPort | None = None
@@ -27,6 +31,8 @@ _CERTIFICATE: CertificateClientPort | None = None
 _ACTIVITY: ActivityClientPort | None = None
 _REPORTING: ReportingClientPort | None = None
 _GRANT_TRACKER: GrantTrackerPort | None = None
+_CONTENT_STORE: ContentStorePort | None = None
+_TRANSLATOR: TranslationPort | None = None
 _SESSION: SessionPort | None = None
 _SETTINGS: Settings = load_settings()
 
@@ -68,6 +74,20 @@ def get_grant_tracker() -> GrantTrackerPort:
     if _GRANT_TRACKER is None:
         _GRANT_TRACKER = make_grant_tracker()
     return _GRANT_TRACKER
+
+
+def get_content_store() -> ContentStorePort:
+    global _CONTENT_STORE
+    if _CONTENT_STORE is None:
+        _CONTENT_STORE = make_content_store()
+    return _CONTENT_STORE
+
+
+def get_translator() -> TranslationPort:
+    global _TRANSLATOR
+    if _TRANSLATOR is None:
+        _TRANSLATOR = make_translator()
+    return _TRANSLATOR
 
 
 def get_session_adapter() -> SessionPort:

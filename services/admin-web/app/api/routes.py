@@ -13,11 +13,13 @@ from fastapi.templating import Jinja2Templates
 from app.api.deps import (
     get_activity_client,
     get_certificate_client,
+    get_content_store,
     get_grant_tracker,
     get_intake_client,
     get_reporting_client,
     get_session_adapter,
     get_settings,
+    get_translator,
 )
 from app.ports.session import SessionInfo, SessionPort
 from app.config import Settings
@@ -29,7 +31,9 @@ from app.ports.clients import (
     IssueCertificateRequest,
     ReportingClientPort,
 )
+from app.ports.content_store import ContentStorePort
 from app.ports.grant_tracker import GrantApplication, GrantTrackerPort
+from app.ports.translation import TranslationPort
 
 
 router = APIRouter()
@@ -769,6 +773,197 @@ def grant_status_update(
     return _flash_redirect(
         f"/grants/{grant_id}",
         f"Status uppdaterad till: {STATUS_LABELS.get(new_status, new_status)}",
+        level="success",
+    )
+
+
+# --------------------------------------------------------------- content editor
+
+
+def _flatten_content(content: dict, prefix: str = "") -> list[dict]:
+    """Flatten a bilingual content dict into a list of editable rows.
+
+    Each row has: key, sv, am.  Only leaf bilingual objects (dicts with "sv")
+    are included.  Arrays like upcoming/announcements get indexed keys.
+    """
+    rows: list[dict] = []
+    for k, v in content.items():
+        full_key = f"{prefix}.{k}" if prefix else k
+        if isinstance(v, dict):
+            if "sv" in v and isinstance(v.get("sv"), str):
+                rows.append({
+                    "key": full_key,
+                    "sv": v.get("sv", ""),
+                    "am": v.get("am", ""),
+                })
+            else:
+                rows.extend(_flatten_content(v, full_key))
+        elif isinstance(v, list):
+            for i, item in enumerate(v):
+                if isinstance(item, dict):
+                    rows.extend(_flatten_content(item, f"{full_key}[{i}]"))
+    return rows
+
+
+def _set_nested(content: dict, key: str, lang: str, value: str) -> None:
+    """Set a value in a nested dict using a dot-notation key with optional array indices."""
+    import re
+    parts = re.split(r'\.', key)
+    obj = content
+    for i, part in enumerate(parts):
+        # Check for array index like "upcoming[0]"
+        match = re.match(r'^(\w+)\[(\d+)\]$', part)
+        if match:
+            arr_key = match.group(1)
+            idx = int(match.group(2))
+            if arr_key not in obj or not isinstance(obj[arr_key], list):
+                return
+            if idx >= len(obj[arr_key]):
+                return
+            if i == len(parts) - 1:
+                if isinstance(obj[arr_key][idx], dict):
+                    obj[arr_key][idx][lang] = value
+                return
+            obj = obj[arr_key][idx]
+        else:
+            if i == len(parts) - 1:
+                if isinstance(obj.get(part), dict) and "sv" in obj[part]:
+                    obj[part][lang] = value
+                return
+            if part not in obj or not isinstance(obj[part], dict):
+                return
+            obj = obj[part]
+
+
+@router.get("/content-editor", response_class=HTMLResponse)
+def content_editor(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    store: ContentStorePort = Depends(get_content_store),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    content = store.load()
+    rows = _flatten_content(content)
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="content_editor.html",
+        context={
+            "session": session,
+            "rows": rows,
+            "upcoming": content.get("upcoming", []),
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.post("/content-editor/save")
+async def content_editor_save(
+    request: Request,
+    store: ContentStorePort = Depends(get_content_store),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    form = await request.form()
+
+    content = store.load()
+
+    for form_key, value in form.items():
+        # Form keys like "sv::church.name" or "am::church.name"
+        if "::" not in form_key:
+            continue
+        lang, content_key = form_key.split("::", 1)
+        if lang in ("sv", "am"):
+            _set_nested(content, content_key, lang, str(value))
+
+    store.save(content)
+
+    return _flash_redirect("/content-editor", "Innehåll sparat", level="success")
+
+
+@router.post("/content-editor/translate")
+async def content_editor_translate(
+    request: Request,
+    translator: TranslationPort = Depends(get_translator),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    body = await request.json()
+    text = body.get("text", "")
+    target_lang = body.get("target_lang", "am")
+    source_lang = body.get("source_lang", "sv")
+
+    translated = translator.translate(text, source_lang, target_lang)
+
+    from fastapi.responses import JSONResponse
+
+    return JSONResponse({"translated": translated})
+
+
+@router.get("/content-editor/add-activity", response_class=HTMLResponse)
+def content_add_activity_form(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="content_add_activity.html",
+        context={
+            "session": session,
+            "today": date.today().isoformat(),
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.post("/content-editor/add-activity")
+def content_add_activity_save(
+    request: Request,
+    title_sv: str = Form(...),
+    activity_date: str = Form(...),
+    activity_time: str = Form(...),
+    description_sv: str = Form(...),
+    store: ContentStorePort = Depends(get_content_store),
+    translator: TranslationPort = Depends(get_translator),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    title_am = translator.translate(title_sv, "sv", "am")
+    description_am = translator.translate(description_sv, "sv", "am")
+
+    content = store.load()
+    if "upcoming" not in content:
+        content["upcoming"] = []
+
+    content["upcoming"].append({
+        "title": {"sv": title_sv, "am": title_am},
+        "date": activity_date,
+        "time": activity_time,
+        "description": {"sv": description_sv, "am": description_am},
+    })
+
+    store.save(content)
+
+    return _flash_redirect(
+        "/content-editor",
+        f"Aktivitet tillagd: {title_sv}",
         level="success",
     )
 

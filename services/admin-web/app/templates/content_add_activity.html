@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Lägg till aktivitet — Admin{% endblock %}
+{% block content %}
+<h1>Lägg till aktivitet</h1>
+<p class="muted">Fyll i på svenska. Amharisk översättning skapas automatiskt.</p>
+
+<form method="post" action="/content-editor/add-activity" class="stacked">
+  <label>
+    Titel (svenska)
+    <input type="text" name="title_sv" required placeholder="t.ex. Söndagsgudstjänst" />
+  </label>
+  <label>
+    Datum
+    <input type="date" name="activity_date" required value="{{ today }}" />
+  </label>
+  <label>
+    Tid
+    <input type="time" name="activity_time" required value="11:00" />
+  </label>
+  <label>
+    Beskrivning (svenska)
+    <textarea name="description_sv" rows="3" required placeholder="Beskriv aktiviteten..."></textarea>
+  </label>
+  <div style="display: flex; gap: 10px; margin-top: 8px;">
+    <button type="submit" class="primary">Lägg till</button>
+    <a href="/content-editor" class="btn-link">Avbryt</a>
+  </div>
+</form>
+{% endblock %}

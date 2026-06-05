@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Innehållsredigerare — Admin{% endblock %}
+{% block content %}
+<h1>Innehållsredigerare</h1>
+<p class="muted">Redigera det tvåspråkiga innehållet för medlemsportalen (sv + am).</p>
+
+<form method="post" action="/content-editor/save">
+  <table class="content-table">
+    <thead>
+      <tr>
+        <th>Nyckel</th>
+        <th>Svenska</th>
+        <th>አማርኛ (Amhariska)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="key-cell"><code>{{ row.key }}</code></td>
+        <td>
+          <textarea name="sv::{{ row.key }}" rows="2" class="editor-textarea">{{ row.sv }}</textarea>
+        </td>
+        <td>
+          <textarea name="am::{{ row.key }}" rows="2" class="editor-textarea am-textarea" id="am-{{ loop.index }}">{{ row.am }}</textarea>
+          <button type="button" class="translate-btn" data-sv-field="sv::{{ row.key }}" data-am-field="am-{{ loop.index }}">Översätt till አማርኛ</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top: 16px; display: flex; gap: 12px; align-items: center;">
+    <button type="submit" class="primary">Spara alla ändringar</button>
+    <a href="/content-editor/add-activity" class="btn-link">+ Lägg till aktivitet</a>
+  </div>
+</form>
+
+<style>
+  .content-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+  .content-table th,
+  .content-table td {
+    padding: 8px 6px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    vertical-align: top;
+    text-align: left;
+  }
+  .content-table th {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .key-cell {
+    width: 180px;
+    word-break: break-all;
+  }
+  .key-cell code {
+    background: #eef0f3;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .editor-textarea {
+    width: 100%;
+    font-size: 14px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .am-textarea {
+    font-family: 'Noto Sans Ethiopic', inherit;
+  }
+  .translate-btn {
+    margin-top: 4px;
+    font-size: 12px;
+    padding: 3px 8px;
+    background: #f2f4f8;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--accent);
+  }
+  .translate-btn:hover {
+    background: #e3e7f0;
+  }
+</style>
+
+<script>
+document.querySelectorAll('.translate-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var svFieldName = btn.getAttribute('data-sv-field');
+    var amFieldId = btn.getAttribute('data-am-field');
+    var svTextarea = document.querySelector('textarea[name="' + svFieldName + '"]');
+    var amTextarea = document.getElementById(amFieldId);
+    if (!svTextarea || !amTextarea) return;
+    var text = svTextarea.value;
+    if (!text.trim()) return;
+    btn.textContent = 'Översätter...';
+    btn.disabled = true;
+    fetch('/content-editor/translate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: text, target_lang: 'am', source_lang: 'sv'})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      amTextarea.value = data.translated || '';
+      btn.textContent = 'Översätt till አማርኛ';
+      btn.disabled = false;
+    })
+    .catch(function() {
+      btn.textContent = 'Fel — försök igen';
+      btn.disabled = false;
+    });
+  });
+});
+</script>
+{% endblock %}

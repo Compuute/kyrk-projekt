@@ -24,8 +24,10 @@ from app.ports.clients import (
     IntakeClientPort,
     ReportingClientPort,
 )
+from app.ports.content_store import ContentStorePort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.session import SessionPort
+from app.ports.translation import TranslationPort
 
 
 def _mode() -> str:
@@ -83,6 +85,28 @@ def make_grant_tracker() -> GrantTrackerPort:
     from app.adapters.fake_grant_tracker import FakeGrantTracker
 
     return FakeGrantTracker()
+
+
+def make_content_store() -> ContentStorePort:
+    if _mode() == "production":
+        # Cloud Storage adapter would be imported here when available
+        from app.adapters.fake_content_store import FakeContentStore
+
+        return FakeContentStore()
+    from app.adapters.fake_content_store import FakeContentStore
+
+    return FakeContentStore()
+
+
+def make_translator() -> TranslationPort:
+    if _mode() == "production":
+        # HttpxTranslator would call Anthropic API for real translation
+        from app.adapters.fake_translator import FakeTranslator
+
+        return FakeTranslator()
+    from app.adapters.fake_translator import FakeTranslator
+
+    return FakeTranslator()
 
 
 def make_session_adapter() -> SessionPort:

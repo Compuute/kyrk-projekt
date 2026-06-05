@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Sankt Johannes Ortodoxa Kyrka</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container" id="app">
+
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <header class="hero">
+      <div class="logo-placeholder" aria-label="Church logo">&#x2726;</div>
+      <h1 id="church-name"></h1>
+      <p id="church-tagline" class="muted"></p>
+    </header>
+
+    <section class="card" id="upcoming-section">
+      <h2 id="upcoming-title"></h2>
+      <div id="upcoming-list"></div>
+    </section>
+
+    <section class="card" id="announcements-section">
+      <h2 id="announcements-title"></h2>
+      <div id="announcements-list"></div>
+    </section>
+
+    <nav class="grid" id="quick-links">
+      <a class="tile" id="link-member" href="#"></a>
+      <a class="tile" id="link-donate" href="#"></a>
+      <a class="tile" id="link-telegram" href="#"></a>
+      <a class="tile" id="link-youth" href="#"></a>
+    </nav>
+
+    <footer class="foot">
+      <p class="muted small" id="footer-privacy"></p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    (async function () {
+      var content = await loadContent('./content.json');
+      var lang = detectLanguage();
+      renderPage(content, lang);
+      setupLanguageSwitcher(content);
+    })();
+  </script>
+</body>
+</html>
