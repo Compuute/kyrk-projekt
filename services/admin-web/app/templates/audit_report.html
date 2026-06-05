@@ -11,7 +11,7 @@
   <div class="card" id="audit-report">
     <div style="display:flex;justify-content:space-between;align-items:baseline;">
       <h1>
-        {% if report_type == "imy" %}🛡 IMY — GDPR-underlag
+        {% if report_type == "gdpr" %}🛡 GDPR-underlag
         {% elif report_type == "sst" %}🏛 SST — Verksamhetsunderlag
         {% elif report_type == "kommun" %}🏘 Kommunalt verksamhetsbidrag
         {% elif report_type == "intern" %}📊 Styrelseunderlag
@@ -53,7 +53,7 @@
     {% endif %}
     {% endif %}
 
-    {% if report_type == "imy" %}
+    {% if report_type == "gdpr" %}
     <h2>GDPR-efterlevnad</h2>
     <table class="info-table">
       <tr><td class="info-label">Integritetspolicy</td><td>✅ Publicerad (sv + am) — kyrka-portal.pages.dev/privacy.html</td></tr>
