@@ -6,6 +6,7 @@ from fastapi.responses import RedirectResponse
 from app.adapters.factory import (
     make_activity_client,
     make_certificate_client,
+    make_grant_tracker,
     make_intake_client,
     make_reporting_client,
     make_session_adapter,
@@ -17,6 +18,7 @@ from app.ports.clients import (
     IntakeClientPort,
     ReportingClientPort,
 )
+from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.session import SessionInfo, SessionPort
 
 
@@ -24,6 +26,7 @@ _INTAKE: IntakeClientPort | None = None
 _CERTIFICATE: CertificateClientPort | None = None
 _ACTIVITY: ActivityClientPort | None = None
 _REPORTING: ReportingClientPort | None = None
+_GRANT_TRACKER: GrantTrackerPort | None = None
 _SESSION: SessionPort | None = None
 _SETTINGS: Settings = load_settings()
 
@@ -58,6 +61,13 @@ def get_reporting_client() -> ReportingClientPort:
     if _REPORTING is None:
         _REPORTING = make_reporting_client()
     return _REPORTING
+
+
+def get_grant_tracker() -> GrantTrackerPort:
+    global _GRANT_TRACKER
+    if _GRANT_TRACKER is None:
+        _GRANT_TRACKER = make_grant_tracker()
+    return _GRANT_TRACKER
 
 
 def get_session_adapter() -> SessionPort:

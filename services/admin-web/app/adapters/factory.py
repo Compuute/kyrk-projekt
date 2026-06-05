@@ -24,6 +24,7 @@ from app.ports.clients import (
     IntakeClientPort,
     ReportingClientPort,
 )
+from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.session import SessionPort
 
 
@@ -71,6 +72,17 @@ def make_reporting_client() -> ReportingClientPort:
     from app.adapters.fake_clients import FakeReportingClient
 
     return FakeReportingClient()
+
+
+def make_grant_tracker() -> GrantTrackerPort:
+    if _mode() == "production":
+        # Firestore adapter would be imported here when available
+        from app.adapters.fake_grant_tracker import FakeGrantTracker
+
+        return FakeGrantTracker()
+    from app.adapters.fake_grant_tracker import FakeGrantTracker
+
+    return FakeGrantTracker()
 
 
 def make_session_adapter() -> SessionPort:
