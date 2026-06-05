@@ -11,6 +11,13 @@ class CertificateType(str, Enum):
     CONFIRMATION = "confirmation"
     MARRIAGE = "marriage"
     FUNERAL = "funeral"
+    # Sunday School certification levels (Ethiopian Orthodox Tewahedo)
+    SUNDAY_SCHOOL_SEED = "sunday_school_seed"
+    SUNDAY_SCHOOL_PLANT = "sunday_school_plant"
+    SUNDAY_SCHOOL_TREE = "sunday_school_tree"
+    SUNDAY_SCHOOL_DISCIPLE = "sunday_school_disciple"
+    SUNDAY_SCHOOL_SERVANT = "sunday_school_servant"
+    SUNDAY_SCHOOL_AMBASSADOR = "sunday_school_ambassador"
 
 
 class CertificateStatus(str, Enum):

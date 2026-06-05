@@ -11,10 +11,20 @@
     <label>
       Typ
       <select name="certificate_type" required>
-        <option value="baptism">Dop (baptism)</option>
-        <option value="confirmation">Konfirmation</option>
-        <option value="marriage">Vigsel</option>
-        <option value="funeral">Begravning</option>
+        <optgroup label="Kyrkliga handlingar">
+          <option value="baptism">Dop / ጥምቀት / Baptism</option>
+          <option value="confirmation">Konfirmation / ክርስትና / Confirmation</option>
+          <option value="marriage">Vigsel / ጋብቻ / Marriage</option>
+          <option value="funeral">Begravning / ቀብር / Funeral</option>
+        </optgroup>
+        <optgroup label="Söndagsskolan / የሰንበት ትምህርት ቤት">
+          <option value="sunday_school_seed">🌱 Fröet (5-7) / ዘር / The Seed</option>
+          <option value="sunday_school_plant">🌿 Plantan (7-9) / ተክል / The Plant</option>
+          <option value="sunday_school_tree">🌳 Trädet (9-11) / ዛፍ / The Tree</option>
+          <option value="sunday_school_disciple">📖 Lärjungen (11-13) / ደቀ መዝሙር / The Disciple</option>
+          <option value="sunday_school_servant">🕯 Tjänaren (13-15) / አገልጋይ / The Servant</option>
+          <option value="sunday_school_ambassador">👑 Ambassadören (15-18) / አምባሳደር / Ambassador</option>
+        </optgroup>
       </select>
     </label>
     <label>

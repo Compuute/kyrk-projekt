@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "certificate_types": {
+    "baptism": {
+      "sv": "Dopbevis",
+      "am": "የጥምቀት ምስክር ወረቀት",
+      "en": "Certificate of Baptism"
+    },
+    "confirmation": {
+      "sv": "Konfirmationsbevis",
+      "am": "የክርስትና ማረጋገጫ",
+      "en": "Certificate of Confirmation"
+    },
+    "marriage": {
+      "sv": "Vigselbevis",
+      "am": "የጋብቻ ምስክር ወረቀት",
+      "en": "Certificate of Marriage"
+    },
+    "funeral": {
+      "sv": "Begravningsbevis",
+      "am": "የቀብር ምስክር ወረቀት",
+      "en": "Certificate of Funeral"
+    },
+    "sunday_school_seed": {
+      "sv": "Söndagsskolan — Fröet (5-7 år)",
+      "am": "የሰንበት ትምህርት ቤት — ዘር (5-7 ዓመት)",
+      "en": "Sunday School — The Seed (Age 5-7)",
+      "icon": "🌱",
+      "level": 1,
+      "age_range": "5-7",
+      "requirements": {
+        "sv": ["ሀ ሁ ሂ (grundläggande Fidel)", "Korstecknet", "Grundläggande bibelberättelser (Adam & Eva, Noa)"],
+        "am": ["ሀ ሁ ሂ (መሠረታዊ ፊደል)", "የመስቀል ምልክት", "መሠረታዊ የመጽሐፍ ቅዱስ ታሪኮች (አዳምና ሔዋን፣ ኖኅ)"],
+        "en": ["ሀ ሁ ሂ (basic Fidel)", "Sign of the Cross", "Basic Bible stories (Adam & Eve, Noah)"]
+      }
+    },
+    "sunday_school_plant": {
+      "sv": "Söndagsskolan — Plantan (7-9 år)",
+      "am": "የሰንበት ትምህርት ቤት — ተክል (7-9 ዓመት)",
+      "en": "Sunday School — The Plant (Age 7-9)",
+      "icon": "🌿",
+      "level": 2,
+      "age_range": "7-9",
+      "requirements": {
+        "sv": ["Komplett Fidel och Abugida", "Herrens bön", "Bibelberättelser: Josef, Mose, Tio budorden"],
+        "am": ["ሙሉ ፊደልና አቡጊዳ", "የአባታችን ጸሎት", "የመጽሐፍ ቅዱስ ታሪኮች: ዮሴፍ፣ ሙሴ፣ ዐሥርቱ ትእዛዛት"],
+        "en": ["Complete Fidel and Abugida", "Lord's Prayer", "Bible stories: Joseph, Moses, Ten Commandments"]
+      }
+    },
+    "sunday_school_tree": {
+      "sv": "Söndagsskolan — Trädet (9-11 år)",
+      "am": "የሰንበት ትምህርት ቤት — ዛፍ (9-11 ዓመት)",
+      "en": "Sunday School — The Tree (Age 9-11)",
+      "icon": "🌳",
+      "level": 3,
+      "age_range": "9-11",
+      "requirements": {
+        "sv": ["Bönläsning på Ge'ez", "Jesu liv och apostlarna", "Kyrkokalender"],
+        "am": ["በግዕዝ ጸሎት ማንበብ", "የኢየሱስ ሕይወትና ሐዋርያት", "የቤተ ክርስቲያን ቀን መቁጠሪያ"],
+        "en": ["Prayer reading in Ge'ez", "Life of Christ and Apostles", "Church Calendar"]
+      }
+    },
+    "sunday_school_disciple": {
+      "sv": "Söndagsskolan — Lärjungen (11-13 år)",
+      "am": "የሰንበት ትምህርት ቤት — ደቀ መዝሙር (11-13 ዓመት)",
+      "en": "Sunday School — The Disciple (Age 11-13)",
+      "icon": "📖",
+      "level": 4,
+      "age_range": "11-13",
+      "requirements": {
+        "sv": ["Trosbekännelsen", "Sakramenten", "Fastan och helgon"],
+        "am": ["ጸሎተ ሃይማኖት", "ምስጢራት", "ጾምና ቅዱሳን"],
+        "en": ["The Creed", "Sacraments", "Fasting and Saints"]
+      }
+    },
+    "sunday_school_servant": {
+      "sv": "Söndagsskolan — Tjänaren (13-15 år)",
+      "am": "የሰንበት ትምህርት ቤት — አገልጋይ (13-15 ዓመት)",
+      "en": "Sunday School — The Servant (Age 13-15)",
+      "icon": "🕯",
+      "level": 5,
+      "age_range": "13-15",
+      "requirements": {
+        "sv": ["Kyrkohistoria", "Etiopisk-ortodox identitet", "Tjänande och ledarskap"],
+        "am": ["የቤተ ክርስቲያን ታሪክ", "የኢትዮጵያ ኦርቶዶክስ ማንነት", "አገልግሎትና አመራር"],
+        "en": ["Church History", "Ethiopian Orthodox Identity", "Service and Leadership"]
+      }
+    },
+    "sunday_school_ambassador": {
+      "sv": "Söndagsskolan — Ambassadören (15-18 år)",
+      "am": "የሰንበት ትምህርት ቤት — አምባሳደር (15-18 ዓመት)",
+      "en": "Sunday School — Orthodox Ambassador (Age 15-18)",
+      "icon": "👑",
+      "level": 6,
+      "age_range": "15-18",
+      "requirements": {
+        "sv": ["Undervisa yngre barn", "Mentorskap", "Försvara tron", "Kyrkligt ledarskap"],
+        "am": ["ታናናሽ ልጆችን ማስተማር", "አማካሪነት", "ሃይማኖትን መከላከል", "የቤተ ክርስቲያን አመራር"],
+        "en": ["Teaching younger children", "Mentoring", "Defending the faith", "Church leadership"]
+      }
+    }
+  }
+}
