@@ -39,8 +39,9 @@
   },
   "footer": {
     "privacy": {
-      "sv": "Den här sidan använder inga kakor och spårar dig inte.",
-      "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም።"
-    }
+      "sv": "Den här sidan använder inga kakor och spårar dig inte. Läs vår integritetspolicy.",
+      "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም። የግላዊነት ፖሊሲያችንን ያንብቡ።"
+    },
+    "privacy_url": "./privacy.html"
   }
 }

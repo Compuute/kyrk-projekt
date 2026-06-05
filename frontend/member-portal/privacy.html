@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Integritetspolicy — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .policy { max-width: 700px; margin: 0 auto; }
+    .policy h2 { margin-top: 28px; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+    .policy h3 { margin-top: 18px; font-size: 15px; }
+    .policy p, .policy li { font-size: 14px; line-height: 1.7; color: #ccc; }
+    .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    .policy th, .policy td { border: 1px solid #444; padding: 8px; text-align: left; }
+    .policy th { background: #2a2a3e; }
+    .lang-section { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #333; }
+    .lang-label { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+    .lang-sv { background: #1a3a8a; color: #aac4ff; }
+    .lang-am { background: #3a1a1a; color: #ffaaaa; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <a href="./index.html" class="back-link">← Tillbaka / ← ተመለስ</a>
+
+    <!-- ============================================================ -->
+    <!-- SWEDISH VERSION                                              -->
+    <!-- ============================================================ -->
+    <div class="lang-section">
+      <span class="lang-label lang-sv">🇸🇪 Svenska</span>
+
+      <div class="policy">
+        <h1>Integritetspolicy</h1>
+        <p><strong>Personuppgiftsansvarig:</strong><br/>
+        Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan<br/>
+        Org.nr: 802492-9237<br/>
+        Saltsjö-Boo (Nacka)<br/>
+        Kontakt: styrelsen via kyrkans postadress</p>
+
+        <h2>1. Vilka uppgifter vi samlar in</h2>
+        <table>
+          <tr><th>Uppgift</th><th>Ändamål</th><th>Rättslig grund</th><th>Lagringstid</th></tr>
+          <tr><td>Förnamn, efternamn</td><td>Identifiera medlemmen</td><td>Samtycke (Art. 6.1.a)</td><td>Tills du begär radering</td></tr>
+          <tr><td>Telefonnummer</td><td>Kontakt vid aktiviteter</td><td>Samtycke</td><td>Tills du begär radering</td></tr>
+          <tr><td>E-postadress</td><td>Kontakt, utskick</td><td>Samtycke</td><td>Tills du begär radering</td></tr>
+          <tr><td>Personnummer</td><td>Medlemsverifiering, certifikat</td><td>Samtycke + berättigat intresse</td><td>Krypterat. Raderas vid begäran.</td></tr>
+          <tr><td>Kyrka (church_id)</td><td>Tillhörighet</td><td>Berättigat intresse</td><td>Så länge medlemskapet varar</td></tr>
+          <tr><td>Källa (source)</td><td>Mäta vilken kanal som fungerar</td><td>Berättigat intresse</td><td>Aggregerat (ej kopplat till person)</td></tr>
+        </table>
+
+        <h2>2. Hur vi skyddar dina uppgifter</h2>
+        <ul>
+          <li><strong>Kryptering:</strong> Personnummer krypteras med Google Cloud KMS innan det lagras. Ingen i organisationen kan läsa det i klartext utan behörighet.</li>
+          <li><strong>Åtkomstkontroll:</strong> Bara behöriga roller (admin, pastor, sekreterare) kan se medlemsdata. Varje åtkomst loggas med vem, när och vad.</li>
+          <li><strong>Zonindelning:</strong> Personuppgifter lagras i en separat zon (RED) som är skild från aggregerad statistik (YELLOW) och publikt innehåll (GREEN). AI-tjänster ser aldrig dina personuppgifter.</li>
+          <li><strong>Redaction:</strong> När din ansökan godkänns raderas telefon, e-post och personnummer från ansökningsformuläret — datan lever bara på ett ställe.</li>
+          <li><strong>Datalagring i EU:</strong> All data lagras i Google Cloud europe-north1 (Finland). Inga uppgifter överförs till tredje land.</li>
+        </ul>
+
+        <h2>3. Dina rättigheter</h2>
+        <p>Enligt GDPR har du rätt att:</p>
+        <ul>
+          <li><strong>Begära tillgång</strong> (Art. 15) — få veta vilka uppgifter vi har om dig.</li>
+          <li><strong>Begära rättelse</strong> (Art. 16) — korrigera felaktiga uppgifter.</li>
+          <li><strong>Begära radering</strong> (Art. 17) — vi raderar dina uppgifter inom 30 dagar. Aggregerad statistik (antal deltagare per aktivitet) behålls eftersom den inte kan kopplas till dig.</li>
+          <li><strong>Återkalla samtycke</strong> (Art. 7.3) — du kan när som helst återkalla ditt samtycke. Kontakta styrelsen.</li>
+          <li><strong>Klaga</strong> — du har rätt att klaga till Integritetsskyddsmyndigheten (IMY), Box 8114, 104 20 Stockholm, <em>imy.se</em>.</li>
+        </ul>
+
+        <h2>4. Vem har tillgång till dina uppgifter?</h2>
+        <table>
+          <tr><th>Mottagare</th><th>Ändamål</th><th>Typ av data</th></tr>
+          <tr><td>Google Cloud Platform (GCP)</td><td>Hosting, lagring, kryptering</td><td>Krypterad data (EU-region)</td></tr>
+          <tr><td>PropelAuth</td><td>Inloggning för admin/pastor</td><td>Enbart e-post för adminanvändare</td></tr>
+          <tr><td>Cloudflare</td><td>Webbsidan (CDN, DDoS-skydd)</td><td>Ingen persondata — bara HTTP-trafik</td></tr>
+          <tr><td>Anthropic (Claude AI)</td><td>Översättning, rapportgenerering</td><td>ALDRIG persondata — bara aggregerad statistik</td></tr>
+        </table>
+
+        <h2>5. Kakor och spårning</h2>
+        <p>Denna webbplats använder <strong>inga kakor</strong> (cookies), ingen spårning, inga analysverktyg och inga tredjepartsskript. Vi vet inte vem du är när du besöker sidan.</p>
+
+        <h2>6. Barns personuppgifter</h2>
+        <p>Vi samlar in barns uppgifter (söndagsskola, certifikat) <strong>med förälderns samtycke</strong>. Samma skyddsnivå gäller — kryptering, åtkomstkontroll, rätt till radering. Inga barns uppgifter delas med AI-tjänster.</p>
+
+        <h2>7. Ändringar i policyn</h2>
+        <p>Ändringar publiceras på denna sida med uppdaterat datum. Vid väsentliga ändringar informeras medlemmar via Telegram-kanalen.</p>
+
+        <p><em>Senast uppdaterad: juni 2025</em></p>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- AMHARIC VERSION                                              -->
+    <!-- ============================================================ -->
+    <div class="lang-section">
+      <span class="lang-label lang-am">🇪🇹 አማርኛ</span>
+
+      <div class="policy">
+        <h1>የግላዊነት ፖሊሲ</h1>
+        <p><strong>የግል መረጃ ተቆጣጣሪ:</strong><br/>
+        አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን<br/>
+        Org.nr: 802492-9237<br/>
+        ሳልትሾ-ቡ (ናካ)<br/>
+        ግንኙነት: ቤተ ክርስቲያኑ ፖስታ አድራሻ</p>
+
+        <h2>1. የምንሰበስበው መረጃ</h2>
+        <table>
+          <tr><th>መረጃ</th><th>ዓላማ</th><th>ሕጋዊ መሠረት</th><th>የማስቀመጫ ጊዜ</th></tr>
+          <tr><td>ስም</td><td>አባልን ለይቶ ማወቅ</td><td>ፈቃድ (Art. 6.1.a)</td><td>እስከ ስረዛ ጥያቄ ድረስ</td></tr>
+          <tr><td>ስልክ ቁጥር</td><td>ለእንቅስቃሴዎች ግንኙነት</td><td>ፈቃድ</td><td>እስከ ስረዛ ጥያቄ ድረስ</td></tr>
+          <tr><td>ኢሜይል</td><td>ግንኙነት፣ ማስታወቂያ</td><td>ፈቃድ</td><td>እስከ ስረዛ ጥያቄ ድረስ</td></tr>
+          <tr><td>የግል ቁጥር</td><td>የአባልነት ማረጋገጫ፣ የምስክር ወረቀት</td><td>ፈቃድ + ሕጋዊ ፍላጎት</td><td>ተመስጥሮ ይቀመጣል</td></tr>
+          <tr><td>ቤተ ክርስቲያን</td><td>የአባልነት ቦታ</td><td>ሕጋዊ ፍላጎት</td><td>አባልነት እስከ ሚቆይ ድረስ</td></tr>
+        </table>
+
+        <h2>2. መረጃዎን እንዴት እንጠብቃለን</h2>
+        <ul>
+          <li><strong>ምስጠራ:</strong> የግል ቁጥር በ Google Cloud KMS ተመስጥሮ ይቀመጣል።</li>
+          <li><strong>የመዳረሻ ቁጥጥር:</strong> የተፈቀደላቸው ሰዎች ብቻ (አስተዳዳሪ፣ ቄስ) ማየት ይችላሉ። ሁሉም ተደራሽነት ይመዘገባል።</li>
+          <li><strong>የዞን ክፍፍል:</strong> የግል መረጃ ከስታቲስቲክስ ተለይቶ ይቀመጣል። AI አገልግሎቶች የግል መረጃ በፍጹም አያዩም።</li>
+          <li><strong>በ EU ውስጥ ማስቀመጥ:</strong> ሁሉም መረጃ በ Google Cloud europe-north1 (ፊንላንድ) ውስጥ ይቀመጣል።</li>
+        </ul>
+
+        <h2>3. መብቶችዎ</h2>
+        <ul>
+          <li><strong>ተደራሽነት መጠየቅ</strong> — ምን መረጃ እንዳለን ማወቅ ይችላሉ።</li>
+          <li><strong>ማስተካከያ መጠየቅ</strong> — የተሳሳተ መረጃን ማስተካከል ይችላሉ።</li>
+          <li><strong>ስረዛ መጠየቅ</strong> — በ30 ቀናት ውስጥ እናስወግዳለን።</li>
+          <li><strong>ፈቃድ መሰረዝ</strong> — በማንኛውም ጊዜ ፈቃድዎን መሰረዝ ይችላሉ።</li>
+          <li><strong>ቅሬታ ማቅረብ</strong> — ወደ IMY (Integritetsskyddsmyndigheten) ቅሬታ ማቅረብ ይችላሉ።</li>
+        </ul>
+
+        <h2>4. ኩኪዎች እና ክትትል</h2>
+        <p>ይህ ድረ ገጽ <strong>ምንም ኩኪዎችን አይጠቀምም</strong>፣ ምንም ክትትል አይደረግም፣ ምንም የሶስተኛ ወገን ስክሪፕቶች የሉም።</p>
+
+        <h2>5. የልጆች መረጃ</h2>
+        <p>የልጆች መረጃ (የሰንበት ትምህርት ቤት) <strong>በወላጅ ፈቃድ</strong> ብቻ ይሰበሰባል።</p>
+
+        <p><em>መጨረሻ የተዘመነው: ሰኔ 2025</em></p>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>
