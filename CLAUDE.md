@@ -166,6 +166,64 @@ CI-test `test_api_contracts.py` failar om ett kontraktsfält försvinner.
 Varje ny modul i `app/` måste ha minst ett test.
 CI-test `test_coverage_threshold.py` failar om täckningen < 60%.
 
+## OWASP LLM Top 10 — checklista (2025)
+
+Projektet använder Claude API i produktion (översättning, bidragsansökningar).
+Dessa risker ska bevakas:
+
+| # | Risk | Vår mitigation | Status |
+|---|---|---|---|
+| LLM01 | **Prompt Injection** | System-prompt i n8n, ej user-kontrollerbar | ✅ |
+| LLM02 | **Insecure Output Handling** | Jinja2 auto-escaping, aldrig `safe`-filter | ✅ |
+| LLM03 | **Training Data Poisoning** | Ej relevant (vi tränar ej egna modeller) | N/A |
+| LLM04 | **Model Denial of Service** | Rate limiting på n8n workflows | ⚠️ |
+| LLM05 | **Supply Chain** | test_dependency_safety.py, banned packages | ✅ |
+| LLM06 | **Sensitive Info Disclosure** | Sanitizer profiles, pii_guard, blocked_fields | ✅ |
+| LLM07 | **Insecure Plugin Design** | Inga plugins — direkt API-anrop via portar | ✅ |
+| LLM08 | **Excessive Agency** | Human-in-the-loop (Telegram bot bekräftar alltid) | ✅ |
+| LLM09 | **Overreliance** | AI-genererat granskas av människa innan publicering | ✅ |
+| LLM10 | **Model Theft** | API-nyckel i Secret Manager, ej i kod | ✅ |
+
+### Regler för AI-anrop i produktion
+
+```
+1. ALDRIG skicka RED-data till Claude API
+   → Sanitizer profiles filtrerar INNAN anrop
+   → pii_guard avvisar förbjudna fält med 422
+
+2. ALLTID human-in-the-loop för AI-genererat innehåll
+   → Bidragsansökningar: styrelsen granskar innan inskick
+   → Översättningar: begravningsprogram godkänns av familj
+   → Telegram-bot: bekräftelse innan publicering
+
+3. ALDRIG lita på AI-output som fakta
+   → AI-genererade siffror verifieras mot KPI-dashboard
+   → Ambassad-dokumentation verifieras mot checklista
+
+4. API-nycklar ENBART i Secret Manager
+   → Aldrig i kod, .env-filer, Docker-images eller CLAUDE.md
+```
+
+### Slopsquatting-skydd (OWASP Supply Chain)
+
+AI-verktyg kan hallucinera paketnamn. Innan du lägger till
+ett pip-paket som en AI föreslagit:
+1. Verifiera att det finns på pypi.org
+2. Kontrollera nedladdningsantal (>10 000/mån)
+3. Kontrollera GitHub-repo (stjärnor, senaste commit)
+4. test_dependency_safety.py fångar banned packages
+
+## Claude Code hooks (.claude/settings.json)
+
+Hooks körs deterministiskt — till skillnad från CLAUDE.md
+som är rådgivande. Tre hooks konfigurerade:
+
+| Hook | Trigger | Vad den gör |
+|---|---|---|
+| PreToolUse | Före Write/Edit | Blockerar skrivning till .env, secrets, migrations |
+| PostToolUse | Efter Write/Edit | Skannar efter vendor lock-in |
+| Stop | Innan task rapporteras klar | Kör alla guard-tester |
+
 ## Hur du verifierar att din kod är OK
 
 ```bash
