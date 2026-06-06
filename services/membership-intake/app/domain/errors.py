@@ -22,5 +22,9 @@ class SubmissionAlreadyProcessed(DomainError):
     """A submission already transitioned out of PENDING."""
 
 
+class DuplicateSubmission(DomainError):
+    """A submission with the same personal_number already exists."""
+
+
 class DownstreamFailure(DomainError):
     """membership-service rejected or errored on the create_member call."""

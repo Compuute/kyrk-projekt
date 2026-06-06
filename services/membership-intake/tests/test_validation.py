@@ -1,9 +1,14 @@
-"""Tests for input validation — personnummer, phone, name."""
+"""Tests for input validation and duplicate detection."""
 from __future__ import annotations
+
+from datetime import datetime, timezone
 
 import pytest
 
+from app.adapters.in_memory_submission_repository import InMemorySubmissionRepository
 from app.api.routes_intake import IntakeRequest, _luhn_check, _normalize_phone
+from app.domain.errors import DuplicateSubmission
+from app.domain.models import IntakeSubmission
 
 
 class TestLuhnCheck:
@@ -110,3 +115,49 @@ class TestIntakeRequestValidation:
     def test_email_valid(self):
         req = IntakeRequest(**self._valid_payload(email="test@example.com"))
         assert req.email == "test@example.com"
+
+
+class TestDuplicateDetection:
+    def test_find_by_personal_number_returns_match(self):
+        repo = InMemorySubmissionRepository()
+        sub = IntakeSubmission(
+            church_id="c1", first_name="Anna", last_name="A",
+            phone="+46701234567", email="a@a.se",
+            personal_number="19800101-1231",
+            gdpr_consent=True, consent_timestamp=datetime.now(timezone.utc),
+        )
+        repo.add(sub)
+        found = repo.find_by_personal_number("19800101-1231")
+        assert found is not None
+        assert found.submission_id == sub.submission_id
+
+    def test_find_by_personal_number_normalizes_dashes(self):
+        repo = InMemorySubmissionRepository()
+        sub = IntakeSubmission(
+            church_id="c1", first_name="Anna", last_name="A",
+            phone="+46701234567", email="a@a.se",
+            personal_number="19800101-1231",
+            gdpr_consent=True, consent_timestamp=datetime.now(timezone.utc),
+        )
+        repo.add(sub)
+        found = repo.find_by_personal_number("198001011231")
+        assert found is not None
+
+    def test_find_by_personal_number_no_match(self):
+        repo = InMemorySubmissionRepository()
+        assert repo.find_by_personal_number("19990101-0000") is None
+
+    def test_duplicate_returns_409(self, client):
+        from tests.test_api_intake import _body
+        pnr = "19800101-1231"
+        r1 = client.post("/intake", json=_body(personal_number=pnr))
+        assert r1.status_code == 202
+        r2 = client.post("/intake", json=_body(personal_number=pnr))
+        assert r2.status_code == 409
+
+    def test_different_personnummer_allowed(self, client):
+        from tests.test_api_intake import _body
+        r1 = client.post("/intake", json=_body(personal_number="19830101-1238"))
+        assert r1.status_code == 202
+        r2 = client.post("/intake", json=_body(personal_number="19850709-9805"))
+        assert r2.status_code == 202

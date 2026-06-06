@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.api.deps import current_actor, current_token, get_service
-from app.domain.errors import ConsentMissing, RateLimited
+from app.domain.errors import ConsentMissing, DuplicateSubmission, RateLimited
 from app.domain.models import Actor
 from app.services.intake_service import IntakePayload, IntakeService
 
@@ -111,6 +111,8 @@ def submit_intake(
         submission = svc.submit(payload, client_ip=client_ip)
     except ConsentMissing as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except DuplicateSubmission as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except RateLimited as exc:
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(exc)) from exc
     return IntakeResponse(submission_id=submission.submission_id, status=submission.status.value)
