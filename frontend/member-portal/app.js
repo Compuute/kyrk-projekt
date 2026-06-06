@@ -170,7 +170,18 @@ function renderPage(content, lang) {
   }
 
   // Footer
-  el('footer-privacy').textContent = view.footerPrivacy;
+  var footerEl = el('footer-privacy');
+  if (footerEl) {
+    var privacyUrl = (content.footer && content.footer.privacy_url) || './privacy';
+    footerEl.innerHTML = '';
+    footerEl.appendChild(document.createTextNode(view.footerPrivacy + ' '));
+    var privacyLink = document.createElement('a');
+    privacyLink.href = privacyUrl;
+    privacyLink.textContent = l === 'am' ? 'ያንብቡ →' : 'Läs här →';
+    privacyLink.style.color = 'inherit';
+    privacyLink.style.textDecoration = 'underline';
+    footerEl.appendChild(privacyLink);
+  }
 
   // Update language pills
   var pills = document.querySelectorAll('.lang-pill');

@@ -41,13 +41,14 @@
     "funeral": {"sv": "Begravning", "am": "ቀብር", "url": "./funeral"},
     "about": {"sv": "Om oss", "am": "ስለ እኛ", "url": "./about"},
     "contact": {"sv": "Kontakt", "am": "ያግኙን", "url": "./contact"},
-    "telegram": {"sv": "Telegram", "am": "ቴሌግራም", "url": "https://t.me/kyrka_kanal"}
+    "telegram": {"sv": "Telegram", "am": "ቴሌግራም", "url": "https://t.me/kyrka_kanal"},
+    "privacy": {"sv": "Integritetspolicy", "am": "የግላዊነት ፖሊሲ", "url": "./privacy"}
   },
   "footer": {
     "privacy": {
       "sv": "Den här sidan använder inga kakor och spårar dig inte. Läs vår integritetspolicy.",
       "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም። የግላዊነት ፖሊሲያችንን ያንብቡ።"
     },
-    "privacy_url": "./privacy.html"
+    "privacy_url": "./privacy"
   }
 }
