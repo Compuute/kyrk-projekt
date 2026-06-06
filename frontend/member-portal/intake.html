@@ -273,6 +273,36 @@
     </footer>
   </main>
   <script>
+  function validatePersonnummer(pnr) {
+    if (!pnr) return true; // optional field
+    var clean = pnr.replace(/[-\s]/g, '');
+    // Accept YYYYMMDDXXXX (12) or YYMMDDXXXX (10)
+    if (clean.length === 12) clean = clean.substring(2);
+    if (clean.length !== 10) return false;
+    if (!/^\d{10}$/.test(clean)) return false;
+    // Luhn mod 10
+    var sum = 0;
+    for (var i = 0; i < 10; i++) {
+      var d = parseInt(clean[i], 10);
+      if (i % 2 === 0) d *= 2;
+      if (d > 9) d -= 9;
+      sum += d;
+    }
+    return sum % 10 === 0;
+  }
+
+  function validatePhone(phone) {
+    if (!phone) return false;
+    var clean = phone.replace(/[-\s]/g, '');
+    return /^(\+46|0)\d{7,10}$/.test(clean);
+  }
+
+  function validateName(name) {
+    if (!name || name.trim().length < 2) return false;
+    if (/\d/.test(name)) return false;
+    return true;
+  }
+
   function toggleConsent() {
     var input = document.getElementById('field-gdpr-consent');
     var btn = document.getElementById('consent-btn');
@@ -316,6 +346,31 @@
         e.preventDefault();
         errorMsg.style.display = 'none';
 
+        var firstName = document.getElementById('field-first-name').value;
+        var lastName = document.getElementById('field-last-name').value;
+        var phone = document.getElementById('field-phone').value;
+        var pnr = document.getElementById('field-personal-number').value;
+
+        if (!validateName(firstName)) {
+          errorMsg.textContent = 'Ogiltigt förnamn (min 2 tecken, inga siffror). / ልክ ያልሆነ ስም (ቢያንስ 2 ፊደል)።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (!validateName(lastName)) {
+          errorMsg.textContent = 'Ogiltigt efternamn (min 2 tecken, inga siffror). / ልክ ያልሆነ የአባት ስም።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (!validatePhone(phone)) {
+          errorMsg.textContent = 'Ogiltigt telefonnummer (07X-XXX XX XX). / ልክ ያልሆነ ስልክ ቁጥር።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (pnr && !validatePersonnummer(pnr)) {
+          errorMsg.textContent = 'Ogiltigt personnummer. Kontrollera format (YYYYMMDD-XXXX). / ልክ ያልሆነ የግል ቁጥር።';
+          errorMsg.style.display = 'block';
+          return;
+        }
         if (document.getElementById('field-gdpr-consent').value !== 'true') {
           errorMsg.textContent = 'Du måste ge ditt samtycke. / ፈቃድዎን መስጠት አለብዎት።';
           errorMsg.style.display = 'block';

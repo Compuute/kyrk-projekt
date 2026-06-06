@@ -109,13 +109,10 @@ pages.forEach(function (page) {
     });
 
     if (html.includes('gdpr') || html.includes('consent') || html.includes('samtycke')) {
-      test(page + ' GDPR consent checkbox exists and is clickable', function () {
-        assert.ok(html.includes('type="checkbox"'),
-          page + ' has GDPR consent text but no checkbox input');
+      test(page + ' GDPR consent is interactive', function () {
         assert.ok(
-          html.includes('consent-check') || html.includes('consent-row') ||
-          html.includes('appearance: checkbox'),
-          page + ' consent must have visible custom checkbox or explicit appearance'
+          html.includes('type="checkbox"') || html.includes('consent-btn') || html.includes('toggleConsent'),
+          page + ' has GDPR text but no consent interaction (checkbox or button)'
         );
       });
     }

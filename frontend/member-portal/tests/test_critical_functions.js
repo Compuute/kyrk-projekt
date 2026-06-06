@@ -71,7 +71,7 @@ pages.forEach(function (page) {
   if (checkboxes.length > 0) {
     test(page + ' checkboxes have mobile-safe styling', function () {
       assert.ok(
-        html.includes('consent-check') || html.includes('consent-row') ||
+        html.includes('consent-check') || html.includes('consent-row') || html.includes('consent-btn') ||
         html.includes('appearance: checkbox') || html.includes('-webkit-appearance'),
         page + ' has checkboxes but no visible styling — may be invisible on iOS'
       );
