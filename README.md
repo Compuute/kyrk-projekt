@@ -210,6 +210,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`21-funeral-global-benchmark.md`](docs/21-funeral-global-benchmark.md) | **Benchmark: kyrko-drivna begravningstjänster globalt** |
 | [`22-repatriation-requirements-checklist.md`](docs/22-repatriation-requirements-checklist.md) | **Hemtransport: ambassad, airline, IATA-krav (verifierat)** |
 | [`23-funeral-service-agreement.md`](docs/23-funeral-service-agreement.md) | **Uppdragsavtal: ansvarsfördelning, SLA, KPI, kundkommunikation** |
+| [`24-funeral-service-catalog.md`](docs/24-funeral-service-catalog.md) | **Tjänstekatalog: 2 spår × 3 nivåer + tillägg** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
@@ -231,7 +232,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | OpenClaw-templates | 8 |
 | n8n-workflows | 11 |
 | ADRs | 12 |
-| Docs | 30+ |
+| Docs | 31+ |
 | Bidragskällor | 12 |
 | Certifikattyper | 10 |
 | Språk | 3 (sv, am, en) |

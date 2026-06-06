@@ -115,19 +115,38 @@ class FuneralCase:
     notes: str = ""
 
 
-PACKAGE_PRICES = {
+PACKAGE_PRICES_SELAM = {
+    "eraft": 19_000,
+    "fithat": 28_000,
+    "tezkar": 35_000,
+    # Legacy names kept for backwards compatibility
     "enkel": 19_000,
     "standard": 28_000,
     "komplett": 35_000,
 }
 
-REPATRIATION_BASE_PRICE = 65_000
+PACKAGE_PRICES_MANGADA = {
+    "eraft": 70_000,
+    "fithat": 85_000,
+    "tezkar": 100_000,
+}
+
+PACKAGE_LABELS = {
+    "eraft": ("እረፍት", "Eraft — Vila"),
+    "fithat": ("ፍትሐት", "Fithat — Absolution"),
+    "tezkar": ("ተዝካር", "Tezkar — Hågkomst"),
+    "enkel": ("እረፍት", "Enkel"),
+    "standard": ("ፍትሐት", "Standard"),
+    "komplett": ("ተዝካር", "Komplett"),
+}
 
 
 def calculate_price(package: str, repatriation: bool) -> tuple[float, float, float]:
-    pkg = PACKAGE_PRICES.get(package, PACKAGE_PRICES["standard"])
-    rep = REPATRIATION_BASE_PRICE if repatriation else 0
-    return pkg, rep, pkg + rep
+    if repatriation:
+        total = PACKAGE_PRICES_MANGADA.get(package, PACKAGE_PRICES_MANGADA.get("fithat", 85_000))
+        return total, 0, total
+    pkg = PACKAGE_PRICES_SELAM.get(package, PACKAGE_PRICES_SELAM.get("fithat", 28_000))
+    return pkg, 0, pkg
 
 
 def build_checklist(repatriation: bool) -> dict[str, bool]:

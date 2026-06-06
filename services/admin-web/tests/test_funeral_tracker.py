@@ -48,31 +48,41 @@ class TestFuneralCaseModel:
 
 
 class TestPricing:
-    def test_enkel_no_repatriation(self):
-        pkg, rep, total = calculate_price("enkel", False)
-        assert pkg == 19_000
-        assert rep == 0
+    def test_eraft_selam(self):
+        pkg, rep, total = calculate_price("eraft", False)
         assert total == 19_000
 
-    def test_standard_no_repatriation(self):
-        pkg, rep, total = calculate_price("standard", False)
-        assert pkg == 28_000
+    def test_fithat_selam(self):
+        pkg, rep, total = calculate_price("fithat", False)
         assert total == 28_000
 
-    def test_komplett_no_repatriation(self):
-        pkg, rep, total = calculate_price("komplett", False)
-        assert pkg == 35_000
+    def test_tezkar_selam(self):
+        pkg, rep, total = calculate_price("tezkar", False)
         assert total == 35_000
 
-    def test_standard_with_repatriation(self):
-        pkg, rep, total = calculate_price("standard", True)
-        assert pkg == 28_000
-        assert rep == 65_000
-        assert total == 93_000
+    def test_eraft_mangada(self):
+        pkg, rep, total = calculate_price("eraft", True)
+        assert total == 70_000
 
-    def test_unknown_package_falls_back_to_standard(self):
+    def test_fithat_mangada(self):
+        pkg, rep, total = calculate_price("fithat", True)
+        assert total == 85_000
+
+    def test_tezkar_mangada(self):
+        pkg, rep, total = calculate_price("tezkar", True)
+        assert total == 100_000
+
+    def test_legacy_enkel(self):
+        pkg, rep, total = calculate_price("enkel", False)
+        assert total == 19_000
+
+    def test_legacy_standard(self):
+        pkg, rep, total = calculate_price("standard", False)
+        assert total == 28_000
+
+    def test_unknown_package_falls_back_to_fithat(self):
         pkg, rep, total = calculate_price("unknown", False)
-        assert pkg == 28_000
+        assert total == 28_000
 
 
 class TestChecklist:
@@ -190,7 +200,7 @@ def seeded_case(funeral_tracker) -> FuneralCase:
         date_of_death="2026-06-01",
         contact_person="Meron Tadesse",
         contact_phone="070-123-4567",
-        package="standard",
+        package="fithat",
         repatriation=False,
         checklist=build_checklist(repatriation=False),
         created_at=datetime(2026, 6, 1, 10, 0),
@@ -212,7 +222,7 @@ def seeded_repatriation_case(funeral_tracker) -> FuneralCase:
         deceased_name_am="ኪዳነ ገብረ",
         date_of_death="2026-06-03",
         contact_person="Sara Gebre",
-        package="komplett",
+        package="tezkar",
         repatriation=True,
         repatriation_destination="ethiopia",
         checklist=build_checklist(repatriation=True),
@@ -260,7 +270,7 @@ class TestFuneralRoutes:
         assert resp.status_code == 200
         assert "Nytt begravningsärende" in resp.text
 
-    def test_create_case(self, authed_funeral_client, funeral_tracker):
+    def test_create_case_fithat(self, authed_funeral_client, funeral_tracker):
         resp = authed_funeral_client.post(
             "/funerals/new",
             data={
@@ -269,17 +279,16 @@ class TestFuneralRoutes:
                 "date_of_death": "2026-06-05",
                 "contact_person": "Contact",
                 "contact_phone": "070-000-0000",
-                "package": "standard",
+                "package": "fithat",
             },
         )
         assert resp.status_code == 303
         cases = funeral_tracker.list_cases("c1")
         assert len(cases) == 1
         assert cases[0].deceased_name == "Test Person"
-        assert cases[0].package_price == 28_000
         assert cases[0].total_price == 28_000
 
-    def test_create_repatriation_case(self, authed_funeral_client, funeral_tracker):
+    def test_create_repatriation_case_tezkar(self, authed_funeral_client, funeral_tracker):
         resp = authed_funeral_client.post(
             "/funerals/new",
             data={
@@ -288,7 +297,7 @@ class TestFuneralRoutes:
                 "date_of_death": "2026-06-05",
                 "contact_person": "Contact",
                 "contact_phone": "070-000-0000",
-                "package": "komplett",
+                "package": "tezkar",
                 "repatriation": "on",
                 "repatriation_destination": "ethiopia",
             },
@@ -297,7 +306,6 @@ class TestFuneralRoutes:
         cases = funeral_tracker.list_cases("c1")
         assert len(cases) == 1
         assert cases[0].repatriation is True
-        assert cases[0].repatriation_price == 65_000
         assert cases[0].total_price == 100_000
         assert "rep_passersedel" in cases[0].checklist
 

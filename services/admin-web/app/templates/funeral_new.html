@@ -35,17 +35,26 @@
 
   <fieldset>
     <legend>Tjänst</legend>
-    <label>Paket
-      <select name="package">
-        <option value="enkel">Enkel — 19 000 kr (kista, transport, ceremoni)</option>
-        <option value="standard" selected>Standard — 28 000 kr (+ program, korsång, minnessida)</option>
-        <option value="komplett">Komplett — 35 000 kr (+ ሐዘን-stöd, sorggrupp, 40-dagars)</option>
+    <label>Spår
+      <select name="track" id="track-select">
+        <option value="selam">ሰላም (Selam) — Begravning i Sverige</option>
+        <option value="mangada">መንገደ ሰማይ (Mangada Samay) — Hemtransport</option>
       </select>
     </label>
 
-    <label class="checkbox-label">
-      <input type="checkbox" name="repatriation" id="repatriation-toggle" />
-      ✈️ Hemtransport (+ 65 000 kr)
+    <label>Paket
+      <select name="package" id="package-select">
+        <option value="eraft">እረፍት Eraft — Vila</option>
+        <option value="fithat" selected>ፍትሐት Fithat — Absolution</option>
+        <option value="tezkar">ተዝካር Tezkar — Hågkomst</option>
+      </select>
+    </label>
+
+    <div id="price-display" class="muted" style="margin:8px 0; font-weight:bold;">
+      Pris: 28 000 kr
+    </div>
+
+    <input type="hidden" name="repatriation" id="repatriation-hidden" value="" />
     </label>
 
     <div id="repatriation-fields" style="display:none;">
@@ -74,13 +83,30 @@
 
 <script>
 (function() {
-  var toggle = document.getElementById('repatriation-toggle');
-  var fields = document.getElementById('repatriation-fields');
-  if (toggle && fields) {
-    toggle.addEventListener('change', function() {
-      fields.style.display = this.checked ? 'block' : 'none';
-    });
+  var track = document.getElementById('track-select');
+  var pkg = document.getElementById('package-select');
+  var repFields = document.getElementById('repatriation-fields');
+  var repHidden = document.getElementById('repatriation-hidden');
+  var priceDisplay = document.getElementById('price-display');
+
+  var prices = {
+    selam: {eraft: 19000, fithat: 28000, tezkar: 35000},
+    mangada: {eraft: 70000, fithat: 85000, tezkar: 100000}
+  };
+
+  function update() {
+    var t = track.value;
+    var p = pkg.value;
+    var price = prices[t] && prices[t][p] ? prices[t][p] : 28000;
+    priceDisplay.textContent = 'Pris: ' + price.toLocaleString('sv-SE') + ' kr';
+    var isMangada = t === 'mangada';
+    repFields.style.display = isMangada ? 'block' : 'none';
+    repHidden.value = isMangada ? 'on' : '';
   }
+
+  track.addEventListener('change', update);
+  pkg.addEventListener('change', update);
+  update();
 })();
 </script>
 {% endblock %}
