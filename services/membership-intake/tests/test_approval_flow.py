@@ -24,7 +24,7 @@ def _payload(**overrides) -> IntakePayload:
         last_name="Andersson",
         phone="+4670000000",
         email="anna@example.se",
-        personal_number="19800101-1234",
+        personal_number="19800101-1231",
         gdpr_consent=True,
         consent_timestamp=datetime.now(timezone.utc),
     )
@@ -81,7 +81,7 @@ def test_approve_calls_membership_service_and_redacts(service, membership_client
     forwarded_token, forwarded_req = membership_client.calls[0]
     assert forwarded_token == "u-1:c1:admin"
     assert forwarded_req.first_name == "Anna"
-    assert forwarded_req.personal_number == "19800101-1234"
+    assert forwarded_req.personal_number == "19800101-1231"
 
     # Approval result points to the new member
     assert result.status == SubmissionStatus.APPROVED.value
@@ -163,7 +163,7 @@ def test_approve_downstream_failure_leaves_submission_pending(repo, notifier, li
     stored = repo.get(submitted.submission_id)
     assert stored is not None
     assert stored.status is SubmissionStatus.PENDING
-    assert stored.personal_number == "19800101-1234"  # not redacted
+    assert stored.personal_number == "19800101-1231"  # not redacted
 
 
 # ------------------------------------------------------------------- reject

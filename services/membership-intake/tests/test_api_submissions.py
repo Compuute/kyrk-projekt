@@ -6,9 +6,9 @@ def _body(**overrides):
         "church_id": "c1",
         "first_name": "Anna",
         "last_name": "Andersson",
-        "phone": "+4670000000",
+        "phone": "+46701234567",
         "email": "anna@example.se",
-        "personal_number": "19800101-1234",
+        "personal_number": "19800101-1231",
         "gdpr_consent": True,
         "consent_timestamp": datetime.now(timezone.utc).isoformat(),
     }

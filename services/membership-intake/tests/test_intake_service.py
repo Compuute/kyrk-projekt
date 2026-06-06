@@ -14,7 +14,7 @@ def _payload(**overrides) -> IntakePayload:
         last_name="Andersson",
         phone="+4670000000",
         email="anna@example.se",
-        personal_number="19800101-1234",
+        personal_number="19800101-1231",
         gdpr_consent=True,
         consent_timestamp=datetime.now(timezone.utc),
     )
