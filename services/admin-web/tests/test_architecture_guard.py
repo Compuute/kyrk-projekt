@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 ADMIN_WEB = Path(__file__).resolve().parent.parent
-ROUTES = ADMIN_WEB / "app" / "api" / "routes.py"
+ROUTES = ADMIN_WEB / "app" / "api" / "routes_combined.py"
 DEPS = ADMIN_WEB / "app" / "api" / "deps.py"
 FACTORY = ADMIN_WEB / "app" / "adapters" / "factory.py"
 CONFTEST = ADMIN_WEB / "tests" / "conftest.py"
