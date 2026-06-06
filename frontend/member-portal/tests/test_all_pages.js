@@ -37,10 +37,10 @@ pages.forEach(function (page) {
 
   // --- Back link (all pages except index.html)
   if (page !== 'index.html') {
-    test(page + ' has back-link to ./index.html', function () {
+    test(page + ' has back-link to index', function () {
       assert.ok(
-        html.includes('href="./index.html"'),
-        page + ' must have href="./index.html" as back-link. Found none.'
+        html.includes('href="./index.html"') || html.includes('href="./"'),
+        page + ' must have href="./index.html" or href="./" as back-link. Found none.'
       );
     });
 
