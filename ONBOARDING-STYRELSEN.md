@@ -3,6 +3,23 @@
 Det här dokumentet förklarar vad som byggts, vad det kostar,
 och vad styrelsen behöver besluta om.
 
+## Plattformens syfte
+
+Systemet är byggt för att supportera **samtliga kyrkor under
+Etiopisk-Ortodoxa Tewahedo Kyrkan i Sverige** — inte bara
+Abune Tekle Haymanot i Nacka.
+
+Varje kyrka under ärkestiftet kan använda samma plattform med
+sin egen profil, sitt eget Swish-nummer, sin egen YouTube-kanal
+och sitt eget innehåll. En ny kyrka ansluts på **5 minuter**
+genom att byta 5 värden i en konfigurationsfil.
+
+**Arkitekturen stödjer:**
+- 10+ kyrkor med separerad data (ingen kyrka ser en annans data)
+- Gemensam kodbas — alla får samma funktioner automatiskt
+- Centrala eller lokala begravningstjänster (styrelsebeslut #22)
+- Flerspråkigt: svenska + amhariska (utbyggbart med tigrinja)
+
 ## Vad vi har byggt
 
 ### Hemsida (LIVE)
@@ -24,6 +41,14 @@ och vad styrelsen behöver besluta om.
 
 **Kostnad:** 0 kr/mån (Cloudflare Pages gratis plan)
 
+**Ny kyrka = 5 minuters setup:**
+1. Kopiera konfigurationsfilen (content.json)
+2. Byt kyrkans namn (sv + am)
+3. Byt Swish-nummer
+4. Byt adress
+5. Byt YouTube-kanal
+6. Deploy — klart
+
 ### Admin-system (byggt, ej igång)
 
 Ett internt system för kyrkans administration:
@@ -38,7 +63,9 @@ Ett internt system för kyrkans administration:
 | **Content-editor** | Redigera hemsidans text på svenska och amhariska |
 | **GDPR-rapport** | Generera underlag med en knapptryckning |
 
-**Kostnad vid drift:** ~200 kr/mån (Google Cloud Run, scale-to-zero)
+Alla funktioner är **per kyrka** — varje kyrka ser bara sin egen data.
+
+**Kostnad vid drift:** ~200 kr/mån totalt (Google Cloud Run, scale-to-zero)
 
 ### Begravningstjänst (dokumenterad, ej lanserad)
 
@@ -56,10 +83,13 @@ Komplett tjänstekatalog med 6 paket:
 
 Barn under 18: gratis.
 
+Begravningstjänsten kan drivas centralt (ärkestiftet) eller
+per kyrka — se styrelsebeslut #22.
+
 **Dokumentation klar:**
 - Ansvarsfördelning (kyrkan / familjen / partners)
-- Ambassad-krav (verifierade)
-- Ethiopian Airlines cargo (kontaktuppgifter)
+- Ambassad-krav (verifierade kontaktuppgifter)
+- Ethiopian Airlines cargo (Kales Group, Arlandastad)
 - Evigo som balsameringspartner
 - SLA:er och KPI:er
 
@@ -70,7 +100,8 @@ Barn under 18: gratis.
 | Hemsida (Cloudflare Pages) | 0 kr/mån |
 | Backend (Google Cloud Run) | ~200 kr/mån (vid drift) |
 | Domännamn (valfritt) | ~100 kr/år |
-| **Total driftkostnad** | **~200 kr/mån** |
+| Extra kyrka (hemsida) | 0 kr (samma plattform) |
+| **Total driftkostnad** | **~200 kr/mån oavsett antal kyrkor** |
 
 Utvecklingskostnaden hittills: 0 kr (byggt med AI-verktyg).
 
@@ -106,6 +137,22 @@ Alla beslut finns som ärenden i GitHub:
 - **GDPR-register** (Art. 30) dokumenterat
 - **Granskningsrapport** genereras med en knapptryckning
 - **224 automatiska säkerhetstester**
+- **Data separerad per kyrka** — ingen kyrka kan se en annans data
+
+## Multi-church — hur det fungerar
+
+```
+ÄRKESTIFTET
+├── Abune Tekle Haymanot (Nacka)       ← Pilot, LIVE
+├── Kidane Mehret (Göteborg)            ← Nästa
+├── Medhane Alem (Stockholm)            ← Planerad
+├── Debre Genet (Malmö)                 ← Planerad
+├── ...
+└── Kyrka 10                            ← Planerad
+
+Samma kodbas, separerad data, egen profil per kyrka.
+Kostnad per ny kyrka: 0 kr + 5 minuters setup.
+```
 
 ## Dokument att läsa
 
@@ -125,6 +172,7 @@ Alla beslut finns som ärenden i GitHub:
 3. Partneravtal: Evigo + Ethiopian Airlines (#3, #4)
 4. Ambassadbesök (#5)
 5. Lansera begravningstjänsten (efter validering)
+6. Anslut kyrka #2 (Kidane Mehret, Göteborg)
 
 **Allt spårbart i GitHub Issues:**
 https://github.com/Compuute/.github/issues
