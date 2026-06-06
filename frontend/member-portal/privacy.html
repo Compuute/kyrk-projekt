@@ -9,16 +9,24 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     .policy { max-width: 700px; margin: 0 auto; }
-    .policy h2 { margin-top: 28px; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 6px; }
-    .policy h3 { margin-top: 18px; font-size: 15px; }
-    .policy p, .policy li { font-size: 14px; line-height: 1.7; color: #ccc; }
-    .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
-    .policy th, .policy td { border: 1px solid #444; padding: 8px; text-align: left; }
-    .policy th { background: #2a2a3e; }
+    .policy h2 { margin-top: 28px; font-size: 20px; font-weight: 700; border-bottom: 1px solid #333; padding-bottom: 6px; }
+    .policy h3 { margin-top: 18px; font-size: 17px; font-weight: 600; }
+    .policy p, .policy li { font-size: 16px; line-height: 1.8; color: #e0e0e0; }
+    .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
+    .policy th, .policy td { border: 1px solid #444; padding: 10px; text-align: left; color: #e0e0e0; }
+    .policy th { background: #2a2a3e; font-weight: 600; }
     .lang-section { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #333; }
-    .lang-label { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+    .lang-label { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
     .lang-sv { background: #1a3a8a; color: #aac4ff; }
     .lang-am { background: #3a1a1a; color: #ffaaaa; }
+    @media (prefers-color-scheme: light) {
+      .policy p, .policy li { color: #1a1a1a; }
+      .policy h2 { color: #111; border-color: #ccc; }
+      .policy h3 { color: #222; }
+      .policy th, .policy td { color: #1a1a1a; border-color: #ccc; }
+      .policy th { background: #f0f0f5; }
+      .lang-section { border-color: #ccc; }
+    }
   </style>
 </head>
 <body>

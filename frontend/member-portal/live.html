@@ -30,16 +30,16 @@
       align-items: center;
       justify-content: center;
       min-height: 200px;
-      background: #1a1a2e;
+      background: var(--bg);
       border-radius: 14px;
-      color: #888;
+      color: var(--muted);
       text-align: center;
       padding: 24px;
       margin-bottom: 16px;
     }
     .schedule-card {
-      background: var(--card, #222);
-      border: 1px solid var(--border, #333);
+      background: var(--card, #ffffff);
+      border: 1px solid var(--border, #e5e5e5);
       border-radius: 14px;
       padding: 20px;
       margin-bottom: 16px;
@@ -48,7 +48,7 @@
       display: flex;
       justify-content: space-between;
       padding: 10px 0;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid var(--border);
       font-size: 15px;
     }
     .schedule-item:last-child { border-bottom: none; }
@@ -70,7 +70,7 @@
       text-decoration: none;
       cursor: pointer;
     }
-    .cta-primary { background: var(--accent, #3b5bdb); color: white; }
+    .cta-primary { background: var(--accent); color: white; }
     .cta-secondary { background: #c0392b; color: white; }
   </style>
 </head>
