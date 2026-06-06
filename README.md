@@ -1,146 +1,208 @@
 # kyrk-projekt
 
-Modular, secure, mobile-first church platform on Google Cloud Platform.
+AI-native kyrkplattform för Etiopisk-Ortodoxa Tewahedo-kyrkan i Sverige.
+Byggd med security-by-design, flerspråksstöd (svenska + amharic),
+och en Telegram-bot som admin-gränssnitt.
 
-## TL;DR for a new engineer
+**Live:** [kyrka-portal.pages.dev](https://kyrka-portal.pages.dev)
+
+## TL;DR
 
 ```bash
 git clone https://github.com/Compuute/.github.git
 cd .github/kyrk-projekt
 
 make install   # pip install all service requirements
-make test      # run all 148+ tests across every service
+make test      # 350+ tests across all services + frontends
 ```
 
-Then pick one of:
+## Tech stack
 
-- **Develop locally** → [`docs/10-getting-started.md`](docs/10-getting-started.md)
-- **Add a feature** → [`docs/11-development-guide.md`](docs/11-development-guide.md)
-- **Deploy to GCP** → [`docs/12-operations.md`](docs/12-operations.md) (runs `scripts/bootstrap.sh`)
-
-## Architecture zones
-
-- **RED** — sensitive identity, membership, certificates (encrypted, no public search)
-- **YELLOW** — aggregates only, KPI, reporting, ROI
-- **GREEN** — strategy, content, AI (OpenClaw), impact, Wi-Fi portal
-
-## Principles
-
-- Security by design
-- Sovereignty by design (EU regions only)
-- GDPR (Sweden)
-- Data minimization (spårminimering)
-- Human-in-the-loop for all AI outputs
-- TDD-first, mobile-first, modular, multi-tenant (`church_id`)
-- Low cost (nonprofit context)
-
-## Services
-
-| Service | Zone | Purpose |
+| Lager | Teknik | Varför |
 |---|---|---|
-| `services/membership-intake` | RED | Public intake form + admin approval flow |
-| `services/membership-service` | RED | Member lifecycle, RBAC, audit, field-level encryption |
-| `services/certificate-service` | RED | Digital certificates + privacy-preserving verification |
-| `services/reporting-service` | YELLOW | Activity tracking + KPI/ROI reports + BigQuery export (merged from activity+reporting — see [ADR-010](docs/14-architecture-decisions.md)) |
-| `services/admin-web` | mixed | Server-rendered admin UI. Intake approval, certificate issuance, **KPI dashboard** |
+| **Backend** | Python + FastAPI + Pydantic | TDD-first, clean architecture, type-safe |
+| **Frontend (publik)** | Static HTML + vanilla JS + Cloudflare Pages | 15 KB total, <100ms laddtid, gratis |
+| **Frontend (admin)** | FastAPI + Jinja2 (server-rendered) | Ingen build-pipeline, ingen npm |
+| **Database** | Firestore (EU, CMEK) | Schemaless, EU multi-region, customer-managed encryption |
+| **Encryption** | Cloud KMS | Field-level encryption av personnummer |
+| **Auth** | PropelAuth (RBAC) | Multi-tenant, free tier, no custom auth code |
+| **AI** | Claude (Anthropic API) via n8n + OpenClaw | Bidragsansökningar, översättning sv↔am, KPI-analys |
+| **Automation** | n8n (self-hosted on Cloud Run) | Visuella workflows, inbyggd retry, free |
+| **CDN/WAF** | Cloudflare (free tier) | DDoS, WAF, global edge, auto-SSL |
+| **Infra** | Terraform | Ett `apply` skapar hela GCP-miljön |
+| **CI/CD** | GitHub Actions (4 workflows) | Tests, deploy, e2e healthz, nightly drift check |
+| **Hosting** | GCP Cloud Run (backend) + Cloudflare Pages (frontend) | Scale-to-zero, ~€20/mån |
+| **Notifications** | Telegram Bot API | Gratis, amharic-stöd, bot som admin-gränssnitt |
+| **Donations** | Swish deep link | 0 kr/transaktion, öppnar appen direkt |
+| **App** | PWA (Progressive Web App) | Installerbar på Android + iOS utan app store |
 
-Each service:
-- Ships a `Dockerfile` and runs as a non-root user
-- Exposes `/healthz` for Cloud Run probes
-- Has two adapter modes selected by `ADAPTER_MODE`: `memory` (default,
-  in-process) for tests and local dev, `production` (Firestore + KMS +
-  PropelAuth + BigQuery) for Cloud Run
-- Has its own `requirements.txt` and `pytest.ini` — services never share a venv
+## Funktioner — vad som finns
 
-## Frontend
+### Publik hemsida (LIVE på Cloudflare Pages)
 
-| Module | Zone | Hosted on | Stack |
+| Sida | URL | Funktion |
+|---|---|---|
+| Startsida | [kyrka-portal.pages.dev](https://kyrka-portal.pages.dev) | Kyrkans info, aktiviteter, meddelanden (sv + am) |
+| Bli medlem | [/intake.html](https://kyrka-portal.pages.dev/intake.html) | Registreringsformulär med GDPR-consent + source-tracking |
+| Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare + bankgiro + org.nr |
+| Livestream | [/live.html](https://kyrka-portal.pages.dev/live.html) | YouTube-embed (modulärt per kyrka via content.json) |
+| Integritetspolicy | [/privacy.html](https://kyrka-portal.pages.dev/privacy.html) | GDPR-policy på svenska + amharic |
+
+Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga kakor.
+
+### Admin-system (Cloud Run — kräver GCP-deploy)
+
+| Funktion | Sida | Beskrivning |
+|---|---|---|
+| Dashboard | `/` | Pending intake, KPI, bidrag med deadline, certifikat |
+| Intake-hantering | `/submissions` | Godkänn/avslå nya medlemmar med redaction av PII |
+| Certifikat | `/certificates/new` | Utfärda dop/vigsel/söndagsskola (sv/am/en, 10 typer) |
+| KPI-dashboard | `/kpi` | Deltagarantal, kostnad/deltagare, grant leverage |
+| Bidragstracker | `/grants` | 12 bidragskällor med deadline, eligibility, AI-genererade ansökningar |
+| Content-editor | `/content-editor` | Redigera hemsidans text sv+am, Claude-översättning |
+| GDPR-rapport | `/audit` | En-klicks GDPR/SST/kommun-underlag för granskning |
+| Granskningsberedskap | `/audit/generate/gdpr` | 14 compliance-items auto-verifierade |
+
+### Backend-services (4 st + admin-web)
+
+| Service | Zon | Endpoints | Tester |
 |---|---|---|---|
-| `frontend/member-portal` | GREEN | **Cloudflare Pages** (global edge) | static HTML + vanilla JS, sv + am, content from GCS |
-| `frontend/wifi-intake-portal` | GREEN | **Cloudflare Pages** (global edge) | static HTML + vanilla JS, dynamic content via n8n |
+| `membership-intake` | RED | POST /intake, GET/POST /submissions/*/approve|reject | 37 |
+| `membership-service` | RED | CRUD /members, GET /members/stats/summary | 31 |
+| `certificate-service` | RED | POST /certificates, GET /verify, GET /download (10 cert-typer) | 39 |
+| `reporting-service` | YELLOW | POST /reports/*, GET /activities/export, pii_guard | 36 |
+| `admin-web` | mixed | Alla admin-sidor ovan | 102 |
 
-Both static sites are served from Cloudflare's edge network — zero cold
-start, free SSL, free CDN, free DDoS. See
-[`docs/architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md).
+### Certifikattyper (trilingual: am/sv/en)
 
-The admin UI lives in `services/admin-web` on Cloud Run (not Cloudflare).
+| Typ | Ikon | Ålder |
+|---|---|---|
+| Dop / ጥምቀት / Baptism | — | — |
+| Konfirmation / ክርስትና / Confirmation | — | — |
+| Vigsel / ጋብቻ / Marriage | — | — |
+| Begravning / ቀብር / Funeral | — | — |
+| Söndagsskola — Fröet / ዘር / Seed | 🌱 | 5-7 |
+| Söndagsskola — Plantan / ተክል / Plant | 🌿 | 7-9 |
+| Söndagsskola — Trädet / ዛፍ / Tree | 🌳 | 9-11 |
+| Söndagsskola — Lärjungen / ደቀ መዝሙር / Disciple | 📖 | 11-13 |
+| Söndagsskola — Tjänaren / አገልጋይ / Servant | 🕯 | 13-15 |
+| Söndagsskola — Ambassadören / አምባሳደር / Ambassador | 👑 | 15-18 |
 
-## Automation
+### AI-automation
 
-- `automation/n8n` — seven workflow definitions (self-hosted n8n on Cloud Run)
-- `automation/openclaw` — prompt templates + sanitizer profiles (Anthropic API via n8n)
-- `automation/grants` — grant database (12 real Swedish/EU/Nordic grants)
+| Funktion | Teknik | Status |
+|---|---|---|
+| Bidragsansökan (sv/en) | OpenClaw + Claude | ✅ Byggt |
+| Översättning sv↔am | Claude via TranslationPort | ✅ Byggt |
+| KPI-analys (kvartalsvis) | OpenClaw + sanitizer + n8n | ✅ Workflow definierad |
+| Telegram admin-bot | Whisper (röst→text) + Claude (intent) | ✅ Workflow definierad |
+| Proaktiv bidragsbevakning | n8n cron + grant tracker | ✅ Workflow definierad |
+| Auto-genererat veckoinnehåll | n8n + Claude + content.json | ✅ Workflow definierad |
 
-## Infra
+### Säkerhet (10 defense-in-depth lager)
 
-- `infra/terraform` — GCP baseline: Cloud Run, Firestore, GCS, Secret
-  Manager, IAM, KMS, BigQuery, Workload Identity Federation, Artifact
-  Registry. One `terraform apply` provisions the backend.
-- **Cloudflare** — DNS, CDN, WAF, DDoS for public-facing sites. Configured
-  via Cloudflare dashboard or wrangler CLI (not Terraform). See
-  [ADR-012](docs/14-architecture-decisions.md).
+```
+Layer 1:  Cloudflare DDoS + WAF + bot detection         [EDGE]
+Layer 2:  Cloud Run --no-allow-unauthenticated           [NETWORK]
+Layer 3:  PropelAuth RBAC middleware                      [APPLICATION]
+Layer 4:  Pydantic input validation                      [APPLICATION]
+Layer 5:  pii_guard recursive PII rejection (422)        [DATA]
+Layer 6:  Firestore collection + doc-id scoping          [DATA]
+Layer 7:  KMS field-level encryption (personnummer)      [CRYPTO]
+Layer 8:  CMEK for entire Firestore database             [CRYPTO]
+Layer 9:  Per-service IAM (least privilege)              [IAM]
+Layer 10: Audit trail on every RED write                 [AUDIT]
+```
 
-## CI / CD
+### Bidragstracker (12 bidragskällor)
 
-Three GitHub Actions workflows live at the repo root in
-[`.github/workflows/`](../.github/workflows/):
+| Källa | Belopp | Land |
+|---|---|---|
+| SST Organisationsstöd | 50k–2M SEK | 🇸🇪 |
+| SST Projektbidrag | 50k–500k SEK | 🇸🇪 |
+| MUCF Organisationsbidrag | 50k–500k SEK | 🇸🇪 |
+| MUCF Projektbidrag | 100k–500k SEK | 🇸🇪 |
+| Arvsfonden Projektbidrag | 200k–5M SEK | 🇸🇪 |
+| Arvsfonden Lokalstöd | 500k–10M SEK | 🇸🇪 |
+| Kommunala bidrag | 20k–200k SEK | 🇸🇪 |
+| Erasmus+ KA2 | 10k–150k EUR | 🇪🇺 |
+| ESF+ | 50k–500k EUR | 🇪🇺 |
+| Nordiska ministerrådet | 50k–500k DKK | Nordic |
+| Fritt Ord | 50k–300k NOK | 🇳🇴 |
+| Crafoordska | 25k–200k SEK | 🇸🇪 |
 
-- `ci.yml` — pytest across all services, wifi-portal Node tests,
-  Python syntax check, and `terraform validate` on every push and PR.
-  No secrets, no GCP access.
-- `deploy.yml` — manual workflow that builds container images, pushes
-  them to Artifact Registry, and deploys to Cloud Run via Workload
-  Identity Federation (no static GCP keys in GitHub). Uses GitHub
-  environments (`dev`/`prod`) for per-environment secrets and
-  required-reviewer protection.
-- `e2e.yml` — runs automatically after a successful deploy; curls
-  `/healthz` on all six services and runs a minimal smoke test of the
-  public intake POST, certificate verify 404, and admin-web login page.
+### Multi-church (10 kyrkor)
 
-See [`.github/workflows/README.md`](../.github/workflows/README.md) for
-the one-time GCP setup.
+Alla kyrkor under ärkestiftet kan ha en egen sida. Samma kodbas,
+varje kyrka har sin egen `content.json` med:
+- Kyrkans namn (sv + am)
+- YouTube-kanal-ID
+- Swish-nummer
+- Adress
+- Aktiviteter
+
+En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 
 ## Docs index
 
-| File | What it covers |
+| Doc | Syfte |
 |---|---|
-| [`docs/00-vision.md`](docs/00-vision.md) | Mission, target users, product pillars, non-goals |
-| [`docs/01-architecture-red-yellow-green.md`](docs/01-architecture-red-yellow-green.md) | The zone model and flow rules |
-| [`docs/02-sovereignty.md`](docs/02-sovereignty.md) | EU data residency, vendor review |
-| [`docs/03-mvp-scope.md`](docs/03-mvp-scope.md) | What's in and out of MVP |
-| [`docs/04-ai-boundaries.md`](docs/04-ai-boundaries.md) | What OpenClaw may and may not see, incident response |
-| [`docs/05-security-principles.md`](docs/05-security-principles.md) | Concrete security rules for code changes |
-| [`docs/06-auth-strategy.md`](docs/06-auth-strategy.md) | PropelAuth today, BankID Phase 2 |
-| [`docs/07-openclaw-production-flow.md`](docs/07-openclaw-production-flow.md) | n8n → sanitizer → Anthropic → human review |
-| **[`docs/10-getting-started.md`](docs/10-getting-started.md)** | **Onboarding: git clone → tests green in 15 minutes** |
-| **[`docs/11-development-guide.md`](docs/11-development-guide.md)** | **Adapter pattern, adding endpoints, adding services** |
-| **[`docs/12-operations.md`](docs/12-operations.md)** | **Deploy, rollback, monitoring, incident response** |
-| [`docs/ai-context.md`](docs/ai-context.md) | Copy-paste context block for Claude Code sessions |
-| [`docs/governance/rbac.md`](docs/governance/rbac.md) | Role matrix |
-| [`docs/governance/policies.md`](docs/governance/policies.md) | Retention, deletion, access reviews |
-| [`docs/governance/security-review-template.md`](docs/governance/security-review-template.md) | PR checklist for RED / sanitizer / IAM changes |
-| [`docs/13-runbook.md`](docs/13-runbook.md) | Incident playbooks for 5 common scenarios |
-| **[`docs/14-architecture-decisions.md`](docs/14-architecture-decisions.md)** | **11 ADRs — why every major choice was made** |
-| [`docs/15-ab-testing-strategy.md`](docs/15-ab-testing-strategy.md) | When to introduce A/B testing (Phase 3) |
-| **[`docs/16-defense-in-depth.md`](docs/16-defense-in-depth.md)** | **Defense-in-depth policy — how to evaluate service merges/splits** |
-| [`docs/architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE walkthrough |
-| [`docs/impact/impact-blueprint.md`](docs/impact/impact-blueprint.md) | Reusable module spec + three initial modules |
-| [`.github/workflows/README.md`](../.github/workflows/README.md) | Full CI/CD reference |
+| [`00-vision.md`](docs/00-vision.md) | Mission, produkt-pelare |
+| [`01-architecture-red-yellow-green.md`](docs/01-architecture-red-yellow-green.md) | Zonmodellen |
+| [`02-sovereignty.md`](docs/02-sovereignty.md) | EU data residency |
+| [`03-mvp-scope.md`](docs/03-mvp-scope.md) | Scope (in/out) |
+| [`04-ai-boundaries.md`](docs/04-ai-boundaries.md) | Vad AI får/inte får se |
+| [`05-security-principles.md`](docs/05-security-principles.md) | Säkerhetsregler |
+| [`06-auth-strategy.md`](docs/06-auth-strategy.md) | PropelAuth + BankID roadmap |
+| [`07-openclaw-production-flow.md`](docs/07-openclaw-production-flow.md) | n8n → sanitizer → Anthropic → review |
+| [`10-getting-started.md`](docs/10-getting-started.md) | **15 min onboarding** |
+| [`11-development-guide.md`](docs/11-development-guide.md) | **Adapter-mönster, TDD, lägga till features** |
+| [`12-operations.md`](docs/12-operations.md) | **Deploy, rollback, monitoring** |
+| [`13-runbook.md`](docs/13-runbook.md) | 5 incident-playbooks |
+| [`14-architecture-decisions.md`](docs/14-architecture-decisions.md) | **12 ADRs** |
+| [`15-ab-testing-strategy.md`](docs/15-ab-testing-strategy.md) | Phase 3 |
+| [`16-defense-in-depth.md`](docs/16-defense-in-depth.md) | **Service merge/split policy** |
+| [`17-audit-readiness.md`](docs/17-audit-readiness.md) | **Granskningsberedskap (IMY/SST/kommun)** |
+| [`18-ai-admin-bot.md`](docs/18-ai-admin-bot.md) | **Telegram-bot för pastor (amharic röst)** |
+| [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
+| [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
+| [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
+| [`governance/rbac.md`](docs/governance/rbac.md) | Rollmatris |
+| [`governance/policies.md`](docs/governance/policies.md) | Retention, radering |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | PR-flöde, review-krav |
+
+## Siffror
+
+| Mätvärde | Antal |
+|---|---|
+| Commits | 52 |
+| Filer | 530+ |
+| Python-tester | 245 |
+| Frontend-tester (Node) | 100+ |
+| **Totalt tester** | **350+** |
+| Backend-services | 4 + admin-web |
+| Publika HTML-sidor | 5 (live på Cloudflare) |
+| OpenClaw-templates | 8 |
+| n8n-workflows | 9 |
+| ADRs | 12 |
+| Docs | 25+ |
+| Bidragskällor | 12 |
+| Certifikattyper | 10 |
+| Språk | 3 (sv, am, en) |
 
 ## Common commands
 
 ```bash
-make test                    # full suite
-make test-membership-service # one service
-make lint                    # syntax check + terraform fmt
-make bootstrap ENV=dev       # first-time GCP + GitHub setup
-make deploy ENV=dev          # trigger deploy.yml via gh
-make smoke ENV=dev           # curl /healthz on all five services
+make test                    # full suite (350+ tests)
+make test-admin-web          # one service
+make lint                    # syntax + terraform fmt
+make local-ci                # mirrors CI locally
+make docs-serve              # live docs on :8090
+make onboarding              # build onboarding HTML
+make bootstrap ENV=dev       # first-time GCP setup
+make deploy ENV=dev          # deploy backend to Cloud Run
+make deploy-sites            # deploy frontends to Cloudflare Pages
+make deploy-all              # both
+make smoke ENV=dev            # curl /healthz on all services
 make clean                   # remove caches
 ```
-
-## Auth
-
-MVP uses **PropelAuth** for multi-tenant RBAC. BankID is an
-interface/stub for Phase 2. See
-[`docs/06-auth-strategy.md`](docs/06-auth-strategy.md).
