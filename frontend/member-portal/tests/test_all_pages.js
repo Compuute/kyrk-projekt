@@ -53,13 +53,16 @@ pages.forEach(function (page) {
   }
 
   // --- No broken internal links
+  // Cloudflare Pages uses pretty URLs (no .html extension),
+  // so ./donate maps to donate.html locally.
   test(page + ' has no broken internal links', function () {
     var links = html.match(/href="\.\/([^"?#]+)"/g) || [];
     links.forEach(function (link) {
       var target = link.replace('href="./', '').replace('"', '');
-      assert.ok(
-        fs.existsSync(path.join(ROOT, target)),
-        page + ' links to ./' + target + ' which does NOT exist'
+      var exists = fs.existsSync(path.join(ROOT, target))
+        || fs.existsSync(path.join(ROOT, target + '.html'));
+      assert.ok(exists,
+        page + ' links to ./' + target + ' which does NOT exist (checked .html too)'
       );
     });
   });
@@ -97,6 +100,23 @@ pages.forEach(function (page) {
     assert.ok(html.toLowerCase().includes('charset="utf-8"') || html.toLowerCase().includes("charset='utf-8'"),
       page + ' must declare UTF-8 charset for Amharic support');
   });
+
+  // --- Forms with required fields must have visible submit + consent
+  if (html.includes('<form')) {
+    test(page + ' forms have submit button', function () {
+      assert.ok(html.includes('type="submit"'),
+        page + ' has a form but no submit button');
+    });
+
+    if (html.includes('gdpr') || html.includes('consent') || html.includes('samtycke')) {
+      test(page + ' GDPR consent checkbox exists and is visible', function () {
+        assert.ok(html.includes('type="checkbox"'),
+          page + ' has GDPR consent text but no checkbox input');
+        assert.ok(html.includes('appearance: checkbox') || html.includes('-webkit-appearance: checkbox'),
+          page + ' consent checkbox must have explicit appearance for mobile visibility');
+      });
+    }
+  }
 });
 
 // ================================================================
