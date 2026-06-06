@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict
 from datetime import date, datetime
 from pathlib import Path
@@ -17,6 +18,7 @@ from app.api.deps import (
     get_funeral_tracker,
     get_grant_tracker,
     get_intake_client,
+    get_notification,
     get_reporting_client,
     get_session_adapter,
     get_settings,
@@ -33,6 +35,7 @@ from app.ports.clients import (
     ReportingClientPort,
 )
 from app.ports.content_store import ContentStorePort
+from app.ports.notification import NotificationPort
 from app.ports.funeral_tracker import (
     CHECKLIST_ITEMS_REPATRIATION,
     CHECKLIST_ITEMS_SWEDEN,
@@ -1137,6 +1140,7 @@ def funeral_create(
     eder_name: str = Form(""),
     eder_contribution: float = Form(0.0),
     tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+    notifier: NotificationPort = Depends(get_notification),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
@@ -1171,7 +1175,17 @@ def funeral_create(
     )
 
     tracker.save_case(case)
-    background_tasks.add_task(_dispatch_funeral_webhook, case)
+
+    payload = {
+        "case_id": case.case_id,
+        "church_id": case.church_id,
+        "deceased_name": case.deceased_name,
+        "package": case.package,
+        "date_of_death": case.date_of_death,
+        "repatriation": case.repatriation,
+        "repatriation_destination": case.repatriation_destination,
+    }
+    background_tasks.add_task(notifier.notify_new_funeral_case, payload)
 
     return _flash_redirect(
         f"/funerals/{case_id}",
@@ -1406,34 +1420,6 @@ def funeral_api(
     from fastapi.responses import JSONResponse
     return JSONResponse(result)
 
-
-# ---------------------------------------------------------- funeral webhook dispatch
-
-import os
-import logging
-
-logger = logging.getLogger("admin-web.funeral")
-
-
-def _dispatch_funeral_webhook(case: FuneralCase) -> None:
-    webhook_url = os.environ.get("N8N_WEBHOOK_FUNERAL_CASE", "")
-    if not webhook_url:
-        logger.info("N8N_WEBHOOK_FUNERAL_CASE not set, skipping dispatch")
-        return
-    try:
-        import httpx
-        payload = {
-            "case_id": case.case_id,
-            "church_id": case.church_id,
-            "deceased_name": case.deceased_name,
-            "package": case.package,
-            "date_of_death": case.date_of_death,
-            "repatriation": case.repatriation,
-            "repatriation_destination": case.repatriation_destination,
-        }
-        httpx.post(webhook_url, json=payload, timeout=5.0)
-    except Exception as exc:
-        logger.warning("Funeral webhook dispatch failed: %s", exc)
 
 
 @router.get("/healthz")

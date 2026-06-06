@@ -12,6 +12,7 @@ from app.adapters.fake_clients import (
 from app.adapters.fake_content_store import FakeContentStore
 from app.adapters.fake_funeral_tracker import FakeFuneralTracker
 from app.adapters.fake_grant_tracker import FakeGrantTracker
+from app.adapters.fake_notification import FakeNotification
 from app.adapters.fake_translator import FakeTranslator
 from app.api import deps
 from app.main import create_app
@@ -39,6 +40,11 @@ def reporting() -> FakeReportingClient:
 
 
 @pytest.fixture
+def notification() -> FakeNotification:
+    return FakeNotification()
+
+
+@pytest.fixture
 def funeral_tracker() -> FakeFuneralTracker:
     return FakeFuneralTracker()
 
@@ -59,12 +65,13 @@ def translator() -> FakeTranslator:
 
 
 @pytest.fixture
-def client(intake, certificates, activity, reporting, funeral_tracker, grant_tracker, content_store, translator) -> TestClient:
+def client(intake, certificates, activity, reporting, notification, funeral_tracker, grant_tracker, content_store, translator) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_intake_client] = lambda: intake
     app.dependency_overrides[deps.get_certificate_client] = lambda: certificates
     app.dependency_overrides[deps.get_activity_client] = lambda: activity
     app.dependency_overrides[deps.get_reporting_client] = lambda: reporting
+    app.dependency_overrides[deps.get_notification] = lambda: notification
     app.dependency_overrides[deps.get_funeral_tracker] = lambda: funeral_tracker
     app.dependency_overrides[deps.get_grant_tracker] = lambda: grant_tracker
     app.dependency_overrides[deps.get_content_store] = lambda: content_store
