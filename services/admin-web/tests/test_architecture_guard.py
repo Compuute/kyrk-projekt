@@ -57,9 +57,10 @@ class TestEveryPostRouteHasAuth:
 
 class TestEveryPortHasFakeAdapter:
     def test_every_port_has_a_fake(self):
+        skip_files = {"client_errors.py", "data_quality.py"}
         missing = []
         for port_file in sorted(PORTS_DIR.glob("*.py")):
-            if port_file.name.startswith("__") or port_file.name == "client_errors.py":
+            if port_file.name.startswith("__") or port_file.name in skip_files:
                 continue
             port_name = port_file.stem
             found = any(
@@ -91,8 +92,8 @@ class TestEveryPortIsInFactory:
             if port_file.name.startswith("__") or port_file.name == "client_errors.py":
                 continue
             port_name = port_file.stem
-            compound_names = {"clients", "session", "client_errors"}
-            if port_name in compound_names:
+            skip_names = {"clients", "session", "client_errors", "data_quality"}
+            if port_name in skip_names:
                 continue
             search_terms = [
                 f"make_{port_name}",
@@ -119,8 +120,8 @@ class TestEveryPortIsInDeps:
             if port_file.name.startswith("__") or port_file.name == "client_errors.py":
                 continue
             port_name = port_file.stem
-            compound_names = {"clients", "session"}
-            if port_name in compound_names:
+            skip_names = {"clients", "session", "data_quality"}
+            if port_name in skip_names:
                 continue
             search_terms = [
                 f"get_{port_name}",

@@ -1422,6 +1422,52 @@ def funeral_api(
 
 
 
+# --------------------------------------------------------------- data quality
+
+
+@router.get("/data-quality", response_class=HTMLResponse)
+def data_quality_dashboard(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    intake: IntakeClientPort = Depends(get_intake_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    from app.ports.data_quality import compute_quality
+
+    members: list[dict] = []
+    try:
+        pending = intake.list_pending(session.token)
+        members = [
+            {
+                "first_name": s.first_name,
+                "last_name": s.last_name,
+                "phone": getattr(s, "phone", ""),
+                "email": getattr(s, "email", ""),
+                "personal_number": getattr(s, "personal_number", ""),
+            }
+            for s in pending
+        ]
+    except Exception:
+        pass
+
+    report = compute_quality(members)
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="data_quality.html",
+        context={
+            "session": session,
+            "report": report,
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
 @router.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
