@@ -51,37 +51,9 @@ from app.ports.grant_tracker import GrantApplication, GrantTrackerPort
 from app.ports.translation import TranslationPort
 
 
+from app.api.routes._helpers import TEMPLATES, _flash_redirect, _require_session
+
 router = APIRouter()
-
-
-def _templates() -> Jinja2Templates:
-    # Lazy — so tests that only exercise JSON routes don't force template discovery.
-    from pathlib import Path
-
-    templates_dir = Path(__file__).resolve().parent.parent / "templates"
-    return Jinja2Templates(directory=str(templates_dir))
-
-
-TEMPLATES = _templates()
-
-
-# --------------------------------------------------------------------- helpers
-
-
-def _require_session(request: Request) -> SessionInfo | RedirectResponse:
-    cookie = request.cookies.get("kyrk_session")
-    adapter = get_session_adapter()
-    info = adapter.validate(cookie)
-    if info is None:
-        return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
-    return info
-
-
-def _flash_redirect(path: str, message: str, level: str = "success") -> RedirectResponse:
-    from urllib.parse import quote
-
-    url = f"{path}?flash={quote(message)}&level={level}"
-    return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 # ---------------------------------------------------------------------- login
