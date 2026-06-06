@@ -115,37 +115,45 @@ class FuneralCase:
     notes: str = ""
 
 
-PACKAGE_PRICES_SELAM = {
+PACKAGE_PRICES_SWEDEN = {
+    "enkel": 19_000,
+    "ceremoni": 28_000,
+    "komplett": 35_000,
+    # Legacy aliases
     "eraft": 19_000,
     "fithat": 28_000,
     "tezkar": 35_000,
-    # Legacy names kept for backwards compatibility
-    "enkel": 19_000,
     "standard": 28_000,
-    "komplett": 35_000,
 }
 
-PACKAGE_PRICES_MANGADA = {
+PACKAGE_PRICES_REPATRIATION = {
+    "enkel": 70_000,
+    "ceremoni": 85_000,
+    "komplett": 100_000,
     "eraft": 70_000,
     "fithat": 85_000,
     "tezkar": 100_000,
+    "standard": 85_000,
 }
 
 PACKAGE_LABELS = {
-    "eraft": ("እረፍት", "Eraft — Vila"),
-    "fithat": ("ፍትሐት", "Fithat — Absolution"),
-    "tezkar": ("ተዝካር", "Tezkar — Hågkomst"),
-    "enkel": ("እረፍት", "Enkel"),
-    "standard": ("ፍትሐት", "Standard"),
-    "komplett": ("ተዝካር", "Komplett"),
+    "enkel": "Enkel begravning",
+    "ceremoni": "Begravning med ceremoni",
+    "komplett": "Komplett med sorgestöd",
+}
+
+PACKAGE_LABELS_REPATRIATION = {
+    "enkel": "Hemtransport",
+    "ceremoni": "Hemtransport med avskedsceremoni",
+    "komplett": "Komplett hemtransport med sorgestöd",
 }
 
 
 def calculate_price(package: str, repatriation: bool) -> tuple[float, float, float]:
     if repatriation:
-        total = PACKAGE_PRICES_MANGADA.get(package, PACKAGE_PRICES_MANGADA.get("fithat", 85_000))
+        total = PACKAGE_PRICES_REPATRIATION.get(package, 85_000)
         return total, 0, total
-    pkg = PACKAGE_PRICES_SELAM.get(package, PACKAGE_PRICES_SELAM.get("fithat", 28_000))
+    pkg = PACKAGE_PRICES_SWEDEN.get(package, 28_000)
     return pkg, 0, pkg
 
 

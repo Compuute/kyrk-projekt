@@ -1,402 +1,381 @@
-# 24 — Tjänstekatalog: Två spår, sex paket
+# 24 — Tjänstekatalog: Två spår, sex tjänster
 
-Professionell tjänstekatalog för begravningstjänsten.
-Inspirerad av Fonus, Lavendla och Fenix — anpassad för
-etiopisk-ortodox tradition med autentiska amhariska namn.
+Professionell tjänstekatalog baserad på hur svenska begravningsbyråer
+positionerar sig. Paketnamn på svenska (beskrivande, tydliga).
+Rituella termer på amhariska (heliga, aldrig prissatta).
 
-## Två spår
+## Namngivningsprincip (datadrivet)
+
+### Hur marknaden gör
+
+| Byrå | Paketnamn | Mönster |
+|---|---|---|
+| **Lavendla** | Direktkremation / Enkel begravning / Klassisk begravning / Inkl. juridik | Beskrivande svenska |
+| **Fenix** | Direktkremering / Begravning med ceremoni / Anpassad begravning | Beskrivande svenska |
+| **Fonus** | Inga paketnamn — itemiserad prislista | Funktionellt |
+| **Co-op UK** | Simple / Respectful / Traditional / Tailored | Adjektiv-baserat |
+| **Dignity UK** | Attended Funeral / Unattended Funeral / Tailored | Funktionellt |
+
+### Hur diaspora-tjänster gör
+
+| Typ | Organisationsnamn | Paketnamn | Ritualer |
+|---|---|---|---|
+| **Judiska** | Chevra Kadisha (hebreiska) | Engelska/lokalt | Taharah, Shmira (hebreiska) |
+| **Muslimska** | Janaza Fund (arabiska) | Engelska/lokalt | Ghusal, Salat (arabiska) |
+| **Etiopiska Eder** | Edir / እድር (amhariska) | Inget — ej kommersiella | ንጽሕና, ሐዘን (amhariska) |
+
+### Regeln
+
+```
+HELIGT SPRÅK (amhariska/Ge'ez):
+  ንጽሕና   — rituell tvagning         → ALDRIG ett produktnamn
+  ሐዘን    — sorgperiod / vigil        → ALDRIG ett produktnamn
+  ተዝካር   — memorial-dagar            → ALDRIG ett produktnamn
+  ፍትሐት   — absolution / bön          → ALDRIG ett produktnamn
+  ቅዳሴ    — liturgi                    → ALDRIG ett produktnamn
+
+PROFESSIONELLT SPRÅK (svenska):
+  "Enkel begravning"                   → PAKETNAMN (tydligt, beskrivande)
+  "Klassisk begravning med ceremoni"   → PAKETNAMN
+  "Komplett med sorgestöd"             → PAKETNAMN
+  "Hemtransport"                       → SPÅRNAMN
+```
+
+---
+
+## Två tjänstespår
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                                                         │
-│   SPÅR 1: ሰላም (Selam) — Frid                          │
-│   Begravning i Sverige                                  │
+│   SPÅR A: BEGRAVNING I SVERIGE                         │
 │                                                         │
-│   Traditionell ortodox begravning med jordbegravning    │
-│   i svensk jord. Familjen stannar nära.                 │
+│   Ortodox jordbegravning i svensk jord.                │
+│   Komplett ceremoni med rituell tvagning,               │
+│   vigil och Ge'ez-psalmer.                              │
 │                                                         │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│   SPÅR 2: መንገደ ሰማይ (Mangada Samay) — Vägen hem       │
-│   Hemtransport till Etiopien / Eritrea                  │
+│   SPÅR B: HEMTRANSPORT                                  │
 │                                                         │
-│   Traditionell ortodox ceremoni i Sverige +             │
-│   komplett hemtransport för begravning i hemlandet.     │
-│   Familjen vilar i förfädernas jord.                    │
+│   Förberedelse i Sverige + komplett transport           │
+│   till Etiopien eller Eritrea för begravning            │
+│   i hemlandet.                                          │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Varför dessa namn
-
-| Namn | Amhariska | Betydelse | Källa |
-|---|---|---|---|
-| **Selam** | ሰላም | Frid, helhet, välsignelse | Grundläggande ortodox hälsning + välsignelse |
-| **Mangada Samay** | መንገደ ሰማይ | Vägen till himlen | Bön som reciteras när döden närmar sig |
-| **Eraft** | እረፍት | Vila, ro | Poetiskt ord för döden-som-vila |
-| **Fithat** | ፍትሐት | Absolution, förlåtelse | Kärnbön i begravningsriten |
-| **Tezkar** | ተዝካር | Hågkomst, minne | De heliga minnesdagarna |
-
 ---
 
-## SPÅR 1: ሰላም (Selam) — Begravning i Sverige
+## SPÅR A: Begravning i Sverige
 
-### Tre nivåer
+### A1. Enkel begravning — 19 000 kr
 
-```
-                    ┌─────────────┐
-                    │   ተዝካር     │  35 000 kr
-                    │   Tezkar    │  Fullständig
-                    │  Hågkomst   │
-                    ├─────────────┤
-                    │   ፍትሐት     │  28 000 kr
-                    │   Fithat    │  Standard
-                    │  Absolution │
-                    ├─────────────┤
-                    │   እረፍት     │  19 000 kr
-                    │   Eraft     │  Grundläggande
-                    │    Vila     │
-                    └─────────────┘
-```
-
----
-
-### እረፍት (Eraft) — Vila | 19 000 kr
-
-En värdig, enkel ortodox begravning.
+En värdig ortodox begravning med det nödvändiga.
 
 | # | Tjänst | Detalj | Ansvar |
 |---|---|---|---|
-| 1 | **Rådgivningsmöte** | 60 min med begravningsansvarig, genomgång av önskemål | KYRKAN |
-| 2 | **Uppdragsavtal** | Skriftligt avtal med itemiserad prislista | KYRKAN |
-| 3 | **Dödsanmälan** | Anmälan till Skatteverket (AI-ifylld) | KYRKAN |
-| 4 | **Kista** | Standard furukista med ortodox kors | KYRKAN |
-| 5 | **Kylförvaring** | Upp till 5 dygn via partner | KYRKAN |
-| 6 | **Transport** | Hämtning från sjukhus/hem + till kyrkan + till kyrkogården | KYRKAN |
-| 7 | **ንጽሕና** (rituell tvagning) | Koordination av diakoner, separat rum | KYRKAN |
-| 8 | **Ceremoni** | Präst, kyrka, ljud (1,5 timmar) | KYRKAN |
-| 9 | **Gravplats-koordination** | Kontakt med kyrkogårdsförvaltning | KYRKAN |
-| 10 | **Blommor** | Kistdekoration (standard) | KYRKAN |
-| — | **Dödsbevis** | Hämta från läkare/sjukhus | FAMILJEN |
-| — | **Klädval** | Bestämma kläder för den avlidne | FAMILJEN |
-| — | **Ceremonidatum** | Välja bland föreslagna datum | FAMILJEN |
-| — | **Betalning** | Swish/bankgiro inom 30 dagar | FAMILJEN |
+| 1 | Rådgivningsmöte | 60 min med begravningsansvarig | KYRKAN |
+| 2 | Uppdragsavtal | Skriftligt, itemiserad prislista | KYRKAN |
+| 3 | Dödsanmälan | Till Skatteverket (AI-stöd) | KYRKAN |
+| 4 | Kista | Furukista med ortodoxt kors | KYRKAN |
+| 5 | Kylförvaring | Upp till 5 dygn | KYRKAN via partner |
+| 6 | Transport | Hämtning + till kyrkan + till kyrkogården | KYRKAN |
+| 7 | Rituell tvagning | Av diakoner, med bön och heligt vatten | KYRKAN |
+| 8 | Ceremoni med präst | 1,5 timmar, Ge'ez-psalmer | KYRKAN |
+| 9 | Gravplats | Koordination med kyrkogårdsförvaltning | KYRKAN |
+| 10 | Blommor | Kistdekoration (standard) | KYRKAN |
+| — | Dödsbevis | Hämta från läkare/sjukhus | FAMILJEN |
+| — | Klädval | Traditionell vit shamma eller annat | FAMILJEN |
+| — | Datum | Välja bland föreslagna datum | FAMILJEN |
+| — | Betalning | Swish / bankgiro, inom 30 dagar | FAMILJEN |
 
-**Ingår inte:** Begravningsprogram, minnessida, korsång, ሐዘን-stöd,
-sorggrupp, dödsannons, minnesstund (mat), gravsten.
+**Itemiserad kostnad:**
 
----
-
-### ፍትሐት (Fithat) — Absolution | 28 000 kr
-
-Allt i እረፍት + fullständig ceremoni med program och digitalt minne.
-
-| # | Tjänst | Detalj | Ansvar |
-|---|---|---|---|
-| 1-10 | **Allt i እረፍት** | Se ovan | KYRKAN |
-| 11 | **Begravningsprogram** | Tryckt (50 st), trilingualt (am+sv+en), AI-genererat | KYRKAN |
-| 12 | **Korsång / ዝማሬ** | Koordination med kyrkans kör | KYRKAN |
-| 13 | **Digital minnessida** | Permanent sida med foto, text, kondoleanser | KYRKAN |
-| 14 | **Dödsannons** | Publicering i tidning + digital (Familjesidan.se) | KYRKAN |
-| 15 | **Blommor (utökat)** | Kistdekoration + handbukett + kransar | KYRKAN |
-| 16 | **Fotografering** | Dokumentation av ceremonin (diskret) | KYRKAN |
-| — | **Godkänna program** | Granska AI-utkast, ändra vid behov | FAMILJEN |
-| — | **Foto + minnestext** | Till minnessidan (kyrkan hjälper med AI-utkast) | FAMILJEN |
-| — | **Dödsannonsinformation** | Namn, datum, närstående | FAMILJEN |
-
-**Ingår inte:** ሐዘን-stöd, sorggrupp, minnesstund, gravsten,
-sorg-kalender, bouppteckningshjälp.
-
----
-
-### ተዝካር (Tezkar) — Hågkomst | 35 000 kr
-
-Fullständig ortodox begravning med sorgestöd i 1 år.
-
-| # | Tjänst | Detalj | Ansvar |
-|---|---|---|---|
-| 1-16 | **Allt i ፍትሐት** | Se ovan | KYRKAN |
-| 17 | **ሐዘን-stöd** (vigil) | Koordination av vaka, rum, mat, stöd | KYRKAN |
-| 18 | **Kolliva** (kokt vete) | Traditionell förberedd till ceremonin | KYRKAN |
-| 19 | **Minnesstund** | Lokal + enkel förtäring efter ceremoni (kaffe, bröd) | KYRKAN |
-| 20 | **Sorggrupp** | Koordination med volontärer första 2 veckorna | KYRKAN |
-| 21 | **Sorg-kalender** (ተዝካር) | Automatiska påminnelser dag 3/7/12/40/6m/1å | KYRKAN |
-| 22 | **Memorial-ceremonier** | Hjälp att planera dag 40 + 1 år (አርባ + ዓመት) | KYRKAN |
-| 23 | **Bouppteckningsguide** | AI-genererad guide anpassad per situation | KYRKAN |
-| 24 | **1 års uppföljning** | 6 kontaktpunkter under sorg-kalender | KYRKAN |
-| — | **Meddela Eder** | Kontakta sin Eder-förening | FAMILJEN |
-| — | **Gäster till minnesstund** | Uppskatta antal (kyrkan ordnar lokal + mat) | FAMILJEN |
-| — | **Medverka i sorggrupp** | Delta om man önskar | FAMILJEN |
-
-**Ingår inte:** Gravsten, begravningsförsäkring, juridisk rådgivning
-utöver bouppteckningsguide.
-
----
-
-## SPÅR 2: መንገደ ሰማይ (Mangada Samay) — Hemtransport
-
-### Tre nivåer
-
-```
-                    ┌─────────────┐
-                    │   ተዝካር     │  100 000 kr
-                    │   Tezkar    │  Komplett + ceremoni
-                    │  Hågkomst   │  + hemtransport
-                    ├─────────────┤
-                    │   ፍትሐት     │  85 000 kr
-                    │   Fithat    │  Standard + hemtransp.
-                    │  Absolution │
-                    ├─────────────┤
-                    │   እረፍት     │  70 000 kr
-                    │   Eraft     │  Hemtransport enbart
-                    │    Vila     │  (ingen ceremoni i SE)
-                    └─────────────┘
-```
-
----
-
-### እረፍት (Eraft) Hemtransport — Vila | 70 000 kr
-
-Komplett hemtransport utan ceremoni i Sverige. För familjer
-som vill att hela begravningen sker i hemlandet.
-
-| # | Tjänst | Detalj | Ansvar |
-|---|---|---|---|
-| 1 | **Rådgivningsmöte** | 60 min, genomgång av hemtransportprocess | KYRKAN |
-| 2 | **Uppdragsavtal** | Skriftligt med itemiserad kostnad | KYRKAN |
-| 3 | **Dödsanmälan** till Skatteverket | AI-ifylld | KYRKAN |
-| 4 | **Kylförvaring** | Tills allt är klart (5-10 dygn) | KYRKAN via partner |
-| 5 | **ንጽሕና** (rituell tvagning) | Före balsamering | KYRKAN |
-| 6 | **Balsamering** | IATA-compliant, formaldehyd-baserad | EVIGO |
-| 7 | **Balsameringsintyg** | Med kemikalieinformation | EVIGO |
-| 8 | **Zinkkista** | Hermetiskt förseglad, lödd | EVIGO |
-| 9 | **Intyg om icke-smittsam sjukdom** | Från läkare | KYRKAN koordinerar |
-| 10 | **Begravningsentreprenörens intyg** | Kistinnehåll | KYRKAN |
-| 11 | **Passersedel** | Ansökan + mottagning från Skatteverket | KYRKAN |
-| 12 | **Ambassad-dokumentation** | Kontakt + alla handlingar | KYRKAN |
-| 13 | **Flygfrakt-bokning** | Ethiopian Airlines Cargo via Kales Group | KYRKAN |
-| 14 | **Air Waybill** | Ifylld + verifierad | KYRKAN |
-| 15 | **Tullexportdokumentation** | Om nödvändigt (passersedel räcker normalt) | KYRKAN |
-| 16 | **Leverans till Arlanda Cargo** | Transport av zinkkista | KYRKAN |
-| 17 | **Mottagarkoordination** | Kontakt med mottagare i Addis/Asmara | KYRKAN |
-| 18 | **Ankomstbekräftelse** | Verifiera att kroppen anlänt | KYRKAN |
-| 19 | **Passersedel-retur** | Returnera kopia till Skatteverket inom 2v | KYRKAN |
-| 20 | **Digital minnessida** | Permanent sida (grundversion) | KYRKAN |
-| — | **Dödsbevis** | Hämta från läkare | FAMILJEN |
-| — | **Pass/ID** för den avlidne | Till ambassaden | FAMILJEN |
-| — | **Mottagare i hemland** | Namn, telefon, adress | FAMILJEN |
-| — | **Eritrea: 2%-skattebevis** | Kontrollera med ambassaden | FAMILJEN |
-| — | **Betalning** | Före flygfrakt | FAMILJEN |
-
-**Ingår inte:** Ceremoni i Sverige, begravningsprogram,
-korsång, ሐዘን, minnessstund, sorg-kalender.
-
----
-
-### ፍትሐት (Fithat) Hemtransport — Absolution | 85 000 kr
-
-Hemtransport + enkel ceremoni i Sverige (avskedsceremoni
-innan kroppen skickas hem).
-
-| # | Tjänst | Detalj | Ansvar |
-|---|---|---|---|
-| 1-20 | **Allt i እረፍት Hemtransport** | Se ovan | KYRKAN + EVIGO |
-| 21 | **Avskedsceremoni** | Kort ceremoni i kyrkan (45 min) med präst | KYRKAN |
-| 22 | **Kista (visningskista)** | Tillfällig kista för ceremoni (före zinkkista) | KYRKAN |
-| 23 | **Begravningsprogram** | Tryckt, trilingualt (am+sv+en) | KYRKAN |
-| 24 | **Blommor** | Kistdekoration för avskedsceremonin | KYRKAN |
-| 25 | **Telegram-broadcast** | Notis till församlingen | KYRKAN |
-| 26 | **Dödsannons** | Tidning + digital | KYRKAN |
-| — | **Godkänna program** | Granska AI-utkast | FAMILJEN |
-
-**Ingår inte:** ሐዘን, kolliva, minnesstund, sorggrupp,
-sorg-kalender, bouppteckningshjälp.
-
----
-
-### ተዝካር (Tezkar) Hemtransport — Hågkomst | 100 000 kr
-
-Komplett: full ceremoni i Sverige + hemtransport +
-1 års sorgestöd. Det mest heltäckande paketet.
-
-| # | Tjänst | Detalj | Ansvar |
-|---|---|---|---|
-| 1-26 | **Allt i ፍትሐት Hemtransport** | Se ovan | KYRKAN + EVIGO |
-| 27 | **ሐዘን-stöd** (vigil) | Vaka i kyrkan eller hemma | KYRKAN |
-| 28 | **Kolliva** | Kokt vete till ceremonin | KYRKAN |
-| 29 | **Korsång / ዝማሬ** | Kyrkans kör | KYRKAN |
-| 30 | **Minnesstund** | Lokal + förtäring efter avskedsceremonin | KYRKAN |
-| 31 | **Sorggrupp** | Volontär-koordination 2 veckor | KYRKAN |
-| 32 | **Sorg-kalender** (ተዝካር) | Dag 3/7/12/40/6m/1å påminnelser | KYRKAN |
-| 33 | **Memorial-ceremoni dag 40** | Planering + genomförande av አርባ | KYRKAN |
-| 34 | **Memorial-ceremoni 1 år** | Planering + genomförande av ዓመት | KYRKAN |
-| 35 | **Bouppteckningsguide** | AI-genererad | KYRKAN |
-| 36 | **1 års uppföljning** | 6 kontaktpunkter | KYRKAN |
-| — | **Gäster till minnesstund** | Uppskatta antal | FAMILJEN |
-| — | **Medverka i sorggrupp** | Valfritt | FAMILJEN |
-
----
-
-## Tilläggstjänster (à la carte)
-
-Kan läggas till vilket paket som helst.
-
-| Tjänst | Pris | Detalj | Ansvar |
-|---|---|---|---|
-| **Gravsten / kors** | 5 000–25 000 kr | Ortodox korsgravsten, am+sv text | KYRKAN koordinerar, FAMILJEN väljer |
-| **Dödsannons** (om ej ingår) | 2 000–5 000 kr | DN/SvD/Familjesidan.se | KYRKAN |
-| **Extra minnesstund-catering** | 5 000–15 000 kr | Injera + doro wet + kaffe | FAMILJEN ordnar mat, KYRKAN lokal |
-| **Begravningsförsäkring-rådgivning** | Gratis | Hjälp att kontakta försäkringsbolag | KYRKAN |
-| **Bouppteckning** (fullständig) | 5 000–15 000 kr | Via juridisk partner | PARTNER |
-| **Arvsdelning** | 5 000–20 000 kr | Via juridisk partner | PARTNER |
-| **Fotografering** (om ej ingår) | 3 000 kr | Diskret dokumentation av ceremoni | KYRKAN |
-| **Videoinspelning** | 5 000 kr | Livestream + inspelning för utlandet | KYRKAN |
-| **Extra kylförvaring** | 500 kr/dygn | Över 5 dygn | PARTNER |
-| **Hemtransport tillägg** (annat land) | Offert | Ej Etiopien/Eritrea (annan rutt) | KYRKAN |
-| **Förhandsplaneringsavtal** | 500 kr engång | Dokumentera önskemål i förväg | KYRKAN |
-| **Hemtransportavtal** (garanti) | 1 000 kr/år | Garanterat pris vid framtida behov | KYRKAN |
-
----
-
-## Jämförelse med befintliga byråer (verifierade priser 2026)
-
-| Tjänst | Fonus | Lavendla | Fenix | **Vi** |
-|---|---|---|---|---|
-| **Paketnamn** | Inga (itemiserat) | Direkt/Enkel/Klassisk/Juridik | Direkt/Ceremoni/Anpassad | **Eraft/Fithat/Tezkar** |
-| **Lägsta pris** | ~12 520 kr | 10 595 kr (GDS) | 9 995 kr | **19 000 kr** |
-| **Standardbegravning** | ~20 000 kr | 27 755 kr | 19 995 kr | **28 000 kr (Fithat)** |
-| **Fullständig** | ~38 300 kr | 39 755 kr (inkl. juridik) | 31 990 kr | **35 000 kr (Tezkar)** |
-| **Hemtransport** | Ej kärntjänst | Ej kärntjänst | Ej kärntjänst | **Eget spår 70-100K** |
-| **Rituell tvagning** | Nej | Nej | Nej | **Alla paket** |
-| **Sorg-kalender** | Nej | Memorial 20 dagar | Nej | **ተዝካር 1 år (Tezkar)** |
-| **Trilingualt program** | Nej | Nej | Nej | **Am+Sv+En (AI)** |
-| **ሐዘን / vigil** | Nej | Nej | Nej | **Tezkar** |
-| **Kolliva** | Nej | Nej | Nej | **Tezkar** |
-| **Eder-integration** | Nej | Nej | Nej | **Alla paket** |
-| **Bouppteckning** | Via Familjens Jurist | Ingår (39K+) | In-house boutredare | **AI-guide (Tezkar)** |
-| **Memorial dag 40 + 1 år** | Nej | Nej | Nej | **Planering + genomförande** |
-| **Minnessida** | Ingår (vid dödsannons) | 20 dagar gratis | Tillägg | **Permanent (Fithat+)** |
-| **Direktkremation** | Ja | Ja (10 595 kr) | Ja (9 995 kr) | **Nej — alltid jordbegravning** |
-
-**Notera:** Vi erbjuder INTE direktkremation. Ortodox tradition
-kräver alltid jordbegravning. Det är en medveten positionering
-som utesluter ~83% av svenska marknaden men gör oss 100%
-relevanta för vår målgrupp.
-
----
-
-## Vad varje paket heter — sammanfattning
-
-### Spår 1: ሰላም (Selam) — Begravning i Sverige
-
-| Paket | Am | Sv | Pris | Målgrupp |
-|---|---|---|---|---|
-| **እረፍት** | Eraft | Vila | 19 000 kr | Enkel, värdig begravning utan extras |
-| **ፍትሐት** | Fithat | Absolution | 28 000 kr | Full ceremoni med program + minnessida |
-| **ተዝካር** | Tezkar | Hågkomst | 35 000 kr | Allt + sorgestöd 1 år |
-
-### Spår 2: መንገደ ሰማይ (Mangada Samay) — Hemtransport
-
-| Paket | Am | Sv | Pris | Målgrupp |
-|---|---|---|---|---|
-| **እረፍት** | Eraft | Vila | 70 000 kr | Hemtransport utan ceremoni i Sverige |
-| **ፍትሐት** | Fithat | Absolution | 85 000 kr | Avskedsceremoni + hemtransport |
-| **ተዝካር** | Tezkar | Hågkomst | 100 000 kr | Full ceremoni + hemtransport + 1 års stöd |
-
-### Barn under 18
-
-| Paket | Pris |
+| Post | Pris |
 |---|---|
-| Alla paket, båda spåren | **Gratis** (full ceremoni, inga kostnader) |
+| Kista (standard furu) | 5 000 kr |
+| Transport (3 sträckor) | 4 000 kr |
+| Kylförvaring (5 dygn) | 2 500 kr |
+| Ceremoni (präst, lokal, ljud) | 4 000 kr |
+| Blommor (kistdekoration) | 1 500 kr |
+| Koordination + administration | 2 000 kr |
+| **Totalt** | **19 000 kr** |
+
+**Ingår inte:** Program, minnessida, korsång, dödsannons,
+minnesstund, sorggrupp, sorg-kalender.
 
 ---
 
-## Ansvarmatris — visuell översikt
+### A2. Begravning med ceremoni — 28 000 kr
 
-```
-                    KYRKAN    FAMILJEN    EVIGO    AIRLINES    AMBASSAD
-                    ──────    ────────    ─────    ────────    ────────
-Rådgivning           ██
-Avtal                ██
-Dödsanmälan          ██
-Dödsbevis                      ██
-Pass/ID                        ██
-Kylförvaring         ██
-ንጽሕና               ██
-Balsamering                               ██
-Zinkkista                                 ██
-Passersedel          ██
-Ambassad-dok         ██                                        ██
-Flygbokning          ██                            ██
-Air Waybill          ██                            ██
-Kista                ██
-Transport            ██
-Ceremoni             ██
-Program (AI)         ██
-Godkänna program                ██
-Blommor              ██
-Korsång              ██
-ሐዘን                 ██
-Kolliva              ██
-Minnessida           ██
-Foto/text                       ██
-Begravningsbevis     ██
-Faktura              ██
-Betalning                       ██
-Sorg-kalender        ██
-Memorial dag 40      ██
-Feedback                        ██
-Ankomstbekräft.      ██                            ██
-Mottagare info                  ██
+Full ceremoni med tryckt program, korsång och digital minnessida.
 
-LEGEND: ██ = ansvarig part
-```
+| # | Tjänst | Detalj | Ansvar |
+|---|---|---|---|
+| 1-10 | Allt i A1 | Se ovan | KYRKAN |
+| 11 | Begravningsprogram | Tryckt (50 st), am+sv+en, AI-genererat | KYRKAN |
+| 12 | Korsång / ዝማሬ | Kyrkans kör, 3-4 sånger | KYRKAN |
+| 13 | Digital minnessida | Permanent: foto, text, kondoleanser | KYRKAN |
+| 14 | Dödsannons | Tidning (valfri) + digital (Familjesidan.se) | KYRKAN |
+| 15 | Blommor (utökat) | Kistdekoration + bukett + 2 kransar | KYRKAN |
+| 16 | Fotografering | Diskret dokumentation av ceremoni | KYRKAN |
+| — | Godkänna program | Granska AI-utkast, ändra vid behov | FAMILJEN |
+| — | Foto + minnestext | Till minnessidan | FAMILJEN |
 
-## Kundresa — visuell tidslinje
+**Tillägg utöver A1:**
 
-### Spår 1 (Selam): 7-14 dagar
+| Post | Pris |
+|---|---|
+| Begravningsprogram (50 st, trilingualt) | 2 000 kr |
+| Korsång (kör-koordination) | 2 000 kr |
+| Digital minnessida (permanent) | 1 000 kr |
+| Dödsannons (digital) | 1 000 kr |
+| Blommor (utökat) | 1 500 kr |
+| Fotografering | 1 500 kr |
+| **Tillägg** | **9 000 kr** |
+| **Totalt** | **28 000 kr** |
 
-```
-DAG 0    ☎️ Familjen ringer → Kyrkan svarar ≤30 min
-DAG 0-1  🤝 Rådgivningsmöte → Avtal signeras
-DAG 1-2  📋 Dödsanmälan, kylförvaring, gravplatsbokning
-DAG 2-5  ⛪ ንጽሕና + ceremoniplanering
-DAG 3-5  📝 Begravningsprogram → familjen godkänner
-DAG 5-10 ⛪ CEREMONI (ፍትሐት / begravning)
-DAG 7-10 📄 Begravningsbevis + faktura
-DAG 10   🌐 Minnessida publicerad
-DAG 14   💬 Feedback/NPS
-         🕊️ Sorg-kalender startar (dag 3/7/12/40/180/365)
-```
+---
 
-### Spår 2 (Mangada Samay): 10-21 dagar
+### A3. Komplett begravning med sorgestöd — 35 000 kr
 
-```
-DAG 0     ☎️ Familjen ringer → Kyrkan svarar ≤30 min
-DAG 0-1   🤝 Rådgivningsmöte → Avtal signeras
-DAG 1-2   📋 Dödsanmälan + ambassadkontakt + passersedel-ansökan
-DAG 1-3   ⛪ ንጽሕና → EVIGO (balsamering + zinkkista)
-DAG 3-5   📄 Passersedel + ambassadtillstånd + intyg klara
-DAG 3-5   📝 Begravningsprogram (om Fithat/Tezkar)
-DAG 5-7   ⛪ Avskedsceremoni (om Fithat/Tezkar)
-DAG 5-7   ✈️ Ethiopian Airlines cargo-bokning (min 3 dagar)
-DAG 7-10  📦 Air Waybill → leverans till Arlanda Cargo
-DAG 10-14 ✈️ FLYG → Addis Abeba / Asmara
-DAG 10-14 ✅ Ankomstbekräftelse
-DAG 14    📄 Passersedel-kopia → Skatteverket
-DAG 14    💬 Feedback/NPS
-          🕊️ Sorg-kalender (om Tezkar)
-```
+Allt i A2 + vigil, minnesstund och sorg-kalender i 1 år.
+
+| # | Tjänst | Detalj | Ansvar |
+|---|---|---|---|
+| 1-16 | Allt i A2 | Se ovan | KYRKAN |
+| 17 | Vigil / ሐዘን-samordning | Koordination av vaka med familjen | KYRKAN |
+| 18 | Kolliva | Kokt vete, traditionellt förberett | KYRKAN |
+| 19 | Minnesstund | Lokal + enkel förtäring (kaffe, bröd, injera) | KYRKAN |
+| 20 | Sorggrupp | Volontärer som besöker familjen 2 veckor | KYRKAN |
+| 21 | Sorg-kalender | Påminnelser dag 3, 7, 12, 40, 6 mån, 1 år | KYRKAN |
+| 22 | Memorial-ceremoni dag 40 | Planering + genomförande | KYRKAN |
+| 23 | Memorial-ceremoni 1 år | Planering + genomförande | KYRKAN |
+| 24 | Bouppteckningsguide | AI-genererad, anpassad per situation | KYRKAN |
+| — | Meddela Eder-förening | Om familjen är medlem | FAMILJEN |
+| — | Antal gäster | Uppskattning för minnesstund | FAMILJEN |
+
+**Tillägg utöver A2:**
+
+| Post | Pris |
+|---|---|
+| Vigil-koordination | 1 000 kr |
+| Kolliva | 500 kr |
+| Minnesstund (lokal + förtäring, 50 pers) | 3 000 kr |
+| Sorggrupp-koordination | 500 kr |
+| Sorg-kalender (12 månader, automatisk) | 500 kr |
+| Memorial-ceremoni × 2 (dag 40 + 1 år) | 1 000 kr |
+| Bouppteckningsguide | 500 kr |
+| **Tillägg** | **7 000 kr** |
+| **Totalt** | **35 000 kr** |
+
+---
+
+## SPÅR B: Hemtransport
+
+### B1. Hemtransport — 70 000 kr
+
+Komplett hemtransport utan ceremoni i Sverige.
+Kroppen förberedds, dokumenteras och skickas hem.
+
+| # | Tjänst | Detalj | Ansvar |
+|---|---|---|---|
+| 1 | Rådgivningsmöte | 60 min, hemtransportprocess | KYRKAN |
+| 2 | Uppdragsavtal | Skriftligt, itemiserat | KYRKAN |
+| 3 | Dödsanmälan | Till Skatteverket | KYRKAN |
+| 4 | Kylförvaring | Tills dokument + flyg klart (5-10 dygn) | KYRKAN via partner |
+| 5 | Rituell tvagning | Av diakoner, före balsamering | KYRKAN |
+| 6 | Balsamering | IATA-compliant, arteriell | EVIGO |
+| 7 | Balsameringsintyg | Med kemikaliedetaljer | EVIGO |
+| 8 | Zinkkista | Hermetiskt förseglad (lödd/svetsad) | EVIGO |
+| 9 | Intyg icke-smittsam sjukdom | Från läkare | KYRKAN koordinerar |
+| 10 | Begravningsentreprenörens intyg | Kistinnehåll | KYRKAN |
+| 11 | Passersedel | Ansökan + hämtning (Skatteverket) | KYRKAN |
+| 12 | Ambassad-tillstånd | Alla handlingar till ambassaden | KYRKAN |
+| 13 | Flygfrakt-bokning | Ethiopian Airlines Cargo (HUM) | KYRKAN |
+| 14 | Air Waybill | Ifylld, verifierad | KYRKAN |
+| 15 | Transport till Arlanda Cargo | Zinkkista till terminal | KYRKAN |
+| 16 | Mottagarkoordination | Kontakt med mottagare i hemland | KYRKAN |
+| 17 | Tullklarering (hemland) | Via mottagarpartner | PARTNER (hemland) |
+| 18 | Ankomstbekräftelse | Verifiera att kroppen anlänt | KYRKAN |
+| 19 | Passersedel-retur | Kopia till Skatteverket inom 2v | KYRKAN |
+| 20 | Digital minnessida | Grundversion | KYRKAN |
+| — | Dödsbevis | Hämta från läkare | FAMILJEN |
+| — | Pass/ID | Den avlidnes, till ambassaden | FAMILJEN |
+| — | Mottagare i hemland | Namn, telefon, adress | FAMILJEN |
+| — | Eritrea: 2%-skattestatus | Kontrollera med ambassad | FAMILJEN |
+| — | Betalning | Före flygfrakt | FAMILJEN |
+
+**Itemiserad kostnad:**
+
+| Post | Pris |
+|---|---|
+| Kylförvaring (10 dygn) | 5 000 kr |
+| Balsamering (Evigo) | 8 000 kr |
+| Zinkkista (IATA, svetsad) | 12 000 kr |
+| Flygfrakt (Ethiopian Airlines ARN→ADD) | 28 000 kr |
+| Ambassad-dokumentation | 2 000 kr |
+| Passersedel + intyg | 1 000 kr |
+| Transport (sjukhus → Evigo → Arlanda) | 5 000 kr |
+| Mottagning i Addis/Asmara (partner) | 5 000 kr |
+| Koordination + administration | 4 000 kr |
+| **Totalt** | **70 000 kr** |
+
+---
+
+### B2. Hemtransport med avskedsceremoni — 85 000 kr
+
+Avskedsceremoni i Sverige innan kroppen skickas hem.
+Familj och vänner i Sverige tar farväl.
+
+| # | Tjänst | Detalj | Ansvar |
+|---|---|---|---|
+| 1-20 | Allt i B1 | Se ovan | KYRKAN + EVIGO |
+| 21 | Visningskista | Tillfällig kista för ceremoni (före zinkkista) | KYRKAN |
+| 22 | Avskedsceremoni | Kort ceremoni i kyrkan (45 min) med präst | KYRKAN |
+| 23 | Begravningsprogram | Tryckt (50 st), am+sv+en | KYRKAN |
+| 24 | Blommor | Kistdekoration för ceremoni | KYRKAN |
+| 25 | Korsång / ዝማሬ | Kyrkans kör | KYRKAN |
+| 26 | Dödsannons | Digital | KYRKAN |
+| 27 | Telegram-broadcast | Notis till församlingen | KYRKAN |
+| — | Godkänna program | Granska AI-utkast | FAMILJEN |
+
+**Tillägg utöver B1:**
+
+| Post | Pris |
+|---|---|
+| Visningskista (tillfällig) | 3 000 kr |
+| Avskedsceremoni (präst, lokal) | 4 000 kr |
+| Begravningsprogram (trilingualt) | 2 000 kr |
+| Blommor | 2 000 kr |
+| Korsång | 2 000 kr |
+| Dödsannons | 1 000 kr |
+| Broadcast | 1 000 kr |
+| **Tillägg** | **15 000 kr** |
+| **Totalt** | **85 000 kr** |
+
+---
+
+### B3. Komplett hemtransport med sorgestöd — 100 000 kr
+
+Full ceremoni i Sverige + hemtransport + 1 års sorgestöd.
+Det mest heltäckande paketet.
+
+| # | Tjänst | Detalj | Ansvar |
+|---|---|---|---|
+| 1-27 | Allt i B2 | Se ovan | KYRKAN + EVIGO |
+| 28 | Vigil / ሐዘን-samordning | Vaka innan avskedsceremoni | KYRKAN |
+| 29 | Kolliva | Kokt vete | KYRKAN |
+| 30 | Minnesstund | Lokal + förtäring (50 pers) | KYRKAN |
+| 31 | Fotografering | Ceremoni-dokumentation | KYRKAN |
+| 32 | Sorggrupp | Volontärer 2 veckor | KYRKAN |
+| 33 | Sorg-kalender | Påminnelser 3/7/12/40/180/365 dagar | KYRKAN |
+| 34 | Memorial dag 40 | Planering + genomförande | KYRKAN |
+| 35 | Memorial 1 år | Planering + genomförande | KYRKAN |
+| 36 | Bouppteckningsguide | AI-genererad | KYRKAN |
+| — | Gäster till minnesstund | Uppskatta antal | FAMILJEN |
+
+**Tillägg utöver B2:**
+
+| Post | Pris |
+|---|---|
+| Vigil-koordination | 1 000 kr |
+| Kolliva | 500 kr |
+| Minnesstund (lokal + mat, 50 pers) | 3 000 kr |
+| Fotografering | 1 500 kr |
+| Sorggrupp | 500 kr |
+| Sorg-kalender (12 mån) | 500 kr |
+| Memorial × 2 | 1 000 kr |
+| Bouppteckningsguide | 500 kr |
+| Övriga tillägg | 6 500 kr |
+| **Tillägg** | **15 000 kr** |
+| **Totalt** | **100 000 kr** |
+
+---
+
+## Tilläggstjänster (valfria, alla spår)
+
+| Tjänst | Pris | Ansvar |
+|---|---|---|
+| Gravsten / korsgravsten (am+sv text) | 5 000–25 000 kr | KYRKAN koordinerar |
+| Dödsannons i tryckt tidning (DN/SvD) | 3 000–8 000 kr | KYRKAN |
+| Utökad minnesstund-catering (injera + doro wet) | 5 000–15 000 kr | FAMILJEN ordnar mat, KYRKAN lokal |
+| Begravningsförsäkring-rådgivning | Gratis | KYRKAN |
+| Bouppteckning (fullständig, juridisk partner) | 5 000–15 000 kr | PARTNER |
+| Arvsdelning (juridisk partner) | 5 000–20 000 kr | PARTNER |
+| Videoinspelning + livestream | 5 000 kr | KYRKAN |
+| Extra kylförvaring (per dygn utöver inkluderade) | 500 kr/dygn | PARTNER |
+| Hemtransport till annat land (ej ETH/ERI) | Offert | KYRKAN |
+| Förhandsplaneringsavtal | 500 kr engång | KYRKAN |
+| Hemtransportgaranti (garanterat pris) | 1 000 kr/år | KYRKAN |
+
+---
+
+## Barn under 18
+
+| Spår | Paket | Pris |
+|---|---|---|
+| A (Sverige) | Komplett begravning med sorgestöd | **Gratis** |
+| B (Hemtransport) | Komplett hemtransport med sorgestöd | **Gratis** |
+
+Inga kostnader för familjer som förlorar ett barn.
+Full ceremoni, full hemtransport om önskas. Kyrkan bär kostnaden.
+
+---
+
+## Jämförelse med marknaden (verifierade priser 2026)
+
+| | Fonus | Lavendla | Fenix | **Vi** |
+|---|---|---|---|---|
+| **Paketnamn** | Inga | Direkt/Enkel/Klassisk/Juridik | Direkt/Ceremoni/Anpassad | A1/A2/A3 + B1/B2/B3 |
+| **Namnstil** | Itemiserat | Beskrivande sv | Beskrivande sv | Beskrivande sv |
+| **Enklaste** | ~12 520 kr | 10 595 kr | 9 995 kr | 19 000 kr |
+| **Med ceremoni** | ~20 000 kr | 27 755 kr | 19 995 kr | 28 000 kr |
+| **Komplett** | ~38 300 kr | 39 755 kr | 31 990 kr | 35 000 kr |
+| **Hemtransport** | Ej kärntjänst | Ej kärntjänst | Ej kärntjänst | 70-100K kr |
+| **Kremation** | Ja (83% av kunder) | Ja | Ja | **Nej — alltid jordbegravning** |
+| **Rituell tvagning** | Nej | Nej | Nej | Alla paket |
+| **Trilingualt program** | Nej | Nej | Nej | A2+ (am+sv+en) |
+| **Sorg-kalender 1 år** | Nej | 20 dagars minnessida | Nej | A3/B3 |
+| **Barn gratis** | Nej | Nej | Nej | Ja |
+
+### Varför vi är dyrare på lägsta nivån
+
+Fonus/Lavendla/Fenix erbjuder **direktkremation** från 10-13K kr.
+Vi erbjuder det INTE (ortodox tradition = alltid jordbegravning).
+Vår lägsta nivå (A1: 19 000 kr) inkluderar kista, ceremoni med
+präst och rituell tvagning — det som andra byråer kallar
+"standard" eller "klassisk".
+
+**Positionering:** Vi konkurrerar inte på pris i botten.
+Vi konkurrerar på **värde per krona** i mellanregistret och
+på **unika tjänster** som ingen annan erbjuder (hemtransport,
+rituell tvagning, trilingualt, sorg-kalender, Eder-integration).
+
+---
+
+## Var rituella termer används (korrekt)
+
+Amhariska/Ge'ez termer används i **ceremoni- och
+ritualsammanhang** — aldrig som produktnamn:
+
+| Term | Används i | Används INTE som |
+|---|---|---|
+| ንጽሕና (rituell tvagning) | Tjänstebeskrivning: "Rituell tvagning ingår" | Paketnamn |
+| ሐዘን (vigil/sorgperiod) | Tjänstebeskrivning: "ሐዘን-samordning" | Paketnamn |
+| ተዝካር (memorial-dagar) | Sorg-kalender: "ተዝካር dag 3, 7, 12, 40" | Paketnamn |
+| ፍትሐት (absolution) | Ceremoni: "Prästen läser ፍትሐት" | Paketnamn |
+| ዝማሬ (korsång) | Tjänstebeskrivning: "Korsång / ዝማሬ" | Paketnamn |
+| ቅዳሴ (liturgi) | Ceremoni-typ | Paketnamn |
+
+---
 
 ## Plattformsuppdatering
 
-Funeral-modulen i admin-web behöver uppdateras med:
-
-| Komponent | Ändring |
-|---|---|
-| Paketval i formuläret | Ersätt enkel/standard/komplett med Eraft/Fithat/Tezkar |
-| Spår-val | Lägg till Selam vs Mangada Samay |
-| Priskalkyl | Uppdatera till nya priser (70K/85K/100K för hemtransport) |
-| Checklista | Dynamisk baserat på spår + nivå |
-| Itemiserad faktura | Auto-genererad per paket |
-| Uppdragsavtal-mall | AI-genererat per paket |
+| Ändring | Fil | Vad |
+|---|---|---|
+| Paketval → A1/A2/A3 + B1/B2/B3 | funeral_new.html | Spår + nivå-väljare |
+| Prismodell → 6 fasta priser | funeral_tracker.py | calculate_price() |
+| Itemiserad faktura | Ny template | Per-post faktura |
+| Formulärtext | funeral_new.html | Svenska beskrivande namn |

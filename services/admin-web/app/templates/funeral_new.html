@@ -37,16 +37,16 @@
     <legend>Tjänst</legend>
     <label>Spår
       <select name="track" id="track-select">
-        <option value="selam">ሰላም (Selam) — Begravning i Sverige</option>
-        <option value="mangada">መንገደ ሰማይ (Mangada Samay) — Hemtransport</option>
+        <option value="sverige">Begravning i Sverige</option>
+        <option value="hemtransport">Hemtransport till Etiopien / Eritrea</option>
       </select>
     </label>
 
-    <label>Paket
+    <label>Tjänst
       <select name="package" id="package-select">
-        <option value="eraft">እረፍት Eraft — Vila</option>
-        <option value="fithat" selected>ፍትሐት Fithat — Absolution</option>
-        <option value="tezkar">ተዝካር Tezkar — Hågkomst</option>
+        <option value="enkel">Enkel begravning</option>
+        <option value="ceremoni" selected>Begravning med ceremoni</option>
+        <option value="komplett">Komplett med sorgestöd</option>
       </select>
     </label>
 
@@ -55,7 +55,6 @@
     </div>
 
     <input type="hidden" name="repatriation" id="repatriation-hidden" value="" />
-    </label>
 
     <div id="repatriation-fields" style="display:none;">
       <label>Destination
@@ -90,8 +89,13 @@
   var priceDisplay = document.getElementById('price-display');
 
   var prices = {
-    selam: {eraft: 19000, fithat: 28000, tezkar: 35000},
-    mangada: {eraft: 70000, fithat: 85000, tezkar: 100000}
+    sverige: {enkel: 19000, ceremoni: 28000, komplett: 35000},
+    hemtransport: {enkel: 70000, ceremoni: 85000, komplett: 100000}
+  };
+
+  var labels = {
+    sverige: {enkel: 'Enkel begravning', ceremoni: 'Begravning med ceremoni', komplett: 'Komplett med sorgestöd'},
+    hemtransport: {enkel: 'Hemtransport', ceremoni: 'Hemtransport med avskedsceremoni', komplett: 'Komplett hemtransport med sorgestöd'}
   };
 
   function update() {
@@ -99,9 +103,14 @@
     var p = pkg.value;
     var price = prices[t] && prices[t][p] ? prices[t][p] : 28000;
     priceDisplay.textContent = 'Pris: ' + price.toLocaleString('sv-SE') + ' kr';
-    var isMangada = t === 'mangada';
-    repFields.style.display = isMangada ? 'block' : 'none';
-    repHidden.value = isMangada ? 'on' : '';
+    var isHemtransport = t === 'hemtransport';
+    repFields.style.display = isHemtransport ? 'block' : 'none';
+    repHidden.value = isHemtransport ? 'on' : '';
+    var opts = pkg.options;
+    for (var i = 0; i < opts.length; i++) {
+      var key = opts[i].value;
+      if (labels[t] && labels[t][key]) opts[i].textContent = labels[t][key];
+    }
   }
 
   track.addEventListener('change', update);

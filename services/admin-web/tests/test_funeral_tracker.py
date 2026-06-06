@@ -48,39 +48,31 @@ class TestFuneralCaseModel:
 
 
 class TestPricing:
-    def test_eraft_selam(self):
-        pkg, rep, total = calculate_price("eraft", False)
-        assert total == 19_000
-
-    def test_fithat_selam(self):
-        pkg, rep, total = calculate_price("fithat", False)
-        assert total == 28_000
-
-    def test_tezkar_selam(self):
-        pkg, rep, total = calculate_price("tezkar", False)
-        assert total == 35_000
-
-    def test_eraft_mangada(self):
-        pkg, rep, total = calculate_price("eraft", True)
-        assert total == 70_000
-
-    def test_fithat_mangada(self):
-        pkg, rep, total = calculate_price("fithat", True)
-        assert total == 85_000
-
-    def test_tezkar_mangada(self):
-        pkg, rep, total = calculate_price("tezkar", True)
-        assert total == 100_000
-
-    def test_legacy_enkel(self):
+    def test_enkel_sverige(self):
         pkg, rep, total = calculate_price("enkel", False)
         assert total == 19_000
 
-    def test_legacy_standard(self):
-        pkg, rep, total = calculate_price("standard", False)
+    def test_ceremoni_sverige(self):
+        pkg, rep, total = calculate_price("ceremoni", False)
         assert total == 28_000
 
-    def test_unknown_package_falls_back_to_fithat(self):
+    def test_komplett_sverige(self):
+        pkg, rep, total = calculate_price("komplett", False)
+        assert total == 35_000
+
+    def test_enkel_hemtransport(self):
+        pkg, rep, total = calculate_price("enkel", True)
+        assert total == 70_000
+
+    def test_ceremoni_hemtransport(self):
+        pkg, rep, total = calculate_price("ceremoni", True)
+        assert total == 85_000
+
+    def test_komplett_hemtransport(self):
+        pkg, rep, total = calculate_price("komplett", True)
+        assert total == 100_000
+
+    def test_unknown_falls_back_to_ceremoni(self):
         pkg, rep, total = calculate_price("unknown", False)
         assert total == 28_000
 
@@ -200,7 +192,7 @@ def seeded_case(funeral_tracker) -> FuneralCase:
         date_of_death="2026-06-01",
         contact_person="Meron Tadesse",
         contact_phone="070-123-4567",
-        package="fithat",
+        package="ceremoni",
         repatriation=False,
         checklist=build_checklist(repatriation=False),
         created_at=datetime(2026, 6, 1, 10, 0),
@@ -222,7 +214,7 @@ def seeded_repatriation_case(funeral_tracker) -> FuneralCase:
         deceased_name_am="ኪዳነ ገብረ",
         date_of_death="2026-06-03",
         contact_person="Sara Gebre",
-        package="tezkar",
+        package="komplett",
         repatriation=True,
         repatriation_destination="ethiopia",
         checklist=build_checklist(repatriation=True),
@@ -270,7 +262,7 @@ class TestFuneralRoutes:
         assert resp.status_code == 200
         assert "Nytt begravningsärende" in resp.text
 
-    def test_create_case_fithat(self, authed_funeral_client, funeral_tracker):
+    def test_create_case_ceremoni(self, authed_funeral_client, funeral_tracker):
         resp = authed_funeral_client.post(
             "/funerals/new",
             data={
@@ -279,7 +271,7 @@ class TestFuneralRoutes:
                 "date_of_death": "2026-06-05",
                 "contact_person": "Contact",
                 "contact_phone": "070-000-0000",
-                "package": "fithat",
+                "package": "ceremoni",
             },
         )
         assert resp.status_code == 303
@@ -288,7 +280,7 @@ class TestFuneralRoutes:
         assert cases[0].deceased_name == "Test Person"
         assert cases[0].total_price == 28_000
 
-    def test_create_repatriation_case_tezkar(self, authed_funeral_client, funeral_tracker):
+    def test_create_repatriation_case_komplett(self, authed_funeral_client, funeral_tracker):
         resp = authed_funeral_client.post(
             "/funerals/new",
             data={
@@ -297,7 +289,7 @@ class TestFuneralRoutes:
                 "date_of_death": "2026-06-05",
                 "contact_person": "Contact",
                 "contact_phone": "070-000-0000",
-                "package": "tezkar",
+                "package": "komplett",
                 "repatriation": "on",
                 "repatriation_destination": "ethiopia",
             },
