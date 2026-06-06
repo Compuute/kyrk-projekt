@@ -47,8 +47,9 @@ make test      # 350+ tests across all services + frontends
 | Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare + bankgiro + org.nr |
 | Livestream | [/live.html](https://kyrka-portal.pages.dev/live.html) | YouTube-embed (modulärt per kyrka via content.json) |
 | Integritetspolicy | [/privacy.html](https://kyrka-portal.pages.dev/privacy.html) | GDPR-policy på svenska + amharic |
-
-| Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, jämförelse vs Fonus |
+| Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, Fonus-jämförelse |
+| Om oss | [/about.html](https://kyrka-portal.pages.dev/about.html) | Kyrkans historia, Tewahedo-tron, verksamhet |
+| Kontakt | [/contact.html](https://kyrka-portal.pages.dev/contact.html) | Adress, telefon, tider, Telegram |
 
 Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga kakor.
 
@@ -64,9 +65,6 @@ Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd,
 | Content-editor | `/content-editor` | Redigera hemsidans text sv+am, Claude-översättning |
 | GDPR-rapport | `/audit` | En-klicks GDPR/SST/kommun-underlag för granskning |
 | Granskningsberedskap | `/audit/generate/gdpr` | 14 compliance-items auto-verifierade |
-| Begravningsärenden | `/funerals` | Lista, skapa, checklista, hemtransport-tracker |
-| Nytt begravningsärende | `/funerals/new` | Registrera med paketval + hemtransport-option |
-| Ärendedetalj | `/funerals/{id}` | 29-punkts checklista, status, minnessida, sorg-kalender |
 
 ### Backend-services (4 st + admin-web)
 
@@ -120,8 +118,6 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 | `telegram_activity_broadcast` | Webhook | Tvåspråkig broadcast till Telegram |
 | `content_update_notification` | Webhook | Generell content-uppdatering |
 | `telegram_admin_bot` | Webhook | AI admin-bot (amharic röst + text) |
-| `grief_calendar_reminders` | Cron (daglig) | ተዝካር memorial-påminnelser dag 3/7/12/40/6m/1å |
-| `funeral_case_notification` | Webhook | Notifierar vid nytt begravningsärende |
 
 ### OpenClaw prompt-templates (8 st)
 
@@ -207,10 +203,6 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`18-ai-admin-bot.md`](docs/18-ai-admin-bot.md) | **Telegram-bot för pastor (amharic röst)** |
 | [`19-funeral-bureau-investment-analysis.md`](docs/19-funeral-bureau-investment-analysis.md) | **Begravningsbyrå: investering, konkurrens, P&L** |
 | [`20-funeral-strategic-investments.md`](docs/20-funeral-strategic-investments.md) | **Strategiska investeringar: 8 områden, beslutskarta** |
-| [`21-funeral-global-benchmark.md`](docs/21-funeral-global-benchmark.md) | **Benchmark: kyrko-drivna begravningstjänster globalt** |
-| [`22-repatriation-requirements-checklist.md`](docs/22-repatriation-requirements-checklist.md) | **Hemtransport: ambassad, airline, IATA-krav (verifierat)** |
-| [`23-funeral-service-agreement.md`](docs/23-funeral-service-agreement.md) | **Uppdragsavtal: ansvarsfördelning, SLA, KPI, kundkommunikation** |
-| [`24-funeral-service-catalog.md`](docs/24-funeral-service-catalog.md) | **Tjänstekatalog: 2 spår × 3 nivåer + tillägg** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
@@ -228,11 +220,11 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | Frontend-tester (Node) | 100+ |
 | **Totalt tester** | **350+** |
 | Backend-services | 4 + admin-web |
-| Publika HTML-sidor | 6 (live på Cloudflare) |
+| Publika HTML-sidor | 8 (live på Cloudflare) |
 | OpenClaw-templates | 8 |
-| n8n-workflows | 11 |
+| n8n-workflows | 9 |
 | ADRs | 12 |
-| Docs | 31+ |
+| Docs | 27+ |
 | Bidragskällor | 12 |
 | Certifikattyper | 10 |
 | Språk | 3 (sv, am, en) |

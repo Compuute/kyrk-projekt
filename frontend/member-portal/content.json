@@ -39,7 +39,10 @@
     "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "./donate.html"},
     "telegram": {"sv": "Följ oss på Telegram", "am": "በቴሌግራም ይከተሉን", "url": "https://t.me/kyrka_kanal"},
     "youth": {"sv": "Ungdomsverksamhet", "am": "የወጣቶች ፕሮግራም", "url": "./index.html"},
-    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live.html"}
+    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live.html"},
+    "funeral": {"sv": "Begravningstjänster", "am": "የቀብር አገልግሎቶች", "url": "./funeral.html"},
+    "about": {"sv": "Om oss", "am": "ስለ እኛ", "url": "./about.html"},
+    "contact": {"sv": "Kontakt", "am": "ያግኙን", "url": "./contact.html"}
   },
   "footer": {
     "privacy": {

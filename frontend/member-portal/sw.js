@@ -7,6 +7,8 @@ const OFFLINE_URLS = [
   '/privacy.html',
   '/live.html',
   '/funeral.html',
+  '/about.html',
+  '/contact.html',
   '/styles.css',
   '/app.js',
   '/content.json',
