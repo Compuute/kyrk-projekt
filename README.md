@@ -118,6 +118,8 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 | `telegram_activity_broadcast` | Webhook | Tvåspråkig broadcast till Telegram |
 | `content_update_notification` | Webhook | Generell content-uppdatering |
 | `telegram_admin_bot` | Webhook | AI admin-bot (amharic röst + text) |
+| `grief_calendar_reminders` | Cron | ተዝካር memorial-påminnelser dag 3/7/12/40/6m/1å |
+| `funeral_case_notification` | Webhook | Notifierar vid nytt begravningsärende |
 
 ### OpenClaw prompt-templates (8 st)
 
@@ -203,6 +205,10 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`18-ai-admin-bot.md`](docs/18-ai-admin-bot.md) | **Telegram-bot för pastor (amharic röst)** |
 | [`19-funeral-bureau-investment-analysis.md`](docs/19-funeral-bureau-investment-analysis.md) | **Begravningsbyrå: investering, konkurrens, P&L** |
 | [`20-funeral-strategic-investments.md`](docs/20-funeral-strategic-investments.md) | **Strategiska investeringar: 8 områden, beslutskarta** |
+| [`21-funeral-global-benchmark.md`](docs/21-funeral-global-benchmark.md) | **Benchmark: kyrko-drivna begravningstjänster globalt** |
+| [`22-repatriation-requirements-checklist.md`](docs/22-repatriation-requirements-checklist.md) | **Hemtransport: ambassad, airline, IATA-krav** |
+| [`23-funeral-service-agreement.md`](docs/23-funeral-service-agreement.md) | **Uppdragsavtal: ansvarsfördelning, SLA, KPI** |
+| [`24-funeral-service-catalog.md`](docs/24-funeral-service-catalog.md) | **Tjänstekatalog: 2 spår, 6 tjänster** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
