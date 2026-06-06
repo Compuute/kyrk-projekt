@@ -198,6 +198,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`16-defense-in-depth.md`](docs/16-defense-in-depth.md) | **Service merge/split policy** |
 | [`17-audit-readiness.md`](docs/17-audit-readiness.md) | **Granskningsberedskap (IMY/SST/kommun)** |
 | [`18-ai-admin-bot.md`](docs/18-ai-admin-bot.md) | **Telegram-bot för pastor (amharic röst)** |
+| [`19-funeral-bureau-investment-analysis.md`](docs/19-funeral-bureau-investment-analysis.md) | **Begravningsbyrå: investering, konkurrens, P&L** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
@@ -219,7 +220,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | OpenClaw-templates | 8 |
 | n8n-workflows | 9 |
 | ADRs | 12 |
-| Docs | 25+ |
+| Docs | 26+ |
 | Bidragskällor | 12 |
 | Certifikattyper | 10 |
 | Språk | 3 (sv, am, en) |
