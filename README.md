@@ -88,16 +88,50 @@ Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd,
 | Söndagsskola — Tjänaren / አገልጋይ / Servant | 🕯 | 13-15 |
 | Söndagsskola — Ambassadören / አምባሳደር / Ambassador | 👑 | 15-18 |
 
+Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
+`sunday_school_tree`, `sunday_school_disciple`, `sunday_school_servant`,
+`sunday_school_ambassador` — se `certificate-types.json` för trilingual metadata.
+
 ### AI-automation
 
 | Funktion | Teknik | Status |
 |---|---|---|
-| Bidragsansökan (sv/en) | OpenClaw + Claude | ✅ Byggt |
+| Bidragsansökan (sv/en) | OpenClaw grant-narrative-sv/en + Claude | ✅ Byggt |
 | Översättning sv↔am | Claude via TranslationPort | ✅ Byggt |
 | KPI-analys (kvartalsvis) | OpenClaw + sanitizer + n8n | ✅ Workflow definierad |
 | Telegram admin-bot | Whisper (röst→text) + Claude (intent) | ✅ Workflow definierad |
 | Proaktiv bidragsbevakning | n8n cron + grant tracker | ✅ Workflow definierad |
 | Auto-genererat veckoinnehåll | n8n + Claude + content.json | ✅ Workflow definierad |
+
+### n8n workflows (9 st)
+
+| Workflow | Trigger | Vad |
+|---|---|---|
+| `new_pending_membership_notification` | Webhook | Notifierar admin vid ny intake |
+| `monthly_kpi_export` | Cron | Genererar monthly rapport |
+| `quarterly_openclaw_analysis` | Cron | Sanitizer → Anthropic → review |
+| `fortnox_aggregate_reporting` | Cron | Hämtar finance-aggregat |
+| `wifi_portal_content_update` | Cron | Uppdaterar wifi-portal JSON |
+| `telegram_activity_broadcast` | Webhook | Tvåspråkig broadcast till Telegram |
+| `content_update_notification` | Webhook | Generell content-uppdatering |
+| `telegram_admin_bot` | Webhook | AI admin-bot (amharic röst + text) |
+
+### OpenClaw prompt-templates (8 st)
+
+| Template | Språk | Syfte |
+|---|---|---|
+| `quarterly-variance` | sv | Kvartalsanalys |
+| `annual-planning` | sv | Årsplanering |
+| `roi-prioritization` | sv | ROI-ranking |
+| `content-planning` | sv | Portal-content |
+| `grant-narrative-sv` | sv | Bidragsansökan (SST/MUCF etc) |
+| `grant-narrative-en` | en | Bidragsansökan (Erasmus+/ESF+ etc) |
+
+### Publika HTML-sidor
+
+Alla sidor i `frontend/member-portal/`: `index.html`, `intake.html`,
+`donate.html`, `live.html`, `privacy.html`. Alla tvåspråkiga (sv+am),
+alla med back-link till index.html, alla cachade av service worker.
 
 ### Säkerhet (10 defense-in-depth lager)
 
