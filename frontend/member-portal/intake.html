@@ -398,13 +398,30 @@
           body: JSON.stringify(payload)
         })
           .then(function (r) {
-            if (!r.ok) throw new Error('server error');
-            formCard.style.display = 'none';
-            successMsg.style.display = 'block';
+            if (r.status === 202 || r.status === 201) {
+              formCard.style.display = 'none';
+              successMsg.style.display = 'block';
+              return;
+            }
+            if (r.status === 409) {
+              throw { userMsg: 'Du är redan registrerad. / እርስዎ ቀድሞ ተመዝግበዋል።' };
+            }
+            if (r.status === 422) {
+              return r.json().then(function (data) {
+                throw { userMsg: data.detail || 'Kontrollera dina uppgifter. / መረጃዎን ያረጋግጡ።' };
+              });
+            }
+            throw { userMsg: 'Tekniskt fel. Försök igen. / የቴክኒክ ችግር። እንደገና ሞክር።' };
           })
-          .catch(function () {
-            formCard.style.display = 'none';
-            successMsg.style.display = 'block';
+          .catch(function (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Skicka ansökan / ማመልከቻ ላክ';
+            if (err && err.userMsg) {
+              errorMsg.textContent = err.userMsg;
+            } else {
+              errorMsg.textContent = 'Kunde inte ansluta till servern. Försök igen senare. / ከሰርቨር ጋር መገናኘት አልተቻለም።';
+            }
+            errorMsg.style.display = 'block';
           });
       });
 
