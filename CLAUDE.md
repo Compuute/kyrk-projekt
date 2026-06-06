@@ -146,16 +146,49 @@ services/<service>/
 7. **Skippar att uppdatera conftest.py** → Alla nya ports behöver fake + DI-override
 8. **Modifierar befintliga tester för att "fixa" sin implementation** → Fråga varför testet finns först
 
+### 8. API-kontrakt — bryt aldrig befintliga fält
+
+Om du ändrar en dataclass (FuneralCase, PendingSubmission, etc.):
+- **Lägg till** fält fritt (med default-värde)
+- **Ta ALDRIG bort** fält som andra services använder
+- **Byt ALDRIG namn** på befintliga fält
+
+CI-test `test_api_contracts.py` failar om ett kontraktsfält försvinner.
+
+### 9. Beroenden — lägg inte till paket utan att tänka
+
+- Lägg till i `requirements.txt` med `==` (exakt version)
+- Använd ALDRIG: pycrypto, django, flask (banned)
+- Fråga: "Behövs verkligen ett nytt paket, eller finns funktionen redan?"
+
+### 10. Testtäckning — skriv alltid test
+
+Varje ny modul i `app/` måste ha minst ett test.
+CI-test `test_coverage_threshold.py` failar om täckningen < 60%.
+
 ## Hur du verifierar att din kod är OK
 
 ```bash
-cd services/admin-web
-python -m pytest tests/ --tb=short    # alla tester gröna
-python -m pytest tests/test_no_vendor_lockin.py  # ingen vendor lock-in
+# Från kyrk-projekt/
+python -m pytest tests/ --tb=short                              # projektguards (63 tester)
+python -m pytest services/admin-web/tests/ --tb=short           # admin-web (161 tester)
+cd frontend/member-portal && node tests/test_all_pages.js       # frontend
 
-cd ../..
-python -m pytest tests/test_docs_freshness.py    # docs uppdaterade
-cd frontend/member-portal && node tests/test_all_pages.js  # frontend OK
+# Eller allt på en gång:
+python -m pytest tests/ services/admin-web/tests/ --tb=short    # 224 tester
 ```
 
-Alla fyra måste vara gröna innan du committar.
+Alla måste vara gröna innan du committar.
+
+## CI-tester som skyddar projektet
+
+| Test | Vad den fångar | Antal |
+|---|---|---|
+| `test_no_vendor_lockin.py` | Vendor-imports i routes/ports | 2 |
+| `test_architecture_guard.py` | Auth, ports, fakes, DI, PII | 5 |
+| `test_project_security_guard.py` | Samma sak × alla 5 services + frontend | 33 |
+| `test_api_contracts.py` | Borttagna/omdöpta API-fält | 12 |
+| `test_dependency_safety.py` | Banned/osäkra paket | 11 |
+| `test_coverage_threshold.py` | Kod utan tester | 5 |
+| `test_docs_freshness.py` | Odokumenterade features | 7 |
+| **Total** | | **75 guard-tester** |
