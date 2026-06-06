@@ -25,6 +25,7 @@ from app.ports.clients import (
     ReportingClientPort,
 )
 from app.ports.content_store import ContentStorePort
+from app.ports.funeral_tracker import FuneralTrackerPort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.session import SessionPort
 from app.ports.translation import TranslationPort
@@ -74,6 +75,16 @@ def make_reporting_client() -> ReportingClientPort:
     from app.adapters.fake_clients import FakeReportingClient
 
     return FakeReportingClient()
+
+
+def make_funeral_tracker() -> FuneralTrackerPort:
+    if _mode() == "production":
+        from app.adapters.fake_funeral_tracker import FakeFuneralTracker
+
+        return FakeFuneralTracker()
+    from app.adapters.fake_funeral_tracker import FakeFuneralTracker
+
+    return FakeFuneralTracker()
 
 
 def make_grant_tracker() -> GrantTrackerPort:

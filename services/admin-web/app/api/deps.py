@@ -7,6 +7,7 @@ from app.adapters.factory import (
     make_activity_client,
     make_certificate_client,
     make_content_store,
+    make_funeral_tracker,
     make_grant_tracker,
     make_intake_client,
     make_reporting_client,
@@ -21,6 +22,7 @@ from app.ports.clients import (
     ReportingClientPort,
 )
 from app.ports.content_store import ContentStorePort
+from app.ports.funeral_tracker import FuneralTrackerPort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.session import SessionInfo, SessionPort
 from app.ports.translation import TranslationPort
@@ -30,6 +32,7 @@ _INTAKE: IntakeClientPort | None = None
 _CERTIFICATE: CertificateClientPort | None = None
 _ACTIVITY: ActivityClientPort | None = None
 _REPORTING: ReportingClientPort | None = None
+_FUNERAL_TRACKER: FuneralTrackerPort | None = None
 _GRANT_TRACKER: GrantTrackerPort | None = None
 _CONTENT_STORE: ContentStorePort | None = None
 _TRANSLATOR: TranslationPort | None = None
@@ -67,6 +70,13 @@ def get_reporting_client() -> ReportingClientPort:
     if _REPORTING is None:
         _REPORTING = make_reporting_client()
     return _REPORTING
+
+
+def get_funeral_tracker() -> FuneralTrackerPort:
+    global _FUNERAL_TRACKER
+    if _FUNERAL_TRACKER is None:
+        _FUNERAL_TRACKER = make_funeral_tracker()
+    return _FUNERAL_TRACKER
 
 
 def get_grant_tracker() -> GrantTrackerPort:

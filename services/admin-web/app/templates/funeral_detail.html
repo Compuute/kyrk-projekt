@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ case.deceased_name }} — begravningsärende{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>{{ case.deceased_name }}</h1>
+  {% if case.deceased_name_am %}<p class="subtitle">{{ case.deceased_name_am }}</p>{% endif %}
+  <p class="muted">
+    Dödsdatum: {{ case.date_of_death }} · Paket: {{ case.package | capitalize }}
+    {% if case.repatriation %} · ✈️ Hemtransport → {{ case.repatriation_destination | capitalize }}{% endif %}
+  </p>
+</section>
+
+<!-- Status + Price -->
+<div class="grid-stats">
+  <div class="stat">
+    <div class="stat-number"><span class="badge badge-{{ case.status }}">{{ case.status }}</span></div>
+    <div class="stat-label">Status</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">{{ "{:,.0f}".format(case.total_price) }} kr</div>
+    <div class="stat-label">
+      Paket {{ "{:,.0f}".format(case.package_price) }}
+      {% if case.repatriation %} + Hemtransport {{ "{:,.0f}".format(case.repatriation_price) }}{% endif %}
+    </div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">{{ done }}/{{ total }}</div>
+    <div class="stat-label">Checklista</div>
+  </div>
+  {% if case.eder_name %}
+  <div class="stat">
+    <div class="stat-number">{{ "{:,.0f}".format(case.eder_contribution) }} kr</div>
+    <div class="stat-label">Eder: {{ case.eder_name }}</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Status update -->
+<details class="card">
+  <summary>Ändra status</summary>
+  <form method="post" action="/funerals/{{ case.case_id }}/status" class="inline-form">
+    <select name="status">
+      {% for s in statuses %}
+      <option value="{{ s }}" {% if s == case.status %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-sm">Uppdatera</button>
+  </form>
+</details>
+
+<!-- Checklist -->
+<section class="card">
+  <h2>Checklista{% if case.repatriation %} (inkl. hemtransport){% endif %}</h2>
+  <form method="post" action="/funerals/{{ case.case_id }}/checklist">
+    <h3>Dokument</h3>
+    {% for key, label in checklist_items_doc %}
+    <label class="checkbox-label">
+      <input type="checkbox" name="{{ key }}" {% if case.checklist.get(key) %}checked{% endif %} />
+      {{ label }}
+    </label>
+    {% endfor %}
+
+    <h3>Logistik</h3>
+    {% for key, label in checklist_items_log %}
+    <label class="checkbox-label">
+      <input type="checkbox" name="{{ key }}" {% if case.checklist.get(key) %}checked{% endif %} />
+      {{ label }}
+    </label>
+    {% endfor %}
+
+    <h3>Ceremoni</h3>
+    {% for key, label in checklist_items_cer %}
+    <label class="checkbox-label">
+      <input type="checkbox" name="{{ key }}" {% if case.checklist.get(key) %}checked{% endif %} />
+      {{ label }}
+    </label>
+    {% endfor %}
+
+    <h3>Efter begravningen</h3>
+    {% for key, label in checklist_items_aft %}
+    <label class="checkbox-label">
+      <input type="checkbox" name="{{ key }}" {% if case.checklist.get(key) %}checked{% endif %} />
+      {{ label }}
+    </label>
+    {% endfor %}
+
+    {% if case.repatriation %}
+    <h3>✈️ Hemtransport</h3>
+    {% for key, label in checklist_items_rep %}
+    <label class="checkbox-label">
+      <input type="checkbox" name="{{ key }}" {% if case.checklist.get(key) %}checked{% endif %} />
+      {{ label }}
+    </label>
+    {% endfor %}
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Spara checklista</button>
+  </form>
+</section>
+
+<!-- Contact info -->
+<section class="card">
+  <h2>Kontakt</h2>
+  <p><strong>Kontaktperson:</strong> {{ case.contact_person }}</p>
+  {% if case.contact_phone %}<p><strong>Telefon:</strong> {{ case.contact_phone }}</p>{% endif %}
+  {% if case.ceremony_date %}<p><strong>Ceremoni:</strong> {{ case.ceremony_date }} kl {{ case.ceremony_time }}</p>{% endif %}
+  {% if case.burial_location %}<p><strong>Gravplats:</strong> {{ case.burial_location }}</p>{% endif %}
+</section>
+
+<!-- Memorial -->
+<details class="card">
+  <summary>Minnessida</summary>
+  <form method="post" action="/funerals/{{ case.case_id }}/memorial" class="form-stack">
+    <label>Text (svenska)
+      <textarea name="memorial_text_sv" rows="4">{{ case.memorial_text_sv }}</textarea>
+    </label>
+    <label>ጽሑፍ (amhariska)
+      <textarea name="memorial_text_am" rows="4">{{ case.memorial_text_am }}</textarea>
+    </label>
+    <button type="submit" class="btn btn-sm">Spara minnestext</button>
+  </form>
+  {% if case.memorial_text_sv %}
+  <p class="muted">Minnessida finns. <a href="/funerals/{{ case.case_id }}/memorial-page">Visa →</a></p>
+  {% endif %}
+</details>
+
+<!-- Notes -->
+<details class="card">
+  <summary>Anteckningar</summary>
+  <form method="post" action="/funerals/{{ case.case_id }}/notes" class="form-stack">
+    <textarea name="notes" rows="4" placeholder="Interna anteckningar...">{{ case.notes }}</textarea>
+    <button type="submit" class="btn btn-sm">Spara</button>
+  </form>
+</details>
+
+<!-- Grief calendar -->
+{% if case.status in ("completed", "delivered", "closed") %}
+<section class="card">
+  <h2>Sorg-kalender (ተዝካር)</h2>
+  <table class="table">
+    <thead><tr><th>Dag</th><th>አማርኛ</th><th>Svenska</th><th>Datum</th></tr></thead>
+    <tbody>
+      {% for day, name_am, name_sv in memorial_days %}
+      <tr>
+        <td>{{ day }}</td>
+        <td>{{ name_am }}</td>
+        <td>{{ name_sv }}</td>
+        <td>{{ memorial_dates[loop.index0] if memorial_dates else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<p><a href="/funerals">← Tillbaka till ärendelistan</a></p>
+{% endblock %}

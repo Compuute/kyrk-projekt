@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Nytt begravningsärende — admin{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Nytt begravningsärende</h1>
+  <p class="muted">Registrera ett nytt ärende. Alla fält utom telefon är obligatoriska.</p>
+</section>
+
+<form method="post" action="/funerals/new" class="form-stack">
+  <fieldset>
+    <legend>Avliden</legend>
+    <label>Namn (svenska)
+      <input type="text" name="deceased_name" required placeholder="Förnamn Efternamn" />
+    </label>
+    <label>ስም (amhariska)
+      <input type="text" name="deceased_name_am" placeholder="የተሟላ ስም" />
+    </label>
+    <label>Dödsdatum
+      <input type="date" name="date_of_death" required value="{{ today }}" />
+    </label>
+    <label>Födelsedatum
+      <input type="date" name="date_of_birth" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Kontaktperson (familj)</legend>
+    <label>Namn
+      <input type="text" name="contact_person" required placeholder="Namn på kontaktperson" />
+    </label>
+    <label>Telefon
+      <input type="tel" name="contact_phone" placeholder="070-XXX-XXXX" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Tjänst</legend>
+    <label>Paket
+      <select name="package">
+        <option value="enkel">Enkel — 19 000 kr (kista, transport, ceremoni)</option>
+        <option value="standard" selected>Standard — 28 000 kr (+ program, korsång, minnessida)</option>
+        <option value="komplett">Komplett — 35 000 kr (+ ሐዘን-stöd, sorggrupp, 40-dagars)</option>
+      </select>
+    </label>
+
+    <label class="checkbox-label">
+      <input type="checkbox" name="repatriation" id="repatriation-toggle" />
+      ✈️ Hemtransport (+ 65 000 kr)
+    </label>
+
+    <div id="repatriation-fields" style="display:none;">
+      <label>Destination
+        <select name="repatriation_destination">
+          <option value="ethiopia">Etiopien (Addis Abeba)</option>
+          <option value="eritrea">Eritrea (Asmara)</option>
+          <option value="other">Annat land</option>
+        </select>
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Eder-förening (valfritt)</legend>
+    <label>Eder-namn
+      <input type="text" name="eder_name" placeholder="T.ex. Addis Eder Stockholm" />
+    </label>
+    <label>Eder-bidrag (kr)
+      <input type="number" name="eder_contribution" value="0" min="0" step="1000" />
+    </label>
+  </fieldset>
+
+  <button type="submit" class="btn btn-primary">Registrera ärende</button>
+</form>
+
+<script>
+(function() {
+  var toggle = document.getElementById('repatriation-toggle');
+  var fields = document.getElementById('repatriation-fields');
+  if (toggle && fields) {
+    toggle.addEventListener('change', function() {
+      fields.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+})();
+</script>
+{% endblock %}

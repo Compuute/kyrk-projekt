@@ -48,6 +48,8 @@ make test      # 350+ tests across all services + frontends
 | Livestream | [/live.html](https://kyrka-portal.pages.dev/live.html) | YouTube-embed (modulärt per kyrka via content.json) |
 | Integritetspolicy | [/privacy.html](https://kyrka-portal.pages.dev/privacy.html) | GDPR-policy på svenska + amharic |
 
+| Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, jämförelse vs Fonus |
+
 Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga kakor.
 
 ### Admin-system (Cloud Run — kräver GCP-deploy)
@@ -62,6 +64,9 @@ Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd,
 | Content-editor | `/content-editor` | Redigera hemsidans text sv+am, Claude-översättning |
 | GDPR-rapport | `/audit` | En-klicks GDPR/SST/kommun-underlag för granskning |
 | Granskningsberedskap | `/audit/generate/gdpr` | 14 compliance-items auto-verifierade |
+| Begravningsärenden | `/funerals` | Lista, skapa, checklista, hemtransport-tracker |
+| Nytt begravningsärende | `/funerals/new` | Registrera med paketval + hemtransport-option |
+| Ärendedetalj | `/funerals/{id}` | 29-punkts checklista, status, minnessida, sorg-kalender |
 
 ### Backend-services (4 st + admin-web)
 
@@ -115,6 +120,8 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 | `telegram_activity_broadcast` | Webhook | Tvåspråkig broadcast till Telegram |
 | `content_update_notification` | Webhook | Generell content-uppdatering |
 | `telegram_admin_bot` | Webhook | AI admin-bot (amharic röst + text) |
+| `grief_calendar_reminders` | Cron (daglig) | ተዝካር memorial-påminnelser dag 3/7/12/40/6m/1å |
+| `funeral_case_notification` | Webhook | Notifierar vid nytt begravningsärende |
 
 ### OpenClaw prompt-templates (8 st)
 
@@ -218,9 +225,9 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | Frontend-tester (Node) | 100+ |
 | **Totalt tester** | **350+** |
 | Backend-services | 4 + admin-web |
-| Publika HTML-sidor | 5 (live på Cloudflare) |
+| Publika HTML-sidor | 6 (live på Cloudflare) |
 | OpenClaw-templates | 8 |
-| n8n-workflows | 9 |
+| n8n-workflows | 11 |
 | ADRs | 12 |
 | Docs | 28+ |
 | Bidragskällor | 12 |

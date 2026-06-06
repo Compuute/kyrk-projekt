@@ -14,6 +14,7 @@ from app.api.deps import (
     get_activity_client,
     get_certificate_client,
     get_content_store,
+    get_funeral_tracker,
     get_grant_tracker,
     get_intake_client,
     get_reporting_client,
@@ -32,6 +33,17 @@ from app.ports.clients import (
     ReportingClientPort,
 )
 from app.ports.content_store import ContentStorePort
+from app.ports.funeral_tracker import (
+    CHECKLIST_ITEMS_REPATRIATION,
+    CHECKLIST_ITEMS_SWEDEN,
+    FUNERAL_STATUSES,
+    MEMORIAL_DAYS,
+    FuneralCase,
+    FuneralTrackerPort,
+    build_checklist,
+    calculate_price,
+    checklist_progress,
+)
 from app.ports.grant_tracker import GrantApplication, GrantTrackerPort
 from app.ports.translation import TranslationPort
 
@@ -118,6 +130,7 @@ def dashboard(
     flash: str | None = None,
     level: str = "success",
     intake: IntakeClientPort = Depends(get_intake_client),
+    funerals: FuneralTrackerPort = Depends(get_funeral_tracker),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
@@ -138,6 +151,14 @@ def dashboard(
     except Exception:
         pass
 
+    # Count active funeral cases
+    active_funerals = 0
+    try:
+        all_cases = funerals.list_cases(session.church_id)
+        active_funerals = sum(1 for c in all_cases if c.status not in ("closed",))
+    except Exception:
+        pass
+
     return TEMPLATES.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -145,6 +166,7 @@ def dashboard(
             "session": session,
             "pending_count": len(pending),
             "grants_upcoming": grants_upcoming,
+            "active_funerals": active_funerals,
             "flash": flash,
             "level": level,
         },
@@ -1046,6 +1068,257 @@ def generate_audit_report(
             "org_number": "802492-9237",
         },
     )
+
+
+# ------------------------------------------------------------------- funerals
+
+
+@router.get("/funerals", response_class=HTMLResponse)
+def funerals_list(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    cases = tracker.list_cases(session.church_id)
+    cases.sort(key=lambda c: c.created_at or datetime.min, reverse=True)
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="funerals_list.html",
+        context={
+            "session": session,
+            "cases": cases,
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.get("/funerals/new", response_class=HTMLResponse)
+def funeral_new_form(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="funeral_new.html",
+        context={
+            "session": session,
+            "today": date.today().isoformat(),
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.post("/funerals/new")
+def funeral_create(
+    request: Request,
+    deceased_name: str = Form(...),
+    deceased_name_am: str = Form(""),
+    date_of_death: str = Form(...),
+    date_of_birth: str = Form(""),
+    contact_person: str = Form(...),
+    contact_phone: str = Form(""),
+    package: str = Form("standard"),
+    repatriation: str | None = Form(None),
+    repatriation_destination: str = Form("ethiopia"),
+    eder_name: str = Form(""),
+    eder_contribution: float = Form(0.0),
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    is_repatriation = repatriation == "on"
+    pkg_price, rep_price, total = calculate_price(package, is_repatriation)
+
+    import uuid
+    case_id = f"f-{uuid.uuid4().hex[:8]}"
+
+    case = FuneralCase(
+        case_id=case_id,
+        church_id=session.church_id,
+        status="registered",
+        created_at=datetime.utcnow(),
+        deceased_name=deceased_name,
+        deceased_name_am=deceased_name_am,
+        date_of_death=date_of_death,
+        date_of_birth=date_of_birth,
+        contact_person=contact_person,
+        contact_phone=contact_phone,
+        package=package,
+        repatriation=is_repatriation,
+        repatriation_destination=repatriation_destination if is_repatriation else "",
+        eder_name=eder_name,
+        eder_contribution=eder_contribution,
+        package_price=pkg_price,
+        repatriation_price=rep_price,
+        total_price=total,
+        checklist=build_checklist(is_repatriation),
+    )
+
+    tracker.save_case(case)
+
+    return _flash_redirect(
+        f"/funerals/{case_id}",
+        f"Ärende registrerat: {deceased_name}",
+        level="success",
+    )
+
+
+@router.get("/funerals/{case_id}", response_class=HTMLResponse)
+def funeral_detail(
+    case_id: str,
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    case = tracker.get_case(session.church_id, case_id)
+    if case is None:
+        return _flash_redirect("/funerals", "Ärendet hittades inte", level="error")
+
+    done, total = checklist_progress(case.checklist)
+
+    checklist_items_doc = [(k, l) for k, l in CHECKLIST_ITEMS_SWEDEN if k.startswith("doc_")]
+    checklist_items_log = [(k, l) for k, l in CHECKLIST_ITEMS_SWEDEN if k.startswith("log_")]
+    checklist_items_cer = [(k, l) for k, l in CHECKLIST_ITEMS_SWEDEN if k.startswith("cer_")]
+    checklist_items_aft = [(k, l) for k, l in CHECKLIST_ITEMS_SWEDEN if k.startswith("aft_")]
+
+    memorial_dates = []
+    if case.date_of_death:
+        try:
+            dod = date.fromisoformat(case.date_of_death)
+            from datetime import timedelta
+            memorial_dates = [(dod + timedelta(days=d)).isoformat() for d, _, _ in MEMORIAL_DAYS]
+        except ValueError:
+            pass
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="funeral_detail.html",
+        context={
+            "session": session,
+            "case": case,
+            "done": done,
+            "total": total,
+            "statuses": FUNERAL_STATUSES,
+            "checklist_items_doc": checklist_items_doc,
+            "checklist_items_log": checklist_items_log,
+            "checklist_items_cer": checklist_items_cer,
+            "checklist_items_aft": checklist_items_aft,
+            "checklist_items_rep": CHECKLIST_ITEMS_REPATRIATION,
+            "memorial_days": MEMORIAL_DAYS,
+            "memorial_dates": memorial_dates,
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.post("/funerals/{case_id}/status")
+def funeral_status_update(
+    case_id: str,
+    request: Request,
+    status: str = Form(...),
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    case = tracker.get_case(session.church_id, case_id)
+    if case is None:
+        return _flash_redirect("/funerals", "Ärendet hittades inte", level="error")
+
+    if status in FUNERAL_STATUSES:
+        case.status = status
+        tracker.save_case(case)
+
+    return _flash_redirect(f"/funerals/{case_id}", f"Status: {status}", level="success")
+
+
+@router.post("/funerals/{case_id}/checklist")
+async def funeral_checklist_update(
+    case_id: str,
+    request: Request,
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    case = tracker.get_case(session.church_id, case_id)
+    if case is None:
+        return _flash_redirect("/funerals", "Ärendet hittades inte", level="error")
+
+    form = await request.form()
+    for key in case.checklist:
+        case.checklist[key] = key in form
+
+    tracker.save_case(case)
+
+    return _flash_redirect(f"/funerals/{case_id}", "Checklista uppdaterad", level="success")
+
+
+@router.post("/funerals/{case_id}/notes")
+def funeral_notes_update(
+    case_id: str,
+    request: Request,
+    notes: str = Form(""),
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    case = tracker.get_case(session.church_id, case_id)
+    if case is None:
+        return _flash_redirect("/funerals", "Ärendet hittades inte", level="error")
+
+    case.notes = notes
+    tracker.save_case(case)
+
+    return _flash_redirect(f"/funerals/{case_id}", "Anteckningar sparade", level="success")
+
+
+@router.post("/funerals/{case_id}/memorial")
+def funeral_memorial_save(
+    case_id: str,
+    request: Request,
+    memorial_text_sv: str = Form(""),
+    memorial_text_am: str = Form(""),
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    case = tracker.get_case(session.church_id, case_id)
+    if case is None:
+        return _flash_redirect("/funerals", "Ärendet hittades inte", level="error")
+
+    case.memorial_text_sv = memorial_text_sv
+    case.memorial_text_am = memorial_text_am
+    tracker.save_case(case)
+
+    return _flash_redirect(f"/funerals/{case_id}", "Minnestext sparad", level="success")
 
 
 @router.get("/healthz")

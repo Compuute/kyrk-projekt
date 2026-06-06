@@ -1,0 +1,40 @@
+{
+  "name": "funeral_case_notification",
+  "zone": {"source": "GREEN", "destination": "GREEN"},
+  "description": "Notifies begravningsansvarig via Telegram when a new funeral case is registered. Also notifies if a case includes repatriation (requires faster action). No PII beyond deceased name.",
+  "trigger": {
+    "type": "webhook",
+    "path": "/n8n/webhooks/funeral-new-case",
+    "http_method": "POST",
+    "source_service": "admin-web"
+  },
+  "message_templates": {
+    "new_case": {
+      "sv": "🕊️ Nytt begravningsärende: {deceased_name}\nPaket: {package}\nDatum: {date_of_death}",
+      "am": "🕊️ አዲስ የቀብር ጉዳይ: {deceased_name}\nፓኬጅ: {package}\nቀን: {date_of_death}"
+    },
+    "new_case_repatriation": {
+      "sv": "🕊️✈️ Nytt begravningsärende MED HEMTRANSPORT: {deceased_name}\nDestination: {destination}\nPaket: {package}\n⚠️ Hemtransport kräver snabb handläggning (7-14 dagar)",
+      "am": "🕊️✈️ አዲስ የቀብር ጉዳይ ከአስከሬን ማጓጓዝ ጋር: {deceased_name}\nመድረሻ: {destination}\nፓኬጅ: {package}\n⚠️ ማጓጓዙ ፈጣን ክትትል ይፈልጋል (7-14 ቀን)"
+    }
+  },
+  "allowed_fields": ["deceased_name", "package", "date_of_death", "repatriation", "destination"],
+  "blocked_fields": ["personal_number", "contact_phone", "contact_person", "address", "member_id"],
+  "steps": [
+    {
+      "id": "1-receive",
+      "node": "n8n-nodes-base.webhook",
+      "notes": "Receives POST with case_id, deceased_name, package, repatriation, destination"
+    },
+    {
+      "id": "2-check-repatriation",
+      "node": "n8n-nodes-base.if",
+      "notes": "Branch: if repatriation=true, use urgent template"
+    },
+    {
+      "id": "3-send-telegram",
+      "node": "n8n-nodes-base.telegram",
+      "notes": "Send to begravningsansvarig chat. If repatriation: also send to admin group."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Begravningsärenden — admin{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Begravningsärenden</h1>
+  <p class="muted">Aktiva och avslutade ärenden</p>
+  <a href="/funerals/new" class="btn btn-primary">+ Nytt ärende</a>
+</section>
+
+{% if cases %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Avliden</th>
+      <th>Dödsdatum</th>
+      <th>Paket</th>
+      <th>Hemtransport</th>
+      <th>Status</th>
+      <th>Checklista</th>
+      <th>Pris</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in cases %}
+    <tr>
+      <td>
+        <strong>{{ c.deceased_name }}</strong>
+        {% if c.deceased_name_am %}<br><span class="muted">{{ c.deceased_name_am }}</span>{% endif %}
+      </td>
+      <td>{{ c.date_of_death }}</td>
+      <td>{{ c.package | capitalize }}</td>
+      <td>{% if c.repatriation %}✈️ {{ c.repatriation_destination | capitalize }}{% else %}—{% endif %}</td>
+      <td><span class="badge badge-{{ c.status }}">{{ c.status }}</span></td>
+      <td>
+        {% set done = c.checklist.values() | select | list | length %}
+        {% set total = c.checklist | length %}
+        {{ done }}/{{ total }}
+      </td>
+      <td>{{ "{:,.0f}".format(c.total_price) }} kr</td>
+      <td><a href="/funerals/{{ c.case_id }}" class="btn btn-sm">Visa</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">Inga ärenden ännu.</p>
+{% endif %}
+{% endblock %}
