@@ -150,10 +150,11 @@ PACKAGE_LABELS_REPATRIATION = {
 
 
 def calculate_price(package: str, repatriation: bool) -> tuple[float, float, float]:
+    pkg = PACKAGE_PRICES_SWEDEN.get(package, 28_000)
     if repatriation:
         total = PACKAGE_PRICES_REPATRIATION.get(package, 85_000)
-        return total, 0, total
-    pkg = PACKAGE_PRICES_SWEDEN.get(package, 28_000)
+        rep = total - pkg
+        return pkg, rep, total
     return pkg, 0, pkg
 
 

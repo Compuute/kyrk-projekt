@@ -367,3 +367,130 @@ class TestDashboardIncludesFunerals:
         resp = authed_funeral_client.get("/")
         assert resp.status_code == 200
         assert "begravning" in resp.text.lower() or "funeral" in resp.text.lower()
+
+
+# ================================================================
+# P0/P1 fixes — pricing, memorial page, webhook, API, audit
+# ================================================================
+
+
+class TestPriceSeparation:
+    """P0: calculate_price must return (pkg, rep, total) correctly."""
+
+    def test_ceremoni_hemtransport_separates_components(self):
+        pkg, rep, total = calculate_price("ceremoni", True)
+        assert total == 85_000
+        assert pkg > 0
+        assert rep > 0
+        assert pkg + rep == total
+
+    def test_enkel_hemtransport_separates_components(self):
+        pkg, rep, total = calculate_price("enkel", True)
+        assert total == 70_000
+        assert pkg + rep == total
+
+    def test_komplett_hemtransport_separates_components(self):
+        pkg, rep, total = calculate_price("komplett", True)
+        assert total == 100_000
+        assert pkg + rep == total
+
+    def test_sweden_only_has_zero_repatriation(self):
+        pkg, rep, total = calculate_price("ceremoni", False)
+        assert rep == 0
+        assert pkg == total == 28_000
+
+
+class TestMemorialPage:
+    """P0: GET /funerals/{id}/memorial-page must render a public page."""
+
+    def test_memorial_page_returns_200(self, authed_funeral_client, seeded_case, funeral_tracker):
+        case = funeral_tracker.get_case("c1", "f-001")
+        case.memorial_text_sv = "Vila i frid."
+        case.memorial_text_am = "በሰላም ዕረፍ።"
+        funeral_tracker.save_case(case)
+        resp = authed_funeral_client.get("/funerals/f-001/memorial-page")
+        assert resp.status_code == 200
+        assert "Vila i frid" in resp.text
+        assert "በሰላም ዕረፍ" in resp.text
+
+    def test_memorial_page_shows_deceased_name(self, authed_funeral_client, seeded_case, funeral_tracker):
+        case = funeral_tracker.get_case("c1", "f-001")
+        case.memorial_text_sv = "Test"
+        funeral_tracker.save_case(case)
+        resp = authed_funeral_client.get("/funerals/f-001/memorial-page")
+        assert "Abebe Tadesse" in resp.text
+
+    def test_memorial_page_shows_memorial_days(self, authed_funeral_client, seeded_case, funeral_tracker):
+        case = funeral_tracker.get_case("c1", "f-001")
+        case.memorial_text_sv = "Test"
+        funeral_tracker.save_case(case)
+        resp = authed_funeral_client.get("/funerals/f-001/memorial-page")
+        assert "ሳልስት" in resp.text or "Salist" in resp.text
+
+    def test_memorial_page_not_found(self, authed_funeral_client):
+        resp = authed_funeral_client.get("/funerals/nonexistent/memorial-page")
+        assert resp.status_code == 303
+
+
+class TestWebhookDispatch:
+    """P1: Creating a case should dispatch a webhook (non-blocking)."""
+
+    def test_create_case_dispatches_webhook(self, authed_funeral_client, funeral_tracker):
+        resp = authed_funeral_client.post(
+            "/funerals/new",
+            data={
+                "deceased_name": "Webhook Test",
+                "deceased_name_am": "ተስት",
+                "date_of_death": "2026-06-05",
+                "contact_person": "Contact",
+                "contact_phone": "070-000-0000",
+                "package": "ceremoni",
+            },
+        )
+        assert resp.status_code == 303
+
+
+class TestFuneralJsonApi:
+    """P1: GET /api/funerals with X-API-Token for n8n grief calendar."""
+
+    def test_api_requires_token(self, funeral_client):
+        resp = funeral_client.get("/api/funerals")
+        assert resp.status_code == 401
+
+    def test_api_rejects_wrong_token(self, funeral_client):
+        resp = funeral_client.get(
+            "/api/funerals",
+            headers={"X-API-Token": "wrong-token"},
+        )
+        assert resp.status_code == 401
+
+    def test_api_returns_cases_with_valid_token(self, funeral_client, seeded_case):
+        resp = funeral_client.get(
+            "/api/funerals",
+            headers={"X-API-Token": "test-funeral-api-token"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert len(data) >= 1
+        assert data[0]["deceased_name"] == "Abebe Tadesse"
+
+    def test_api_filters_grief_calendar_active(self, funeral_client, seeded_case, funeral_tracker):
+        case = funeral_tracker.get_case("c1", "f-001")
+        case.grief_calendar_active = True
+        funeral_tracker.save_case(case)
+        resp = funeral_client.get(
+            "/api/funerals?grief_calendar_active=true",
+            headers={"X-API-Token": "test-funeral-api-token"},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert len(data) == 1
+
+    def test_api_excludes_pii(self, funeral_client, seeded_case):
+        resp = funeral_client.get(
+            "/api/funerals",
+            headers={"X-API-Token": "test-funeral-api-token"},
+        )
+        data = resp.json()
+        assert "contact_phone" not in data[0]
+        assert "contact_person" not in data[0]

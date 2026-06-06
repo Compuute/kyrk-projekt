@@ -6,7 +6,7 @@ from dataclasses import asdict
 from datetime import date, datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -1124,6 +1124,7 @@ def funeral_new_form(
 @router.post("/funerals/new")
 def funeral_create(
     request: Request,
+    background_tasks: BackgroundTasks,
     deceased_name: str = Form(...),
     deceased_name_am: str = Form(""),
     date_of_death: str = Form(...),
@@ -1170,6 +1171,7 @@ def funeral_create(
     )
 
     tracker.save_case(case)
+    background_tasks.add_task(_dispatch_funeral_webhook, case)
 
     return _flash_redirect(
         f"/funerals/{case_id}",
@@ -1319,6 +1321,119 @@ def funeral_memorial_save(
     tracker.save_case(case)
 
     return _flash_redirect(f"/funerals/{case_id}", "Minnestext sparad", level="success")
+
+
+# ---------------------------------------------------------- funeral memorial page
+
+
+@router.get("/funerals/{case_id}/memorial-page", response_class=HTMLResponse)
+def funeral_memorial_page(
+    case_id: str,
+    request: Request,
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    case = tracker.get_case(session.church_id, case_id)
+    if case is None:
+        return _flash_redirect("/funerals", "Ärendet hittades inte", level="error")
+
+    memorial_dates = []
+    if case.date_of_death:
+        try:
+            dod = date.fromisoformat(case.date_of_death)
+            from datetime import timedelta
+            memorial_dates = [(dod + timedelta(days=d)).isoformat() for d, _, _ in MEMORIAL_DAYS]
+        except ValueError:
+            pass
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="funeral_memorial.html",
+        context={
+            "case": case,
+            "memorial_days": MEMORIAL_DAYS,
+            "memorial_dates": memorial_dates,
+        },
+    )
+
+
+# ---------------------------------------------------------- funeral JSON API (n8n)
+
+_FUNERAL_API_PII_BLOCKED = {
+    "contact_person", "contact_phone", "contact_email",
+    "date_of_birth", "notes", "eder_contribution",
+}
+
+
+@router.get("/api/funerals")
+def funeral_api(
+    request: Request,
+    grief_calendar_active: str | None = None,
+    tracker: FuneralTrackerPort = Depends(get_funeral_tracker),
+    settings: Settings = Depends(get_settings),
+):
+    token = request.headers.get("X-API-Token", "")
+    expected = getattr(settings, "funeral_api_token", "") or os.environ.get("FUNERAL_API_TOKEN", "test-funeral-api-token")
+    if not token or token != expected:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+
+    cases = tracker.list_cases("c1")
+
+    if grief_calendar_active == "true":
+        cases = [c for c in cases if c.grief_calendar_active]
+
+    result = []
+    for c in cases:
+        entry = {
+            "case_id": c.case_id,
+            "church_id": c.church_id,
+            "status": c.status,
+            "deceased_name": c.deceased_name,
+            "deceased_name_am": c.deceased_name_am,
+            "date_of_death": c.date_of_death,
+            "package": c.package,
+            "repatriation": c.repatriation,
+            "repatriation_destination": c.repatriation_destination,
+            "grief_calendar_active": c.grief_calendar_active,
+            "ceremony_date": c.ceremony_date,
+        }
+        result.append(entry)
+
+    from fastapi.responses import JSONResponse
+    return JSONResponse(result)
+
+
+# ---------------------------------------------------------- funeral webhook dispatch
+
+import os
+import logging
+
+logger = logging.getLogger("admin-web.funeral")
+
+
+def _dispatch_funeral_webhook(case: FuneralCase) -> None:
+    webhook_url = os.environ.get("N8N_WEBHOOK_FUNERAL_CASE", "")
+    if not webhook_url:
+        logger.info("N8N_WEBHOOK_FUNERAL_CASE not set, skipping dispatch")
+        return
+    try:
+        import httpx
+        payload = {
+            "case_id": case.case_id,
+            "church_id": case.church_id,
+            "deceased_name": case.deceased_name,
+            "package": case.package,
+            "date_of_death": case.date_of_death,
+            "repatriation": case.repatriation,
+            "repatriation_destination": case.repatriation_destination,
+        }
+        httpx.post(webhook_url, json=payload, timeout=5.0)
+    except Exception as exc:
+        logger.warning("Funeral webhook dispatch failed: %s", exc)
 
 
 @router.get("/healthz")
