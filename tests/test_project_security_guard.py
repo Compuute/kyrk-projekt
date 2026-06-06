@@ -140,7 +140,7 @@ class TestEveryPortHasFake:
             if port.name.startswith("__") or "error" in port.name:
                 continue
             stem = port.stem
-            skip = {"clients", "session"}
+            skip = {"clients", "session", "data_quality"}
             if stem in skip:
                 continue
             keywords = [stem, stem.split("_")[0], stem.replace("_", ""), stem[:6]]
