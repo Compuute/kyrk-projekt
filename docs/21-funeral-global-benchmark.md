@@ -8,35 +8,46 @@ begravningstjänster? Vad kan vi lära oss?
 | Modell | Land | Antal | Ålder | Digital? | Vår parallell |
 |---|---|---|---|---|---|
 | **Chevra Kadisha** (judisk) | Globalt | ~2 000+ | 500+ år | Delvis | Närmaste modellen |
-| **Black church funeral homes** | USA | ~1 000+ | 150+ år | Nej | Afrodiaspora-parallell |
-| **Muslim burial cooperatives** | Europa | ~200+ | 30+ år | Nej | Diaspora-modell |
-| **Eder** (etiopisk) | Globalt | ~10 000+ | 1 000+ år | Nej | Redan i vår community |
-| **Svenska kyrkan** | Sverige | ~1 300 församlingar | 1 000+ år | Nej | Äger kyrkogårdar, ej byråer |
-| **Greek Orthodox** | USA | ~500+ | 100+ år | Nej | Ortodox parallell |
-| **Katolska kyrkan** | Globalt | N/A | 2 000 år | Nej | Äger begravningsplatser |
+| **Kyrkans Begravningsbyrå** | Sverige | ~15 kontor | 20+ år | Nej | Bevisar att kyrka kan driva byrå |
+| **CFCS** (katolsk, USA) | USA | ~10 centers | 50+ år | Delvis | 10 000+ begravningar/år |
+| **Black-owned funeral homes** | USA | ~3 500 | 150+ år | Nej | Afrodiaspora-parallell |
+| **Muslim burial cooperatives** | UK/Europa | ~200+ | 30+ år | Nej | Diaspora-kooperativ |
+| **Eder / Edir** (etiopisk) | Globalt | ~10 000+ | 1 000+ år | Nej | Redan i vår community |
+| **Greek Orthodox Philoptochos** | USA | ~500 | 90+ år | Nej | Ekonomiskt stöd, ej byrå |
 | **Vår modell** | Sverige | **Ny** | **0** | **JA — AI-native** | **Unik i världen** |
 
-## 1. Sverige — ingen kyrka driver begravningsbyrå
+## 1. Sverige — en kyrka driver redan begravningsbyrå
 
-### Svenska kyrkan
+### Svenska kyrkan — Kyrkans Begravningsbyrå
 
-Svenska kyrkan äger och driver:
-- **~1 300 kyrkogårdsförvaltningar** (cemeteries)
-- **Krematorierna** (utom Stockholm + Tranås som är kommunala)
-- Ceremoniplatser (kyrkor, kapell)
+**Överraskning:** Svenska kyrkan driver faktiskt begravningsbyråer.
 
-**Men Svenska kyrkan driver INGA begravningsbyråer.**
-Begravningsbyråverksamhet (logistik, kista, transport, dokumentation)
-sköts uteslutande av kommersiella aktörer som Fonus, Axelssons,
-Fenix och Lavendla.
+| Fakta | Data | Källa |
+|---|---|---|
+| Bolag | Kyrkans Begravningsbyrå i Sverige AB | Org.nr 556651-1357 |
+| Säte | Fagersta | |
+| Antal kontor | ~15 | kyrkansbegravningsbyra.se |
+| Omsättning (2024) | **14,2 M SEK** | Largest Companies |
+| Vinst (2024) | 0,5 M SEK | |
+| Personal | Anställda från församlingar | Inga dedikerade anställda |
+| Kundgrupp | Alla trossamfund, även sekulära | |
 
-**Insikt:** Det finns ett vakuum. Ingen kyrka i Sverige erbjuder
-fullständig begravningstjänst. Ni kan bli de första.
+**Kontroversiellt:** SBF (begravningsbyråernas branschförening)
+har kritiserat Kyrkans Begravningsbyrå som "olämplig verksamhet"
+eftersom Svenska kyrkan har **monopol på kyrkogårdsförvaltning**
+i alla kommuner utom Stockholm och Tranås. Konkurrenter menar att
+det snedvrider konkurrensen.
+
+**Insikt för oss:** Svenska kyrkan bevisar att modellen fungerar i
+Sverige — en kyrka KAN driva begravningsbyrå. Men deras modell
+saknar kulturell specialisering, hemtransport, och digital plattform.
+Dessutom har vi INTE deras monopolproblem — vi äger inga kyrkogårdar.
 
 ### Övriga kyrkor i Sverige
 
 | Kyrka/samfund | Begravningstjänst? | Vad de gör |
 |---|---|---|
+| Svenska kyrkan | **JA** (14,2 M SEK/år) | Kyrkans Begravningsbyrå, ~15 kontor |
 | Katolska kyrkan i Sverige | Nej | Ceremoni + egen begravningsplats (några) |
 | Pingstkyrkan | Nej | Enbart ceremoni |
 | Equmeniakyrkan | Nej | Enbart ceremoni |
@@ -44,66 +55,86 @@ fullständig begravningstjänst. Ni kan bli de första.
 | Grekisk-ortodoxa | Nej | Ceremoni, hänvisar till Fonus |
 | Etiopisk-ortodoxa | **Nej — men Eder finns** | Eder samlar in, Fonus hanterar |
 
-**Slutsats: Ingen enda kyrka i Sverige driver en begravningsbyrå.**
-Marknaden är 100% kommersiell (Fonus, Axelssons, Fenix, Lavendla).
+**Slutsats: Bara Svenska kyrkan driver begravningsbyrå i Sverige.**
+Ingen annan kyrka, och definitivt ingen diaspora-kyrka. Marknaden
+för kulturellt specialiserade begravningstjänster är **helt tom**.
 
 ## 2. USA — kyrko-drivna begravningshem existerar
 
 ### Black church funeral homes
 
-I USA har afroamerikanska kyrkor drivit begravningshem i **150+ år**.
-Detta är den starkaste parallellen till vad vi planerar:
+I USA har afroamerikanska familjer med djupa kyrko-kopplingar
+drivit begravningshem i **150+ år**. Familjeägda, ej formellt
+kyrko-ägda, men djupt integrerade i Black church culture.
 
 | Fakta | Data |
 |---|---|
-| Antal Black-owned funeral homes (USA) | ~3 500 (National Funeral Directors & Morticians Assoc.) |
-| Många kopplade till kyrkor | Ja — pastorn äger/driver begravningshemmet |
+| Antal Black-owned funeral homes (USA) | ~3 500 (NFDMA) |
+| Koppling till kyrkor | Stark — familj + församling |
 | Genomsnittlig begravning | $7 800 (~80 000 SEK) |
-| Största kedjan | Service Corporation International (SCI) — ej kyrko-ägd |
 | Black-owned marknadsandel | ~15% av afroamerikansk marknad |
 
-**Varför det fungerar:**
-1. Samma förtroende-modell som vi planerar — communityn litar på kyrkan
-2. Kulturell kompetens — förstår traditioner, musik, matkultur
-3. Språngbräda för community wealth — intäkterna stannar i communityn
-4. Pastorn är naturlig kontaktperson vid dödsfall
-
-**Kända exempel:**
-- **A.D. Porter & Sons** (Louisville, KY) — Black-owned sedan 1910
-- **Angelus Funeral Home** (Los Angeles, CA) — grundat 1925
-- **March Funeral Homes** (Washington DC) — nära etiopiska communityn
+**Kända exempel (verifierade):**
+- **Davenport & Harris Funeral Home** (Birmingham, AL) — est. 1899,
+  Alabamas äldsta Black family-owned business
+- **McCoy & Harrison Funeral Home** (Houston, TX) — est. 1925,
+  fortfarande familjeägt
+- **Leak & Sons Funeral Chapel** (Chicago, IL) — est. 1933, South Side
+- **Crowe's Funeral Homes** (Jamaica, NY) — est. 1945, affilierat
+  med Allen AME Church
 
 **Vad vi lär oss:** Modellen fungerar. Den har fungerat i 150 år.
 Nyckeln är community trust + kulturell kompetens. Exakt vad vi har.
+
+### Catholic Funeral & Cemetery Services (CFCS)
+
+**Viktig upptäckt:** Katolska kyrkan i USA driver formella,
+kyrko-ägda begravningstjänster:
+
+| Fakta | Data | Källa |
+|---|---|---|
+| Organisation | CFCS (Church-owned nonprofit) | cfcsmission.org |
+| Verksam i | Denver, Detroit, Sacramento, Oakland, San Jose | |
+| Kyrkogårdar | 30+ | |
+| Begravningar/år | **10 000+** begravningstjänster | |
+| Kremationer/begravningar | **2 500+** via ~10 funeral centers | |
+| Omsättning | Under $5M | |
+| Samhällsinsats | **97% av county social service-begravningar i Denver** | |
+
+**Insikt:** CFCS bevisar att en kyrko-ägd, icke-vinstdrivande
+begravningsorganisation kan skala till **10 000+ begravningar/år**
+i USA. De konkurrerar framgångsrikt med kommersiella aktörer.
 
 ### Greek Orthodox (USA)
 
 Greek Orthodox Archdiocese of America:
 - **~500 parishes** i USA
-- Philoptochos Society (kvinnoförening) hjälper med begravningar
-- Flera församlingar har **nära partnerskap** med begravningshem
-  (ofta grekisk-ägda familjeföretag)
-- Erbjuder Trisagion (bön vid dödsfall), Makaria (minnesmåltid)
+- **Philoptochos Society** (grundad 1931) — kapitel i varje
+  grekisk-ortodox församling. Deras stadgar inkluderar
+  "burial of impoverished persons". Förbereder Kolyva
+  (memorial-vete) och ger ekonomiskt stöd vid begravningar.
 
-**Men:** Ingen formell begravningsbyrå ägd av kyrkan. Partnerskap
-med grekisk-ägda byråer istället. Samma modell som vi planerar i Fas 1.
+**Men:** Philoptochos driver inte begravningsbyråer — de ger
+ekonomiskt stöd och koordinerar med grekisk-ägda familjebyråer.
 
 ### Ethiopian Orthodox in USA
 
-Washington DC-området har **~50 000** etiopier — den största
-etiopiska diasporan utanför Afrika.
+Washington DC-området har den största etiopiska diasporan
+utanför Afrika.
 
-| Organisation | Stad | Tjänst |
-|---|---|---|
-| Ethiopian Community Mutual Assistance Assoc. | DC | Eder-liknande stöd |
-| Mehretu Community Association | DC/MD/VA | Begravningshjälp |
-| Diverse Eder-föreningar | DC, Dallas, LA | Insamling + logistik |
+| Organisation | Stad | Tjänst | Källa |
+|---|---|---|---|
+| **Debre Selam Kidist Mariam Church** | Washington DC | Liturgisk begravning (10h), 1 500+ medlemmar | dskmariamdc.org |
+| **Edir DFW** | Dallas-Fort Worth | Formaliserad Eder, $360/år per familj, nonprofit | edirdfw.org |
+| **Andenet Edir** | San Francisco Bay Area | Eder-modell | |
 
-**Ingen etiopisk-ortodox kyrka i USA driver en formell
-begravningsbyrå.** Alla förlitar sig på Eder + kommersiella byråer.
+**Edir DFW** är det bästa exemplet på en **formaliserad Eder**:
+registrerad nonprofit (est. 2008), $360/år, specifikt för
+begravningskostnader. Exakt vad vi bygger — men utan digital
+plattform och utan hemtransport.
 
-**Insikt:** Vi kan bli de första i världen med en formell,
-digital, kyrko-driven begravningstjänst för etiopisk-ortodoxa.
+**Ingen etiopisk-ortodox kyrka i världen driver en formell,
+digital begravningsbyrå.** Vi blir de första.
 
 ## 3. Chevra Kadisha — den judiska modellen (500+ år)
 
@@ -125,16 +156,18 @@ Shloshim (30 dagar)          ↔    ተዝካር dag 40
 Yahrzeit (årsminne)          ↔    ተዝካር 1 år
 ```
 
-### Data
+### Data (verifierad)
 
-| Fakta | Data |
-|---|---|
-| Antal Chevra Kadisha globalt | ~2 000+ (uppskattning) |
-| Ålder | Formaliserat sedan 1500-talet (Prag) |
-| Kostnad för begravning | $3 000–8 000 (vs $10 000+ kommersiellt) |
-| Prisreduktion vs kommersiellt | **40–60% billigare** |
-| Volontär-drivet? | Ja — Tahara utförs av frivilliga |
-| Repatriation till Israel? | Ja — vanlig tjänst |
+| Fakta | Data | Källa |
+|---|---|---|
+| Antal Chevra Kadisha globalt | ~2 000+ | Kavod v'Nichum databas |
+| Ålder | Formaliserat sedan 1500-talet (Prag) | Chabad.org |
+| Kostnad via Chevra Kadisha | **~$3 600** | Aish.com |
+| Kostnad kommersiell judisk begravning | **$15 000–20 000** | Aish.com |
+| Prisreduktion | **76–82% billigare** | Beräknat |
+| Volontär-drivet? | Ja — Tahara utförs av oavlönade frivilliga | |
+| Repatriation till Israel? | Ja — vanlig tjänst | |
+| Nationellt register (USA) | Kavod v'Nichum-databasen | kavodvnichum.org |
 
 ### Varför det fungerar sedan 500 år
 
@@ -157,16 +190,20 @@ Yahrzeit (årsminne)          ↔    ተዝካር 1 år
 
 ## 4. Muslim burial cooperatives (Europa)
 
-### UK — mest utvecklat
+### UK — mest utvecklat (verifierade exempel)
 
-| Organisation | Stad | Tjänst |
-|---|---|---|
-| **Gardens of Peace** | London | Muslimsk begravningsplats + byrå |
-| **JAAN** | Birmingham | Muslimskt begravningskooperativ |
-| **Islamic Burial Council** | Nationellt | Certifiering + rådgivning |
+| Organisation | Stad | Tjänst | Modell |
+|---|---|---|---|
+| **Harrow Central Mosque** | London | Full begravningstjänst | Donationsbaserad |
+| **East London Mosque / Haji Taslim** | London | Komplett islamisk begravning | Moskédriven |
+| **Hendon Mosque** | London | Fordon standby, nästa-dags begravning | Moskédriven |
+| **CSMA Birmingham** | Birmingham | Gratis Ghusl+Kafn+kista+transport | Muslim Burial Fund |
+| **Muslim Funeral Society** | South London | Registrerad hos NAFD + SAIF, £80/år | Kooperativ |
+| **Muslim Patel Burial Trust** | — | Medlemskap £1 000, begravning £1 250 | Trust |
 
-Gardens of Peace (London) hanterar **~4 000 begravningar/år**
-och är den största religiösa begravningsorganisationen i Europa.
+Muslim Funeral Society i South London är den **första oberoende
+muslimska begravningstjänsten registrerad hos branschförbunden**
+(NAFD + SAIF) i UK. Årsavgift: £80.
 
 ### Sverige
 
@@ -181,9 +218,9 @@ Samma vakuum som för ortodoxa.
 
 ### Vad vi lär oss
 
-Gardens of Peace bevisar att religiösa organisationer kan skala
-begravningstjänster till **4 000+ begravningar/år**. De gick från
-community-projekt till professionell organisation på 20 år.
+UK:s muslimska begravningskooperativ visar att religiösa
+organisationer kan bli **branschregistrerade** (NAFD/SAIF, jfr SBF)
+och erbjuda professionella tjänster med kooperativ prissättning.
 
 ## 5. Eder (እድር) — etiopisk begravningsförening
 
@@ -215,15 +252,30 @@ MED VÅR TJÄNST:
   + bättre service + kulturell kompetens
 ```
 
-### Eder i Sverige
+### Eder i Sverige och globalt
 
-| Uppskattning | Data |
-|---|---|
-| Antal Eder-föreningar i Sverige | ~50–100 |
-| Antal i Stockholmsområdet | ~20–30 |
-| Genomsnittlig storlek | 50–200 familjer |
-| Månadsavgift | 100–500 kr |
-| Utbetalning vid dödsfall | 20 000–50 000 kr |
+| Data | Sverige (uppskattning) | USA (verifierat) |
+|---|---|---|
+| Antal Eder-föreningar | ~50–100 | ~200+ |
+| Formaliserade nonprofits | Få (oftast informella) | **Edir DFW** ($360/år, est. 2008) |
+| Genomsnittlig storlek | 50–200 familjer | 50–300 familjer |
+| Årsavgift | 1 200–6 000 kr | $360/år (Edir DFW) |
+| Utbetalning vid dödsfall | 20 000–50 000 kr | $5 000–15 000 |
+
+### Hemtransport — verifierade kostnader
+
+| Rutt | Kostnad | Källa |
+|---|---|---|
+| UK → Addis Abeba (Ethiopian Airlines) | **£4 845** (~65 000 SEK) | Slaters International |
+| Ethiopian Airlines cargo (per kg) | Viktbaserat + $0.86/kg bränsle + $20/fraktsedel | Ethiopian Airlines Cargo |
+| Genomsnittlig kistvikt | ~250 kg | Branschstandard |
+| Tidsram | 7–14 dagar | |
+
+**Ingen dedikerad etiopisk hemtransport-kooperativ** existerar som
+formell organisation — varken i Sverige, UK eller USA. Eder-föreningar
+koordinerar informellt, kommersiella byråer hanterar logistiken.
+
+**Det är exakt det gap vi fyller.**
 
 ### Strategisk koppling
 
@@ -241,12 +293,18 @@ Eder → pengar → familj → Fonus    Eder → pengar → kyrkan → familj s�
 
 ## 6. Tyskland — stor etiopisk/eritreansk community
 
-| Data | Siffra |
-|---|---|
-| Etiopier i Tyskland | ~50 000 |
-| Eritreaner i Tyskland | ~80 000+ |
-| Ortodoxa kyrkor | Flera i Frankfurt, Berlin, München |
-| Kyrko-driven begravningstjänst | **Nej — samma vakuum som Sverige** |
+| Data | Siffra | Källa |
+|---|---|---|
+| Etiopier i Tyskland | ~50 000 | |
+| Eritreaner i Tyskland | ~80 000+ | |
+| Etiopisk-ortodoxa kyrkor | Medhanealem (Frankfurt), Berlin, Stuttgart, München | Verifierat |
+| Evangelische Kirche begravningsbyrå | **Nej** — enbart liturgisk tjänst | |
+| Katolska begravningsbyrå | **Nej** — enbart liturgisk tjänst | |
+| Kyrko-driven begravningstjänst | **Nej — samma vakuum som Sverige** | |
+
+Tyska kyrkor (evangeliska och katolska) utför ceremonin men
+driver inga Bestattungsinstitute. Begravningsbranschen är
+100% privat/kommersiell i Tyskland.
 
 **Insikt:** Om modellen fungerar i Sverige kan den exporteras
 till Tyskland (130 000+ etiopier/eritreaner), och sedan till
@@ -315,3 +373,27 @@ Det är exakt vad Fenix (96 M SEK omsättning) och Lavendla
 kulturell kompetens och hemtransport.
 
 Vi har allt de har + allt de saknar.
+
+## Källor
+
+| Källa | URL |
+|---|---|
+| Kyrkans Begravningsbyrå | kyrkansbegravningsbyra.se |
+| SBF kritik av Kyrkans Begravningsbyrå | begravningar.se/nyheter |
+| Kavod v'Nichum (Chevra Kadisha-databas) | kavodvnichum.org |
+| Chevra Kadisha fakta | chabad.org |
+| Judisk begravningskostnad | aish.com |
+| CFCS (katolsk, USA) | cfcsmission.org |
+| Philoptochos | philoptochos.org |
+| Debre Selam Kidist Mariam (DC) | dskmariamdc.org |
+| Edir DFW (Dallas) | edirdfw.org |
+| Eder (Wikipedia) | en.wikipedia.org/wiki/Eder_(finance) |
+| East London Mosque funeral | eastlondonmosque.org.uk |
+| Muslim Burial Society (UK) | muslimburialsociety.org.uk |
+| CSMA Birmingham funerals | csmabirmingham.co.uk |
+| Davenport & Harris (Alabama) | birminghamtimes.com |
+| Ethiopian Airlines Cargo | ethiopiancargo.azurewebsites.net |
+| Slaters International (hemtransport) | slatersinternational.co.uk |
+| Ethiopian Embassy (shipping remains) | ethiopianembassy.org |
+| Library of Congress (Black funeral homes) | blogs.loc.gov |
+| Fonus kooperativ historia | fcfq.coop |
