@@ -62,7 +62,7 @@ Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd,
 | Certifikat | `/certificates/new` | Utfärda dop/vigsel/söndagsskola (sv/am/en, 10 typer) |
 | KPI-dashboard | `/kpi` | Deltagarantal, kostnad/deltagare, grant leverage |
 | Bidragstracker | `/grants` | 12 bidragskällor med deadline, eligibility, AI-genererade ansökningar |
-| Content-editor | `/content-editor` | Redigera hemsidans text sv+am, Claude-översättning |
+| Content-editor | `/content-editor` | Redigera hemsidans text sv+am, AI-översättning |
 | GDPR-rapport | `/audit` | En-klicks GDPR/SST/kommun-underlag för granskning |
 | Granskningsberedskap | `/audit/generate/gdpr` | 14 compliance-items auto-verifierade |
 
@@ -99,12 +99,12 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 
 | Funktion | Teknik | Status |
 |---|---|---|
-| Bidragsansökan (sv/en) | OpenClaw grant-narrative-sv/en + Claude | ✅ Byggt |
-| Översättning sv↔am | Claude via TranslationPort | ✅ Byggt |
+| Bidragsansökan (sv/en) | OpenClaw grant-narrative-sv/en + AI (LLM) | ✅ Byggt |
+| Översättning sv↔am | AI via TranslationPort | ✅ Byggt |
 | KPI-analys (kvartalsvis) | OpenClaw + sanitizer + n8n | ✅ Workflow definierad |
-| Telegram admin-bot | Whisper (röst→text) + Claude (intent) | ✅ Workflow definierad |
+| Telegram admin-bot | Whisper (röst→text) + AI (LLM) (intent) | ✅ Workflow definierad |
 | Proaktiv bidragsbevakning | n8n cron + grant tracker | ✅ Workflow definierad |
-| Auto-genererat veckoinnehåll | n8n + Claude + content.json | ✅ Workflow definierad |
+| Auto-genererat veckoinnehåll | n8n + AI (LLM) + content.json | ✅ Workflow definierad |
 
 ### n8n workflows (9 st)
 

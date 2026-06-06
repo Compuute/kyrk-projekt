@@ -358,7 +358,7 @@ planerar.** Specifikt:
 ```
 BEVISADE MODELLER          +    TEKNOLOGI           =    VÅR MODELL
 ───────────────                 ──────────                ──────────
-Chevra Kadisha (500 år)         AI (Claude)               Kulturell kompetens
+Chevra Kadisha (500 år)         AI (LLM)               Kulturell kompetens
 Black church (150 år)           Digital plattform          + Digital-first
 Muslim coop (30 år)             Hemtransport-spårning      + Hemtransport-hub
 Eder (1 000 år)                 Automatisering (n8n)       + Skalbar

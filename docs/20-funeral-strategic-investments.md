@@ -295,7 +295,7 @@ NYTT ÄRENDE (via funeral.html eller Telegram)
 
 Plattformen byggs som en del av kyrk-projekt. Samma teknik
 (FastAPI + Jinja2 + Cloudflare Pages), samma infrastruktur
-(Cloud Run), samma AI (Claude). Begravningsmodulen är en
+(Cloud Run), samma AI. Begravningsmodulen är en
 utbyggnad av admin-web — inte ett nytt system.
 
 ---

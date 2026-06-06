@@ -1,7 +1,7 @@
 """Project-wide security and architecture guard.
 
 Runs in CI across ALL services. Catches violations regardless of
-which AI tool (Claude, Antigravity, ChatGPT, Cursor, Copilot)
+which AI tool (alla AI-verktyg)
 or human developer wrote the code.
 
 Rules enforced:

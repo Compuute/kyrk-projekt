@@ -12,8 +12,8 @@
     "pipeline": [
       "1. Telegram message arrives (text or voice)",
       "2. If voice: transcribe via Whisper API (supports Amharic am-ET)",
-      "3. Send text to Claude with church context + action schema",
-      "4. Claude classifies intent and extracts parameters",
+      "3. Send text to LLM with church context + action schema",
+      "4. LLM classifies intent and extracts parameters",
       "5. Bot replies with confirmation: 'Ska jag göra X?' / 'ይህን ልፈጽም?'",
       "6. Pastor confirms (አዎ/ja/yes) or corrects",
       "7. Bot executes: update content.json, notify Telegram channel, etc.",
@@ -23,8 +23,8 @@
       "step_1": "Extract voice file from Telegram message (OGG format)",
       "step_2": "Send to OpenAI Whisper API with language hint 'am' (Amharic)",
       "step_3": "Whisper returns text (expect ~30-40% WER for Amharic)",
-      "step_4": "Send to Claude for error correction + intent parsing",
-      "note": "Claude compensates for Whisper errors because it understands Amharic grammar and church terminology"
+      "step_4": "Send to LLM for error correction + intent parsing",
+      "note": "LLM compensates for Whisper errors because it understands Amharic grammar and church terminology"
     }
   },
   "supported_intents": [
@@ -110,7 +110,7 @@
       "response": "Return translated text directly"
     }
   ],
-  "claude_system_prompt": "You are the admin assistant for Abune Tekle Haymanot Ethiopian Orthodox Tewahedo Church in Nacka, Sweden. You help the pastor manage the church platform via Telegram.\n\nYou understand Amharic (አማርኛ), Swedish, and English. The pastor primarily speaks Amharic.\n\nFor voice messages: the text you receive has been transcribed by Whisper and may contain errors (~30-40% WER for Amharic). Use your knowledge of Amharic grammar, church terminology, and context to correct transcription errors before parsing intent.\n\nChurch terminology:\nቅዳሴ = liturgy/gudstjänst\nጥምቀት = baptism/dop\nጸሎት = prayer/bön\nሰንበት = Sunday/söndag\nአባል = member/medlem\nየሰንበት ትምህርት ቤት = Sunday school/söndagsskola\n\nRules:\n1. ALWAYS confirm before acting. Never auto-publish.\n2. Respond in the same language the pastor used.\n3. If intent is unclear, ask for clarification.\n4. Never access or display personal member data (names, personnummer).\n5. You may show aggregate stats (total members, activity counts).",
+  "llm_system_prompt": "You are the admin assistant for Abune Tekle Haymanot Ethiopian Orthodox Tewahedo Church in Nacka, Sweden. You help the pastor manage the church platform via Telegram.\n\nYou understand Amharic (አማርኛ), Swedish, and English. The pastor primarily speaks Amharic.\n\nFor voice messages: the text you receive has been transcribed by Whisper and may contain errors (~30-40% WER for Amharic). Use your knowledge of Amharic grammar, church terminology, and context to correct transcription errors before parsing intent.\n\nChurch terminology:\nቅዳሴ = liturgy/gudstjänst\nጥምቀት = baptism/dop\nጸሎት = prayer/bön\nሰንበት = Sunday/söndag\nአባል = member/medlem\nየሰንበት ትምህርት ቤት = Sunday school/söndagsskola\n\nRules:\n1. ALWAYS confirm before acting. Never auto-publish.\n2. Respond in the same language the pastor used.\n3. If intent is unclear, ask for clarification.\n4. Never access or display personal member data (names, personnummer).\n5. You may show aggregate stats (total members, activity counts).",
   "secrets": ["TELEGRAM_BOT_TOKEN", "ANTHROPIC_API_KEY", "OPENAI_API_KEY"],
   "allowed_fields": ["title", "date", "time", "description", "period", "text"],
   "blocked_fields": ["personal_number", "name", "email", "phone", "member_id"],

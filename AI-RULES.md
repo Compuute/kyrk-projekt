@@ -1,7 +1,7 @@
 # AI-RULES.md — regler för AI-assistenter
 
 Detta dokument läses av alla AI-verktyg som genererar kod i detta repo
-(Cursor, Copilot, ChatGPT, Claude Code, Antigravity, etc).
+(Cursor, Copilot, ChatGPT, Antigravity, eller annat verktyg).
 
 **Om du är en AI-assistent: följ dessa regler utan undantag.**
 
@@ -168,7 +168,7 @@ CI-test `test_coverage_threshold.py` failar om täckningen < 60%.
 
 ## OWASP LLM Top 10 — checklista (2025)
 
-Projektet använder Claude API i produktion (översättning, bidragsansökningar).
+Projektet använder LLM API i produktion (översättning, bidragsansökningar).
 Dessa risker ska bevakas:
 
 | # | Risk | Vår mitigation | Status |
@@ -187,7 +187,7 @@ Dessa risker ska bevakas:
 ### Regler för AI-anrop i produktion
 
 ```
-1. ALDRIG skicka RED-data till Claude API
+1. ALDRIG skicka RED-data till LLM API
    → Sanitizer profiles filtrerar INNAN anrop
    → pii_guard avvisar förbjudna fält med 422
 
@@ -201,7 +201,7 @@ Dessa risker ska bevakas:
    → Ambassad-dokumentation verifieras mot checklista
 
 4. API-nycklar ENBART i Secret Manager
-   → Aldrig i kod, .env-filer, Docker-images eller CLAUDE.md
+   → Aldrig i kod, .env-filer, Docker-images eller AI-RULES.md
 ```
 
 ### Slopsquatting-skydd (OWASP Supply Chain)

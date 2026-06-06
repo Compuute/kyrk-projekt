@@ -136,7 +136,7 @@ Win-win: Eder-medlemmar får bättre service, vi får volym.
 | funeral.html (publik sida) | 0 kr | 🔨 Phase 2 |
 | Memorial-sidgenerator | 0 kr | 🔨 Phase 2 |
 | Hemtransport-tracker | 0 kr | 🔨 Phase 2 |
-| AI dokumentgenerering | 0 kr (Claude API) | 🔨 Phase 2 |
+| AI dokumentgenerering | 0 kr (LLM API) | 🔨 Phase 2 |
 
 ### Fas 1: Juridik & Avtal (månad 1-2)
 
@@ -285,9 +285,9 @@ All dokumentation genereras av AI i rätt språk:
 | Dokument | Språk | AI-genererat |
 |---|---|---|
 | Dödsanmälan | Svenska | ✅ Auto-ifyllt |
-| Begravningsprogram | Am + Sv + En | ✅ Claude |
-| Minnessida | Am + Sv | ✅ Claude |
-| Kondoleansbrev-mall | Am + Sv | ✅ Claude |
+| Begravningsprogram | Am + Sv + En | ✅ AI |
+| Minnessida | Am + Sv | ✅ AI |
+| Kondoleansbrev-mall | Am + Sv | ✅ AI |
 | Bouppteckning-guide | Svenska | ✅ Mall + guide |
 | Hemtransportdokumentation | En + Am | ✅ Mall |
 | Tulldeklaration | Engelska | ✅ Mall |
@@ -357,13 +357,13 @@ Med gemensamt nätverk:
 
 | Funktion | AI-teknik | Besparing |
 |---|---|---|
-| Begravningsprogram | Claude genererar trilingualt | 2-3 timmar/begravning |
+| Begravningsprogram | AI genererar trilingualt | 2-3 timmar/begravning |
 | Dödsanmälan | Auto-ifyllt formulär | 30 minuter |
 | Bouppteckning-guide | AI-anpassad per situation | Sparar juristkostnad |
 | Hemtransportdokumentation | AI-genererad + mallar | 4-6 timmar |
-| Kondoleansbrev | Claude på amhariska/svenska | 1 timme |
+| Kondoleansbrev | AI på amhariska/svenska | 1 timme |
 | Bidragsansökan (begravningskostnad) | OpenClaw | 3-4 timmar |
-| Memorial-text | Claude + familjens input | 1-2 timmar |
+| Memorial-text | AI + familjens input | 1-2 timmar |
 
 ## P&L-prognos (3 år)
 
