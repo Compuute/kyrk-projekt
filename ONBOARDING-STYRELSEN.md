@@ -6,19 +6,65 @@ och vad styrelsen behöver besluta om.
 ## Plattformens syfte
 
 Systemet är byggt för att supportera **samtliga kyrkor under
-Etiopisk-Ortodoxa Tewahedo Kyrkan i Sverige** — inte bara
-Abune Tekle Haymanot i Nacka.
+Etiopisk-Ortodoxa Tewahedo Kyrkan Ärkestiftet i Sverige**
+(org.nr 252002-8859).
+
+Enligt Sveriges kristna råd (SKR) har ärkestiftet **9 församlingar**
+med totalt **~3 250 registrerade medlemmar**.
 
 Varje kyrka under ärkestiftet kan använda samma plattform med
 sin egen profil, sitt eget Swish-nummer, sin egen YouTube-kanal
 och sitt eget innehåll. En ny kyrka ansluts på **5 minuter**
 genom att byta 5 värden i en konfigurationsfil.
 
-**Arkitekturen stödjer:**
-- 10+ kyrkor med separerad data (ingen kyrka ser en annans data)
-- Gemensam kodbas — alla får samma funktioner automatiskt
-- Centrala eller lokala begravningstjänster (styrelsebeslut #22)
-- Flerspråkigt: svenska + amhariska (utbyggbart med tigrinja)
+## Kyrkorna — verifierad data
+
+### Etiopisk-Ortodoxa Tewahedo Kyrkan Ärkestiftet i Sverige
+
+**Org.nr:** 252002-8859
+**Grundat:** 1986 av Ärkebiskop Elias
+**Antal församlingar:** 9
+**Totalt medlemmar:** ~3 250 (SKR)
+
+| # | Församling | Stad | Org.nr |
+|---|---|---|---|
+| 1 | Debreselam Medhanealem (ärkestiftets HK) | Bandhagen, Stockholm | — |
+| 2 | Menbere Tsebaot S:t Selasse | Stockholm (Sveavägen 17) | 252004-8642 |
+| 3 | Abune Tekle Haymanot | Saltsjö-Boo, Nacka | 802492-9237 |
+| 4 | Menbere Tsebaot Kidist Selassie | Norsborg, Stockholm | — |
+| 5 | Debre Hail S:t Gabriel | Göteborg | 252004-8451 |
+| 6 | Församlingen i Skåne | Malmö/Lund | 802427-3123 |
+| 7 | Debre Mitmaq Kidest Mariam | Lund | 252004-8584 |
+| 8 | Lund Debre Mewi S:t Michael | Lund | 252004-9855 |
+| 9 | Etiopisk Gabriel Ortodox Kyrka | Umeå | 802449-6609 |
+
+Källa: SKR, Allabolag, Bolagsfakta
+
+### Eritreansk-Ortodoxa Tewahdo Kyrkan i Sverige
+
+Eritreanska kyrkan är en **separat organisation** sedan
+Eritreas autokefali 1993. Teologiskt likartad men
+organisatoriskt oberoende.
+
+| Data | Siffra |
+|---|---|
+| Aktiva medlemmar | ~3 000 |
+| Helgdeltagare | ~5 000 |
+| Registrerade församlingar | ~50 |
+| Städer | Stockholm, Göteborg, Uppsala, Sundsvall, Norrköping, Örebro, Malmö m.fl. |
+| Nationell organisation | Eritreanska Ortodoxa Tewahdo Kyrkan i Sverige (EOKTS) |
+
+**Plattformen kan stödja eritreanska församlingar också** —
+samma kodbas, separerad data. Kräver samarbetsavtal
+mellan ärkestiften.
+
+### Total marknad
+
+| Grupp | Församlingar | Medlemmar |
+|---|---|---|
+| Etiopisk-Ortodoxa | 9 | ~3 250 |
+| Eritreansk-Ortodoxa | ~50 | ~3 000–5 000 |
+| **Totalt** | **~59** | **~6 250–8 250** |
 
 ## Vad vi har byggt
 
@@ -86,12 +132,16 @@ Barn under 18: gratis.
 Begravningstjänsten kan drivas centralt (ärkestiftet) eller
 per kyrka — se styrelsebeslut #22.
 
-**Dokumentation klar:**
-- Ansvarsfördelning (kyrkan / familjen / partners)
-- Ambassad-krav (verifierade kontaktuppgifter)
-- Ethiopian Airlines cargo (Kales Group, Arlandastad)
-- Evigo som balsameringspartner
-- SLA:er och KPI:er
+**Intäktspotential (alla 9 kyrkor):**
+
+| Mått | Siffra |
+|---|---|
+| Ortodoxa i Sverige (ETH+ERI) | ~6 250–8 250 personer |
+| Dödsfall/år (~0.5%) | ~30–40 |
+| Om vi tar 50% av marknaden | ~15–20 begravningar/år |
+| Genomsnittlig intäkt/begravning | ~40 000 kr |
+| Hemtransport-andel (~30%) | ~5–6 hemtransporter/år |
+| **Estimerad årsintäkt** | **800 000–1 500 000 kr** |
 
 ## Vad det kostar
 
@@ -119,7 +169,7 @@ Alla beslut finns som ärenden i GitHub:
 | **#7** | Teckna ansvarsförsäkring (15-25K kr/år) | Styrelsebeslut |
 | **#13** | Uppdatera stadgar med begravningsverksamhet | Årsmötesbeslut |
 
-### Validering som behöver göras (ej styrelse, men viktigt)
+### Validering som behöver göras
 
 | # | Vad | Vem |
 |---|---|---|
@@ -139,19 +189,26 @@ Alla beslut finns som ärenden i GitHub:
 - **224 automatiska säkerhetstester**
 - **Data separerad per kyrka** — ingen kyrka kan se en annans data
 
-## Multi-church — hur det fungerar
+## Samtliga församlingar — plattformsstöd
 
 ```
-ÄRKESTIFTET
-├── Abune Tekle Haymanot (Nacka)       ← Pilot, LIVE
-├── Kidane Mehret (Göteborg)            ← Nästa
-├── Medhane Alem (Stockholm)            ← Planerad
-├── Debre Genet (Malmö)                 ← Planerad
-├── ...
-└── Kyrka 10                            ← Planerad
+ETIOPISK-ORTODOXA ÄRKESTIFTET (org.nr 252002-8859)
+│
+├── 1. Debreselam Medhanealem (Stockholm)     ← Ärkestiftets HK
+├── 2. Menbere Tsebaot S:t Selasse (Stockholm)
+├── 3. Abune Tekle Haymanot (Nacka)           ← Pilot, LIVE
+├── 4. Menbere Tsebaot Kidist Selassie (Norsborg)
+├── 5. Debre Hail S:t Gabriel (Göteborg)
+├── 6. Församlingen i Skåne (Malmö/Lund)
+├── 7. Debre Mitmaq Kidest Mariam (Lund)
+├── 8. Debre Mewi S:t Michael (Lund)
+└── 9. Etiopisk Gabriel (Umeå)
 
-Samma kodbas, separerad data, egen profil per kyrka.
-Kostnad per ny kyrka: 0 kr + 5 minuters setup.
+ERITREANSK-ORTODOXA (separat org, möjlig framtida expansion)
+├── ~50 församlingar i hela Sverige
+└── Kräver samarbetsavtal med EOKTS
+
+Samma kodbas. Separerad data. 0 kr per ny kyrka.
 ```
 
 ## Dokument att läsa
@@ -159,11 +216,10 @@ Kostnad per ny kyrka: 0 kr + 5 minuters setup.
 | Dokument | Vad det handlar om |
 |---|---|
 | [Begravningsbyrå analys](docs/19-funeral-bureau-investment-analysis.md) | Marknad, konkurrens, P&L |
-| [Strategiska investeringar](docs/20-funeral-strategic-investments.md) | 8 investeringsområden, beslutskarta |
+| [Strategiska investeringar](docs/20-funeral-strategic-investments.md) | 8 investeringsområden |
 | [Tjänstekatalog](docs/24-funeral-service-catalog.md) | 6 paket med priser och ansvar |
 | [Ansvarsfördelning](docs/23-funeral-service-agreement.md) | SLA, KPI, kundresa |
 | [GDPR-register](docs/governance/gdpr-register.md) | Art. 30 registerförteckning |
-| [Audit-beredskap](docs/17-audit-readiness.md) | Förberedelse för granskning |
 
 ## Nästa steg
 
@@ -172,7 +228,7 @@ Kostnad per ny kyrka: 0 kr + 5 minuters setup.
 3. Partneravtal: Evigo + Ethiopian Airlines (#3, #4)
 4. Ambassadbesök (#5)
 5. Lansera begravningstjänsten (efter validering)
-6. Anslut kyrka #2 (Kidane Mehret, Göteborg)
+6. Anslut kyrka #2
 
 **Allt spårbart i GitHub Issues:**
 https://github.com/Compuute/.github/issues
