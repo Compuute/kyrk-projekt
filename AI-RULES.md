@@ -1,7 +1,7 @@
-# CLAUDE.md — regler för AI-assistenter
+# AI-RULES.md — regler för AI-assistenter
 
-Detta dokument läses av Claude Code, Antigravity, ChatGPT, Cursor,
-Copilot och alla andra AI-verktyg som genererar kod i detta repo.
+Detta dokument läses av alla AI-verktyg som genererar kod i detta repo
+(Cursor, Copilot, ChatGPT, Claude Code, Antigravity, etc).
 
 **Om du är en AI-assistent: följ dessa regler utan undantag.**
 
@@ -213,9 +213,9 @@ ett pip-paket som en AI föreslagit:
 3. Kontrollera GitHub-repo (stjärnor, senaste commit)
 4. test_dependency_safety.py fångar banned packages
 
-## Claude Code hooks (.claude/settings.json)
+## AI-hooks (.claude/settings.json)
 
-Hooks körs deterministiskt — till skillnad från CLAUDE.md
+Hooks körs deterministiskt — till skillnad från AI-RULES.md
 som är rådgivande. Tre hooks konfigurerade:
 
 | Hook | Trigger | Vad den gör |

@@ -114,7 +114,7 @@ app/adapters/factory.py ← ADAPTER_MODE=memory|production
 
 | Prio | Dokument | Tid |
 |---|---|---|
-| 1 | `CLAUDE.md` | 10 min — regler för AI-assisterad utveckling |
+| 1 | `AI-RULES.md` | 10 min — regler för AI-assisterad utveckling |
 | 2 | `CONTRIBUTING.md` | 10 min — PR-flöde, TDD, review-krav |
 | 3 | `docs/10-getting-started.md` | 15 min — setup |
 | 4 | `docs/11-development-guide.md` | 20 min — adapter-mönster, ny feature |
@@ -138,7 +138,7 @@ app/adapters/factory.py ← ADAPTER_MODE=memory|production
 - Lägga till dependency utan att fråga
 - Committa secrets
 
-Se `CLAUDE.md` för alla 10 regler.
+Se `AI-RULES.md` för alla 10 regler.
 
 ## Kontakt
 
