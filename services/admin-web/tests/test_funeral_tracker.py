@@ -86,8 +86,10 @@ class TestChecklist:
         cl = build_checklist(repatriation=True)
         expected = len(CHECKLIST_ITEMS_SWEDEN) + len(CHECKLIST_ITEMS_REPATRIATION)
         assert len(cl) == expected
-        assert "rep_export_permit" in cl
+        assert "rep_passersedel" in cl
         assert "rep_zinc_coffin" in cl
+        assert "rep_embassy_permit" in cl
+        assert "rep_passersedel_returned" in cl
 
     def test_checklist_progress_all_unchecked(self):
         cl = build_checklist(repatriation=False)
@@ -297,7 +299,7 @@ class TestFuneralRoutes:
         assert cases[0].repatriation is True
         assert cases[0].repatriation_price == 65_000
         assert cases[0].total_price == 100_000
-        assert "rep_export_permit" in cases[0].checklist
+        assert "rep_passersedel" in cases[0].checklist
 
     def test_detail_page(self, authed_funeral_client, seeded_case):
         resp = authed_funeral_client.get("/funerals/f-001")

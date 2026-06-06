@@ -41,15 +41,18 @@ CHECKLIST_ITEMS_SWEDEN = [
 ]
 
 CHECKLIST_ITEMS_REPATRIATION = [
-    ("rep_export_permit", "Transporttillstånd (Skatteverket)"),
-    ("rep_embalming", "Balsamering genomförd"),
-    ("rep_zinc_coffin", "Zinkkista (IATA) monterad"),
-    ("rep_customs_declaration", "Tullexportdeklaration"),
-    ("rep_air_waybill", "Flygfraktsedel (Air Waybill)"),
-    ("rep_embassy_notified", "Ambassad notifierad"),
-    ("rep_flight_booked", "Flygfrakt bokad"),
+    ("rep_health_cert", "Intyg om icke-smittsam sjukdom (läkare)"),
+    ("rep_embalming", "Balsamering genomförd + intyg (IATA-compliant)"),
+    ("rep_zinc_coffin", "Zinkkista (IATA) svetsad/lödd"),
+    ("rep_funeral_director_cert", "Begravningsentreprenörens intyg (kistinnehåll)"),
+    ("rep_passersedel", "Passersedel utfärdad (Skatteverket)"),
+    ("rep_embassy_permit", "Ambassad-tillstånd (Etiopien/Eritrea)"),
+    ("rep_flight_booked", "Flygfrakt bokad (Ethiopian Airlines HUM, min 3 dagar)"),
+    ("rep_air_waybill", "Air Waybill ifylld"),
     ("rep_receiver_confirmed", "Mottagare i hemland bekräftad"),
-    ("rep_arrival_confirmed", "Ankomst bekräftad"),
+    ("rep_cargo_delivered", "Levererad till Arlanda Cargo Terminal"),
+    ("rep_arrival_confirmed", "Ankomst bekräftad i Addis/Asmara"),
+    ("rep_passersedel_returned", "Passersedel-kopia returnerad till Skatteverket (inom 2v)"),
 ]
 
 MEMORIAL_DAYS = [
