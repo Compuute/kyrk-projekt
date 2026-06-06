@@ -1,23 +1,54 @@
+# python
 __pycache__/
 *.py[cod]
-.pytest_cache/
+*.egg-info/
 .venv/
 venv/
 env/
-*.egg-info/
+
+# testing
+.pytest_cache/
 .coverage
 htmlcov/
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# node
 node_modules/
-.DS_Store
+
+# secrets — ALDRIG committa
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.secret
+credentials.json
+
+# os
+.DS_Store
+Thumbs.db
+
+# ide
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # terraform
 infra/terraform/.terraform/
+infra/terraform/.terraform.lock.hcl
 infra/terraform/*.tfstate
 infra/terraform/*.tfstate.*
 infra/terraform/terraform.tfvars
 
+# ai-tools (lokal config, ej delad)
+.claude/settings.local.json
+
 # generated artifacts
 build/
+dist/
+*.log
+*.pid
+*.sqlite3
