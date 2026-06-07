@@ -66,27 +66,15 @@ module "cloud_run" {
   region            = var.region
   service_name      = each.value
   service_account   = module.service_accounts[each.value].email
-  image_placeholder = "gcr.io/${var.project_id}/${each.value}:PLACEHOLDER"
+  image_placeholder = "${var.region}-docker.pkg.dev/${var.project_id}/kyrk/${each.value}:latest"
   environment       = var.environment
 }
 
-# Separate Cloud Run service for n8n — minimum 1 instance for cron reliability.
-module "n8n" {
-  source = "./modules/cloud-run"
-
-  project_id        = var.project_id
-  region            = var.region
-  service_name      = "n8n-automation"
-  service_account   = google_service_account.n8n.email
-  image_placeholder = "docker.n8n.io/n8nio/n8n:latest"
-  environment       = var.environment
-  min_instances     = 1
-  max_instances     = 2
-}
-
+# n8n removed — using FastAPI BackgroundTasks instead (issue #15).
+# n8n service account kept for existing secret bindings.
 resource "google_service_account" "n8n" {
   account_id   = "sa-n8n-automation"
-  display_name = "n8n automation runtime"
+  display_name = "n8n automation runtime (legacy)"
   project      = var.project_id
 }
 
@@ -105,15 +93,16 @@ module "kms" {
   region     = var.region
 }
 
-# Firestore — native mode, EU region, CMEK-encrypted.
-# Revoking the KMS key makes all Firestore data unreadable — a last-resort
-# incident response option. Day-to-day access control stays in IAM.
+# Firestore — native mode, EU multi-region.
+# Using Google-managed encryption (not CMEK) — CMEK requires allowlist
+# from Google which is not available for this project tier.
+# Personnummer field-level encryption handled by KMS in membership-service.
 module "firestore" {
   source         = "./modules/firestore"
   project_id     = var.project_id
   region         = var.region
   project_number = data.google_project.current.number
-  cmek_key_id    = module.kms.member_pn_key_id
+  cmek_key_id    = ""
 }
 
 # Storage buckets with lifecycle rules per purpose.
@@ -124,7 +113,8 @@ module "storage" {
   project_id     = var.project_id
   region         = var.region
   name           = "${var.project_id}-${each.value}"
-  public_read    = each.key == "wifi_portal_content"
+  # Org policy blocks allUsers — wifi portal content served via Cloudflare instead
+  public_read    = false
   retention_days = each.key == "openclaw_pending" ? 90 : null
 }
 
