@@ -37,52 +37,73 @@
       <div id="announcements-list"></div>
     </section>
 
-    <!-- Registration CTA + 3-field form -->
+    <!-- Membership registration — full form with church tax switch -->
     <section class="card" id="register-section" style="border: 2px solid var(--accent); background: #f8f9ff;">
       <div id="register-intro">
         <h2 style="color: var(--accent); margin-bottom: 8px;">
-          <span class="sv">Registrera dig som medlem</span>
-          <span class="am" style="display:none">እንደ አባል ይመዝገቡ</span>
+          <span class="sv">Bli medlem — byt din kyrkoskatt</span>
+          <span class="am" style="display:none">አባል ይሁኑ — የቤተ ክርስቲያን ግብርዎን ይቀይሩ</span>
         </h2>
         <p class="muted" style="margin-bottom: 4px;">
-          <span class="sv">Betalar du kyrkoskatt till Svenska kyrkan? Du kan enkelt byta till Etiopisk-Ortodoxa kyrkan. Fyll i dina uppgifter — vi hjälper dig med resten.</span>
-          <span class="am" style="display:none">የቤተ ክርስቲያን ግብር ለስዊድን ቤተ ክርስቲያን ይከፍላሉ? በቀላሉ ወደ ኢትዮጵያ ኦርቶዶክስ ቤተ ክርስቲያን መቀየር ይችላሉ። መረጃዎን ይሙሉ — የቀረውን እኛ እንረዳዎታለን።</span>
+          <span class="sv">Betalar du ~1% av din inkomst till Svenska kyrkan? Registrera dig hos oss — vi hjälper dig byta så att din kyrkoskatt stödjer din riktiga kyrka.</span>
+          <span class="am" style="display:none">ከገቢዎ ~1% ለስዊድን ቤተ ክርስቲያን ይከፍላሉ? ከእኛ ጋር ይመዝገቡ — የቤተ ክርስቲያን ግብርዎ ትክክለኛውን ቤተ ክርስቲያንዎን እንዲደግፍ እንረዳዎታለን።</span>
         </p>
       </div>
 
       <form id="quick-register" style="margin-top: 12px;" onsubmit="return submitQuickReg(event)">
         <label style="display:block; margin-bottom: 10px;">
-          <span class="sv">Namn</span><span class="am" style="display:none">ስም</span>
-          <input type="text" id="qr-name" required placeholder="Förnamn Efternamn / ሙሉ ስም" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+          <span class="sv">Förnamn</span><span class="am" style="display:none">ስም</span>
+          <input type="text" id="qr-fname" required placeholder="Förnamn / ስም" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Efternamn</span><span class="am" style="display:none">የአባት ስም</span>
+          <input type="text" id="qr-lname" required placeholder="Efternamn / የአባት ስም" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
         </label>
         <label style="display:block; margin-bottom: 10px;">
           <span class="sv">Telefon</span><span class="am" style="display:none">ስልክ</span>
           <input type="tel" id="qr-phone" required placeholder="070-XXX XX XX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">E-post</span><span class="am" style="display:none">ኢሜይል</span>
+          <input type="email" id="qr-email" placeholder="namn@example.se" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Personnummer</span><span class="am" style="display:none">የግል ቁጥር</span>
+          <input type="text" id="qr-pnr" placeholder="YYYYMMDD-XXXX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+          <span class="muted small"><span class="sv">Krävs för kyrkoskattebyte</span><span class="am" style="display:none">ለቤተ ክርስቲያን ግብር ለመቀየር ያስፈልጋል</span></span>
+        </label>
+
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Jag vill</span><span class="am" style="display:none">እፈልጋለሁ</span>
+          <select id="qr-action" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;">
+            <option value="register_and_switch">Bli medlem + byta kyrkoskatt från Svenska kyrkan</option>
+            <option value="register_only">Bara bli medlem (byt inte kyrkoskatt)</option>
+            <option value="already_member">Redan medlem — vill bara byta kyrkoskatt</option>
+          </select>
         </label>
 
         <div id="qr-error" style="color:#dc2626; font-size:14px; margin-bottom:8px; display:none;"></div>
 
         <button type="button" id="qr-consent-btn" onclick="toggleQrConsent()" style="display:flex; align-items:center; gap:12px; width:100%; padding:12px; border:2px solid #ccc; border-radius:8px; background:#f9f9f9; cursor:pointer; font-size:14px; font-weight:600; margin-bottom:12px; -webkit-appearance:none; appearance:none; text-align:left; color:#222;">
           <span id="qr-consent-box" style="width:24px; height:24px; min-width:24px; border:3px solid var(--accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; background:#fff;"></span>
-          <span><span class="sv">Jag samtycker till GDPR-behandling</span><span class="am" style="display:none">ለGDPR ፈቃድ እስማማለሁ</span></span>
+          <span><span class="sv">Jag samtycker till GDPR-behandling av mina uppgifter</span><span class="am" style="display:none">የግል መረጃዬን ለGDPR ማስተናገድ እስማማለሁ</span></span>
         </button>
         <input type="hidden" id="qr-consent" value="" />
 
-        <button type="submit" style="width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-size:18px; font-weight:700; cursor:pointer;">
+        <button type="submit" id="qr-submit" style="width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-size:18px; font-weight:700; cursor:pointer;">
           <span class="sv">Registrera mig →</span><span class="am" style="display:none">ይመዝገቡኝ →</span>
         </button>
-
-        <p class="muted small" style="margin-top:8px; text-align:center;">
-          <span class="sv">Vi kontaktar dig inom några dagar för personnummer och övriga uppgifter.</span>
-          <span class="am" style="display:none">ለግል ቁጥር እና ሌሎች መረጃዎች በጥቂት ቀናት ውስጥ እናገኝዎታለን።</span>
-        </p>
       </form>
 
       <div id="qr-success" style="display:none; text-align:center; padding:20px 0;">
         <h3 style="color:#22c55e;">
-          <span class="sv">Tack! Vi kontaktar dig inom några dagar.</span>
-          <span class="am" style="display:none">አመሰግናለሁ! በጥቂት ቀናት ውስጥ እናገኝዎታለን።</span>
+          <span class="sv">Tack! Din registrering är mottagen.</span>
+          <span class="am" style="display:none">አመሰግናለሁ! ምዝገባዎ ደርሷል።</span>
         </h3>
+        <p class="muted">
+          <span class="sv" id="qr-success-detail"></span>
+          <span class="am" style="display:none" id="qr-success-detail-am"></span>
+        </p>
       </div>
     </section>
 
@@ -118,47 +139,57 @@
 
   function submitQuickReg(e) {
     e.preventDefault();
-    var name = document.getElementById('qr-name').value.trim();
+    var fname = document.getElementById('qr-fname').value.trim();
+    var lname = document.getElementById('qr-lname').value.trim();
     var phone = document.getElementById('qr-phone').value.trim();
+    var email = document.getElementById('qr-email').value.trim();
+    var pnr = document.getElementById('qr-pnr').value.trim();
+    var action = document.getElementById('qr-action').value;
     var consent = document.getElementById('qr-consent').value;
     var errorEl = document.getElementById('qr-error');
+    var submitBtn = document.getElementById('qr-submit');
     errorEl.style.display = 'none';
 
-    if (name.length < 2) {
-      errorEl.textContent = 'Ange ditt namn (min 2 tecken). / ስምዎን ያስገቡ።';
-      errorEl.style.display = 'block';
-      return false;
+    if (fname.length < 2 || /\d/.test(fname)) {
+      errorEl.textContent = 'Ogiltigt förnamn. / ልክ ያልሆነ ስም።';
+      errorEl.style.display = 'block'; return false;
+    }
+    if (lname.length < 2 || /\d/.test(lname)) {
+      errorEl.textContent = 'Ogiltigt efternamn. / ልክ ያልሆነ የአባት ስም።';
+      errorEl.style.display = 'block'; return false;
     }
     if (!/^(\+46|0)\d{7,10}$/.test(phone.replace(/[-\s]/g, ''))) {
       errorEl.textContent = 'Ogiltigt telefonnummer (070-XXX XX XX). / ልክ ያልሆነ ስልክ ቁጥር።';
-      errorEl.style.display = 'block';
-      return false;
+      errorEl.style.display = 'block'; return false;
+    }
+    if (action !== 'register_only' && !pnr) {
+      errorEl.textContent = 'Personnummer krävs för kyrkoskattebyte. / ለቤተ ክርስቲያን ግብር ለመቀየር የግል ቁጥር ያስፈልጋል።';
+      errorEl.style.display = 'block'; return false;
     }
     if (consent !== 'true') {
       errorEl.textContent = 'Du måste ge ditt samtycke. / ፈቃድዎን መስጠት አለብዎት።';
-      errorEl.style.display = 'block';
-      return false;
+      errorEl.style.display = 'block'; return false;
     }
 
-    var API_URL = document.body.getAttribute('data-api-url') || '/api/intake';
-    var nameParts = name.split(' ');
-    var firstName = nameParts[0] || name;
-    var lastName = nameParts.slice(1).join(' ') || '-';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Skickar... / በመላክ ላይ...';
 
+    var API_URL = document.body.getAttribute('data-api-url') || '/api/intake';
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'omit',
       body: JSON.stringify({
-        first_name: firstName,
-        last_name: lastName,
+        first_name: fname,
+        last_name: lname,
         phone: phone.replace(/[-\s]/g, '').replace(/^0/, '+46'),
-        email: '',
-        personal_number: '',
+        email: email,
+        personal_number: pnr,
         gdpr_consent: true,
         consent_timestamp: new Date().toISOString(),
         church_id: 'nacka',
-        source: 'landing_page'
+        source: 'landing_page',
+        action: action
       })
     })
     .then(function(r) {
@@ -166,22 +197,27 @@
         document.getElementById('quick-register').style.display = 'none';
         document.getElementById('register-intro').style.display = 'none';
         document.getElementById('qr-success').style.display = 'block';
+        var detail = document.getElementById('qr-success-detail');
+        var detailAm = document.getElementById('qr-success-detail-am');
+        if (action === 'register_and_switch' || action === 'already_member') {
+          detail.textContent = 'Vi skickar utträdesblankett från Svenska kyrkan till dig för signering. Du sparar ~3 000-5 000 kr/år.';
+          detailAm.textContent = 'ከስዊድን ቤተ ክርስቲያን ለመውጣት ቅጽ እንልክልዎታለን ለፊርማ። በዓመት ~3,000-5,000 ክር ይቆጥባሉ።';
+        } else {
+          detail.textContent = 'Din medlemsregistrering är mottagen.';
+          detailAm.textContent = 'የአባልነት ምዝገባዎ ደርሷል።';
+        }
         return;
       }
-      if (r.status === 409) {
-        throw { msg: 'Du är redan registrerad. / እርስዎ ቀድሞ ተመዝግበዋል።' };
-      }
+      if (r.status === 409) { throw { msg: 'Du är redan registrerad. / እርስዎ ቀድሞ ተመዝግበዋል።' }; }
+      if (r.status === 422) { return r.json().then(function(d) { throw { msg: d.detail || 'Kontrollera dina uppgifter.' }; }); }
       throw { msg: 'Tekniskt fel. Försök igen. / የቴክኒክ ችግር።' };
     })
     .catch(function(err) {
-      if (err && err.msg) {
-        errorEl.textContent = err.msg;
-      } else {
-        errorEl.textContent = 'Kunde inte ansluta. Försök igen. / መገናኘት አልተቻለም።';
-      }
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span class="sv">Registrera mig →</span><span class="am" style="display:none">ይመዝገቡኝ →</span>';
+      errorEl.textContent = (err && err.msg) ? err.msg : 'Kunde inte ansluta. Försök igen. / መገናኘት አልተቻለም።';
       errorEl.style.display = 'block';
     });
-
     return false;
   }
   </script>
