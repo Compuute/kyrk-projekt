@@ -670,7 +670,13 @@
             }
             if (r.status === 422) {
               return r.json().then(function (data) {
-                throw { userMsg: data.detail || 'Kontrollera dina uppgifter. / መረጃዎን ያረጋግጡ።' };
+                var msg = 'Kontrollera dina uppgifter. / መረጃዎን ያረጋግጡ።';
+                if (typeof data.detail === 'string') {
+                  msg = data.detail;
+                } else if (Array.isArray(data.detail) && data.detail.length > 0) {
+                  msg = data.detail.map(function (e) { return e.msg || ''; }).join('. ');
+                }
+                throw { userMsg: msg };
               });
             }
             throw { userMsg: 'Tekniskt fel. Försök igen. / የቴክኒክ ችግር። እንደገና ሞክር።' };
