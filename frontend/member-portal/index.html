@@ -233,7 +233,7 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Skickar... / በመላክ ላይ...';
 
-    var API_URL = document.body.getAttribute('data-api-url') || '/api/intake';
+    var API_URL = document.body.getAttribute('data-api-url') || 'https://membership-intake-479770870521.europe-north1.run.app/intake';
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
