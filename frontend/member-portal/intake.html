@@ -332,8 +332,7 @@
         document.getElementById('field-church-id').value = church;
       }
 
-      // API endpoint — configurable via data attribute or default
-      var API_URL = document.body.getAttribute('data-api-url') || 'https://membership-intake-479770870521.europe-north1.run.app/intake';
+      var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
 
       // Form submission
       var form = document.getElementById('intake-form');
@@ -387,6 +386,7 @@
           email: document.getElementById('field-email').value,
           personal_number: document.getElementById('field-personal-number').value,
           gdpr_consent: document.getElementById('field-gdpr-consent').value === 'true',
+          consent_timestamp: new Date().toISOString(),
           source: document.getElementById('field-source').value,
           church_id: document.getElementById('field-church-id').value
         };
