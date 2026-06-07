@@ -34,6 +34,13 @@ def _normalize_phone(phone: str) -> str:
     return clean
 
 
+class FamilyMemberInput(BaseModel):
+    first_name: str = Field(min_length=2, max_length=100)
+    last_name: str = Field(min_length=2, max_length=100)
+    personal_number: str = Field(default="", max_length=13)
+    relation: str = Field(default="", max_length=20)  # spouse, child
+
+
 class IntakeRequest(BaseModel):
     church_id: str = Field(min_length=1, max_length=64)
     first_name: str = Field(min_length=2, max_length=100)
@@ -44,6 +51,9 @@ class IntakeRequest(BaseModel):
     gdpr_consent: bool
     consent_timestamp: datetime
     source: str = Field(default="direct", max_length=32)
+    membership_type: str = Field(default="individual", pattern="^(individual|family)$")
+    monthly_fee_sek: int = Field(default=200, ge=0, le=1000)
+    family_members: list[FamilyMemberInput] = Field(default_factory=list, max_length=5)
 
     @field_validator("first_name", "last_name")
     @classmethod
@@ -106,7 +116,12 @@ def submit_intake(
     svc: IntakeService = Depends(get_service),
 ) -> IntakeResponse:
     client_ip = request.client.host if request.client else "unknown"
-    payload = IntakePayload(**body.model_dump())
+    from app.services.intake_service import FamilyMember
+    dump = body.model_dump()
+    dump["family_members"] = tuple(
+        FamilyMember(**fm) for fm in dump.get("family_members", [])
+    )
+    payload = IntakePayload(**dump)
     try:
         submission = svc.submit(payload, client_ip=client_ip)
     except ConsentMissing as exc:

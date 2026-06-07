@@ -26,6 +26,14 @@ _ADMIN_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY}
 
 
 @dataclass(frozen=True)
+class FamilyMember:
+    first_name: str
+    last_name: str
+    personal_number: str = ""
+    relation: str = ""  # spouse, child
+
+
+@dataclass(frozen=True)
 class IntakePayload:
     church_id: str
     first_name: str
@@ -36,6 +44,9 @@ class IntakePayload:
     gdpr_consent: bool
     consent_timestamp: datetime
     source: str = "direct"
+    membership_type: str = "individual"  # individual | family
+    monthly_fee_sek: int = 200
+    family_members: tuple[FamilyMember, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -78,6 +89,7 @@ class IntakeService:
                     f"personnummer redan registrerat (submission {existing.submission_id})"
                 )
 
+        from app.domain.models import FamilyMemberRecord
         submission = IntakeSubmission(
             church_id=payload.church_id,
             first_name=payload.first_name,
@@ -88,6 +100,17 @@ class IntakeService:
             gdpr_consent=payload.gdpr_consent,
             consent_timestamp=payload.consent_timestamp,
             source=payload.source,
+            membership_type=payload.membership_type,
+            monthly_fee_sek=payload.monthly_fee_sek,
+            family_members=[
+                FamilyMemberRecord(
+                    first_name=fm.first_name,
+                    last_name=fm.last_name,
+                    personal_number=fm.personal_number,
+                    relation=fm.relation,
+                )
+                for fm in payload.family_members
+            ],
         )
         self._repo.add(submission)
         self._notifier.notify_new_pending(submission)

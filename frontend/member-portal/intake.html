@@ -167,6 +167,107 @@
       text-decoration: none;
       font-size: 14px;
     }
+
+    .membership-type {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 16px 12px;
+      border: 3px solid var(--border, #e5e5e5);
+      border-radius: 12px;
+      background: transparent;
+      cursor: pointer;
+      text-align: center;
+      font-size: 14px;
+      color: var(--fg, #222);
+    }
+
+    .type-btn.selected {
+      border-color: var(--accent, #3b5bdb);
+      background: #f0f4ff;
+    }
+
+    .type-btn .price {
+      display: block;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent, #3b5bdb);
+      margin-bottom: 4px;
+    }
+
+    .type-btn .label {
+      display: block;
+      font-size: 13px;
+    }
+
+    .family-section {
+      display: none;
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: #f9fafb;
+    }
+
+    .family-section.visible { display: block; }
+
+    .family-member-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: end;
+    }
+
+    .family-member-row input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--bg, #faf9f6);
+      color: var(--fg, #222);
+    }
+
+    .family-member-row select {
+      padding: 10px;
+      border: 1px solid var(--border, #e5e5e5);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--bg, #faf9f6);
+      color: var(--fg, #222);
+    }
+
+    .add-family-btn {
+      padding: 10px;
+      border: 1px dashed var(--accent, #3b5bdb);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--accent, #3b5bdb);
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .fee-summary {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .fee-summary .fee-amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: #16a34a;
+    }
   </style>
 </head>
 <body>
@@ -192,6 +293,21 @@
       <form id="intake-form" novalidate>
         <input type="hidden" name="source" id="field-source" value="wifi" />
         <input type="hidden" name="church_id" id="field-church-id" value="nacka" />
+        <input type="hidden" id="field-membership-type" value="individual" />
+        <input type="hidden" id="field-monthly-fee" value="200" />
+
+        <div class="membership-type">
+          <button type="button" class="type-btn selected" id="type-individual" onclick="selectType('individual')">
+            <span class="price">200 kr</span>
+            <span class="label">Enskild / ግለሰብ</span>
+            <span class="label" style="font-size:11px;color:var(--muted,#666)">per m&#xE5;nad</span>
+          </button>
+          <button type="button" class="type-btn" id="type-family" onclick="selectType('family')">
+            <span class="price">500 kr</span>
+            <span class="label">Familj / ቤተሰብ</span>
+            <span class="label" style="font-size:11px;color:var(--muted,#666)">per m&#xE5;nad</span>
+          </button>
+        </div>
 
         <div class="form-group">
           <label for="field-first-name">
@@ -228,6 +344,24 @@
           <input type="text" id="field-personal-number" name="personal_number" placeholder="YYYYMMDD-XXXX" autocomplete="off" />
         </div>
 
+        <div class="family-section" id="family-section">
+          <strong>Familjemedlemmar / የቤተሰብ አባላት</strong>
+          <p style="font-size:12px;color:var(--muted,#666);margin:4px 0 12px">
+            Maka/make + barn under 18 &#xE5;r. / ባለቤት + ከ18 ዓመት በታች ልጆች።
+          </p>
+          <div id="family-members-list"></div>
+          <button type="button" class="add-family-btn" id="add-family-btn" onclick="addFamilyMember()">
+            + L&#xE4;gg till familjemedlem / + የቤተሰብ አባል ጨምር
+          </button>
+        </div>
+
+        <div class="fee-summary" id="fee-summary">
+          Månadsavgift / ወርሃዊ ክፍያ: <span class="fee-amount" id="fee-display">200 kr</span>
+          <div style="font-size:12px;color:var(--muted,#666);margin-top:4px">
+            Dras via autogiro efter första betalningen / ከመጀመሪያው ክፍያ በኋላ በautogiro ይቀነሳል
+          </div>
+        </div>
+
         <div class="gdpr-box">
           <div class="gdpr-sv">
             <strong>GDPR-samtycke:</strong> Genom att skicka detta formulär samtycker du till att
@@ -260,6 +394,16 @@
     <div class="form-card success-msg" id="success-msg">
       <h2>Tack! Din ansökan behandlas.</h2>
       <p class="success-am">አመሰግናለሁ! ማመልከቻዎ በሂደት ላይ ነው።</p>
+      <div id="payment-next-step" style="margin-top:16px;padding:16px;background:#f0f4ff;border-radius:10px;text-align:left;font-size:14px;">
+        <strong>N&#xE4;sta steg — f&#xF6;rsta betalningen:</strong>
+        <p style="margin:8px 0">Swisha <strong id="success-fee">200 kr</strong> till kyrkans Swish-nummer f&#xF6;r att aktivera ditt medlemskap. D&#xE4;refter kopplas autogiro automatiskt.</p>
+        <a id="success-swish-link" class="swish-btn" href="#" style="display:inline-block;width:auto;padding:14px 28px;margin-top:8px;background:#5bbf2e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
+          Swish — betala nu
+        </a>
+        <p style="margin-top:12px;font-size:12px;color:var(--muted,#666)">
+          <strong>ቀጣይ ደረጃ:</strong> የመጀመሪያ ክፍያውን በ Swish ይክፈሉ። ከዚያ autogiro በራስ-ሰር ይጀምራል።
+        </p>
+      </div>
       <br/>
       <a href="./" class="back-link">&#x2190; Tillbaka till startsidan / ወደ መነሻ ገጽ ተመለስ</a>
     </div>
@@ -301,6 +445,65 @@
     if (!name || name.trim().length < 2) return false;
     if (/\d/.test(name)) return false;
     return true;
+  }
+
+  var familyCount = 0;
+
+  function selectType(type) {
+    var indBtn = document.getElementById('type-individual');
+    var famBtn = document.getElementById('type-family');
+    var famSection = document.getElementById('family-section');
+    var feeDisplay = document.getElementById('fee-display');
+    var typeField = document.getElementById('field-membership-type');
+    var feeField = document.getElementById('field-monthly-fee');
+
+    if (type === 'family') {
+      famBtn.classList.add('selected');
+      indBtn.classList.remove('selected');
+      famSection.classList.add('visible');
+      feeDisplay.textContent = '500 kr';
+      typeField.value = 'family';
+      feeField.value = '500';
+      if (familyCount === 0) addFamilyMember();
+    } else {
+      indBtn.classList.add('selected');
+      famBtn.classList.remove('selected');
+      famSection.classList.remove('visible');
+      feeDisplay.textContent = '200 kr';
+      typeField.value = 'individual';
+      feeField.value = '200';
+    }
+  }
+
+  function addFamilyMember() {
+    if (familyCount >= 4) return;
+    familyCount++;
+    var list = document.getElementById('family-members-list');
+    var row = document.createElement('div');
+    row.className = 'family-member-row';
+    row.id = 'family-row-' + familyCount;
+    row.innerHTML =
+      '<input type="text" placeholder="Förnamn / ስም" data-field="first_name" />' +
+      '<input type="text" placeholder="Efternamn / የአባት ስም" data-field="last_name" />' +
+      '<select data-field="relation">' +
+        '<option value="spouse">Maka/Make</option>' +
+        '<option value="child">Barn</option>' +
+      '</select>';
+    list.appendChild(row);
+  }
+
+  function getFamilyMembers() {
+    var rows = document.querySelectorAll('.family-member-row');
+    var members = [];
+    for (var i = 0; i < rows.length; i++) {
+      var fn = rows[i].querySelector('[data-field="first_name"]').value.trim();
+      var ln = rows[i].querySelector('[data-field="last_name"]').value.trim();
+      var rel = rows[i].querySelector('[data-field="relation"]').value;
+      if (fn && ln) {
+        members.push({ first_name: fn, last_name: ln, personal_number: '', relation: rel });
+      }
+    }
+    return members;
   }
 
   function toggleConsent() {
@@ -379,6 +582,17 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Skickar... / በመላክ ላይ...';
 
+        var membershipType = document.getElementById('field-membership-type').value;
+        var familyMembers = membershipType === 'family' ? getFamilyMembers() : [];
+
+        if (membershipType === 'family' && familyMembers.length === 0) {
+          errorMsg.textContent = 'Lägg till minst en familjemedlem. / ቢያንስ አንድ የቤተሰብ አባል ያክሉ።';
+          errorMsg.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Skicka ansökan / ማመልከቻ ላክ';
+          return;
+        }
+
         var payload = {
           first_name: document.getElementById('field-first-name').value,
           last_name: document.getElementById('field-last-name').value,
@@ -388,7 +602,10 @@
           gdpr_consent: document.getElementById('field-gdpr-consent').value === 'true',
           consent_timestamp: new Date().toISOString(),
           source: document.getElementById('field-source').value,
-          church_id: document.getElementById('field-church-id').value
+          church_id: document.getElementById('field-church-id').value,
+          membership_type: membershipType,
+          monthly_fee_sek: parseInt(document.getElementById('field-monthly-fee').value),
+          family_members: familyMembers
         };
 
         fetch(API_URL, {
@@ -401,6 +618,14 @@
             if (r.status === 202 || r.status === 201) {
               formCard.style.display = 'none';
               successMsg.style.display = 'block';
+              var fee = parseInt(document.getElementById('field-monthly-fee').value);
+              document.getElementById('success-fee').textContent = fee + ' kr';
+              var swishLink = document.getElementById('success-swish-link');
+              var SWISH_NUMBER = '1234567890';
+              swishLink.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
+                SWISH_NUMBER + '"},"amount":{"value":' + fee +
+                '},"message":{"value":"Medlemsavgift","editable":false}}';
+              swishLink.textContent = 'Swish — ' + fee + ' kr';
               return;
             }
             if (r.status === 409) {
