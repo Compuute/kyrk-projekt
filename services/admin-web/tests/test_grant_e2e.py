@@ -11,7 +11,7 @@ the database, validates that:
 7. The draft would pass a basic "Skatteverket / bidragsgivare" format check
 
 This is the "would the grant office reject our application on format
-alone?" test. Content quality depends on Claude; format compliance
+alone?" test. Content quality depends on LLM; format compliance
 depends on us.
 """
 from __future__ import annotations

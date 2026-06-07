@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     .donate-card {
-      background: var(--card, #222);
-      border: 1px solid var(--border, #333);
+      background: var(--card, #ffffff);
+      border: 1px solid var(--border, #e5e5e5);
       border-radius: 14px;
       padding: 24px 20px;
       margin-bottom: 16px;
@@ -26,22 +26,22 @@
     }
     .amount-btn {
       padding: 14px;
-      border: 2px solid var(--accent, #3b5bdb);
+      border: 2px solid var(--accent);
       border-radius: 10px;
       background: transparent;
-      color: var(--accent, #3b5bdb);
+      color: var(--accent);
       font-size: 18px;
       font-weight: 700;
       cursor: pointer;
     }
     .amount-btn.selected {
-      background: var(--accent, #3b5bdb);
+      background: var(--accent);
       color: white;
     }
     .amount-custom {
       width: 100%;
       padding: 14px;
-      border: 2px solid var(--border, #333);
+      border: 2px solid var(--border, #e5e5e5);
       border-radius: 10px;
       background: transparent;
       color: white;
@@ -74,7 +74,7 @@
     .method-btn {
       display: block;
       padding: 14px;
-      border: 1px solid var(--border, #333);
+      border: 1px solid var(--border, #e5e5e5);
       border-radius: 10px;
       background: transparent;
       color: white;
@@ -84,14 +84,14 @@
     }
     .receipt-note {
       font-size: 13px;
-      color: #888;
+      color: var(--muted);
       margin-top: 16px;
       line-height: 1.5;
     }
     .back-link {
       display: inline-block;
       margin-bottom: 16px;
-      color: var(--accent, #3b5bdb);
+      color: var(--accent);
       text-decoration: none;
       font-size: 14px;
     }
@@ -99,7 +99,7 @@
 </head>
 <body>
   <main class="container">
-    <a href="./index.html" class="back-link" id="back-link">← Tillbaka</a>
+    <a href="./" class="back-link" id="back-link">← Tillbaka</a>
 
     <div class="donate-card">
       <h1 id="donate-title">Ge en gåva</h1>

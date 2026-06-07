@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Nytt begravningsärende — admin{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Nytt begravningsärende</h1>
+  <p class="muted">Registrera ett nytt ärende. Alla fält utom telefon är obligatoriska.</p>
+</section>
+
+<form method="post" action="/funerals/new" class="form-stack">
+  <fieldset>
+    <legend>Avliden</legend>
+    <label>Namn (svenska)
+      <input type="text" name="deceased_name" required placeholder="Förnamn Efternamn" />
+    </label>
+    <label>ስም (amhariska)
+      <input type="text" name="deceased_name_am" placeholder="የተሟላ ስም" />
+    </label>
+    <label>Dödsdatum
+      <input type="date" name="date_of_death" required value="{{ today }}" />
+    </label>
+    <label>Födelsedatum
+      <input type="date" name="date_of_birth" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Kontaktperson (familj)</legend>
+    <label>Namn
+      <input type="text" name="contact_person" required placeholder="Namn på kontaktperson" />
+    </label>
+    <label>Telefon
+      <input type="tel" name="contact_phone" placeholder="070-XXX-XXXX" />
+    </label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Tjänst</legend>
+    <label>Spår
+      <select name="track" id="track-select">
+        <option value="sverige">Begravning i Sverige</option>
+        <option value="hemtransport">Hemtransport till Etiopien / Eritrea</option>
+      </select>
+    </label>
+
+    <label>Tjänst
+      <select name="package" id="package-select">
+        <option value="enkel">Enkel begravning</option>
+        <option value="ceremoni" selected>Begravning med ceremoni</option>
+        <option value="komplett">Komplett med sorgestöd</option>
+      </select>
+    </label>
+
+    <div id="price-display" class="muted" style="margin:8px 0; font-weight:bold;">
+      Pris: 28 000 kr
+    </div>
+
+    <input type="hidden" name="repatriation" id="repatriation-hidden" value="" />
+
+    <div id="repatriation-fields" style="display:none;">
+      <label>Destination
+        <select name="repatriation_destination">
+          <option value="ethiopia">Etiopien (Addis Abeba)</option>
+          <option value="eritrea">Eritrea (Asmara)</option>
+          <option value="other">Annat land</option>
+        </select>
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Eder-förening (valfritt)</legend>
+    <label>Eder-namn
+      <input type="text" name="eder_name" placeholder="T.ex. Addis Eder Stockholm" />
+    </label>
+    <label>Eder-bidrag (kr)
+      <input type="number" name="eder_contribution" value="0" min="0" step="1000" />
+    </label>
+  </fieldset>
+
+  <button type="submit" class="btn btn-primary">Registrera ärende</button>
+</form>
+
+<script>
+(function() {
+  var track = document.getElementById('track-select');
+  var pkg = document.getElementById('package-select');
+  var repFields = document.getElementById('repatriation-fields');
+  var repHidden = document.getElementById('repatriation-hidden');
+  var priceDisplay = document.getElementById('price-display');
+
+  var prices = {
+    sverige: {enkel: 19000, ceremoni: 28000, komplett: 35000},
+    hemtransport: {enkel: 70000, ceremoni: 85000, komplett: 100000}
+  };
+
+  var labels = {
+    sverige: {enkel: 'Enkel begravning', ceremoni: 'Begravning med ceremoni', komplett: 'Komplett med sorgestöd'},
+    hemtransport: {enkel: 'Hemtransport', ceremoni: 'Hemtransport med avskedsceremoni', komplett: 'Komplett hemtransport med sorgestöd'}
+  };
+
+  function update() {
+    var t = track.value;
+    var p = pkg.value;
+    var price = prices[t] && prices[t][p] ? prices[t][p] : 28000;
+    priceDisplay.textContent = 'Pris: ' + price.toLocaleString('sv-SE') + ' kr';
+    var isHemtransport = t === 'hemtransport';
+    repFields.style.display = isHemtransport ? 'block' : 'none';
+    repHidden.value = isHemtransport ? 'on' : '';
+    var opts = pkg.options;
+    for (var i = 0; i < opts.length; i++) {
+      var key = opts[i].value;
+      if (labels[t] && labels[t][key]) opts[i].textContent = labels[t][key];
+    }
+  }
+
+  track.addEventListener('change', update);
+  pkg.addEventListener('change', update);
+  update();
+})();
+</script>
+{% endblock %}

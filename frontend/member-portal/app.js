@@ -153,18 +153,35 @@ function renderPage(content, lang) {
     });
   }
 
-  // Quick links
-  var linkKeys = ['member', 'donate', 'telegram', 'youth'];
-  linkKeys.forEach(function (key) {
-    var a = el('link-' + key);
-    if (a && view.links[key]) {
-      a.textContent = view.links[key].text;
-      a.href = view.links[key].url;
-    }
-  });
+  // Quick links — render ALL links from content.json dynamically
+  var linksContainer = el('quick-links');
+  if (linksContainer) {
+    linksContainer.innerHTML = '';
+    Object.keys(view.links).forEach(function (key) {
+      var link = view.links[key];
+      if (!link || !link.text) return;
+      var a = document.createElement('a');
+      a.className = 'tile';
+      a.id = 'link-' + key;
+      a.href = link.url;
+      a.textContent = link.text;
+      linksContainer.appendChild(a);
+    });
+  }
 
   // Footer
-  el('footer-privacy').textContent = view.footerPrivacy;
+  var footerEl = el('footer-privacy');
+  if (footerEl) {
+    var privacyUrl = (content.footer && content.footer.privacy_url) || './privacy';
+    footerEl.innerHTML = '';
+    footerEl.appendChild(document.createTextNode(view.footerPrivacy + ' '));
+    var privacyLink = document.createElement('a');
+    privacyLink.href = privacyUrl;
+    privacyLink.textContent = l === 'am' ? 'ያንብቡ →' : 'Läs här →';
+    privacyLink.style.color = 'inherit';
+    privacyLink.style.textDecoration = 'underline';
+    footerEl.appendChild(privacyLink);
+  }
 
   // Update language pills
   var pills = document.querySelectorAll('.lang-pill');

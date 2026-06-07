@@ -1,0 +1,77 @@
+{
+  "name": "grief_calendar_reminders",
+  "zone": {"source": "GREEN", "destination": "GREEN"},
+  "description": "Automated grief calendar — sends Telegram reminders on Ethiopian Orthodox memorial days (ተዝካር): day 3 (ሳልስት), 7 (ሰባት), 12 (አስራ ሁለት), 40 (አርባ), 6 months, 1 year after burial. No PII — only deceased name and memorial type.",
+  "trigger": {
+    "type": "cron",
+    "schedule": "0 8 * * *",
+    "timezone": "Europe/Stockholm",
+    "notes": "Runs daily at 08:00 CET/CEST. Checks all active funeral cases for memorial dates matching today."
+  },
+  "architecture": {
+    "pipeline": [
+      "1. Cron triggers daily at 08:00 Stockholm time",
+      "2. Fetch all funeral cases with grief_calendar_active=true",
+      "3. For each case, calculate memorial dates from date_of_death",
+      "4. If today matches a memorial date: send Telegram reminder",
+      "5. Reminder goes to: (a) begravningsansvarig, (b) church Telegram channel",
+      "6. Message is bilingual (amharic + swedish)"
+    ]
+  },
+  "memorial_days": [
+    {"day": 3, "name_am": "ሳልስት", "name_sv": "Salist (dag 3)", "type": "family_reminder"},
+    {"day": 7, "name_am": "ሰባት", "name_sv": "Sebat (dag 7)", "type": "family_reminder"},
+    {"day": 12, "name_am": "አስራ ሁለት", "name_sv": "Asra Hulet (dag 12)", "type": "family_reminder"},
+    {"day": 40, "name_am": "አርባ", "name_sv": "Arba (dag 40)", "type": "ceremony_planning"},
+    {"day": 180, "name_am": "ስድስት ወር", "name_sv": "6 månader", "type": "check_in"},
+    {"day": 365, "name_am": "ዓመት", "name_sv": "1 år (Amet)", "type": "ceremony_planning"}
+  ],
+  "message_templates": {
+    "family_reminder": {
+      "sv": "Påminnelse: Idag är {memorial_name_sv} för {deceased_name}. Kontakta familjen.",
+      "am": "ማስታወሻ: ዛሬ ለ{deceased_name} {memorial_name_am} ነው። ቤተሰቡን ያነጋግሩ።"
+    },
+    "ceremony_planning": {
+      "sv": "⛪ {memorial_name_sv} för {deceased_name}. Planera memorial-ceremoni med prästen.",
+      "am": "⛪ ለ{deceased_name} {memorial_name_am}። ከካህኑ ጋር የተዝካር ሥነ ሥርዓት ያቅዱ።"
+    },
+    "check_in": {
+      "sv": "{memorial_name_sv} sedan {deceased_name}s begravning. Hur mår familjen?",
+      "am": "ከ{deceased_name} ቀብር {memorial_name_am}። ቤተሰቡ እንዴት ናቸው?"
+    }
+  },
+  "allowed_fields": ["deceased_name", "memorial_day", "memorial_name", "date_of_death"],
+  "blocked_fields": ["personal_number", "contact_phone", "contact_person", "address"],
+  "steps": [
+    {
+      "id": "1-cron",
+      "node": "n8n-nodes-base.cron",
+      "notes": "Daily at 08:00 Stockholm time"
+    },
+    {
+      "id": "2-fetch-cases",
+      "node": "n8n-nodes-base.httpRequest",
+      "notes": "GET /funerals?grief_calendar_active=true from admin-web API"
+    },
+    {
+      "id": "3-calculate-dates",
+      "node": "n8n-nodes-base.function",
+      "notes": "For each case, check if today matches any memorial day offset from date_of_death"
+    },
+    {
+      "id": "4-filter-today",
+      "node": "n8n-nodes-base.if",
+      "notes": "Only proceed if there are matches for today"
+    },
+    {
+      "id": "5-send-admin-telegram",
+      "node": "n8n-nodes-base.telegram",
+      "notes": "Send reminder to begravningsansvarig (admin chat)"
+    },
+    {
+      "id": "6-send-channel-telegram",
+      "node": "n8n-nodes-base.telegram",
+      "notes": "Send bilingual broadcast to church Telegram channel (if ceremony_planning type)"
+    }
+  ]
+}

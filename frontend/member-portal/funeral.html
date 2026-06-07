@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Begravningstjänster — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .package-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+    .package-card { background: var(--card, #ffffff); border: 1px solid var(--border, #e5e5e5); border-radius: 14px; padding: 24px 20px; text-align: center; }
+    .package-card.featured { border-color: var(--accent); }
+    .package-price { font-size: 28px; font-weight: 700; color: var(--accent); margin: 12px 0; }
+    .package-name { font-size: 18px; font-weight: 600; }
+    .package-list { text-align: left; list-style: none; padding: 0; margin: 16px 0; }
+    .package-list li { padding: 6px 0; border-bottom: 1px solid var(--border, #e5e5e5); }
+    .package-list li::before { content: "✓ "; color: #22c55e; font-weight: bold; }
+    .process-step { display: flex; align-items: flex-start; gap: 16px; margin: 16px 0; }
+    .step-num { background: var(--accent); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .compare-table th, .compare-table td { padding: 10px; border-bottom: 1px solid var(--border, #e5e5e5); text-align: left; }
+    .cta-box { background: var(--accent); color: white; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+    .cta-box a { color: white; font-weight: 700; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <main class="container" id="app">
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <header class="hero">
+      <div class="logo-placeholder" aria-label="Church logo">&#x2726;</div>
+      <h1><span class="sv">Begravningstjänster</span><span class="am" style="display:none">የቀብር አገልግሎቶች</span></h1>
+      <p class="muted"><span class="sv">Kulturellt anpassad begravning med ortodox tradition</span><span class="am" style="display:none">በኦርቶዶክስ ወግ የተዘጋጀ ባህላዊ የቀብር አገልግሎት</span></p>
+    </header>
+
+    <section class="card">
+      <h2><span class="sv">Begravning i Sverige</span><span class="am" style="display:none">በስዊድን ቀብር</span></h2>
+      <div class="package-grid">
+        <div class="package-card">
+          <div class="package-name"><span class="sv">Enkel begravning</span><span class="am" style="display:none">ቀላል ቀብር</span></div>
+          <div class="package-price">19 000 kr</div>
+          <ul class="package-list">
+            <li><span class="sv">Kista + transport + ceremoni</span><span class="am" style="display:none">ሳጥን + ማጓጓዣ + ሥነ ሥርዓት</span></li>
+            <li><span class="sv">Rituell tvagning</span><span class="am" style="display:none">ንጽሕና</span></li>
+            <li><span class="sv">Kylförvaring + blommor</span><span class="am" style="display:none">ማቀዝቀዣ + አበባ</span></li>
+          </ul>
+        </div>
+        <div class="package-card featured">
+          <div class="package-name"><span class="sv">Begravning med ceremoni</span><span class="am" style="display:none">ከሥነ ሥርዓት ጋር ቀብር</span></div>
+          <div class="package-price">28 000 kr</div>
+          <ul class="package-list">
+            <li><span class="sv">Allt i Enkel</span><span class="am" style="display:none">በቀላል ውስጥ ያሉት ሁሉ</span></li>
+            <li><span class="sv">Program (am+sv+en) + korsång</span><span class="am" style="display:none">ፕሮግራም (አማ+ስዊ+እንግ) + ዝማሬ</span></li>
+            <li><span class="sv">Digital minnessida + dödsannons</span><span class="am" style="display:none">ዲጂታል መታሰቢያ ገጽ + ማስታወቂያ</span></li>
+          </ul>
+        </div>
+        <div class="package-card">
+          <div class="package-name"><span class="sv">Komplett med sorgestöd</span><span class="am" style="display:none">ሙሉ ከሐዘን ድጋፍ ጋር</span></div>
+          <div class="package-price">35 000 kr</div>
+          <ul class="package-list">
+            <li><span class="sv">Allt i Ceremoni</span><span class="am" style="display:none">በሥነ ሥርዓት ውስጥ ያሉት ሁሉ</span></li>
+            <li><span class="sv">Vigil + minnesstund + sorggrupp</span><span class="am" style="display:none">ሐዘን + ምግብ + የሐዘን ቡድን</span></li>
+            <li><span class="sv">Sorg-kalender 1 år (dag 3/7/12/40)</span><span class="am" style="display:none">የተዝካር ቀን መቁጠሪያ 1 ዓመት</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="sv">Hemtransport till Etiopien / Eritrea</span><span class="am" style="display:none">ወደ ኢትዮጵያ / ኤርትራ አስከሬን ማጓጓዝ</span></h2>
+      <div class="package-grid">
+        <div class="package-card">
+          <div class="package-name"><span class="sv">Hemtransport</span><span class="am" style="display:none">ማጓጓዣ</span></div>
+          <div class="package-price">70 000 kr</div>
+          <ul class="package-list">
+            <li><span class="sv">Balsamering + zinkkista (IATA)</span><span class="am" style="display:none">ማከስከስ + ዚንክ ሳጥን</span></li>
+            <li><span class="sv">Alla dokument + ambassad</span><span class="am" style="display:none">ሁሉም ሰነዶች + ኤምባሲ</span></li>
+            <li><span class="sv">Flygfrakt + mottagning</span><span class="am" style="display:none">የአየር ጭነት + መቀበል</span></li>
+          </ul>
+        </div>
+        <div class="package-card featured">
+          <div class="package-name"><span class="sv">Hemtransport med avskedsceremoni</span><span class="am" style="display:none">ከስንብት ሥነ ሥርዓት ጋር</span></div>
+          <div class="package-price">85 000 kr</div>
+          <ul class="package-list">
+            <li><span class="sv">Allt i Hemtransport</span><span class="am" style="display:none">ሁሉም</span></li>
+            <li><span class="sv">Avskedsceremoni i Sverige</span><span class="am" style="display:none">በስዊድን የስንብት ሥነ ሥርዓት</span></li>
+            <li><span class="sv">Program + korsång + dödsannons</span><span class="am" style="display:none">ፕሮግራም + ዝማሬ + ማስታወቂያ</span></li>
+          </ul>
+        </div>
+        <div class="package-card">
+          <div class="package-name"><span class="sv">Komplett hemtransport med sorgestöd</span><span class="am" style="display:none">ሙሉ ከሐዘን ድጋፍ ጋር</span></div>
+          <div class="package-price">100 000 kr</div>
+          <ul class="package-list">
+            <li><span class="sv">Allt + full ceremoni + 1 års stöd</span><span class="am" style="display:none">ሁሉም + ሙሉ ሥነ ሥርዓት + 1 ዓመት ድጋፍ</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted" style="text-align:center"><span class="sv">Barn under 18: full ceremoni, kostnadsfritt</span><span class="am" style="display:none">ከ18 ዓመት በታች: ሙሉ ሥነ ሥርዓት፣ በነፃ</span></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="sv">Jämfört med kommersiella byråer</span><span class="am" style="display:none">ከንግድ ድርጅቶች ጋር ማነፃፀር</span></h2>
+      <table class="compare-table">
+        <thead><tr><th></th><th>Fonus</th><th><span class="sv">Vi</span><span class="am" style="display:none">እኛ</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="sv">Pris</span><span class="am" style="display:none">ዋጋ</span></td><td>~42 000 kr</td><td><strong>19 000 – 35 000 kr</strong></td></tr>
+          <tr><td><span class="sv">Ortodox tradition</span><span class="am" style="display:none">ኦርቶዶክስ ወግ</span></td><td>-</td><td>✓</td></tr>
+          <tr><td><span class="sv">Amhariska</span><span class="am" style="display:none">አማርኛ</span></td><td>-</td><td>✓</td></tr>
+          <tr><td><span class="sv">Hemtransport</span><span class="am" style="display:none">ማጓጓዣ</span></td><td>-</td><td>✓</td></tr>
+          <tr><td><span class="sv">Sorg-kalender</span><span class="am" style="display:none">ተዝካር</span></td><td>-</td><td>✓</td></tr>
+          <tr><td><span class="sv">Tillgänglighet</span><span class="am" style="display:none">ተደራሽነት</span></td><td><span class="sv">Kontorstid</span><span class="am" style="display:none">ቢሮ</span></td><td><strong>24/7</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="cta-box">
+      <h2><span class="sv">Behöver du hjälp?</span><span class="am" style="display:none">እርዳታ ይፈልጋሉ?</span></h2>
+      <p><span class="sv">Ring oss dygnet runt.</span><span class="am" style="display:none">በማንኛውም ሰዓት ይደውሉ።</span></p>
+      <p style="font-size:24px; margin-top:12px">&#x1F4DE; <a href="tel:+46700000000">070-000 00 00</a></p>
+    </div>
+
+    <nav class="nav-links">
+      <a href="./"><span class="sv">← Tillbaka till startsidan</span><span class="am" style="display:none">← ወደ መነሻ ገጽ ተመለስ</span></a>
+    </nav>
+  </main>
+
+  <script>
+  (function() {
+    var lang = 'sv';
+    function toggle(newLang) {
+      lang = newLang;
+      document.querySelectorAll('.sv').forEach(function(el) { el.style.display = lang === 'sv' ? '' : 'none'; });
+      document.querySelectorAll('.am').forEach(function(el) { el.style.display = lang === 'am' ? '' : 'none'; });
+      document.querySelectorAll('.lang-pill').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('lang-' + lang).classList.add('active');
+    }
+    document.getElementById('lang-sv').addEventListener('click', function() { toggle('sv'); });
+    document.getElementById('lang-am').addEventListener('click', function() { toggle('am'); });
+  })();
+  </script>
+</body>
+</html>

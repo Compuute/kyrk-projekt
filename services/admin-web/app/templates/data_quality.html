@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Datakvalitet — admin{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Datakvalitet</h1>
+  <p class="muted">{{ report.total_members }} medlemmar analyserade</p>
+</section>
+
+<div class="grid-stats">
+  <div class="stat">
+    <div class="stat-number {% if report.completeness_pct >= 95 %}green{% elif report.completeness_pct >= 80 %}yellow{% else %}red{% endif %}">{{ report.completeness_pct }}%</div>
+    <div class="stat-label">Kompletthetsgrad ({{ report.complete_profiles }}/{{ report.total_members }})</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number {% if report.personnummer_pct >= 99 %}green{% elif report.personnummer_pct >= 90 %}yellow{% else %}red{% endif %}">{{ report.personnummer_pct }}%</div>
+    <div class="stat-label">Giltiga personnummer</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number {% if report.phone_pct >= 95 %}green{% elif report.phone_pct >= 80 %}yellow{% else %}red{% endif %}">{{ report.phone_pct }}%</div>
+    <div class="stat-label">Giltiga telefonnummer</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number {% if report.email_pct >= 90 %}green{% elif report.email_pct >= 70 %}yellow{% else %}red{% endif %}">{{ report.email_pct }}%</div>
+    <div class="stat-label">Giltiga e-postadresser</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number {% if report.duplicate_pct <= 1 %}green{% elif report.duplicate_pct <= 3 %}yellow{% else %}red{% endif %}">{{ report.duplicates }}</div>
+    <div class="stat-label">Dubbletter ({{ report.duplicate_pct }}%)</div>
+  </div>
+</div>
+
+{% if report.missing_fields %}
+<section class="card">
+  <h2>Saknade fält</h2>
+  <table class="table">
+    <thead><tr><th>Fält</th><th>Saknas</th><th>Andel</th></tr></thead>
+    <tbody>
+      {% for field, count in report.missing_fields.items() %}
+      <tr>
+        <td>{{ field }}</td>
+        <td>{{ count }}</td>
+        <td>{{ (count / report.total_members * 100) | round(1) }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Mål</h2>
+  <table class="table">
+    <thead><tr><th>KPI</th><th>Nuvarande</th><th>Mål</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Kompletthetsgrad</td><td>{{ report.completeness_pct }}%</td><td>≥ 95%</td><td>{% if report.completeness_pct >= 95 %}✅{% else %}❌{% endif %}</td></tr>
+      <tr><td>Personnummer</td><td>{{ report.personnummer_pct }}%</td><td>100%</td><td>{% if report.personnummer_pct >= 99 %}✅{% else %}❌{% endif %}</td></tr>
+      <tr><td>Telefon</td><td>{{ report.phone_pct }}%</td><td>≥ 98%</td><td>{% if report.phone_pct >= 98 %}✅{% else %}❌{% endif %}</td></tr>
+      <tr><td>E-post</td><td>{{ report.email_pct }}%</td><td>≥ 90%</td><td>{% if report.email_pct >= 90 %}✅{% else %}❌{% endif %}</td></tr>
+      <tr><td>Dubbletter</td><td>{{ report.duplicate_pct }}%</td><td>≤ 1%</td><td>{% if report.duplicate_pct <= 1 %}✅{% else %}❌{% endif %}</td></tr>
+    </tbody>
+  </table>
+</section>
+{% endblock %}

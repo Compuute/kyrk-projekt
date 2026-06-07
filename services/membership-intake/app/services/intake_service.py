@@ -6,6 +6,7 @@ from datetime import datetime
 
 from app.domain.errors import (
     ConsentMissing,
+    DuplicateSubmission,
     NotAuthorized,
     RateLimited,
     SubmissionAlreadyProcessed,
@@ -68,6 +69,14 @@ class IntakeService:
         church_key = f"church:{payload.church_id}"
         if not self._limiter.check(ip_key) or not self._limiter.check(church_key):
             raise RateLimited("too many submissions")
+
+        # Duplicate check on personal_number
+        if payload.personal_number:
+            existing = self._repo.find_by_personal_number(payload.personal_number)
+            if existing is not None:
+                raise DuplicateSubmission(
+                    f"personnummer redan registrerat (submission {existing.submission_id})"
+                )
 
         submission = IntakeSubmission(
             church_id=payload.church_id,

@@ -47,6 +47,9 @@ make test      # 350+ tests across all services + frontends
 | Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare + bankgiro + org.nr |
 | Livestream | [/live.html](https://kyrka-portal.pages.dev/live.html) | YouTube-embed (modulärt per kyrka via content.json) |
 | Integritetspolicy | [/privacy.html](https://kyrka-portal.pages.dev/privacy.html) | GDPR-policy på svenska + amharic |
+| Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, Fonus-jämförelse |
+| Om oss | [/about.html](https://kyrka-portal.pages.dev/about.html) | Kyrkans historia, Tewahedo-tron, verksamhet |
+| Kontakt | [/contact.html](https://kyrka-portal.pages.dev/contact.html) | Adress, telefon, tider, Telegram |
 
 Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga kakor.
 
@@ -59,7 +62,7 @@ Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd,
 | Certifikat | `/certificates/new` | Utfärda dop/vigsel/söndagsskola (sv/am/en, 10 typer) |
 | KPI-dashboard | `/kpi` | Deltagarantal, kostnad/deltagare, grant leverage |
 | Bidragstracker | `/grants` | 12 bidragskällor med deadline, eligibility, AI-genererade ansökningar |
-| Content-editor | `/content-editor` | Redigera hemsidans text sv+am, Claude-översättning |
+| Content-editor | `/content-editor` | Redigera hemsidans text sv+am, AI-översättning |
 | GDPR-rapport | `/audit` | En-klicks GDPR/SST/kommun-underlag för granskning |
 | Granskningsberedskap | `/audit/generate/gdpr` | 14 compliance-items auto-verifierade |
 
@@ -96,12 +99,12 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 
 | Funktion | Teknik | Status |
 |---|---|---|
-| Bidragsansökan (sv/en) | OpenClaw grant-narrative-sv/en + Claude | ✅ Byggt |
-| Översättning sv↔am | Claude via TranslationPort | ✅ Byggt |
+| Bidragsansökan (sv/en) | OpenClaw grant-narrative-sv/en + AI (LLM) | ✅ Byggt |
+| Översättning sv↔am | AI via TranslationPort | ✅ Byggt |
 | KPI-analys (kvartalsvis) | OpenClaw + sanitizer + n8n | ✅ Workflow definierad |
-| Telegram admin-bot | Whisper (röst→text) + Claude (intent) | ✅ Workflow definierad |
+| Telegram admin-bot | Whisper (röst→text) + AI (LLM) (intent) | ✅ Workflow definierad |
 | Proaktiv bidragsbevakning | n8n cron + grant tracker | ✅ Workflow definierad |
-| Auto-genererat veckoinnehåll | n8n + Claude + content.json | ✅ Workflow definierad |
+| Auto-genererat veckoinnehåll | n8n + AI (LLM) + content.json | ✅ Workflow definierad |
 
 ### n8n workflows (9 st)
 
@@ -115,6 +118,8 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 | `telegram_activity_broadcast` | Webhook | Tvåspråkig broadcast till Telegram |
 | `content_update_notification` | Webhook | Generell content-uppdatering |
 | `telegram_admin_bot` | Webhook | AI admin-bot (amharic röst + text) |
+| `grief_calendar_reminders` | Cron | ተዝካር memorial-påminnelser dag 3/7/12/40/6m/1å |
+| `funeral_case_notification` | Webhook | Notifierar vid nytt begravningsärende |
 
 ### OpenClaw prompt-templates (8 st)
 
@@ -200,6 +205,10 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`18-ai-admin-bot.md`](docs/18-ai-admin-bot.md) | **Telegram-bot för pastor (amharic röst)** |
 | [`19-funeral-bureau-investment-analysis.md`](docs/19-funeral-bureau-investment-analysis.md) | **Begravningsbyrå: investering, konkurrens, P&L** |
 | [`20-funeral-strategic-investments.md`](docs/20-funeral-strategic-investments.md) | **Strategiska investeringar: 8 områden, beslutskarta** |
+| [`21-funeral-global-benchmark.md`](docs/21-funeral-global-benchmark.md) | **Benchmark: kyrko-drivna begravningstjänster globalt** |
+| [`22-repatriation-requirements-checklist.md`](docs/22-repatriation-requirements-checklist.md) | **Hemtransport: ambassad, airline, IATA-krav** |
+| [`23-funeral-service-agreement.md`](docs/23-funeral-service-agreement.md) | **Uppdragsavtal: ansvarsfördelning, SLA, KPI** |
+| [`24-funeral-service-catalog.md`](docs/24-funeral-service-catalog.md) | **Tjänstekatalog: 2 spår, 6 tjänster** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
@@ -217,7 +226,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | Frontend-tester (Node) | 100+ |
 | **Totalt tester** | **350+** |
 | Backend-services | 4 + admin-web |
-| Publika HTML-sidor | 5 (live på Cloudflare) |
+| Publika HTML-sidor | 8 (live på Cloudflare) |
 | OpenClaw-templates | 8 |
 | n8n-workflows | 9 |
 | ADRs | 12 |

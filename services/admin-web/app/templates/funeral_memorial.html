@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Till minne av {{ case.deceased_name }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #e0e0e0; line-height: 1.7; }
+    .memorial { max-width: 640px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+    .cross { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 28px; font-weight: 300; margin-bottom: 8px; }
+    .name-am { font-size: 22px; color: #a0a0c0; margin-bottom: 24px; }
+    .dates { color: #888; font-size: 14px; margin-bottom: 32px; }
+    .text-block { background: #222240; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: left; }
+    .text-block h2 { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .text-block p { white-space: pre-wrap; }
+    .memorial-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    .memorial-table th, .memorial-table td { padding: 10px 8px; border-bottom: 1px solid #333; text-align: left; font-size: 14px; }
+    .memorial-table th { color: #888; font-size: 12px; text-transform: uppercase; }
+    .day-num { font-weight: 700; color: #7b8cde; }
+    footer { margin-top: 48px; color: #555; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="memorial">
+    <div class="cross">✦</div>
+    <h1>{{ case.deceased_name }}</h1>
+    {% if case.deceased_name_am %}
+    <div class="name-am">{{ case.deceased_name_am }}</div>
+    {% endif %}
+    <div class="dates">
+      {% if case.date_of_birth %}{{ case.date_of_birth }} — {% endif %}{{ case.date_of_death }}
+    </div>
+
+    {% if case.memorial_text_sv %}
+    <div class="text-block">
+      <p>{{ case.memorial_text_sv }}</p>
+    </div>
+    {% endif %}
+
+    {% if case.memorial_text_am %}
+    <div class="text-block">
+      <p>{{ case.memorial_text_am }}</p>
+    </div>
+    {% endif %}
+
+    <h2 style="margin-top:32px; font-size:16px; font-weight:400;">ተዝካር — Minnesdagar</h2>
+    <table class="memorial-table">
+      <thead>
+        <tr><th>Dag</th><th>አማርኛ</th><th>Svenska</th><th>Datum</th></tr>
+      </thead>
+      <tbody>
+        {% for day, name_am, name_sv in memorial_days %}
+        <tr>
+          <td class="day-num">{{ day }}</td>
+          <td>{{ name_am }}</td>
+          <td>{{ name_sv }}</td>
+          <td>{{ memorial_dates[loop.index0] if memorial_dates else "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <footer>
+      <p>ነፍስ ይማር — Vila i frid</p>
+      <p>Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan</p>
+    </footer>
+  </div>
+</body>
+</html>

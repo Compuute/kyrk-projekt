@@ -21,3 +21,10 @@ class InMemorySubmissionRepository:
             s for s in self._items.values()
             if s.church_id == church_id and s.status is SubmissionStatus.PENDING
         ]
+
+    def find_by_personal_number(self, personal_number: str) -> IntakeSubmission | None:
+        clean = personal_number.replace("-", "").replace(" ", "")
+        for s in self._items.values():
+            if s.personal_number.replace("-", "").replace(" ", "") == clean:
+                return s
+        return None

@@ -76,23 +76,48 @@
     .gdpr-box .gdpr-sv { margin-bottom: 12px; }
     .gdpr-box .gdpr-am { color: var(--muted, #666); }
 
-    .consent-row {
+    .consent-btn {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-top: 12px;
+      align-items: center;
+      gap: 14px;
+      margin-top: 16px;
+      padding: 16px;
+      border: 3px solid #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      background: #f9f9f9;
+      width: 100%;
+      text-align: left;
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
-    .consent-row input[type="checkbox"] {
-      margin-top: 3px;
-      width: 20px;
-      height: 20px;
+    .consent-btn.checked {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+
+    .consent-box {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border: 3px solid #999;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: #fff;
       flex-shrink: 0;
     }
 
-    .consent-row label {
-      font-size: 14px;
-      font-weight: 600;
+    .consent-btn.checked .consent-box {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: #fff;
     }
 
     .submit-btn {
@@ -146,7 +171,7 @@
 </head>
 <body>
   <main class="container">
-    <a href="./index.html" class="back-link" id="back-link">&#x2190; Tillbaka / &#x2190; ተመለስ</a>
+    <a href="./" class="back-link" id="back-link">&#x2190; Tillbaka / &#x2190; ተመለስ</a>
 
     <div class="lang-switcher" id="lang-switcher">
       <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
@@ -217,12 +242,11 @@
             ለአባልነት አስተዳደር እና ግንኙነት ብቻ ጥቅም ላይ ይውላል። በማንኛውም ጊዜ
             መረጃዎ እንዲሰረዝ መጠየቅ ይችላሉ።
           </div>
-          <div class="consent-row">
-            <input type="checkbox" id="field-gdpr-consent" name="gdpr_consent" required />
-            <label for="field-gdpr-consent">
-              Jag samtycker / እስማማለሁ
-            </label>
-          </div>
+          <input type="hidden" id="field-gdpr-consent" name="gdpr_consent" value="" />
+          <button type="button" class="consent-btn" id="consent-btn" onclick="toggleConsent()">
+            <span class="consent-box" id="consent-box">&#x2713;</span>
+            <span>Jag samtycker / እስማማለሁ</span>
+          </button>
         </div>
 
         <div class="error-msg" id="error-msg"></div>
@@ -237,7 +261,7 @@
       <h2>Tack! Din ansökan behandlas.</h2>
       <p class="success-am">አመሰግናለሁ! ማመልከቻዎ በሂደት ላይ ነው።</p>
       <br/>
-      <a href="./index.html" class="back-link">&#x2190; Tillbaka till startsidan / ወደ መነሻ ገጽ ተመለስ</a>
+      <a href="./" class="back-link">&#x2190; Tillbaka till startsidan / ወደ መነሻ ገጽ ተመለስ</a>
     </div>
 
     <footer class="foot">
@@ -248,6 +272,52 @@
       </p>
     </footer>
   </main>
+  <script>
+  function validatePersonnummer(pnr) {
+    if (!pnr) return true; // optional field
+    var clean = pnr.replace(/[-\s]/g, '');
+    // Accept YYYYMMDDXXXX (12) or YYMMDDXXXX (10)
+    if (clean.length === 12) clean = clean.substring(2);
+    if (clean.length !== 10) return false;
+    if (!/^\d{10}$/.test(clean)) return false;
+    // Luhn mod 10
+    var sum = 0;
+    for (var i = 0; i < 10; i++) {
+      var d = parseInt(clean[i], 10);
+      if (i % 2 === 0) d *= 2;
+      if (d > 9) d -= 9;
+      sum += d;
+    }
+    return sum % 10 === 0;
+  }
+
+  function validatePhone(phone) {
+    if (!phone) return false;
+    var clean = phone.replace(/[-\s]/g, '');
+    return /^(\+46|0)\d{7,10}$/.test(clean);
+  }
+
+  function validateName(name) {
+    if (!name || name.trim().length < 2) return false;
+    if (/\d/.test(name)) return false;
+    return true;
+  }
+
+  function toggleConsent() {
+    var input = document.getElementById('field-gdpr-consent');
+    var btn = document.getElementById('consent-btn');
+    var box = document.getElementById('consent-box');
+    if (input.value === 'true') {
+      input.value = '';
+      btn.classList.remove('checked');
+      box.textContent = '';
+    } else {
+      input.value = 'true';
+      btn.classList.add('checked');
+      box.textContent = '✓';
+    }
+  }
+  </script>
 
   <script>
     (function () {
@@ -276,7 +346,32 @@
         e.preventDefault();
         errorMsg.style.display = 'none';
 
-        if (!document.getElementById('field-gdpr-consent').checked) {
+        var firstName = document.getElementById('field-first-name').value;
+        var lastName = document.getElementById('field-last-name').value;
+        var phone = document.getElementById('field-phone').value;
+        var pnr = document.getElementById('field-personal-number').value;
+
+        if (!validateName(firstName)) {
+          errorMsg.textContent = 'Ogiltigt förnamn (min 2 tecken, inga siffror). / ልክ ያልሆነ ስም (ቢያንስ 2 ፊደል)።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (!validateName(lastName)) {
+          errorMsg.textContent = 'Ogiltigt efternamn (min 2 tecken, inga siffror). / ልክ ያልሆነ የአባት ስም።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (!validatePhone(phone)) {
+          errorMsg.textContent = 'Ogiltigt telefonnummer (07X-XXX XX XX). / ልክ ያልሆነ ስልክ ቁጥር።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (pnr && !validatePersonnummer(pnr)) {
+          errorMsg.textContent = 'Ogiltigt personnummer. Kontrollera format (YYYYMMDD-XXXX). / ልክ ያልሆነ የግል ቁጥር።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (document.getElementById('field-gdpr-consent').value !== 'true') {
           errorMsg.textContent = 'Du måste ge ditt samtycke. / ፈቃድዎን መስጠት አለብዎት።';
           errorMsg.style.display = 'block';
           return;
@@ -291,7 +386,7 @@
           phone: document.getElementById('field-phone').value,
           email: document.getElementById('field-email').value,
           personal_number: document.getElementById('field-personal-number').value,
-          gdpr_consent: document.getElementById('field-gdpr-consent').checked,
+          gdpr_consent: document.getElementById('field-gdpr-consent').value === 'true',
           source: document.getElementById('field-source').value,
           church_id: document.getElementById('field-church-id').value
         };
@@ -303,13 +398,30 @@
           body: JSON.stringify(payload)
         })
           .then(function (r) {
-            if (!r.ok) throw new Error('server error');
-            formCard.style.display = 'none';
-            successMsg.style.display = 'block';
+            if (r.status === 202 || r.status === 201) {
+              formCard.style.display = 'none';
+              successMsg.style.display = 'block';
+              return;
+            }
+            if (r.status === 409) {
+              throw { userMsg: 'Du är redan registrerad. / እርስዎ ቀድሞ ተመዝግበዋል።' };
+            }
+            if (r.status === 422) {
+              return r.json().then(function (data) {
+                throw { userMsg: data.detail || 'Kontrollera dina uppgifter. / መረጃዎን ያረጋግጡ።' };
+              });
+            }
+            throw { userMsg: 'Tekniskt fel. Försök igen. / የቴክኒክ ችግር። እንደገና ሞክር።' };
           })
-          .catch(function () {
-            formCard.style.display = 'none';
-            successMsg.style.display = 'block';
+          .catch(function (err) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Skicka ansökan / ማመልከቻ ላክ';
+            if (err && err.userMsg) {
+              errorMsg.textContent = err.userMsg;
+            } else {
+              errorMsg.textContent = 'Kunde inte ansluta till servern. Försök igen senare. / ከሰርቨር ጋር መገናኘት አልተቻለም።';
+            }
+            errorMsg.style.display = 'block';
           });
       });
 

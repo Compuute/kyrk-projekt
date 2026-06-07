@@ -29,7 +29,7 @@ Pastor (röstmeddelande på amharic):
 Step 1: Whisper transkriberar (am-ET)
   → "ሰንበት ቅዳሴ 11:00 ላይ ጨምር" (med ~30% fel möjligt)
 
-Step 2: Claude korrigerar + klassificerar
+Step 2: AI korrigerar + klassificerar
   → {
       "intent": "add_activity",
       "corrected_text": "ሰንበት ቅዳሴ 11:00 ላይ ጨምር",
@@ -77,12 +77,12 @@ Step 4: Pastor trycker ✅
 Whispers WER (Word Error Rate) för amharic är ~30-40%. Det
 kompenseras av:
 
-1. Claude som andra steg — korrigerar grammatik + kyrktermer
+1. AI som andra steg — korrigerar grammatik + kyrktermer
 2. Bekräftelse innan aktion — pastorn ser vad boten tolkade
-3. Kyrkoterminologi i system-prompten — Claude vet att ቅዳሴ=liturgi
+3. Kyrkoterminologi i system-prompten — AI-modellen vet att ቅዳሴ=liturgi
 
 Om pastorn upplever att röst inte fungerar bra: text fungerar
-perfekt. Claude förstår amharic text med ~99% noggrannhet.
+perfekt. AI förstår amharic text med ~99% noggrannhet.
 
 ## Setup
 

@@ -35,17 +35,20 @@
     }
   ],
   "links": {
-    "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "./intake.html"},
-    "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "./donate.html"},
-    "telegram": {"sv": "Följ oss på Telegram", "am": "በቴሌግራም ይከተሉን", "url": "https://t.me/kyrka_kanal"},
-    "youth": {"sv": "Ungdomsverksamhet", "am": "የወጣቶች ፕሮግራም", "url": "./index.html"},
-    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live.html"}
+    "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "./intake"},
+    "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "./donate"},
+    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live"},
+    "funeral": {"sv": "Begravning", "am": "ቀብር", "url": "./funeral"},
+    "about": {"sv": "Om oss", "am": "ስለ እኛ", "url": "./about"},
+    "contact": {"sv": "Kontakt", "am": "ያግኙን", "url": "./contact"},
+    "telegram": {"sv": "Telegram", "am": "ቴሌግራም", "url": "https://t.me/kyrka_kanal"},
+    "privacy": {"sv": "Integritetspolicy", "am": "የግላዊነት ፖሊሲ", "url": "./privacy"}
   },
   "footer": {
     "privacy": {
       "sv": "Den här sidan använder inga kakor och spårar dig inte. Läs vår integritetspolicy.",
       "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም። የግላዊነት ፖሊሲያችንን ያንብቡ።"
     },
-    "privacy_url": "./privacy.html"
+    "privacy_url": "./privacy"
   }
 }
