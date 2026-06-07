@@ -37,18 +37,154 @@
       <div id="announcements-list"></div>
     </section>
 
-    <nav class="grid" id="quick-links">
-      <a class="tile" id="link-member" href="#"></a>
-      <a class="tile" id="link-donate" href="#"></a>
-      <a class="tile" id="link-telegram" href="#"></a>
-      <a class="tile" id="link-youth" href="#"></a>
-    </nav>
+    <!-- Registration CTA + 3-field form -->
+    <section class="card" id="register-section" style="border: 2px solid var(--accent); background: #f8f9ff;">
+      <div id="register-intro">
+        <h2 style="color: var(--accent); margin-bottom: 8px;">
+          <span class="sv">Registrera dig som medlem</span>
+          <span class="am" style="display:none">እንደ አባል ይመዝገቡ</span>
+        </h2>
+        <p class="muted" style="margin-bottom: 4px;">
+          <span class="sv">Betalar du kyrkoskatt till Svenska kyrkan? Du kan enkelt byta till Etiopisk-Ortodoxa kyrkan. Fyll i dina uppgifter — vi hjälper dig med resten.</span>
+          <span class="am" style="display:none">የቤተ ክርስቲያን ግብር ለስዊድን ቤተ ክርስቲያን ይከፍላሉ? በቀላሉ ወደ ኢትዮጵያ ኦርቶዶክስ ቤተ ክርስቲያን መቀየር ይችላሉ። መረጃዎን ይሙሉ — የቀረውን እኛ እንረዳዎታለን።</span>
+        </p>
+      </div>
+
+      <form id="quick-register" style="margin-top: 12px;" onsubmit="return submitQuickReg(event)">
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Namn</span><span class="am" style="display:none">ስም</span>
+          <input type="text" id="qr-name" required placeholder="Förnamn Efternamn / ሙሉ ስም" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Telefon</span><span class="am" style="display:none">ስልክ</span>
+          <input type="tel" id="qr-phone" required placeholder="070-XXX XX XX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+
+        <div id="qr-error" style="color:#dc2626; font-size:14px; margin-bottom:8px; display:none;"></div>
+
+        <button type="button" id="qr-consent-btn" onclick="toggleQrConsent()" style="display:flex; align-items:center; gap:12px; width:100%; padding:12px; border:2px solid #ccc; border-radius:8px; background:#f9f9f9; cursor:pointer; font-size:14px; font-weight:600; margin-bottom:12px; -webkit-appearance:none; appearance:none; text-align:left; color:#222;">
+          <span id="qr-consent-box" style="width:24px; height:24px; min-width:24px; border:3px solid var(--accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; background:#fff;"></span>
+          <span><span class="sv">Jag samtycker till GDPR-behandling</span><span class="am" style="display:none">ለGDPR ፈቃድ እስማማለሁ</span></span>
+        </button>
+        <input type="hidden" id="qr-consent" value="" />
+
+        <button type="submit" style="width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-size:18px; font-weight:700; cursor:pointer;">
+          <span class="sv">Registrera mig →</span><span class="am" style="display:none">ይመዝገቡኝ →</span>
+        </button>
+
+        <p class="muted small" style="margin-top:8px; text-align:center;">
+          <span class="sv">Vi kontaktar dig inom några dagar för personnummer och övriga uppgifter.</span>
+          <span class="am" style="display:none">ለግል ቁጥር እና ሌሎች መረጃዎች በጥቂት ቀናት ውስጥ እናገኝዎታለን።</span>
+        </p>
+      </form>
+
+      <div id="qr-success" style="display:none; text-align:center; padding:20px 0;">
+        <h3 style="color:#22c55e;">
+          <span class="sv">Tack! Vi kontaktar dig inom några dagar.</span>
+          <span class="am" style="display:none">አመሰግናለሁ! በጥቂት ቀናት ውስጥ እናገኝዎታለን።</span>
+        </h3>
+      </div>
+    </section>
+
+    <nav class="grid" id="quick-links"></nav>
 
     <footer class="foot">
       <p class="muted small" id="footer-privacy"></p>
     </footer>
   </main>
 
+  <script>
+  function toggleQrConsent() {
+    var input = document.getElementById('qr-consent');
+    var btn = document.getElementById('qr-consent-btn');
+    var box = document.getElementById('qr-consent-box');
+    if (input.value === 'true') {
+      input.value = '';
+      btn.style.borderColor = '#ccc';
+      btn.style.background = '#f9f9f9';
+      box.textContent = '';
+      box.style.background = '#fff';
+      box.style.borderColor = 'var(--accent)';
+    } else {
+      input.value = 'true';
+      btn.style.borderColor = '#22c55e';
+      btn.style.background = '#f0fdf4';
+      box.textContent = '✓';
+      box.style.background = '#22c55e';
+      box.style.borderColor = '#22c55e';
+      box.style.color = '#fff';
+    }
+  }
+
+  function submitQuickReg(e) {
+    e.preventDefault();
+    var name = document.getElementById('qr-name').value.trim();
+    var phone = document.getElementById('qr-phone').value.trim();
+    var consent = document.getElementById('qr-consent').value;
+    var errorEl = document.getElementById('qr-error');
+    errorEl.style.display = 'none';
+
+    if (name.length < 2) {
+      errorEl.textContent = 'Ange ditt namn (min 2 tecken). / ስምዎን ያስገቡ።';
+      errorEl.style.display = 'block';
+      return false;
+    }
+    if (!/^(\+46|0)\d{7,10}$/.test(phone.replace(/[-\s]/g, ''))) {
+      errorEl.textContent = 'Ogiltigt telefonnummer (070-XXX XX XX). / ልክ ያልሆነ ስልክ ቁጥር።';
+      errorEl.style.display = 'block';
+      return false;
+    }
+    if (consent !== 'true') {
+      errorEl.textContent = 'Du måste ge ditt samtycke. / ፈቃድዎን መስጠት አለብዎት።';
+      errorEl.style.display = 'block';
+      return false;
+    }
+
+    var API_URL = document.body.getAttribute('data-api-url') || '/api/intake';
+    var nameParts = name.split(' ');
+    var firstName = nameParts[0] || name;
+    var lastName = nameParts.slice(1).join(' ') || '-';
+
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'omit',
+      body: JSON.stringify({
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone.replace(/[-\s]/g, '').replace(/^0/, '+46'),
+        email: '',
+        personal_number: '',
+        gdpr_consent: true,
+        consent_timestamp: new Date().toISOString(),
+        church_id: 'nacka',
+        source: 'landing_page'
+      })
+    })
+    .then(function(r) {
+      if (r.status === 202 || r.status === 201) {
+        document.getElementById('quick-register').style.display = 'none';
+        document.getElementById('register-intro').style.display = 'none';
+        document.getElementById('qr-success').style.display = 'block';
+        return;
+      }
+      if (r.status === 409) {
+        throw { msg: 'Du är redan registrerad. / እርስዎ ቀድሞ ተመዝግበዋል።' };
+      }
+      throw { msg: 'Tekniskt fel. Försök igen. / የቴክኒክ ችግር።' };
+    })
+    .catch(function(err) {
+      if (err && err.msg) {
+        errorEl.textContent = err.msg;
+      } else {
+        errorEl.textContent = 'Kunde inte ansluta. Försök igen. / መገናኘት አልተቻለም።';
+      }
+      errorEl.style.display = 'block';
+    });
+
+    return false;
+  }
+  </script>
   <script src="app.js"></script>
   <script>
     (async function () {
