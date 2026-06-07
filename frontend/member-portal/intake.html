@@ -457,21 +457,24 @@
     var typeField = document.getElementById('field-membership-type');
     var feeField = document.getElementById('field-monthly-fee');
 
+    var indFee = (churchConfig && churchConfig.membership_fee_individual) || 200;
+    var famFee = (churchConfig && churchConfig.membership_fee_family) || 500;
+
     if (type === 'family') {
       famBtn.classList.add('selected');
       indBtn.classList.remove('selected');
       famSection.classList.add('visible');
-      feeDisplay.textContent = '500 kr';
+      feeDisplay.textContent = famFee + ' kr';
       typeField.value = 'family';
-      feeField.value = '500';
+      feeField.value = String(famFee);
       if (familyCount === 0) addFamilyMember();
     } else {
       indBtn.classList.add('selected');
       famBtn.classList.remove('selected');
       famSection.classList.remove('visible');
-      feeDisplay.textContent = '200 kr';
+      feeDisplay.textContent = indFee + ' kr';
       typeField.value = 'individual';
-      feeField.value = '200';
+      feeField.value = String(indFee);
     }
   }
 
@@ -536,6 +539,21 @@
       }
 
       var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
+
+      // Load church config from content.json (dynamic per church)
+      var churchConfig = {};
+      fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (data) {
+          churchConfig = (data && data.church) || {};
+          var indFee = churchConfig.membership_fee_individual || 200;
+          var famFee = churchConfig.membership_fee_family || 500;
+          document.getElementById('type-individual').querySelector('.price').textContent = indFee + ' kr';
+          document.getElementById('type-family').querySelector('.price').textContent = famFee + ' kr';
+          document.getElementById('field-monthly-fee').value = String(indFee);
+          document.getElementById('fee-display').textContent = indFee + ' kr';
+        })
+        .catch(function () {});
 
       // Form submission
       var form = document.getElementById('intake-form');
@@ -621,11 +639,15 @@
               var fee = parseInt(document.getElementById('field-monthly-fee').value);
               document.getElementById('success-fee').textContent = fee + ' kr';
               var swishLink = document.getElementById('success-swish-link');
-              var SWISH_NUMBER = '1234567890';
-              swishLink.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
-                SWISH_NUMBER + '"},"amount":{"value":' + fee +
-                '},"message":{"value":"Medlemsavgift","editable":false}}';
-              swishLink.textContent = 'Swish — ' + fee + ' kr';
+              var swishNr = (churchConfig && churchConfig.swish_number) || '';
+              if (swishNr) {
+                swishLink.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
+                  swishNr + '"},"amount":{"value":' + fee +
+                  '},"message":{"value":"Medlemsavgift","editable":false}}';
+                swishLink.textContent = 'Swish — ' + fee + ' kr';
+              } else {
+                swishLink.style.display = 'none';
+              }
               return;
             }
             if (r.status === 409) {

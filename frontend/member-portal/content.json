@@ -5,7 +5,11 @@
     "tagline": {"sv": "Välkommen hem — Nacka", "am": "እንኳን ወደ ቤትዎ ደህና መጡ — ናካ"},
     "youtube_channel_id": "",
     "address": "Saltsjö-Boo, Nacka",
-    "swish_number": "1234567890"
+    "swish_number": "1234567890",
+    "bankgiro_number": "5123-4567",
+    "org_number": "802492-9237",
+    "membership_fee_individual": 200,
+    "membership_fee_family": 500
   },
   "upcoming": [
     {

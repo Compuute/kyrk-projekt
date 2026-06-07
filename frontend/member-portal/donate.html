@@ -139,9 +139,22 @@
   </main>
 
   <script>
-    // Swish configuration — change these to the church's real values
-    var SWISH_NUMBER = '1234567890';  // Church Swish number (replace with real)
-    var SWISH_PAYEE_ALIAS = '1234567890';
+    var SWISH_NUMBER = '';
+    var BANKGIRO_NUMBER = '';
+
+    // Load church config dynamically
+    fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (data) {
+        var church = (data && data.church) || {};
+        SWISH_NUMBER = church.swish_number || '';
+        BANKGIRO_NUMBER = church.bankgiro_number || '';
+        if (BANKGIRO_NUMBER) {
+          document.getElementById('bankgiro-btn').textContent = 'Bankgiro: ' + BANKGIRO_NUMBER;
+        }
+        updateSwishLink();
+      })
+      .catch(function () {});
 
     var selectedAmount = 200;
     var buttons = document.querySelectorAll('.amount-btn');
@@ -174,10 +187,9 @@
         // Swish deep link format
         // On mobile: opens Swish app directly
         // On desktop: shows a message to use mobile
-        var msg = encodeURIComponent('Gåva till Abune Tekle Haymanot');
         swishBtn.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
-          SWISH_PAYEE_ALIAS + '"},"amount":{"value":' + selectedAmount +
-          '},"message":{"value":"' + decodeURIComponent(msg) + '","editable":false}}';
+          SWISH_NUMBER + '"},"amount":{"value":' + selectedAmount +
+          '},"message":{"value":"Gåva till kyrkan","editable":false}}';
         swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
       } else {
         swishBtn.href = '#';
