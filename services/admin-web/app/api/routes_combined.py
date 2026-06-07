@@ -1394,6 +1394,64 @@ def funeral_api(
 
 
 
+# --------------------------------------------------------------- tax consent
+
+@router.get("/tax-consent", response_class=HTMLResponse)
+def tax_consent_dashboard(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    intake: IntakeClientPort = Depends(get_intake_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    total_members = 0
+    consent_count = 0
+    no_consent_members = []
+
+    try:
+        pending = intake.list_pending(session.token)
+        total_members = len(pending)
+        for s in pending:
+            has_consent = getattr(s, 'tax_consent', False)
+            if has_consent:
+                consent_count += 1
+            else:
+                no_consent_members.append({
+                    "name": f"{s.first_name} {s.last_name}",
+                    "phone": getattr(s, "phone", ""),
+                    "registered": getattr(s, "received_at", ""),
+                })
+    except Exception:
+        pass
+
+    consent_pct = round(consent_count / total_members * 100, 1) if total_members else 0
+    no_consent_count = total_members - consent_count
+    avg_income = 350_000
+    estimated_revenue = f"{consent_count * int(avg_income * 0.005):,} kr".replace(",", " ") if consent_count else "—"
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="tax_consent_dashboard.html",
+        context={
+            "session": session,
+            "total_members": total_members,
+            "consent_count": consent_count,
+            "consent_pct": consent_pct,
+            "no_consent_count": no_consent_count,
+            "no_consent_members": no_consent_members,
+            "estimated_revenue": estimated_revenue,
+            "pnr_count": total_members,
+            "mucf_applied": False,
+            "file_submitted": False,
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
 # --------------------------------------------------------------- data quality
 
 

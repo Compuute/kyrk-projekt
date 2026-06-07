@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Kyrkoskatt — samtyckesstatus{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Kyrkoskatt (avgiftshjälp)</h1>
+  <p class="muted">Samtyckesstatus för avgiftsuppbörd via Skatteverket</p>
+</section>
+
+<div class="grid-stats">
+  <div class="stat">
+    <div class="stat-number">{{ total_members }}</div>
+    <div class="stat-label">Totalt medlemmar</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number {% if consent_pct >= 80 %}green{% elif consent_pct >= 50 %}yellow{% else %}red{% endif %}">{{ consent_count }}</div>
+    <div class="stat-label">Samtycke givet ({{ consent_pct }}%)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">{{ no_consent_count }}</div>
+    <div class="stat-label">Samtycke saknas</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">{{ estimated_revenue|default('—') }}</div>
+    <div class="stat-label">Estimerad intäkt/år (0.5%)</div>
+  </div>
+</div>
+
+<section class="card">
+  <h2>Deadlines</h2>
+  <table class="table">
+    <tr><td><strong>MUCF-ansökan</strong></td><td>31 mars 2026</td><td>{% if mucf_applied %}✅ Inskickad{% else %}❌ Ej inskickad{% endif %}</td></tr>
+    <tr><td><strong>Samtycke-deadline</strong></td><td>1 november årligen</td><td>{{ consent_count }} av {{ total_members }}</td></tr>
+    <tr><td><strong>Skatteverket-fil</strong></td><td>3 december årligen</td><td>{% if file_submitted %}✅ Inskickad{% else %}⬜ Ej genererad{% endif %}</td></tr>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Mål</h2>
+  <table class="table">
+    <thead><tr><th>KPI</th><th>Nuvarande</th><th>Mål</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Samtycke-andel</td><td>{{ consent_pct }}%</td><td>≥ 80%</td><td>{% if consent_pct >= 80 %}✅{% else %}❌{% endif %}</td></tr>
+      <tr><td>Personnummer registrerade</td><td>{{ pnr_count }}</td><td>{{ total_members }}</td><td>{% if pnr_count >= total_members %}✅{% else %}❌{% endif %}</td></tr>
+    </tbody>
+  </table>
+</section>
+
+{% if no_consent_members %}
+<section class="card">
+  <h2>Medlemmar utan samtycke ({{ no_consent_count }})</h2>
+  <table class="table">
+    <thead><tr><th>Namn</th><th>Telefon</th><th>Registrerad</th></tr></thead>
+    <tbody>
+      {% for m in no_consent_members[:20] %}
+      <tr><td>{{ m.name }}</td><td>{{ m.phone }}</td><td>{{ m.registered }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if no_consent_count > 20 %}<p class="muted">Visar 20 av {{ no_consent_count }}</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}
