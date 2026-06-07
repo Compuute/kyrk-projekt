@@ -9,45 +9,42 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     .policy { max-width: 700px; margin: 0 auto; }
-    .policy h2 { margin-top: 28px; font-size: 20px; font-weight: 700; border-bottom: 1px solid #333; padding-bottom: 6px; }
+    .policy h2 { margin-top: 28px; font-size: 20px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
     .policy h3 { margin-top: 18px; font-size: 17px; font-weight: 600; }
-    .policy p, .policy li { font-size: 16px; line-height: 1.8; color: #e0e0e0; }
+    .policy p, .policy li { font-size: 16px; line-height: 1.8; }
     .policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
-    .policy th, .policy td { border: 1px solid #444; padding: 10px; text-align: left; color: #e0e0e0; }
-    .policy th { background: #2a2a3e; font-weight: 600; }
-    .lang-section { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid #333; }
-    .lang-label { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
-    .lang-sv { background: #1a3a8a; color: #aac4ff; }
-    .lang-am { background: #3a1a1a; color: #ffaaaa; }
-    @media (prefers-color-scheme: light) {
-      .policy p, .policy li { color: #1a1a1a; }
-      .policy h2 { color: #111; border-color: #ccc; }
-      .policy h3 { color: #222; }
-      .policy th, .policy td { color: #1a1a1a; border-color: #ccc; }
-      .policy th { background: #f0f0f5; }
-      .lang-section { border-color: #ccc; }
-    }
+    .policy th, .policy td { border: 1px solid var(--border); padding: 10px; text-align: left; }
+    .policy th { background: var(--card); font-weight: 600; }
   </style>
 </head>
 <body>
-  <main class="container">
-    <a href="./" class="back-link">← Tillbaka / ← ተመለስ</a>
+  <main class="container" id="app">
 
-    <!-- ============================================================ -->
-    <!-- SWEDISH VERSION                                              -->
-    <!-- ============================================================ -->
-    <div class="lang-section">
-      <span class="lang-label lang-sv">🇸🇪 Svenska</span>
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
 
-      <div class="policy">
-        <h1>Integritetspolicy</h1>
-        <p><strong>Personuppgiftsansvarig:</strong><br/>
-        Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan<br/>
-        Org.nr: 802492-9237<br/>
-        Saltsjö-Boo (Nacka)<br/>
-        Kontakt: styrelsen via kyrkans postadress</p>
+    <header class="hero">
+      <div class="logo-placeholder" aria-label="Church logo">&#x2726;</div>
+      <h1>
+        <span class="sv">Integritetspolicy</span>
+        <span class="am" style="display:none">የግላዊነት ፖሊሲ</span>
+      </h1>
+    </header>
 
-        <h2>1. Vilka uppgifter vi samlar in</h2>
+    <div class="policy">
+
+      <p>
+        <span class="sv"><strong>Personuppgiftsansvarig:</strong><br/>Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan<br/>Org.nr: 802492-9237<br/>Saltsjö-Boo (Nacka)<br/>Kontakt: styrelsen via kyrkans postadress</span>
+        <span class="am" style="display:none"><strong>የግል መረጃ ተቆጣጣሪ:</strong><br/>አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን<br/>Org.nr: 802492-9237<br/>ሳልትሾ-ቡ (ናካ)<br/>ግንኙነት: ቤተ ክርስቲያኑ ፖስታ አድራሻ</span>
+      </p>
+
+      <h2>
+        <span class="sv">1. Vilka uppgifter vi samlar in</span>
+        <span class="am" style="display:none">1. የምንሰበስበው መረጃ</span>
+      </h2>
+      <div class="sv">
         <table>
           <tr><th>Uppgift</th><th>Ändamål</th><th>Rättslig grund</th><th>Lagringstid</th></tr>
           <tr><td>Förnamn, efternamn</td><td>Identifiera medlemmen</td><td>Samtycke (Art. 6.1.a)</td><td>Tills du begär radering</td></tr>
@@ -57,63 +54,8 @@
           <tr><td>Kyrka (church_id)</td><td>Tillhörighet</td><td>Berättigat intresse</td><td>Så länge medlemskapet varar</td></tr>
           <tr><td>Källa (source)</td><td>Mäta vilken kanal som fungerar</td><td>Berättigat intresse</td><td>Aggregerat (ej kopplat till person)</td></tr>
         </table>
-
-        <h2>2. Hur vi skyddar dina uppgifter</h2>
-        <ul>
-          <li><strong>Kryptering:</strong> Personnummer krypteras med Google Cloud KMS innan det lagras. Ingen i organisationen kan läsa det i klartext utan behörighet.</li>
-          <li><strong>Åtkomstkontroll:</strong> Bara behöriga roller (admin, pastor, sekreterare) kan se medlemsdata. Varje åtkomst loggas med vem, när och vad.</li>
-          <li><strong>Zonindelning:</strong> Personuppgifter lagras i en separat zon (RED) som är skild från aggregerad statistik (YELLOW) och publikt innehåll (GREEN). AI-tjänster ser aldrig dina personuppgifter.</li>
-          <li><strong>Redaction:</strong> När din ansökan godkänns raderas telefon, e-post och personnummer från ansökningsformuläret — datan lever bara på ett ställe.</li>
-          <li><strong>Datalagring i EU:</strong> All data lagras i Google Cloud europe-north1 (Finland). Inga uppgifter överförs till tredje land.</li>
-        </ul>
-
-        <h2>3. Dina rättigheter</h2>
-        <p>Enligt GDPR har du rätt att:</p>
-        <ul>
-          <li><strong>Begära tillgång</strong> (Art. 15) — få veta vilka uppgifter vi har om dig.</li>
-          <li><strong>Begära rättelse</strong> (Art. 16) — korrigera felaktiga uppgifter.</li>
-          <li><strong>Begära radering</strong> (Art. 17) — vi raderar dina uppgifter inom 30 dagar. Aggregerad statistik (antal deltagare per aktivitet) behålls eftersom den inte kan kopplas till dig.</li>
-          <li><strong>Återkalla samtycke</strong> (Art. 7.3) — du kan när som helst återkalla ditt samtycke. Kontakta styrelsen.</li>
-          <li><strong>Klaga</strong> — du har rätt att klaga till Integritetsskyddsmyndigheten (IMY), Box 8114, 104 20 Stockholm, <em>imy.se</em>.</li>
-        </ul>
-
-        <h2>4. Vem har tillgång till dina uppgifter?</h2>
-        <table>
-          <tr><th>Mottagare</th><th>Ändamål</th><th>Typ av data</th></tr>
-          <tr><td>Google Cloud Platform (GCP)</td><td>Hosting, lagring, kryptering</td><td>Krypterad data (EU-region)</td></tr>
-          <tr><td>PropelAuth</td><td>Inloggning för admin/pastor</td><td>Enbart e-post för adminanvändare</td></tr>
-          <tr><td>Cloudflare</td><td>Webbsidan (CDN, DDoS-skydd)</td><td>Ingen persondata — bara HTTP-trafik</td></tr>
-          <tr><td>Anthropic (Claude AI)</td><td>Översättning, rapportgenerering</td><td>ALDRIG persondata — bara aggregerad statistik</td></tr>
-        </table>
-
-        <h2>5. Kakor och spårning</h2>
-        <p>Denna webbplats använder <strong>inga kakor</strong> (cookies), ingen spårning, inga analysverktyg och inga tredjepartsskript. Vi vet inte vem du är när du besöker sidan.</p>
-
-        <h2>6. Barns personuppgifter</h2>
-        <p>Vi samlar in barns uppgifter (söndagsskola, certifikat) <strong>med förälderns samtycke</strong>. Samma skyddsnivå gäller — kryptering, åtkomstkontroll, rätt till radering. Inga barns uppgifter delas med AI-tjänster.</p>
-
-        <h2>7. Ändringar i policyn</h2>
-        <p>Ändringar publiceras på denna sida med uppdaterat datum. Vid väsentliga ändringar informeras medlemmar via Telegram-kanalen.</p>
-
-        <p><em>Senast uppdaterad: juni 2025</em></p>
       </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- AMHARIC VERSION                                              -->
-    <!-- ============================================================ -->
-    <div class="lang-section">
-      <span class="lang-label lang-am">🇪🇹 አማርኛ</span>
-
-      <div class="policy">
-        <h1>የግላዊነት ፖሊሲ</h1>
-        <p><strong>የግል መረጃ ተቆጣጣሪ:</strong><br/>
-        አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን<br/>
-        Org.nr: 802492-9237<br/>
-        ሳልትሾ-ቡ (ናካ)<br/>
-        ግንኙነት: ቤተ ክርስቲያኑ ፖስታ አድራሻ</p>
-
-        <h2>1. የምንሰበስበው መረጃ</h2>
+      <div class="am" style="display:none">
         <table>
           <tr><th>መረጃ</th><th>ዓላማ</th><th>ሕጋዊ መሠረት</th><th>የማስቀመጫ ጊዜ</th></tr>
           <tr><td>ስም</td><td>አባልን ለይቶ ማወቅ</td><td>ፈቃድ (Art. 6.1.a)</td><td>እስከ ስረዛ ጥያቄ ድረስ</td></tr>
@@ -122,34 +64,109 @@
           <tr><td>የግል ቁጥር</td><td>የአባልነት ማረጋገጫ፣ የምስክር ወረቀት</td><td>ፈቃድ + ሕጋዊ ፍላጎት</td><td>ተመስጥሮ ይቀመጣል</td></tr>
           <tr><td>ቤተ ክርስቲያን</td><td>የአባልነት ቦታ</td><td>ሕጋዊ ፍላጎት</td><td>አባልነት እስከ ሚቆይ ድረስ</td></tr>
         </table>
-
-        <h2>2. መረጃዎን እንዴት እንጠብቃለን</h2>
-        <ul>
-          <li><strong>ምስጠራ:</strong> የግል ቁጥር በ Google Cloud KMS ተመስጥሮ ይቀመጣል።</li>
-          <li><strong>የመዳረሻ ቁጥጥር:</strong> የተፈቀደላቸው ሰዎች ብቻ (አስተዳዳሪ፣ ቄስ) ማየት ይችላሉ። ሁሉም ተደራሽነት ይመዘገባል።</li>
-          <li><strong>የዞን ክፍፍል:</strong> የግል መረጃ ከስታቲስቲክስ ተለይቶ ይቀመጣል። AI አገልግሎቶች የግል መረጃ በፍጹም አያዩም።</li>
-          <li><strong>በ EU ውስጥ ማስቀመጥ:</strong> ሁሉም መረጃ በ Google Cloud europe-north1 (ፊንላንድ) ውስጥ ይቀመጣል።</li>
-        </ul>
-
-        <h2>3. መብቶችዎ</h2>
-        <ul>
-          <li><strong>ተደራሽነት መጠየቅ</strong> — ምን መረጃ እንዳለን ማወቅ ይችላሉ።</li>
-          <li><strong>ማስተካከያ መጠየቅ</strong> — የተሳሳተ መረጃን ማስተካከል ይችላሉ።</li>
-          <li><strong>ስረዛ መጠየቅ</strong> — በ30 ቀናት ውስጥ እናስወግዳለን።</li>
-          <li><strong>ፈቃድ መሰረዝ</strong> — በማንኛውም ጊዜ ፈቃድዎን መሰረዝ ይችላሉ።</li>
-          <li><strong>ቅሬታ ማቅረብ</strong> — ወደ IMY (Integritetsskyddsmyndigheten) ቅሬታ ማቅረብ ይችላሉ።</li>
-        </ul>
-
-        <h2>4. ኩኪዎች እና ክትትል</h2>
-        <p>ይህ ድረ ገጽ <strong>ምንም ኩኪዎችን አይጠቀምም</strong>፣ ምንም ክትትል አይደረግም፣ ምንም የሶስተኛ ወገን ስክሪፕቶች የሉም።</p>
-
-        <h2>5. የልጆች መረጃ</h2>
-        <p>የልጆች መረጃ (የሰንበት ትምህርት ቤት) <strong>በወላጅ ፈቃድ</strong> ብቻ ይሰበሰባል።</p>
-
-        <p><em>መጨረሻ የተዘመነው: ሰኔ 2025</em></p>
       </div>
+
+      <h2>
+        <span class="sv">2. Hur vi skyddar dina uppgifter</span>
+        <span class="am" style="display:none">2. መረጃዎን እንዴት እንጠብቃለን</span>
+      </h2>
+      <ul>
+        <li><span class="sv"><strong>Kryptering:</strong> Personnummer krypteras med Google Cloud KMS innan det lagras. Ingen i organisationen kan läsa det i klartext utan behörighet.</span><span class="am" style="display:none"><strong>ምስጠራ:</strong> የግል ቁጥር በ Google Cloud KMS ተመስጥሮ ይቀመጣል።</span></li>
+        <li><span class="sv"><strong>Åtkomstkontroll:</strong> Bara behöriga roller (admin, pastor, sekreterare) kan se medlemsdata. Varje åtkomst loggas.</span><span class="am" style="display:none"><strong>የመዳረሻ ቁጥጥር:</strong> የተፈቀደላቸው ሰዎች ብቻ ማየት ይችላሉ። ሁሉም ተደራሽነት ይመዘገባል።</span></li>
+        <li><span class="sv"><strong>Zonindelning:</strong> Personuppgifter lagras i en separat zon (RED) som är skild från aggregerad statistik. AI-tjänster ser aldrig dina personuppgifter.</span><span class="am" style="display:none"><strong>የዞን ክፍፍል:</strong> የግል መረጃ ከስታቲስቲክስ ተለይቶ ይቀመጣል። AI አገልግሎቶች የግል መረጃ በፍጹም አያዩም።</span></li>
+        <li><span class="sv"><strong>Datalagring i EU:</strong> All data lagras i Google Cloud europe-north1 (Finland). Inga uppgifter överförs till tredje land.</span><span class="am" style="display:none"><strong>በ EU ውስጥ ማስቀመጥ:</strong> ሁሉም መረጃ በ Google Cloud europe-north1 (ፊንላንድ) ውስጥ ይቀመጣል።</span></li>
+      </ul>
+
+      <h2>
+        <span class="sv">3. Dina rättigheter</span>
+        <span class="am" style="display:none">3. መብቶችዎ</span>
+      </h2>
+      <ul>
+        <li><span class="sv"><strong>Begära tillgång</strong> (Art. 15) — få veta vilka uppgifter vi har om dig.</span><span class="am" style="display:none"><strong>ተደራሽነት መጠየቅ</strong> — ምን መረጃ እንዳለን ማወቅ ይችላሉ።</span></li>
+        <li><span class="sv"><strong>Begära rättelse</strong> (Art. 16) — korrigera felaktiga uppgifter.</span><span class="am" style="display:none"><strong>ማስተካከያ መጠየቅ</strong> — የተሳሳተ መረጃን ማስተካከል ይችላሉ።</span></li>
+        <li><span class="sv"><strong>Begära radering</strong> (Art. 17) — vi raderar dina uppgifter inom 30 dagar.</span><span class="am" style="display:none"><strong>ስረዛ መጠየቅ</strong> — በ30 ቀናት ውስጥ እናስወግዳለን።</span></li>
+        <li><span class="sv"><strong>Återkalla samtycke</strong> (Art. 7.3) — du kan när som helst återkalla ditt samtycke.</span><span class="am" style="display:none"><strong>ፈቃድ መሰረዝ</strong> — በማንኛውም ጊዜ ፈቃድዎን መሰረዝ ይችላሉ።</span></li>
+        <li><span class="sv"><strong>Klaga</strong> — du har rätt att klaga till IMY (imy.se).</span><span class="am" style="display:none"><strong>ቅሬታ ማቅረብ</strong> — ወደ IMY ቅሬታ ማቅረብ ይችላሉ።</span></li>
+      </ul>
+
+      <h2>
+        <span class="sv">4. Vem har tillgång till dina uppgifter?</span>
+        <span class="am" style="display:none">4. መረጃዎን ማን ያገኛል?</span>
+      </h2>
+      <div class="sv">
+        <table>
+          <tr><th>Mottagare</th><th>Ändamål</th><th>Typ av data</th></tr>
+          <tr><td>Google Cloud Platform (GCP)</td><td>Hosting, lagring, kryptering</td><td>Krypterad data (EU-region)</td></tr>
+          <tr><td>PropelAuth</td><td>Inloggning för admin/pastor</td><td>Enbart e-post för adminanvändare</td></tr>
+          <tr><td>Cloudflare</td><td>Webbsidan (CDN, DDoS-skydd)</td><td>Ingen persondata — bara HTTP-trafik</td></tr>
+          <tr><td>AI (LLM)</td><td>Översättning, rapportgenerering</td><td>ALDRIG persondata — bara aggregerad statistik</td></tr>
+        </table>
+      </div>
+      <div class="am" style="display:none">
+        <table>
+          <tr><th>ተቀባይ</th><th>ዓላማ</th><th>የመረጃ ዓይነት</th></tr>
+          <tr><td>Google Cloud Platform</td><td>ማስተናገድ፣ ማስቀመጥ</td><td>የተመሰጠረ መረጃ (EU)</td></tr>
+          <tr><td>PropelAuth</td><td>የአስተዳዳሪ ግብዓት</td><td>ኢሜይል ብቻ</td></tr>
+          <tr><td>Cloudflare</td><td>ድረ ገጽ (CDN)</td><td>ምንም የግል መረጃ የለም</td></tr>
+          <tr><td>AI (LLM)</td><td>ትርጉም፣ ሪፖርት</td><td>በፍጹም የግል መረጃ — ስታቲስቲክስ ብቻ</td></tr>
+        </table>
+      </div>
+
+      <h2>
+        <span class="sv">5. Kakor och spårning</span>
+        <span class="am" style="display:none">5. ኩኪዎች እና ክትትል</span>
+      </h2>
+      <p>
+        <span class="sv">Denna webbplats använder <strong>inga kakor</strong>, ingen spårning, inga analysverktyg och inga tredjepartsskript.</span>
+        <span class="am" style="display:none">ይህ ድረ ገጽ <strong>ምንም ኩኪዎችን አይጠቀምም</strong>፣ ምንም ክትትል አይደረግም፣ ምንም የሶስተኛ ወገን ስክሪፕቶች የሉም።</span>
+      </p>
+
+      <h2>
+        <span class="sv">6. Barns personuppgifter</span>
+        <span class="am" style="display:none">6. የልጆች መረጃ</span>
+      </h2>
+      <p>
+        <span class="sv">Vi samlar in barns uppgifter (söndagsskola, certifikat) <strong>med förälderns samtycke</strong>. Samma skyddsnivå gäller. Inga barns uppgifter delas med AI-tjänster.</span>
+        <span class="am" style="display:none">የልጆች መረጃ (የሰንበት ትምህርት ቤት) <strong>በወላጅ ፈቃድ</strong> ብቻ ይሰበሰባል።</span>
+      </p>
+
+      <h2>
+        <span class="sv">7. Ändringar i policyn</span>
+        <span class="am" style="display:none">7. የፖሊሲ ለውጦች</span>
+      </h2>
+      <p>
+        <span class="sv">Ändringar publiceras på denna sida med uppdaterat datum. Vid väsentliga ändringar informeras medlemmar via Telegram.</span>
+        <span class="am" style="display:none">ለውጦች በዚህ ገጽ ላይ ይለጠፋሉ። ለዋና ለውጦች አባላት በቴሌግራም ይነገራቸዋል።</span>
+      </p>
+
+      <p class="muted"><em>
+        <span class="sv">Senast uppdaterad: juni 2026</span>
+        <span class="am" style="display:none">መጨረሻ የተዘመነው: ሰኔ 2026</span>
+      </em></p>
     </div>
 
+    <nav class="nav-links">
+      <a href="./">
+        <span class="sv">← Tillbaka till startsidan</span>
+        <span class="am" style="display:none">← ወደ መነሻ ገጽ ተመለስ</span>
+      </a>
+    </nav>
+
   </main>
+
+  <script>
+  (function() {
+    var lang = 'sv';
+    function toggle(newLang) {
+      lang = newLang;
+      document.querySelectorAll('.sv').forEach(function(el) { el.style.display = lang === 'sv' ? '' : 'none'; });
+      document.querySelectorAll('.am').forEach(function(el) { el.style.display = lang === 'am' ? '' : 'none'; });
+      document.querySelectorAll('.lang-pill').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('lang-' + lang).classList.add('active');
+    }
+    document.getElementById('lang-sv').addEventListener('click', function() { toggle('sv'); });
+    document.getElementById('lang-am').addEventListener('click', function() { toggle('am'); });
+  })();
+  </script>
 </body>
 </html>
