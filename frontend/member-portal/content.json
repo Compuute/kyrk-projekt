@@ -9,7 +9,8 @@
     "bankgiro_number": "5123-4567",
     "org_number": "802492-9237",
     "membership_fee_individual": 200,
-    "membership_fee_family": 500
+    "membership_fee_family": 500,
+    "autogiro_form_url": ""
   },
   "upcoming": [
     {

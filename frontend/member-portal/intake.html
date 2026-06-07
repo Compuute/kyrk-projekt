@@ -400,6 +400,16 @@
         <a id="success-swish-link" class="swish-btn" href="#" style="display:inline-block;width:auto;padding:14px 28px;margin-top:8px;background:#5bbf2e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
           Swish — betala nu
         </a>
+        <div id="autogiro-step" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid #d0d8f0;">
+          <strong>Steg 2 — Autogiro:</strong>
+          <p style="margin:6px 0">Signera med BankID s&#xE5; dras avgiften automatiskt varje m&#xE5;nad.</p>
+          <a id="autogiro-link" class="swish-btn" href="#" target="_blank" style="display:inline-block;width:auto;padding:14px 28px;background:var(--accent,#3b5bdb);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
+            Starta autogiro (BankID)
+          </a>
+          <p style="margin-top:8px;font-size:12px;color:var(--muted,#666)">
+            <strong>ደረጃ 2 — Autogiro:</strong> በ BankID ይፈርሙ ፣ ክፍያው በየወሩ በራስ-ሰር ይቀነሳል።
+          </p>
+        </div>
         <p style="margin-top:12px;font-size:12px;color:var(--muted,#666)">
           <strong>ቀጣይ ደረጃ:</strong> የመጀመሪያ ክፍያውን በ Swish ይክፈሉ። ከዚያ autogiro በራስ-ሰር ይጀምራል።
         </p>
@@ -647,6 +657,11 @@
                 swishLink.textContent = 'Swish — ' + fee + ' kr';
               } else {
                 swishLink.style.display = 'none';
+              }
+              var agFormUrl = (churchConfig && churchConfig.autogiro_form_url) || '';
+              if (agFormUrl) {
+                document.getElementById('autogiro-step').style.display = 'block';
+                document.getElementById('autogiro-link').href = agFormUrl;
               }
               return;
             }
