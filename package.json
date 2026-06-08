@@ -1,0 +1,20 @@
+{
+  "name": "kyrk-projekt",
+  "version": "1.0.0",
+  "description": "AI-native kyrkplattform för Etiopisk-Ortodoxa Tewahedo-kyrkan i Sverige. Byggd med security-by-design, flerspråksstöd (svenska + amharic), och en Telegram-bot som admin-gränssnitt.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@11ty/eleventy": "^3.1.6"
+  }
+}
