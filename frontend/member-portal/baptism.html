@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Dop &amp; namngivning — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
+</head>
+<body>
+  <nav class="site-nav" id="site-nav">
+    <a href="./">Hem</a><a href="./intake">Bli medlem</a><a href="./donate">Ge en gåva</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-toggle active" onclick="this.parentElement.classList.toggle('open')">Fler tjänster ▾</button>
+      <div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop &amp; namngivning</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div>
+    </div>
+    <a href="./live">Gudstjänst</a><a href="./calendar">Kalender</a><a href="./faq">FAQ</a>
+  </nav>
+  <main class="container">
+    <h1>Dop &amp; namngivning <span style="font-size:18px;color:var(--muted)">/ ጥምቀት</span></h1>
+
+    <div class="card">
+      <h2>Kristning i etiopisk ortodox tradition</h2>
+      <p>Enligt etiopisk ortodox tradition döps pojkar på den 40:e dagen och flickor på den 80:e dagen efter födseln. Vid dopet får barnet sitt kristna namn.</p>
+      <p style="color:var(--muted);margin-top:8px">በኢትዮጵያ ኦርቶዶክስ ባህል ወንድ ልጆች በ40ኛው ቀን፣ ሴት ልጆች በ80ኛው ቀን ይጠመቃሉ። ልጁ የክርስትና ስም ያገኛል።</p>
+    </div>
+
+    <div class="card">
+      <h2>Vad ingår?</h2>
+      <div class="activity-item"><div class="activity-title">Dopförrättning av präst</div><div class="activity-desc">Fullständig ortodox dopceremoni</div></div>
+      <div class="activity-item"><div class="activity-title">Dopbevis / ምስክር ወረቀት</div><div class="activity-desc">Digitalt certifikat utfärdat via plattformen</div></div>
+      <div class="activity-item"><div class="activity-title">Namngivning</div><div class="activity-desc">Kristet namn väljs i samråd med prästen</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Kontakta oss</h2>
+      <p>Kontakta prästen eller styrelsen för att boka dop. <a href="./contact">Kontaktsidan →</a></p>
+    </div>
+  </main>
+  <footer class="foot"><p class="muted small">Den här sidan använder inga kakor och spårar dig inte.</p></footer>
+  <script>setupLangPills(); initChurchSelector();</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Lokal &amp; bokning — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
+</head>
+<body>
+  <nav class="site-nav"><a href="./">Hem</a><a href="./intake">Bli medlem</a><a href="./donate">Ge en gåva</a><div class="nav-dropdown"><button class="nav-dropdown-toggle active" onclick="this.parentElement.classList.toggle('open')">Fler tjänster ▾</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div><a href="./live">Gudstjänst</a><a href="./calendar">Kalender</a><a href="./faq">FAQ</a></nav>
+  <main class="container">
+    <h1>Lokal &amp; bokning <span style="font-size:18px;color:var(--muted)">/ አዳራሽ እና ቦታ ማስያዝ</span></h1>
+
+    <div class="card">
+      <h2>Våra lokaler / የእኛ አዳራሾች</h2>
+      <p>Församlingen har lokaler som kan bokas för privata evenemang, minnesceremonier och sammankomster.</p>
+      <p style="color:var(--muted);margin-top:8px">ቤተ ክርስቲያኑ ለግል ዝግጂቶች፣ ለመታሰቢያ ሥነ ሥርዓቶች እና ለስብሰባዎች ሊያዙ የሚችሉ አዳራሾች አሉት።</p>
+    </div>
+
+    <div class="card">
+      <h2>Tillgängliga utrymmen / ያሉ ቦታዎች</h2>
+      <div class="activity-item">
+        <div class="activity-title">Stora salen / ትልቅ አዳራሽ</div>
+        <div class="activity-desc">Kapacitet: 200 personer. Bröllop, minnesceremonier, stora evenemang.
+          <br /><span style="color:var(--muted)">አቅም: 200 ሰዎች። ሰርግ፣ ተዝካር፣ ትልልቅ ዝግጂቶች።</span></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-title">Lilla salen / ትንሽ አዳራሽ</div>
+        <div class="activity-desc">Kapacitet: 50 personer. Möten, studiegrupper, söndagsskola.
+          <br /><span style="color:var(--muted)">አቅም: 50 ሰዎች። ስብሰባዎች፣ የጥናት ቡድኖች፣ ሰንበት ትምህርት ቤት።</span></div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-title">Kök / ወጥ ቤት</div>
+        <div class="activity-desc">Fullutrustat kök för matlagning vid evenemang.
+          <br /><span style="color:var(--muted)">ለዝግጅቶች ማብሰያ ሙሉ በሙሉ የታጠቀ ወጥ ቤት።</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Boka lokal / ቦታ ያስይዙ</h2>
+      <p>Kontakta styrelsen för att boka. Medlemmar har förtur. Pris beror på typ av evenemang.</p>
+      <p style="color:var(--muted);margin-top:8px">ለማስያዝ ቦርዱን ያግኙ። አባላት ቅድሚያ ይሰጣቸዋል። ዋጋ በዝግጅቱ ዓይነት ይለያያል።</p>
+      <a href="./contact" class="submit-btn" style="display:inline-block;width:auto;padding:14px 28px;margin-top:12px;text-decoration:none;text-align:center">Kontakta oss / ያግኙን →</a>
+    </div>
+  </main>
+  <footer class="foot"><p class="muted small">Den här sidan använder inga kakor och spårar dig inte.<br />ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም።</p></footer>
+  <script>setupLangPills(); initChurchSelector();</script>
+</body>
+</html>

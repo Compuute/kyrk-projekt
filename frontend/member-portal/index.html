@@ -31,13 +31,23 @@
   </div>
 
   <nav class="site-nav" id="site-nav">
-    <a href="./">Hem</a>
+    <a href="./" class="active">Hem</a>
     <a href="./intake">Bli medlem</a>
     <a href="./donate">Ge en gåva</a>
+    <div class="nav-dropdown" id="nav-services">
+      <button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler tjänster ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="./funeral">Begravning & hemtransport</a>
+        <a href="./baptism">Dop & namngivning</a>
+        <a href="./tezkar">Minnesbön (ተዝካር)</a>
+        <a href="./library">Bibliotek & texter</a>
+        <a href="./support">Stöd & rådgivning</a>
+        <a href="./venue">Lokal & bokning</a>
+      </div>
+    </div>
     <a href="./live">Gudstjänst</a>
     <a href="./calendar">Kalender</a>
     <a href="./faq">FAQ</a>
-    <a href="./privacy">Integritet</a>
   </nav>
 
   <main class="container" id="app">

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Minnesbön (ተዝካር) — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
+</head>
+<body>
+  <nav class="site-nav"><a href="./">Hem</a><a href="./intake">Bli medlem</a><a href="./donate">Ge en gåva</a><div class="nav-dropdown"><button class="nav-dropdown-toggle active" onclick="this.parentElement.classList.toggle('open')">Fler tjänster ▾</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div><a href="./live">Gudstjänst</a><a href="./calendar">Kalender</a><a href="./faq">FAQ</a></nav>
+  <main class="container">
+    <h1>Minnesbön <span style="font-size:18px;color:var(--muted)">/ ተዝካር (Tezkar)</span></h1>
+
+    <div class="card">
+      <h2>Vad är tezkar?</h2>
+      <p>Tezkar (ተዝካር) betyder "åminnelse" — en minnesceremoni för att be för de bortgångna. Enligt Fetha Negest (kyrkans kanoniska lag, kapitel 22) ska böner läsas vid specifika dagar efter bortgången.</p>
+      <p style="color:var(--muted);margin-top:8px">ተዝካር ማለት "ማስታወሻ" — ለሞቱት ለመጸለይ የሚደረግ የመታሰቢያ ሥነ ሥርዓት ነው።</p>
+    </div>
+
+    <div class="card">
+      <h2>Minnesdagar</h2>
+      <div class="activity-item"><div class="activity-title">Dag 3 — ሦስተኛ (Seleste)</div><div class="activity-desc">Heliga Treenigheten</div></div>
+      <div class="activity-item"><div class="activity-title">Dag 7 — ሰባተኛ (Sebate)</div><div class="activity-desc">En vecka av sorg</div></div>
+      <div class="activity-item"><div class="activity-title">Dag 12 — አሥራ ሁለተኛ</div><div class="activity-desc">Tidig minnesdag</div></div>
+      <div class="activity-item"><div class="activity-title">Dag 40 — አርብዓ (Arba'a)</div><div class="activity-desc">Stor minnesdag — Kristi himmelsfärd</div></div>
+      <div class="activity-item"><div class="activity-title">Dag 80 — ሰማንያ (Semaniya)</div><div class="activity-desc">Stor minnesdag</div></div>
+      <div class="activity-item"><div class="activity-title">6 månader — ምንፈቅ (Menfeq)</div><div class="activity-desc">Halvårsminne</div></div>
+      <div class="activity-item"><div class="activity-title">1 år — አመት (Amet)</div><div class="activity-desc">Årsminne, upprepas i 7 år</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Boka minnesbön</h2>
+      <p>Kontakta prästen för att boka tezkar. Ange den bortgångnes kristna namn och önskat datum. Betalning sker via Swish.</p>
+      <a href="./contact" class="submit-btn" style="display:inline-block;width:auto;padding:14px 28px;margin-top:12px;text-decoration:none;text-align:center">Kontakta oss →</a>
+    </div>
+  </main>
+  <footer class="foot"><p class="muted small">Den här sidan använder inga kakor och spårar dig inte.</p></footer>
+  <script>setupLangPills(); initChurchSelector();</script>
+</body>
+</html>

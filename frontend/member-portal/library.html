@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Bibliotek — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
+</head>
+<body>
+  <nav class="site-nav"><a href="./">Hem</a><a href="./intake">Bli medlem</a><a href="./donate">Ge en gåva</a><div class="nav-dropdown"><button class="nav-dropdown-toggle active" onclick="this.parentElement.classList.toggle('open')">Fler tjänster ▾</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div><a href="./live">Gudstjänst</a><a href="./calendar">Kalender</a><a href="./faq">FAQ</a></nav>
+  <main class="container">
+    <h1>Bibliotek &amp; religiösa texter <span style="font-size:18px;color:var(--muted)">/ ቤተ መጻሕፍት</span></h1>
+
+    <div class="card">
+      <h2>Tillgängliga texter</h2>
+      <div class="activity-item"><div class="activity-title">Bibeln (መጽሐፍ ቅዱስ)</div><div class="activity-desc">Hela Bibeln på amhariska och svenska</div></div>
+      <div class="activity-item"><div class="activity-title">Fetha Negest (ፍትሐ ነገሥት)</div><div class="activity-desc">Kyrkans kanoniska lag — regler för tro och tradition</div></div>
+      <div class="activity-item"><div class="activity-title">Kebra Nagast (ክብረ ነገሥት)</div><div class="activity-desc">Kungars ära — Salomos och Shebas berättelse</div></div>
+      <div class="activity-item"><div class="activity-title">Synaxarium (ስንክሳር)</div><div class="activity-desc">Dagliga helgonberättelser för varje dag i etiopiska kalendern</div></div>
+      <div class="activity-item"><div class="activity-title">Weddase Maryam (ውዳሴ ማርያም)</div><div class="activity-desc">Mariahymner — dagliga lovsånger</div></div>
+      <div class="activity-item"><div class="activity-title">Böneböcker</div><div class="activity-desc">Samling av dagliga och söndagliga böner</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Låna böcker</h2>
+      <p>Kontakta kyrkan för att låna fysiska böcker. Digitala texter kommer att publiceras här framöver.</p>
+      <p style="color:var(--muted);margin-top:8px">መጽሐፍትን ለመውሰድ ቤተ ክርስቲያንን ያግኙ። ዲጂታል ጽሑፎች በቅርቡ ይለቀቃሉ።</p>
+    </div>
+  </main>
+  <footer class="foot"><p class="muted small">Den här sidan använder inga kakor och spårar dig inte.</p></footer>
+  <script>setupLangPills(); initChurchSelector();</script>
+</body>
+</html>
