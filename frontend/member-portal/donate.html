@@ -89,7 +89,7 @@
     var BANKGIRO_NUMBER = '';
 
     // Load church config dynamically
-    fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+    fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : {}; })
       .then(function (data) {
         var church = (data && data.church) || {};

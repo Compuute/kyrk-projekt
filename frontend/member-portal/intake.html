@@ -540,8 +540,9 @@
 
       var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
 
-      // Load church config from content.json (dynamic per church)
-      fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+      document.getElementById('field-church-id').value = getSelectedChurch();
+
+      fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (data) {
           churchConfig = (data && data.church) || {};

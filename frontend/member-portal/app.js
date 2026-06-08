@@ -350,6 +350,23 @@ function setSelectedChurch(churchId) {
   }
 }
 
+function getContentUrl() {
+  var church = getSelectedChurch();
+  return './churches/' + church + '/content.json';
+}
+
+function loadChurchContent(callback) {
+  var url = getContentUrl();
+  fetch(url, { credentials: 'omit', cache: 'no-store' })
+    .then(function (r) {
+      if (r.ok) return r.json();
+      return fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+        .then(function (r2) { return r2.ok ? r2.json() : {}; });
+    })
+    .then(function (data) { callback(data); })
+    .catch(function () { callback({}); });
+}
+
 function initChurchSelector() {
   if (typeof document === 'undefined') return;
 
@@ -391,8 +408,7 @@ function initChurchSelector() {
             '<div class="church-item-city">' + c.city + '</div></div>' +
             '<button class="church-item-select">' + (lang === 'am' ? 'ምረጥ' : 'Välj') + '</button>';
           item.addEventListener('click', function () {
-            setSelectedChurch(c.id);
-            window.location.reload();
+            showChurchDetail(c, modal, lang);
           });
           list.appendChild(item);
         });
@@ -428,6 +444,32 @@ function initChurchSelector() {
     .catch(function () {});
 }
 
+function showChurchDetail(church, modal, lang) {
+  var inner = modal.querySelector('.church-modal-inner');
+  var name = _t(church.name, lang);
+  inner.innerHTML =
+    '<button class="church-modal-close" onclick="this.closest(\'.church-modal\').classList.remove(\'open\')">Stäng &#x2715;</button>' +
+    '<h2>' + name + '</h2>' +
+    '<div style="margin:16px 0">' +
+      (church.address ? '<p><strong>' + (lang === 'am' ? 'አድራሻ:' : 'Besöksadress:') + '</strong><br/>' + church.address + '</p>' : '') +
+      (church.phone ? '<p style="margin-top:12px"><strong>' + (lang === 'am' ? 'ስልክ:' : 'Telefon:') + '</strong><br/>' + church.phone + '</p>' : '') +
+      (church.email ? '<p style="margin-top:12px"><strong>' + (lang === 'am' ? 'ኢሜይል:' : 'E-post:') + '</strong><br/>' + church.email + '</p>' : '') +
+      (church.org_number ? '<p style="margin-top:12px;font-size:13px;color:var(--muted)">Org.nr: ' + church.org_number + '</p>' : '') +
+    '</div>' +
+    '<button class="church-locate-btn" id="select-church-btn" style="margin-top:16px">' +
+      (lang === 'am' ? 'ይህንን ቤተ ክርስቲያን ይምረጡ' : 'Välj denna kyrka') +
+    '</button>' +
+    '<button style="display:block;width:100%;padding:12px;margin-top:8px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--fg);cursor:pointer;font-size:14px" onclick="window.location.reload()">' +
+      (lang === 'am' ? 'ተመለስ' : 'Tillbaka till listan') +
+    '</button>';
+  document.getElementById('select-church-btn').addEventListener('click', function () {
+    setSelectedChurch(church.id);
+    var churchIdField = document.getElementById('field-church-id');
+    if (churchIdField) churchIdField.value = church.id;
+    window.location.reload();
+  });
+}
+
 if (typeof window !== 'undefined') {
   window.validateName = validateName;
   window.validatePhone = validatePhone;
@@ -438,6 +480,8 @@ if (typeof window !== 'undefined') {
   window.registerServiceWorker = registerServiceWorker;
   window.initChurchSelector = initChurchSelector;
   window.getSelectedChurch = getSelectedChurch;
+  window.getContentUrl = getContentUrl;
+  window.loadChurchContent = loadChurchContent;
   setupErrorMonitoring();
 }
 

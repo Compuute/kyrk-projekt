@@ -149,7 +149,7 @@
 
   <script>
     // Load YouTube channel from content.json (modulärt per kyrka)
-    fetch('./content.json', { credentials: 'omit' })
+    fetch(getContentUrl(), { credentials: 'omit' })
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(config) {
         if (!config) return;

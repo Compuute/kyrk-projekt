@@ -86,7 +86,7 @@
       setupLangPills();
       initChurchSelector();
 
-      fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+      fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (data) {
           var events = (data && data.upcoming) || [];

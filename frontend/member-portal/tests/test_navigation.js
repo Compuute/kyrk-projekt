@@ -64,7 +64,7 @@ ok(faqCount >= 8, 'faq.html has at least 8 FAQ items (found ' + faqCount + ')');
 
 // --- Calendar page loads events ---
 var calHtml = fs.readFileSync(path.join(ROOT, 'calendar.html'), 'utf8');
-ok(calHtml.indexOf('content.json') > 0, 'calendar.html loads content.json');
+ok(calHtml.indexOf('getContentUrl') > 0 || calHtml.indexOf('content.json') > 0, 'calendar.html loads church content');
 ok(calHtml.indexOf('cal-list') > 0, 'calendar.html has event list container');
 ok(calHtml.indexOf('schedule-title') > 0, 'calendar.html has weekly schedule');
 

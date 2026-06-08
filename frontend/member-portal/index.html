@@ -329,7 +329,7 @@
   <script src="app.js"></script>
   <script>
     (async function () {
-      var content = await loadContent('./content.json');
+      var content = await loadContent(getContentUrl());
       var lang = detectLanguage();
       renderPage(content, lang);
       setupLanguageSwitcher(content);
