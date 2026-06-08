@@ -16,8 +16,32 @@
     .policy th, .policy td { border: 1px solid var(--border); padding: 10px; text-align: left; }
     .policy th { background: var(--card); font-weight: 600; }
   </style>
+  <script src="app.js"></script>
 </head>
 <body>
+  <div class="church-bar" id="church-bar">
+    <span class="church-bar-icon">&#x26EA;</span>
+    <span class="church-bar-name">Abune Tekle Haymanot — Nacka</span>
+    <span class="church-bar-change">Byt kyrka &#x25BE;</span>
+  </div>
+  <div class="church-modal" id="church-modal">
+    <div class="church-modal-inner">
+      <button class="church-modal-close">Stäng &#x2715;</button>
+      <h2>Välj kyrka</h2>
+      <input type="text" class="church-search" placeholder="Sök på namn eller ort..." />
+      <button class="church-locate-btn">&#x1F4CD; Hitta nära mig</button>
+      <div class="church-list"></div>
+    </div>
+  </div>
+    <nav class="site-nav" id="site-nav">
+    <a href="./">Hem</a>
+    <a href="./intake">Bli medlem</a>
+    <a href="./donate">Ge en gåva</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler tjänster &#x25BE;</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div>
+    <a href="./live">Gudstjänst</a>
+    <a href="./calendar">Kalender</a>
+    <a href="./faq">FAQ</a>
+  </nav>
   <main class="container" id="app">
 
     <div class="lang-switcher" id="lang-switcher">
@@ -168,5 +192,6 @@
     document.getElementById('lang-am').addEventListener('click', function() { toggle('am'); });
   })();
   </script>
+  <script>setupLangPills(); initChurchSelector();</script>
 </body>
 </html>

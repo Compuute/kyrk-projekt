@@ -10,8 +10,26 @@
   <script src="app.js"></script>
 </head>
 <body>
+  <div class="church-bar" id="church-bar">
+    <span class="church-bar-icon">&#x26EA;</span>
+    <span class="church-bar-name">Abune Tekle Haymanot — Nacka</span>
+    <span class="church-bar-change">Byt kyrka &#x25BE;</span>
+  </div>
+  <div class="church-modal" id="church-modal">
+    <div class="church-modal-inner">
+      <button class="church-modal-close">Stäng &#x2715;</button>
+      <h2>Välj kyrka</h2>
+      <input type="text" class="church-search" placeholder="Sök på namn eller ort..." />
+      <button class="church-locate-btn">&#x1F4CD; Hitta nära mig</button>
+      <div class="church-list"></div>
+    </div>
+  </div>
   <nav class="site-nav"><a href="./">Hem</a><a href="./intake">Bli medlem</a><a href="./donate">Ge en gåva</a><div class="nav-dropdown"><button class="nav-dropdown-toggle active" onclick="this.parentElement.classList.toggle('open')">Fler tjänster ▾</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div><a href="./live">Gudstjänst</a><a href="./calendar">Kalender</a><a href="./faq">FAQ</a></nav>
   <main class="container">
+    <div class="lang-switcher">
+      <button class="lang-pill active" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
     <h1>Lokal &amp; bokning <span style="font-size:18px;color:var(--muted)">/ አዳራሽ እና ቦታ ማስያዝ</span></h1>
 
     <div class="card">
