@@ -429,8 +429,7 @@
     </footer>
   </main>
   <script>
-  // validateName, validatePhone, validatePersonnummer, toggleConsent, buildSwishLink — loaded from app.js
-
+  var churchConfig = {};
   var familyCount = 0;
 
   function selectType(type) {
@@ -511,7 +510,6 @@
       var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
 
       // Load church config from content.json (dynamic per church)
-      var churchConfig = {};
       fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
         .then(function (r) { return r.ok ? r.json() : {}; })
         .then(function (data) {
