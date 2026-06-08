@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kyrka-v2';
+const CACHE_NAME = 'kyrka-v3';
 const OFFLINE_URLS = [
   '/',
   '/index.html',
@@ -46,17 +46,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for everything else (HTML, CSS, JS, icons)
+  // Stale-while-revalidate: serve cache immediately, fetch update in background
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
+      const fetchPromise = fetch(event.request).then((response) => {
         if (response.ok && event.request.method === 'GET') {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
       });
+      return cached || fetchPromise;
     })
   );
 });
