@@ -1,9 +1,7 @@
-cat > frontend/member-portal/src/_includes/base.njk << 'NJKEOF'
 <!DOCTYPE html>
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  {% if description %}<meta name="description" content="{{ description }}" />{% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#3b5bdb" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -12,7 +10,6 @@ cat > frontend/member-portal/src/_includes/base.njk << 'NJKEOF'
   <title>{{ title }}</title>
   <link rel="stylesheet" href="/styles.css" />
   <script src="/app.js"></script>
-  {{ head | safe }}
 </head>
 <body>
   <div class="top-bar">
@@ -23,71 +20,70 @@ cat > frontend/member-portal/src/_includes/base.njk << 'NJKEOF'
   <div class="church-bar" id="church-bar">
     <span class="church-bar-icon">&#x26EA;</span>
     <span class="church-bar-name">Laddar...</span>
-    <span id="eth-date" style="font-size:11px;opacity:0.8;marin-left:auto"></span>
+    <span id="eth-date" style="font-size:11px;opacity:0.8;margin-left:auto"></span>
     <span class="church-bar-change">Byt kyrka &#x25BE;</span>
   </div>
-  <div class="church-modal" id="church-modal">
+  <div cass="church-modal" id="church-modal">
     <div class="church-modal-inner">
-      <button class="church-modal-close">Stäng &#x2715;</button>
-      <h2>Välj kyrka</h2>
-      <input type="text" class="church-search" placeholder="Sök på namn eller ort..." />
-      <button class="church-locate-btn">&#x1F4CD; Hitta nära mig</button>
+      <button class="church-modal-close">Stang &#x2715;</button>
+      <h2>Valj kyrka</h2>
+      <input type="text" class="church-search" placeholder="Sok..." />
+      <button class="church-locate-btn">&#x1F4CD; Hitta nara mig</button>
       <div class="church-list"></div>
     </div>
   </div>
   <nav class="site-nav" id="site-nav">
-    <a href="./"{% if activePage == "home" %} class="active"{% endif %}><span class="sv">Hem</span><span class="am" style="display:none">ቤት</span></a>
-    <a href="./intake"{% if activePage == "intake" %} class="active"{% endif %}><span class="sv">Bli medlem</spanass="am" style="display:none">አባል ይሁኑ</span></a>
-    <div class="nav-dropdown"><button class="nav-dropdown-toggle{% if activePage == "service" %} active{% endif %}" onclick="this.parentElement.classList.toggle('open')"><span class="sv">Fler tjänster</span><span class="am" style="display:none">ተጨማሪ</span> &#x25BE;</button><div class="nav-dropdown-menu"><a href="./funeral"><span class="sv">Begravning</span><span class="am" style="display:none">ቀብር</span></a><a href="./baptism"><span class="sv">Dop</span><span class="am" style="display:none">ጥምቀት</span></a><a href="./tezkar"><span cla="am" style="display:none">ተዝካር</span></a><a href="./library"><span class="sv">Bibliotek</span><span class="am" style="display:none">ቤተ መጻሕፍት</span></a><a href="./support"><span class="sv">Stöd</span><span class="am" style="display:none">ድጋፍ</span></a><a href="./venue"><span class="sv">Lokal</span><span class="am" style="display:none">አዳራሽ</span></a></div></div>
-    <a href="./live"{% if activePage == "live" %} class="active"{% endif %}><span class="sv">Gudstjänst</span><span class="am" style="display:none">ቅዳሴ</span></a>
-"calendar" %} class="active"{% endif %}><span class="sv">Kalender</span><span class="am" style="display:none">ቀን መቁጠሪያ</span></a>
-    <a href="./faq"{% if activePage == "faq" %} class="active"{% endif %}>FAQ</a>
-  </nav>
-  {% if breadcrumb %}<div class="breadcrumb"><a href="./">Start</a> / {{ breadcruendif %}
-
-  <main class="container">
-    <div class="lang-switcher">
-      <button class="lang-pill active" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
-      <button class="lang-pill" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    <a href="./">Hem</a>
+    <a href="./intake">Bli medlem</a>
+    <div class="nav-dropdown">
+      <button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler &#x25BE;</button>
+      <div class="nav-dropdown-menu">
+        <a href="./funeral">Begravning</a>
+        <a href="./baptism">Dop</a>
+        <a href="./tezkar">Minnesbon</a>
+        <a href="./library">Bibliotek</a>
+        <a href="./support">Stod</a>
+        <a href="./venue">Lokal</a>
+      </div>
     </div>
-
+    <a href="./live">Gudstjanst</a>
+    <a href="./calendar">Kalender</a>
+    <a href="./faq">FAQ</a>
+  </nav>
+  <main class="container">
     {{ content | safe }}
   </main>
-
   <footer class="site-footer">
     <div class="footer-grid">
       <div class="footer-col">
-        <h3><span class="sv">Kontakt</span><span class="am" style="display:none">ግንኙነት</span></h3>
-  d="footer-church-name">Laddar...</p>
-        <a href="./contact"><span class="sv">Kontakta oss</span><span class="am" style="display:none">ያግኙን</span></a>
-        <a id="footer-phone" href="#"><span class="sv">Telefon</span><span class="am" style="display:none">ስልክ</span></a>
+        <h3>Kontakt</h3>
+        <p id="footer-church-name">Laddar...</p>
+        <a href="./contact">Kontakta oss</a>
+        <a id="footer-phone" href="#">Telefon</a>
         <p id="footer-org" style="font-size:11px;margin-top:4px"></p>
       </div>
       <div class="footer-col">
-        <h3><span class="sv">Kalender</span><span class="am" style="display:none">ቀን ዝግጅቶች</span></h3>
-        <a href="./calendar"><span class="sv">Kommande evenemang</span><span class="am" style="display:none">የቀረቡ ዝግጅቶች</span></a>
-        <a href="./live"><span class="sv">Gudstjänst live</span><span class="am" style="display:none">የቀጥታ ቅዳሴ</span></a>
-      </div>
-      <div class="footer-col"="am" style="display:none">በፍጥነት ያግኙ</span></h3>
-        <a href="./support"><span class="sv">Stöd &amp; rådgivning</span><span class="am" style="display:none">ድጋፍ እና ምክር</span></a>
-        <a href="./intake"><span class="sv">Bli medlem</span><span class="am" style="display:none">አባል ይሁኑ</span></a>
-        <a href="./donate"><span class="sv">Ge en gåva</span><span class="am" style="display:none">ስጦታ ይስጡ</span></a>
-        <a href="./faq">FAQ</a>
-        <a href="./library"><span class="sv">Bibliotek</span><span class="am" style="display:none">ቤተ መጻሕፍት</span></a>
+        <h3>Kalender</h3>
+        <a href="./calendar">Kommande evenemang</a>
+        <a href="./live">Gudstjanst live</a>
       </div>
       <div class="footer-col">
-        <h3><span class="sv">Sociala kanaler</span><span class="am" style="display:none">ማህበራዊ ሚዲያ</span></h3>
+        <h3>Hitta snabbt</h3>
+        <a href="./support">Stod</a>
+        <a href="./intake">Bli medlem</a>
+        <a href="./donate">Ge en gava</a>
+        <a href="./faq">FAQ</a>
+        <a href="./library">Bibliotek</a>
+      </div>
+      <div class="footer-col">
+        <h3>Sociala kanaler</h3>
         <a href="https://t.me/kyrka_kanal" target="_blank">Telegram</a>
-        <a href="./about"><span class="sv">Om oss</span><span class="am" style="display:none">ስለ እኛ</span></a>
-        <a href=".ሊሲ</span></a>
+        <a href="./about">Om oss</a>
+        <a href="./privacy">Integritetspolicy</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span class="sv">Den här sidan använder inga kakor och spårar dig inte.</span>
-      <span class="am" style="display:none">ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም።</span>
-    </div>
+    <div class="footer-bottom">Inga kakor, ingen sparning.</div>
   </footer>
   <script>setupLangPills(); initChurchSelector(); initChurchData();</script>
 </body>
 </html>
-NJKEOF
