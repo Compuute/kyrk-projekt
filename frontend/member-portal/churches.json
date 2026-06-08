@@ -24,14 +24,14 @@
     },
     {
       "id": "stockholm",
-      "name": {"sv": "Menbere Tsebaot Kidist Selassie", "am": "መንበረ ጸባዖት ቅድስት ሥላሴ"},
+      "name": {"sv": "Medhane Alem", "am": "መድኃኔ ዓለም"},
       "city": "Stockholm",
-      "address": "Hägersten, Stockholm",
+      "address": "Pålsbodagränd 3, Hägsätra, Stockholm",
       "org_number": "",
       "swish_number": "",
-      "phone": "",
-      "email": "",
-      "coords": {"lat": 59.30, "lng": 18.00}
+      "phone": "+46 8 724 60 76",
+      "email": "Dekikebetu27@gmail.com",
+      "coords": {"lat": 59.26, "lng": 18.01}
     },
     {
       "id": "malmo",

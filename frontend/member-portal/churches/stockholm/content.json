@@ -1,0 +1,57 @@
+{
+  "version": "2.0",
+  "church": {
+    "name": {"sv": "Medhane Alem Etiopiska Ortodoxa Tewahedo Kyrkan", "am": "የኢትዮጵያ ኦርቶዶክስ ተዋሕዶ መድኃኔዓለም ቤተ ክርስቲያን"},
+    "tagline": {"sv": "Välkommen — Hägsätra, Stockholm", "am": "እንኳን ደህና መጡ — ሃግሰትራ፣ ስቶክሆልም"},
+    "youtube_channel_id": "",
+    "address": "Pålsbodagränd 3, Hägsätra, Stockholm",
+    "postal_address": "Box 1036, 101 38 Stockholm",
+    "swish_number": "",
+    "bankgiro_number": "",
+    "postgiro": "4980549-2",
+    "org_number": "",
+    "phone": "+46 8 724 60 76",
+    "email": "Dekikebetu27@gmail.com",
+    "membership_fee_individual": 200,
+    "membership_fee_family": 500,
+    "autogiro_form_url": ""
+  },
+  "upcoming": [
+    {
+      "title": {"sv": "Söndagsgudstjänst", "am": "የእሁድ ቅዳሴ"},
+      "date": "2026-06-15",
+      "time": "08:00",
+      "description": {"sv": "Gudstjänst med nattvard. Alla välkomna.", "am": "ቅዳሴ ከቁርባን ጋር። ሁሉም እንኳን ደህና መጡ።"}
+    },
+    {
+      "title": {"sv": "Bön och lovsång", "am": "ጸሎት እና መዝሙር"},
+      "date": "2026-06-18",
+      "time": "18:00",
+      "description": {"sv": "Onsdag kväll — bön och lovsång.", "am": "ረቡዕ ምሽት — ጸሎት እና መዝሙር።"}
+    }
+  ],
+  "announcements": [
+    {
+      "title": {"sv": "Gudstjänst varje söndag kl 08:00", "am": "በየእሁዱ ቅዳሴ ከ08:00"},
+      "body": {"sv": "Medhane Alem kyrkan i Hägsätra välkomnar alla till söndagens gudstjänst.", "am": "በሃግሰትራ የመድኃኔ ዓለም ቤተ ክርስቲያን ለሁሉም እንኳን ደህና መጡ።"},
+      "date": "2026-06-01"
+    }
+  ],
+  "links": {
+    "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "./intake"},
+    "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "./donate"},
+    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live"},
+    "funeral": {"sv": "Begravning", "am": "ቀብር", "url": "./funeral"},
+    "about": {"sv": "Om oss", "am": "ስለ እኛ", "url": "./about"},
+    "contact": {"sv": "Kontakt", "am": "ያግኙን", "url": "./contact"},
+    "telegram": {"sv": "Telegram", "am": "ቴሌግራም", "url": "https://t.me/kyrka_kanal"},
+    "privacy": {"sv": "Integritetspolicy", "am": "የግላዊነት ፖሊሲ", "url": "./privacy"}
+  },
+  "footer": {
+    "privacy": {
+      "sv": "Den här sidan använder inga kakor och spårar dig inte. Läs vår integritetspolicy.",
+      "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም። የግላዊነት ፖሊሲያችንን ያንብቡ።"
+    },
+    "privacy_url": "./privacy"
+  }
+}
