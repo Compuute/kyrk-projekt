@@ -14,6 +14,16 @@
 | Kontakt | https://kyrka-portal.pages.dev/contact |
 | Integritetspolicy | https://kyrka-portal.pages.dev/privacy |
 
+## Backend (Cloud Run)
+
+| Tjänst | URL | Auth |
+|---|---|---|
+| **membership-intake** | https://membership-intake-479770870521.europe-north1.run.app | Publik (allUsers) |
+| **admin-web** | https://admin-web-oixhrgkhpq-lz.a.run.app | IAM (Daniel.abbay@compuute.net) |
+| membership-service | `gcloud run services describe membership-service --region=europe-north1` | IAM |
+| certificate-service | `gcloud run services describe certificate-service --region=europe-north1` | IAM |
+| reporting-service | `gcloud run services describe reporting-service --region=europe-north1` | IAM |
+
 ## GitHub
 
 | Vad | URL |
