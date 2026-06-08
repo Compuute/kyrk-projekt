@@ -15,31 +15,46 @@
 }
 */
 
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&display=swap');
+
+@view-transition { navigation: auto; }
+
 :root {
-  --bg: #faf9f6;
-  --fg: #222;
-  --muted: #666;
-  --accent: #3b5bdb;
+  --bg: #FAF5FF;
+  --fg: #4C1D95;
+  --muted: #555;
+  --accent: #7C3AED;
+  --accent-light: #A78BFA;
+  --cta: #CA8A04;
   --card: #ffffff;
   --border: #e5e5e5;
   --radius: 14px;
+  --focus-ring: 3px;
+  --touch-min: 44px;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Lexend', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--fg);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
 }
 
-/* Amharic text uses Ge'ez script and needs a taller line-height */
 body[data-lang="am"] {
-  font-family: 'Noto Sans Ethiopic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Noto Sans Ethiopic', 'Lexend', -apple-system, sans-serif;
   line-height: 1.7;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+:focus-visible { outline: var(--focus-ring) solid var(--accent); outline-offset: 2px; }
 
 .container {
   max-width: 560px;
@@ -59,8 +74,9 @@ body[data-lang="am"] {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 4px 12px;
-  font-size: 13px;
+  padding: 8px 16px;
+  min-height: var(--touch-min);
+  font-size: 14px;
   cursor: pointer;
   color: var(--fg);
   transition: background 0.15s;
@@ -179,16 +195,17 @@ body[data-lang="am"] {
   align-items: center;
   justify-content: center;
   min-height: 72px;
-  padding: 12px;
+  padding: 14px;
   background: var(--accent);
   color: white;
   border-radius: var(--radius);
   text-decoration: none;
   font-weight: 600;
   text-align: center;
+  transition: transform 0.1s, opacity 0.1s;
 }
 
-.tile:active { opacity: 0.85; }
+.tile:active { transform: scale(0.97); opacity: 0.9; }
 
 .foot { text-align: center; }
 
