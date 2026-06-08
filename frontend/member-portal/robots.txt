@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kyrka-portal.pages.dev/sitemap.xml
