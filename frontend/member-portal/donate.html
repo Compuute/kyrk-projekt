@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#3b5bdb" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <title>Ge en gåva — Abune Tekle Haymanot</title>
@@ -105,16 +105,28 @@
       updateSwishLink();
     });
 
+    function isMobile() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
     function updateSwishLink() {
-      if (selectedAmount > 0) {
-        // Swish deep link format
-        // On mobile: opens Swish app directly
-        // On desktop: shows a message to use mobile
-        swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, 'Gåva till kyrkan');
-        swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+      if (selectedAmount > 0 && SWISH_NUMBER) {
+        if (isMobile()) {
+          swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, 'Gåva till kyrkan');
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.onclick = null;
+        } else {
+          swishBtn.href = '#';
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.onclick = function (e) {
+            e.preventDefault();
+            alert('Öppna Swish-appen på din telefon och swisha ' + selectedAmount + ' kr till ' + SWISH_NUMBER + '\n\nSwish-nummer: ' + SWISH_NUMBER);
+          };
+        }
       } else {
         swishBtn.href = '#';
         swishBtn.textContent = 'Swish — välj belopp';
+        swishBtn.onclick = null;
       }
     }
 
