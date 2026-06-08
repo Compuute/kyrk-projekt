@@ -444,6 +444,48 @@ function initChurchSelector() {
     .catch(function () {});
 }
 
+function applyChurchToPage(church, lang) {
+  if (typeof document === 'undefined' || !church) return;
+  var name = _t(church.name, lang);
+
+  // Page title
+  var titleEl = document.querySelector('title');
+  if (titleEl && name) {
+    var parts = titleEl.textContent.split('—');
+    if (parts.length > 1) titleEl.textContent = parts[0].trim() + ' — ' + name;
+  }
+
+  // Footer church name
+  var footerName = document.getElementById('footer-church-name');
+  if (footerName) footerName.innerHTML = name;
+
+  // Footer org number
+  var footerOrg = document.getElementById('footer-org');
+  if (footerOrg && church.org_number) footerOrg.textContent = 'Org.nr: ' + church.org_number;
+
+  // Footer phone
+  var footerPhone = document.getElementById('footer-phone');
+  if (footerPhone && church.phone) {
+    footerPhone.href = 'tel:' + church.phone.replace(/\s/g, '');
+    footerPhone.textContent = church.phone;
+  }
+}
+
+function initChurchData() {
+  if (typeof document === 'undefined') return;
+  var churchId = getSelectedChurch();
+  fetch('./churches.json', { credentials: 'omit' })
+    .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
+    .then(function (data) {
+      var church = (data.churches || []).find(function (c) { return c.id === churchId; });
+      if (church) {
+        var lang = document.body.getAttribute('data-lang') || 'sv';
+        applyChurchToPage(church, lang);
+      }
+    })
+    .catch(function () {});
+}
+
 function showChurchDetail(church, modal, lang) {
   var inner = modal.querySelector('.church-modal-inner');
   var name = _t(church.name, lang);
@@ -479,6 +521,8 @@ if (typeof window !== 'undefined') {
   window.setupLangPills = setupLangPills;
   window.registerServiceWorker = registerServiceWorker;
   window.initChurchSelector = initChurchSelector;
+  window.initChurchData = initChurchData;
+  window.applyChurchToPage = applyChurchToPage;
   window.getSelectedChurch = getSelectedChurch;
   window.getContentUrl = getContentUrl;
   window.loadChurchContent = loadChurchContent;
