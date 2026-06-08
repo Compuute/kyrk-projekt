@@ -347,6 +347,34 @@ body[data-lang="am"] {
 .lang-sv { background: #1a3a8a; color: #aac4ff; }
 .lang-am { background: #3a1a1a; color: #ffaaaa; }
 
+/* Persistent navigation */
+.site-nav {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.site-nav::-webkit-scrollbar { display: none; }
+.site-nav a {
+  white-space: nowrap;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  text-decoration: none;
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+  transition: background 0.1s;
+}
+.site-nav a:hover { background: var(--bg); }
+.site-nav a.active { background: var(--accent); color: #fff; }
+
 /* Church selector (top bar) */
 .church-bar {
   background: var(--accent);

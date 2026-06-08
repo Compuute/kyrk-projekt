@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>FAQ — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
+  <style>
+    .faq-item { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+    .faq-q { padding: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; min-height: var(--touch-min); background: var(--card); font-size: 15px; }
+    .faq-q:hover { background: var(--bg); }
+    .faq-q .arrow { transition: transform 0.2s; font-size: 12px; color: var(--muted); }
+    .faq-item.open .faq-q .arrow { transform: rotate(180deg); }
+    .faq-a { display: none; padding: 0 16px 16px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+    .faq-item.open .faq-a { display: block; }
+    .faq-a-am { font-size: 13px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="church-bar" id="church-bar">
+    <span class="church-bar-icon">&#x26EA;</span>
+    <span class="church-bar-name">Abune Tekle Haymanot — Nacka</span>
+    <span class="church-bar-change">Byt kyrka &#x25BE;</span>
+  </div>
+  <div class="church-modal" id="church-modal">
+    <div class="church-modal-inner">
+      <button class="church-modal-close">Stäng &#x2715;</button>
+      <h2>Välj kyrka</h2>
+      <input type="text" class="church-search" placeholder="Sök på namn eller ort..." />
+      <button class="church-locate-btn">&#x1F4CD; Hitta nära mig</button>
+      <div class="church-list"></div>
+    </div>
+  </div>
+  <nav class="site-nav" id="site-nav">
+    <a href="./">Hem</a>
+    <a href="./intake">Bli medlem</a>
+    <a href="./donate">Ge en gåva</a>
+    <a href="./live">Gudstjänst</a>
+    <a href="./calendar">Kalender</a>
+    <a href="./faq" class="active">FAQ</a>
+    <a href="./privacy">Integritet</a>
+  </nav>
+
+  <main class="container">
+    <div class="lang-switcher">
+      <button class="lang-pill active" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <h1>Vanliga frågor / FAQ</h1>
+
+    <div id="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Hur blir jag medlem?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Fyll i formuläret på <a href="./intake">Bli medlem-sidan</a>. Du behöver namn, telefon och e-post. Personnummer behövs bara om du vill byta kyrkoskatt.</div>
+          <div class="faq-a-am">በ<a href="./intake">አባል ይሁኑ ገጽ</a> ላይ ቅጹን ይሙሉ። ስም፣ ስልክ እና ኢሜይል ያስፈልጋል።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Vad kostar medlemskapet?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Enskild medlem: 200 kr/månad. Familj (2 vuxna + barn): 500 kr/månad. Första betalningen görs via Swish, sedan autogiro.</div>
+          <div class="faq-a-am">ግለሰብ: 200 ክር/ወር። ቤተሰብ (2 አዋቂዎች + ልጆች): 500 ክር/ወር።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Vad är kyrkoskattebyte?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Om du idag betalar ~1% av din inkomst till Svenska kyrkan kan du byta så att avgiften istället går till oss. Du sparar ingenting — men pengarna går till vår församling. Gravplats och begravningsavgift påverkas inte. Vi hjälper dig med hela processen.</div>
+          <div class="faq-a-am">በአሁኑ ጊዜ ከገቢዎ ~1% ለስዊድን ቤተ ክርስቲያን ከሚከፍሉ ወደ እኛ ሊቀይሩ ይችላሉ። የመቃብር ቦታ አይነካም።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Hur gör jag en donation via Swish?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Gå till <a href="./donate">Ge en gåva-sidan</a>, välj belopp och tryck Swish-knappen. Appen öppnas automatiskt med rätt belopp. Gåvor över 200 kr ger rätt till skattereduktion.</div>
+          <div class="faq-a-am">ወደ <a href="./donate">ስጦታ ይስጡ ገጽ</a> ሂዱ፣ መጠን ይምረጡ እና Swish ቁልፍን ይጫኑ።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Hur bokar jag en minnesbön (ተዝካር)?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Kontakta prästen eller styrelsen. Tezkar bokas per tillfälle — vanliga minnesdagar är dag 3, 7, 12, 40, 80, 6 månader och 1 år efter bortgången. Betalning sker via Swish.</div>
+          <div class="faq-a-am">ቄሱን ወይም ቦርዱን ያግኙ። ተዝካር በክስተት ይያዛል — ቀን 3፣ 7፣ 12፣ 40፣ 80፣ 6 ወር እና 1 ዓመት።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Sparar ni mina personuppgifter?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Ja, i enlighet med GDPR. Personnummer krypteras med Google Cloud KMS. Bara behöriga roller (admin, pastor, sekreterare) kan se medlemsdata. Du kan begära radering när som helst. Läs hela vår <a href="./privacy">integritetspolicy</a>.</div>
+          <div class="faq-a-am">አዎ፣ በGDPR መሰረት። የግል ቁጥር በ Google Cloud KMS ተመስጥሯል። <a href="./privacy">የግላዊነት ፖሊሲ</a>ን ያንብቡ።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Använder sidan kakor (cookies)?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Nej. Inga kakor, ingen spårning, inga analysverktyg, inga tredjepartsskript.</div>
+          <div class="faq-a-am">አይ። ኩኪዎች የሉም፣ ክትትል የለም፣ የሶስተኛ ወገን ስክሪፕቶች የሉም።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Kan jag se gudstjänsten online?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Ja! Gå till <a href="./live">Gudstjänst live-sidan</a>. Vi sänder söndagens gudstjänst via YouTube.</div>
+          <div class="faq-a-am">አዎ! ወደ <a href="./live">የቀጥታ ቅዳሴ ገጽ</a> ይሂዱ።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Hur klär jag mig till kyrkan?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Kvinnor bär traditionellt vit sjal (ነጠላ/netela). Män bär rena, enkla kläder. Skor tas av innan man går in i bönerummet. Barn klär sig som föräldrarna. Alla är välkomna oavsett klädsel.</div>
+          <div class="faq-a-am">ሴቶች ባህላዊ ነጭ ነጠላ ይለብሳሉ። ወንዶች ንጹህ ልብስ ይለብሳሉ። ጫማ ከጸሎት ክፍል በፊት ይወልቃል። ሁሉም እንኳን ደህና መጡ።</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+          <span class="sv">Finns det söndagsskola för barn?</span>
+          <span class="arrow">&#x25BC;</span>
+        </div>
+        <div class="faq-a">
+          <div class="sv">Ja, varje lördag kl 16:00. Barnen lär sig om ortodox tro, etiopiska seder, amhariska och bibelberättelser. Registrering sker via föräldern.</div>
+          <div class="faq-a-am">አዎ፣ በየቅዳሜ ከ16:00። ልጆች ስለ ኦርቶዶክስ እምነት፣ ኢትዮጵያ ባህል፣ አማርኛ እና መጽሐፍ ቅዱስ ይማራሉ።</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p class="muted small">
+      Den här sidan använder inga kakor och spårar dig inte.
+      <br />
+      &#x12ED;&#x1205; &#x1308;&#x133D; &#x12A9;&#x12AA;&#x12CE;&#x127D;&#x1295; &#x12A0;&#x12ED;&#x1320;&#x1240;&#x121D;&#x121D; &#x12A5;&#x1293; &#x12A0;&#x12ED;&#x12A8;&#x1273;&#x1270;&#x120D;&#x12CE;&#x1275;&#x121D;&#x1366;&#x1366;
+    </p>
+  </footer>
+
+  <script>
+    setupLangPills();
+    initChurchSelector();
+  </script>
+</body>
+</html>

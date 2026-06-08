@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Kalender — Abune Tekle Haymanot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
+</head>
+<body>
+  <div class="church-bar" id="church-bar">
+    <span class="church-bar-icon">&#x26EA;</span>
+    <span class="church-bar-name">Abune Tekle Haymanot — Nacka</span>
+    <span class="church-bar-change">Byt kyrka &#x25BE;</span>
+  </div>
+  <div class="church-modal" id="church-modal">
+    <div class="church-modal-inner">
+      <button class="church-modal-close">Stäng &#x2715;</button>
+      <h2>Välj kyrka / &#x1265;&#x1270; &#x12AD;&#x122D;&#x1235;&#x1272;&#x12EB;&#x1295; &#x12ED;&#x121D;&#x1228;&#x1321;</h2>
+      <input type="text" class="church-search" placeholder="Sök på namn eller ort..." />
+      <button class="church-locate-btn">&#x1F4CD; Hitta nära mig</button>
+      <div class="church-list"></div>
+    </div>
+  </div>
+  <nav class="site-nav" id="site-nav">
+    <a href="./">Hem</a>
+    <a href="./intake">Bli medlem</a>
+    <a href="./donate">Ge en gåva</a>
+    <a href="./live">Gudstjänst</a>
+    <a href="./calendar" class="active">Kalender</a>
+    <a href="./faq">FAQ</a>
+    <a href="./privacy">Integritet</a>
+  </nav>
+
+  <main class="container">
+    <div class="lang-switcher">
+      <button class="lang-pill active" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <h1 id="cal-title">Kalender</h1>
+    <p class="muted" id="cal-subtitle">Kommande aktiviteter och gudstjänster</p>
+
+    <div id="cal-list"></div>
+
+    <div class="card" style="margin-top:24px">
+      <h2 id="schedule-title">Veckoschema</h2>
+      <div class="activity-item">
+        <div class="activity-title">Söndagsgudstjänst / &#x12E8;&#x12A5;&#x1201;&#x12F5; &#x1245;&#x12F3;&#x1234;</div>
+        <div class="activity-meta">Söndag kl 11:00</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-title">Bön / &#x1338;&#x120E;&#x1275;</div>
+        <div class="activity-meta">Onsdag kl 18:00</div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-title">Söndagsskola / &#x12E8;&#x1230;&#x1295;&#x1260;&#x1275; &#x1275;&#x121D;&#x1215;&#x122D;&#x1275; &#x1264;&#x1275;</div>
+        <div class="activity-meta">Lördag kl 16:00</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <p class="muted small">
+      Den här sidan använder inga kakor och spårar dig inte.
+      <br />
+      &#x12ED;&#x1205; &#x1308;&#x133D; &#x12A9;&#x12AA;&#x12CE;&#x127D;&#x1295; &#x12A0;&#x12ED;&#x1320;&#x1240;&#x121D;&#x121D; &#x12A5;&#x1293; &#x12A0;&#x12ED;&#x12A8;&#x1273;&#x1270;&#x120D;&#x12CE;&#x1275;&#x121D;&#x1366;&#x1366;
+    </p>
+  </footer>
+
+  <script>
+    (function () {
+      setupLangPills();
+      initChurchSelector();
+
+      fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (data) {
+          var events = (data && data.upcoming) || [];
+          var lang = document.body.getAttribute('data-lang') || 'sv';
+          renderEvents(events, lang);
+
+          document.addEventListener('lang-change', function (e) {
+            renderEvents(events, e.detail ? e.detail.lang : 'sv');
+          });
+        })
+        .catch(function () {});
+
+      function renderEvents(events, lang) {
+        var list = document.getElementById('cal-list');
+        list.innerHTML = '';
+
+        document.getElementById('cal-title').textContent = lang === 'am' ? 'ቀን ዝግጂቶች' : 'Kalender';
+        document.getElementById('cal-subtitle').textContent = lang === 'am' ? 'የቀረቡ ዝግጂቶች እና ቅዳሴዎች' : 'Kommande aktiviteter och gudstjänster';
+        document.getElementById('schedule-title').textContent = lang === 'am' ? 'የሳምንት መርሃ ገብ' : 'Veckoschema';
+
+        if (events.length === 0) {
+          list.innerHTML = '<div class="empty">' + (lang === 'am' ? 'ምንም ዝግጂት የለም' : 'Inga kommande aktiviteter') + '</div>';
+          return;
+        }
+
+        events.forEach(function (event) {
+          var card = document.createElement('div');
+          card.className = 'card';
+          card.style.marginBottom = '12px';
+
+          var title = _t(event.title, lang);
+          var desc = _t(event.description, lang);
+          var date = event.date || '';
+          var time = event.time || '';
+
+          card.innerHTML =
+            '<div class="activity-title" style="font-size:17px">' + title + '</div>' +
+            '<div class="activity-meta" style="margin:4px 0 8px">' + date + ' kl ' + time + '</div>' +
+            '<div class="activity-desc">' + desc + '</div>';
+
+          list.appendChild(card);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
