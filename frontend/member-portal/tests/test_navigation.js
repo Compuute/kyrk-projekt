@@ -57,6 +57,7 @@ serviceFiles.forEach(function (file) {
 // --- FAQ page has accordion ---
 var faqHtml = fs.readFileSync(path.join(ROOT, 'faq.html'), 'utf8');
 ok(faqHtml.indexOf('faq-item') > 0, 'faq.html has accordion items');
+ok(/class="am"/.test(faqHtml), 'faq.html has Amharic question spans');
 ok(faqHtml.indexOf('faq-q') > 0, 'faq.html has clickable questions');
 ok(faqHtml.indexOf('faq-a') > 0, 'faq.html has answer sections');
 var faqCount = (faqHtml.match(/class="faq-item"/g) || []).length;
@@ -71,6 +72,8 @@ ok(calHtml.indexOf('schedule-title') > 0, 'calendar.html has weekly schedule');
 // --- Church selector ---
 var appJs = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8');
 ok(appJs.indexOf('initChurchSelector') > 0, 'app.js has initChurchSelector function');
+ok(appJs.indexOf('applyLanguage') > 0, 'app.js has applyLanguage function');
+ok(appJs.indexOf('.sv') > 0 && appJs.indexOf('.am') > 0, 'app.js toggles .sv and .am elements');
 ok(appJs.indexOf('churches.json') > 0, 'app.js loads churches.json');
 ok(appJs.indexOf('selectedChurch') > 0, 'app.js tracks selected church');
 ok(appJs.indexOf('geolocation') > 0, 'app.js supports geolocation');

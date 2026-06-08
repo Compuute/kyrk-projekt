@@ -296,8 +296,16 @@ function setupLangPills() {
         pills[j].classList.toggle('active', pills[j].getAttribute('data-lang') === lang);
       }
       document.body.setAttribute('data-lang', lang);
+      applyLanguage(lang);
     });
   }
+}
+
+function applyLanguage(lang) {
+  var svEls = document.querySelectorAll('.sv');
+  var amEls = document.querySelectorAll('.am');
+  for (var i = 0; i < svEls.length; i++) svEls[i].style.display = lang === 'sv' ? '' : 'none';
+  for (var i = 0; i < amEls.length; i++) amEls[i].style.display = lang === 'am' ? '' : 'none';
 }
 
 function registerServiceWorker() {
