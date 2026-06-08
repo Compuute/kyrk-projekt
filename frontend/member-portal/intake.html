@@ -273,13 +273,11 @@
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <a href="./calendar">&#x1F4C5; Kalender</a>
-    <a href="./contact">&#x2139; Kontakta oss</a>
-    <a href="./donate">&#x1F4B3; Ge en gåva</a>
-    <a href="./live">&#x1F4F9; Gudstjänst live</a>
-    <a href="./faq">FAQ</a>
+    <div class="top-bar">
+    <a href="./contact">Kontakta oss</a>
     <a href="./privacy">Integritet</a>
+    <a href="./about">Om oss</a>
+    <a class="top-bar-cta" href="./donate">Ge en gåva</a>
   </div>
   <div class="church-bar" id="church-bar">
     <span class="church-bar-icon">&#x26EA;</span>
@@ -295,14 +293,13 @@
       <div class="church-list"></div>
     </div>
   </div>
-  <nav class="site-nav" id="site-nav">
-    <a href="./">Hem</a>
+    <nav class="site-nav" id="site-nav">
+    <a href="./"">Hem</a>
     <a href="./intake" class="active">Bli medlem</a>
-    <a href="./donate">Ge en gåva</a>
-    <a href="./live">Gudstjänst</a>
-    <a href="./calendar">Kalender</a>
-    <a href="./faq">FAQ</a>
-    <a href="./privacy">Integritet</a>
+    <div class="nav-dropdown"><button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler tjänster &#x25BE;</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div>
+    <a href="./live"">Gudstjänst</a>
+    <a href="./calendar"">Kalender</a>
+    <a href="./faq"">FAQ</a>
   </nav>
     <div class="breadcrumb"><a href="./">Start</a> / Bli medlem</div>
   <main class="container">

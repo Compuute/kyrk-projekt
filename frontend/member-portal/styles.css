@@ -397,39 +397,37 @@ body[data-lang="am"] {
 }
 .nav-dropdown-menu a:hover { background: var(--bg); }
 
-/* Secondary top bar (quick links) */
+/* Utility bar (top — no overlap with main nav) */
 .top-bar {
   display: flex;
-  gap: 4px;
-  padding: 6px 16px;
-  background: #1a1a2e;
+  gap: 2px;
+  padding: 0 16px;
+  background: #13111a;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  align-items: center;
   overflow-x: auto;
   scrollbar-width: none;
+  min-height: 36px;
 }
 .top-bar::-webkit-scrollbar { display: none; }
-.top-bar a, .top-bar button {
+.top-bar a {
   white-space: nowrap;
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-size: 12px;
-  color: #ccc;
+  color: #999;
   text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
   display: flex;
   align-items: center;
   gap: 4px;
 }
-.top-bar a:hover, .top-bar button:hover { color: #fff; }
+.top-bar a:hover { color: #fff; }
 .top-bar .top-bar-cta {
   background: var(--cta, #CA8A04);
   color: #fff;
   border-radius: 6px;
   font-weight: 600;
   padding: 6px 14px;
+  margin-left: 4px;
 }
 
 /* Breadcrumbs */
