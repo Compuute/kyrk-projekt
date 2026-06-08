@@ -544,7 +544,36 @@ body[data-lang="am"] {
   padding: 4px 8px;
 }
 
+/* Rich footer */
+.site-footer {
+  background: #1a1a2e;
+  color: #ccc;
+  padding: 40px 16px 24px;
+  margin-top: 48px;
+}
+.footer-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+.footer-col h3 { color: #fff; font-size: 16px; margin: 0 0 12px; }
+.footer-col a { display: block; color: #aaa; text-decoration: none; padding: 4px 0; font-size: 14px; }
+.footer-col a:hover { color: #fff; text-decoration: underline; }
+.footer-col p { font-size: 13px; line-height: 1.6; color: #999; margin: 0 0 8px; }
+.footer-bottom {
+  max-width: 900px;
+  margin: 24px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
 @media (min-width: 720px) {
   .grid { grid-template-columns: repeat(4, 1fr); }
   .hero h1 { font-size: 30px; }
+  .footer-grid { grid-template-columns: repeat(4, 1fr); }
 }
