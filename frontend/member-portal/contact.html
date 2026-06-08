@@ -2,34 +2,31 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="Kontakta Abune Tekle Haymanot. Adress, telefon, e-post." />
+  <meta name="description" content="Kontakta oss — adress, telefon, e-post." />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#3b5bdb" />
   <meta name="mobile-web-app-capable" content="yes" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <title>Kontakt — Abune Tekle Haymanot</title>
+  <title>Kontakt</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    .contact-card { background: var(--card, #ffffff); border: 1px solid var(--border, #e5e5e5); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+    .contact-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
     .contact-card h3 { margin-bottom: 8px; }
     .contact-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
     .contact-icon { font-size: 24px; width: 36px; text-align: center; flex-shrink: 0; }
-    .hours-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-    .hours-table td { padding: 6px 0; border-bottom: 1px solid var(--border, #e5e5e5); }
-    .hours-table td:first-child { font-weight: 600; width: 40%; }
   </style>
   <script src="app.js"></script>
 </head>
 <body>
-    <div class="top-bar">
+  <div class="top-bar">
     <a href="./contact">Kontakta oss</a>
     <a href="./about">Om oss</a>
     <a class="top-bar-cta" href="./donate">Ge en gåva</a>
   </div>
   <div class="church-bar" id="church-bar">
     <span class="church-bar-icon">&#x26EA;</span>
-    <span class="church-bar-name">Abune Tekle Haymanot — Nacka</span>
+    <span class="church-bar-name">Laddar...</span>
     <span class="church-bar-change">Byt kyrka &#x25BE;</span>
   </div>
   <div class="church-modal" id="church-modal">
@@ -41,7 +38,7 @@
       <div class="church-list"></div>
     </div>
   </div>
-      <nav class="site-nav" id="site-nav">
+  <nav class="site-nav" id="site-nav">
     <a href="./">Hem</a>
     <a href="./intake">Bli medlem</a>
     <div class="nav-dropdown"><button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler tjänster &#x25BE;</button><div class="nav-dropdown-menu"><a href="./funeral">Begravning</a><a href="./baptism">Dop</a><a href="./tezkar">Minnesbön</a><a href="./library">Bibliotek</a><a href="./support">Stöd</a><a href="./venue">Lokal</a></div></div>
@@ -49,153 +46,59 @@
     <a href="./calendar">Kalender</a>
     <a href="./faq">FAQ</a>
   </nav>
-    <div class="breadcrumb"><a href="./">Start</a> / Kontakt</div>
-  <main class="container" id="app">
+  <div class="breadcrumb"><a href="./">Start</a> / Kontakt</div>
 
-    <div class="lang-switcher" id="lang-switcher">
-      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
-      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+  <main class="container">
+    <div class="lang-switcher">
+      <button class="lang-pill active" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
     </div>
 
-    <header class="hero">
-      <div class="logo-placeholder" aria-label="Church logo">&#x2726;</div>
-      <h1>
-        <span class="sv">Kontakta oss</span>
-        <span class="am" style="display:none">ያግኙን</span>
-      </h1>
-    </header>
+    <h1>Kontakta oss <span style="font-size:18px;color:var(--muted)">/ &#x12EB;&#x130D;&#x1299;&#x1295;</span></h1>
 
-    <div class="contact-card">
-      <h3><span class="sv">Adress</span><span class="am" style="display:none">አድራሻ</span></h3>
-      <div class="contact-row">
-        <div class="contact-icon">&#x1F4CD;</div>
-        <div>
-          <span class="sv">Saltsjö-Boo, Nacka<br>Stockholm, Sverige</span>
-          <span class="am" style="display:none">ሳልትሾ-ቡ፣ ናካ<br>ስቶክሆልም፣ ስዊድን</span>
+    <div id="contact-content">
+      <div class="contact-card">
+        <h3>Adress / &#x12A0;&#x12F5;&#x122B;&#x123B;</h3>
+        <div class="contact-row">
+          <div class="contact-icon">&#x1F4CD;</div>
+          <div id="contact-address">Laddar...</div>
         </div>
       </div>
-    </div>
 
-    <div class="contact-card">
-      <h3><span class="sv">Telefon</span><span class="am" style="display:none">ስልክ</span></h3>
-      <div class="contact-row">
-        <div class="contact-icon">&#x1F4DE;</div>
-        <div>
-          <a href="tel:+46700000000">070-000 00 00</a><br>
-          <span class="muted">
-            <span class="sv">Kyrkans kansli</span>
-            <span class="am" style="display:none">የቤተ ክርስቲያን ጽ/ቤት</span>
-          </span>
+      <div class="contact-card" id="phone-card" style="display:none">
+        <h3>Telefon / &#x1235;&#x120D;&#x12AD;</h3>
+        <div class="contact-row">
+          <div class="contact-icon">&#x1F4DE;</div>
+          <div id="contact-phone"></div>
         </div>
       </div>
-      <div class="contact-row">
-        <div class="contact-icon">&#x1F3DB;&#xFE0F;</div>
-        <div>
-          <a href="tel:+46700000000">070-000 00 00</a><br>
-          <span class="muted">
-            <span class="sv">Begravningstjänst (dygnet runt)</span>
-            <span class="am" style="display:none">የቀብር አገልግሎት (24 ሰዓት)</span>
-          </span>
+
+      <div class="contact-card" id="email-card" style="display:none">
+        <h3>E-post / &#x12A2;&#x121C;&#x12ED;&#x120D;</h3>
+        <div class="contact-row">
+          <div class="contact-icon">&#x2709;</div>
+          <div id="contact-email"></div>
         </div>
       </div>
-    </div>
 
-    <div class="contact-card">
-      <h3><span class="sv">Gudstjänsttider</span><span class="am" style="display:none">የቅዳሴ ሰዓቶች</span></h3>
-      <table class="hours-table">
-        <tr>
-          <td><span class="sv">Söndag</span><span class="am" style="display:none">እሁድ</span></td>
-          <td><span class="sv">Gudstjänst 07:00 – 12:00</span><span class="am" style="display:none">ቅዳሴ 07:00 – 12:00</span></td>
-        </tr>
-        <tr>
-          <td><span class="sv">Onsdag</span><span class="am" style="display:none">ረቡዕ</span></td>
-          <td><span class="sv">Bönestund 18:00 – 19:30</span><span class="am" style="display:none">ጸሎት 18:00 – 19:30</span></td>
-        </tr>
-        <tr>
-          <td><span class="sv">Lördag</span><span class="am" style="display:none">ቅዳሜ</span></td>
-          <td><span class="sv">Söndagsskola 10:00 – 12:00</span><span class="am" style="display:none">የሰንበት ት/ቤት 10:00 – 12:00</span></td>
-        </tr>
-        <tr>
-          <td><span class="sv">Helgdagar</span><span class="am" style="display:none">በዓላት</span></td>
-          <td><span class="sv">Enligt kyrkans kalender</span><span class="am" style="display:none">እንደ ቤተ ክርስቲያን ቀን መቁጠሪያ</span></td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="contact-card">
-      <h3><span class="sv">Kanslitider</span><span class="am" style="display:none">የጽ/ቤት ሰዓቶች</span></h3>
-      <table class="hours-table">
-        <tr>
-          <td><span class="sv">Måndag – Fredag</span><span class="am" style="display:none">ሰኞ – አርብ</span></td>
-          <td>09:00 – 15:00</td>
-        </tr>
-        <tr>
-          <td><span class="sv">Lördag – Söndag</span><span class="am" style="display:none">ቅዳሜ – እሁድ</span></td>
-          <td><span class="sv">Stängt (gudstjänst söndag)</span><span class="am" style="display:none">ዝግ (እሁድ ቅዳሴ)</span></td>
-        </tr>
-      </table>
-    </div>
-
-    <div class="contact-card">
-      <h3>Telegram</h3>
-      <div class="contact-row">
-        <div class="contact-icon">&#x1F4AC;</div>
-        <div>
-          <a href="https://t.me/kyrka_kanal">@kyrka_kanal</a><br>
-          <span class="muted">
-            <span class="sv">Nyheter och uppdateringar</span>
-            <span class="am" style="display:none">ዜናዎች እና ማሻሻያዎች</span>
-          </span>
-        </div>
+      <div class="contact-card" id="org-card" style="display:none">
+        <h3>Organisation / &#x12F5;&#x122D;&#x1305;&#x1275;</h3>
+        <div id="contact-org"></div>
       </div>
     </div>
-
-    <div class="contact-card">
-      <h3><span class="sv">Organisation</span><span class="am" style="display:none">ድርጅት</span></h3>
-      <p>
-        <span class="sv">Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan</span>
-        <span class="am" style="display:none">አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን</span>
-        <br>Org.nr: 802492-9237
-      </p>
-    </div>
-
-    <nav class="nav-links">
-      <a href="./">
-        <span class="sv">← Tillbaka till startsidan</span>
-        <span class="am" style="display:none">← ወደ መነሻ ገጽ ተመለስ</span>
-      </a>
-    </nav>
-
   </main>
 
-  <script>
-  (function() {
-    var lang = 'sv';
-    function toggle(newLang) {
-      lang = newLang;
-      document.querySelectorAll('.sv').forEach(function(el) { el.style.display = lang === 'sv' ? '' : 'none'; });
-      document.querySelectorAll('.am').forEach(function(el) { el.style.display = lang === 'am' ? '' : 'none'; });
-      document.querySelectorAll('.lang-pill').forEach(function(b) { b.classList.remove('active'); });
-      document.getElementById('lang-' + lang).classList.add('active');
-    }
-    document.getElementById('lang-sv').addEventListener('click', function() { toggle('sv'); });
-    document.getElementById('lang-am').addEventListener('click', function() { toggle('am'); });
-  })();
-  </script>
-  <script>setupLangPills(); initChurchSelector();</script>
   <footer class="site-footer">
     <div class="footer-grid">
       <div class="footer-col">
         <h3>Kontakt</h3>
-        <p>Abune Tekle Haymanot<br/>Etiopiska Ortodoxa Tewahedo Kyrkan</p>
+        <p id="footer-church-name">Laddar...</p>
         <a href="./contact">Kontakta oss</a>
-        <a href="tel:+46000000000">Telefon</a>
       </div>
       <div class="footer-col">
         <h3>Kalender</h3>
         <a href="./calendar">Kommande evenemang</a>
         <a href="./live">Gudstjänst live</a>
-        <p style="margin-top:8px">Söndag 11:00<br/>Onsdag 18:00<br/>Lördag 16:00</p>
       </div>
       <div class="footer-col">
         <h3>Hitta snabbt</h3>
@@ -203,19 +106,55 @@
         <a href="./intake">Bli medlem</a>
         <a href="./donate">Ge en gåva</a>
         <a href="./faq">FAQ</a>
-        <a href="./library">Bibliotek</a>
       </div>
       <div class="footer-col">
         <h3>Sociala kanaler</h3>
         <a href="https://t.me/kyrka_kanal" target="_blank">Telegram</a>
         <a href="./about">Om oss</a>
         <a href="./privacy">Integritetspolicy</a>
-        <p style="margin-top:8px;font-size:11px">Org.nr: 802492-9237</p>
       </div>
     </div>
     <div class="footer-bottom">
-      Den här sidan använder inga kakor och spårar dig inte. / ይህ ገጽ ኩኪዎችን አይጠቀምም።
+      Den här sidan använder inga kakor och spårar dig inte. / &#x12ED;&#x1205; &#x1308;&#x133D; &#x12A9;&#x12AA;&#x12CE;&#x127D;&#x1295; &#x12A0;&#x12ED;&#x1320;&#x1240;&#x121D;&#x121D;&#x1366;
     </div>
   </footer>
+
+  <script>
+    setupLangPills();
+    initChurchSelector();
+
+    // Load contact info from churches.json for selected church
+    var churchId = getSelectedChurch();
+    fetch('./churches.json', { credentials: 'omit' })
+      .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
+      .then(function (data) {
+        var church = (data.churches || []).find(function (c) { return c.id === churchId; });
+        if (!church) return;
+
+        var lang = document.body.getAttribute('data-lang') || 'sv';
+        var name = _t(church.name, lang);
+
+        document.title = 'Kontakt — ' + name;
+        document.getElementById('contact-address').innerHTML = church.address || '';
+
+        if (church.phone) {
+          document.getElementById('phone-card').style.display = '';
+          document.getElementById('contact-phone').innerHTML = '<a href="tel:' + church.phone.replace(/\s/g, '') + '">' + church.phone + '</a>';
+        }
+
+        if (church.email) {
+          document.getElementById('email-card').style.display = '';
+          document.getElementById('contact-email').innerHTML = '<a href="mailto:' + church.email + '">' + church.email + '</a>';
+        }
+
+        if (church.org_number) {
+          document.getElementById('org-card').style.display = '';
+          document.getElementById('contact-org').innerHTML = name + '<br>Org.nr: ' + church.org_number;
+        }
+
+        document.getElementById('footer-church-name').innerHTML = name;
+      })
+      .catch(function () {});
+  </script>
 </body>
 </html>
