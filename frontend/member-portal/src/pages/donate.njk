@@ -1,0 +1,41 @@
+---
+layout: base.njk
+title: "Ge en gava"
+breadcrumb: "Ge en gava"
+---
+
+<div class="donate-card">
+      <h1 id="donate-title">Ge en gåva</h1>
+      <p id="donate-desc" style="color: #aaa; font-size: 14px;">
+        Ditt stöd gör vår verksamhet möjlig. Alla gåvor går till församlingens arbete.
+      </p>
+
+      <div class="amount-grid" id="amount-grid">
+        <button class="amount-btn" data-amount="50">50 kr</button>
+        <button class="amount-btn" data-amount="100">100 kr</button>
+        <button class="amount-btn selected" data-amount="200">200 kr</button>
+        <button class="amount-btn" data-amount="500">500 kr</button>
+        <button class="amount-btn" data-amount="1000">1000 kr</button>
+        <button class="amount-btn" data-amount="custom">Annat</button>
+      </div>
+
+      <input type="number" class="amount-custom" id="custom-amount"
+             placeholder="Ange belopp i SEK" style="display:none;" />
+
+      <a class="swish-btn" id="swish-btn" href="#">
+        Swish — betala nu
+      </a>
+
+      <div class="other-methods">
+        <a class="method-btn" id="bankgiro-btn" href="#bankgiro">
+          Bankgiro: 5123-4567
+        </a>
+      </div>
+
+      <div class="receipt-note" id="receipt-note">
+        <strong>Gåvokvitto:</strong> Gåvor över 200 kr ger rätt till skattereduktion.
+        Ange din e-post nedan så skickar vi ett gåvokvitto.
+        <br/><br/>
+        Org.nr: 802492-9237 · Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan
+      </div>
+    </div>

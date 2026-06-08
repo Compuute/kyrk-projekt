@@ -1,0 +1,43 @@
+---
+layout: base.njk
+title: "Gudstjanst live"
+activePage: "live"
+breadcrumb: "Gudstjanst"
+---
+
+<a href="./" class="back-link" id="back-link">← Tillbaka</a>
+
+    <h1 id="live-title">Gudstjänst live</h1>
+    <p id="live-subtitle" style="color:#aaa;font-size:14px;margin-bottom:16px;">
+      Följ vår gudstjänst direkt. Välkommen att be med oss.
+    </p>
+
+    <!-- Video embed — populated by JS from content.json -->
+    <div id="video-area">
+      <div class="no-stream" id="no-stream">
+        <div>
+          <p id="no-stream-text" style="font-size:16px;"><span class="sv">Ingen livestream just nu</span><span class="am" style="display:none">አሁን ቀጥታ ስርጭት የለም</span></p>
+          <p style="font-size:13px;margin-top:8px;" id="check-schedule-text"><span class="sv">Se schemat nedan för kommande gudstjänster</span><span class="am" style="display:none">ለቀጣይ ቅዳሴዎች ከዚህ በታች ያለውን መርሃ ግብር ይመልከቱ</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly schedule -->
+    <div class="schedule-card">
+      <h2 id="schedule-title"><span class="sv">Gudstjänstschema</span><span class="am" style="display:none">የቅዳሴ መርሃ ግብር</span></h2>
+      <div id="schedule-list">
+        <div class="schedule-item"><span>Söndag</span><span>11:00 — ቅዳሴ / Gudstjänst</span></div>
+        <div class="schedule-item"><span>Onsdag</span><span>18:00 — ጸሎት / Bön</span></div>
+        <div class="schedule-item"><span>Lördag</span><span>16:00 — የሰንበት ት/ት / Söndagsskola</span></div>
+      </div>
+    </div>
+
+    <!-- Call-to-action buttons -->
+    <div class="cta-row">
+      <a class="cta-btn cta-primary" href="./intake" id="cta-member">Bli medlem / አባል ይሁኑ</a>
+      <a class="cta-btn cta-secondary" href="./donate" id="cta-donate">Ge en gåva / ስጦታ ይስጡ</a>
+    </div>
+
+    <p style="color:#666;font-size:12px;text-align:center;margin-top:24px;" id="footer-note">
+      Ingen inspelning sparas av ditt besök. Inga kakor.
+    </p>

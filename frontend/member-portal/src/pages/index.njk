@@ -1,0 +1,169 @@
+---
+layout: base.njk
+title: "Abune Tekle Haymanot"
+activePage: "home"
+---
+
+<div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <header class="hero">
+      <div class="logo-placeholder" aria-label="Church logo">&#x2726;</div>
+      <h1 id="church-name"></h1>
+      <p id="church-tagline" class="muted"></p>
+    </header>
+
+    <section class="card" id="upcoming-section">
+      <h2 id="upcoming-title"></h2>
+      <div id="upcoming-list"></div>
+    </section>
+
+    <section class="card" id="announcements-section">
+      <h2 id="announcements-title"></h2>
+      <div id="announcements-list"></div>
+    </section>
+
+    <!-- Membership registration — full form with church tax switch -->
+    <section class="card" id="register-section" style="border: 2px solid var(--accent); background: #f8f9ff;">
+      <div id="register-intro">
+        <h2 style="color: var(--accent); margin-bottom: 8px;">
+          <span class="sv">Bli medlem — byt din kyrkoskatt</span>
+          <span class="am" style="display:none">አባል ይሁኑ — የቤተ ክርስቲያን ግብርዎን ይቀይሩ</span>
+        </h2>
+        <p class="muted" style="margin-bottom: 12px;">
+          <span class="sv">Betalar du ~1% av din inkomst till Svenska kyrkan? Du kan byta till oss — vi hjälper dig med allt.</span>
+          <span class="am" style="display:none">ከገቢዎ ~1% ለስዊድን ቤተ ክርስቲያን ይከፍላሉ? ወደ እኛ መቀየር ይችላሉ — ሁሉንም እንረዳዎታለን።</span>
+        </p>
+
+        <div style="background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+          <p style="font-weight: 700; margin-bottom: 8px;">
+            <span class="sv">Vad du sparar:</span>
+            <span class="am" style="display:none">የሚቆጥቡት:</span>
+          </p>
+          <table style="width:100%; font-size:14px; border-collapse:collapse;">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:4px 0;"><span class="sv">Inkomst 25 000 kr/mån</span><span class="am" style="display:none">ገቢ 25,000 ክር/ወር</span></td>
+              <td style="padding:4px 0; text-align:right; font-weight:700; color:#22c55e;">~3 100 kr/år</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:4px 0;"><span class="sv">Inkomst 35 000 kr/mån</span><span class="am" style="display:none">ገቢ 35,000 ክር/ወር</span></td>
+              <td style="padding:4px 0; text-align:right; font-weight:700; color:#22c55e;">~4 400 kr/år</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 0;"><span class="sv">Inkomst 45 000 kr/mån</span><span class="am" style="display:none">ገቢ 45,000 ክር/ወር</span></td>
+              <td style="padding:4px 0; text-align:right; font-weight:700; color:#22c55e;">~5 600 kr/år</td>
+            </tr>
+          </table>
+          <p class="muted small" style="margin-top: 8px;">
+            <span class="sv">Du förlorar ingenting du använder. Gravplats, kremering och neutral ceremonilokal ingår för alla via begravningsavgiften — oavsett kyrkotillhörighet.</span>
+            <span class="am" style="display:none">የሚጠቀሙበትን ምንም አያጣም። የመቃብር ቦታ፣ ማቃጠያ እና ገለልተኛ የሥነ ሥርዓት አዳራሽ ለሁሉም ይካተታል — የትኛውም ቤተ ክርስቲያን ቢሆኑ።</span>
+          </p>
+        </div>
+      </div>
+
+      <form id="quick-register" style="margin-top: 12px;" onsubmit="return submitQuickReg(event)">
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Förnamn</span><span class="am" style="display:none">ስም</span>
+          <input type="text" id="qr-fname" required placeholder="Förnamn / ስም" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Efternamn</span><span class="am" style="display:none">የአባት ስም</span>
+          <input type="text" id="qr-lname" required placeholder="Efternamn / የአባት ስም" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Telefon</span><span class="am" style="display:none">ስልክ</span>
+          <input type="tel" id="qr-phone" required placeholder="070-XXX XX XX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">E-post</span><span class="am" style="display:none">ኢሜይል</span>
+          <input type="email" id="qr-email" placeholder="namn@example.se" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+        </label>
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Personnummer</span><span class="am" style="display:none">የግል ቁጥር</span>
+          <input type="text" id="qr-pnr" placeholder="YYYYMMDD-XXXX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;" />
+          <span class="muted small"><span class="sv">Krävs för kyrkoskattebyte</span><span class="am" style="display:none">ለቤተ ክርስቲያን ግብር ለመቀየር ያስፈልጋል</span></span>
+        </label>
+
+        <label style="display:block; margin-bottom: 10px;">
+          <span class="sv">Jag vill</span><span class="am" style="display:none">እፈልጋለሁ</span>
+          <select id="qr-action" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; font-size:16px; margin-top:4px;">
+            <option value="register_and_switch">Bli medlem + byta kyrkoskatt från Svenska kyrkan</option>
+            <option value="register_only">Bara bli medlem (byt inte kyrkoskatt)</option>
+            <option value="already_member">Redan medlem — vill bara byta kyrkoskatt</option>
+          </select>
+        </label>
+
+        <div id="qr-error" style="color:#dc2626; font-size:14px; margin-bottom:8px; display:none;"></div>
+
+        <button type="button" id="qr-consent-btn" onclick="toggleQrConsent()" style="display:flex; align-items:center; gap:12px; width:100%; padding:12px; border:2px solid #ccc; border-radius:8px; background:#f9f9f9; cursor:pointer; font-size:14px; font-weight:600; margin-bottom:8px; -webkit-appearance:none; appearance:none; text-align:left; color:#222;">
+          <span id="qr-consent-box" style="width:24px; height:24px; min-width:24px; border:3px solid var(--accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; background:#fff;"></span>
+          <span><span class="sv">Jag samtycker till GDPR-behandling av mina uppgifter</span><span class="am" style="display:none">የግል መረጃዬን ለGDPR ማስተናገድ እስማማለሁ</span></span>
+        </button>
+        <input type="hidden" id="qr-consent" value="" />
+
+        <div id="qr-tax-consent-row" style="margin-bottom:12px;">
+          <button type="button" id="qr-tax-btn" onclick="toggleTaxConsent()" style="display:flex; align-items:center; gap:12px; width:100%; padding:12px; border:2px solid #ccc; border-radius:8px; background:#f9f9f9; cursor:pointer; font-size:14px; font-weight:600; -webkit-appearance:none; appearance:none; text-align:left; color:#222;">
+            <span id="qr-tax-box" style="width:24px; height:24px; min-width:24px; border:3px solid var(--accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; background:#fff;"></span>
+            <span><span class="sv">Jag samtycker till att min kyrkoavgift uppbärs via Skatteverket (Lag 1999:291)</span><span class="am" style="display:none">የቤተ ክርስቲያን ክፍያዬ በግብር ስርዓት በኩል እንዲሰበሰብ እስማማለሁ</span></span>
+          </button>
+          <input type="hidden" id="qr-tax-consent" value="" />
+          <p class="muted small" style="margin-top:4px;">
+            <span class="sv">Krävs enligt lag för att kyrkoskatten ska gå till vår kyrka istället för Svenska kyrkan.</span>
+            <span class="am" style="display:none">የቤተ ክርስቲያን ግብር ወደ ቤተ ክርስቲያናችን እንዲሄድ በሕግ ያስፈልጋል።</span>
+          </p>
+        </div>
+
+        <button type="submit" id="qr-submit" style="width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-size:18px; font-weight:700; cursor:pointer;">
+          <span class="sv">Registrera mig →</span><span class="am" style="display:none">ይመዝገቡኝ →</span>
+        </button>
+      </form>
+
+      <div id="qr-success" style="display:none; text-align:center; padding:20px 0;">
+        <h3 style="color:#22c55e;">
+          <span class="sv">Tack! Din registrering är mottagen.</span>
+          <span class="am" style="display:none">አመሰግናለሁ! ምዝገባዎ ደርሷል።</span>
+        </h3>
+        <p class="muted">
+          <span class="sv" id="qr-success-detail"></span>
+          <span class="am" style="display:none" id="qr-success-detail-am"></span>
+        </p>
+      </div>
+    </section>
+
+    <nav class="grid" id="quick-links"></nav>
+
+        <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3>Kontakt</h3>
+        <p id="footer-church-name">Laddar...</p>
+        <a href="./contact">Kontakta oss</a>
+        <a id="footer-phone" href="#">Telefon</a>
+        <p id="footer-org" style="font-size:11px;margin-top:4px"></p>
+      </div>
+      <div class="footer-col">
+        <h3>Kalender</h3>
+        <a href="./calendar">Kommande evenemang</a>
+        <a href="./live">Gudstjänst live</a>
+      </div>
+      <div class="footer-col">
+        <h3>Hitta snabbt</h3>
+        <a href="./support">Stöd &amp; rådgivning</a>
+        <a href="./intake">Bli medlem</a>
+        <a href="./donate">Ge en gåva</a>
+        <a href="./faq">FAQ</a>
+        <a href="./library">Bibliotek</a>
+      </div>
+      <div class="footer-col">
+        <h3>Sociala kanaler</h3>
+        <a href="https://t.me/kyrka_kanal" target="_blank">Telegram</a>
+        <a href="./about">Om oss</a>
+        <a href="./privacy">Integritetspolicy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Den h&#228;r sidan anv&#228;nder inga kakor och sp&#229;rar dig inte. / &#x12ED;&#x1205; &#x1308;&#x133D; &#x12A9;&#x12AA;&#x12CE;&#x127D;&#x1295; &#x12A0;&#x12ED;&#x1320;&#x1240;&#x121D;&#x121D;&#x1366;
+    </div>
+  </footer>

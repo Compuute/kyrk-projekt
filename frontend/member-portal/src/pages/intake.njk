@@ -1,0 +1,184 @@
+---
+layout: base.njk
+title: "Bli medlem"
+activePage: "intake"
+breadcrumb: "Bli medlem"
+---
+
+<div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
+
+    <div class="form-card" id="intake-form-card">
+      <h1>
+        <span id="title-sv">Bli medlem</span>
+        <span id="title-am" style="font-size: 18px; color: var(--muted, #666);"> / አባል ይሁኑ</span>
+      </h1>
+      <p class="subtitle" id="form-subtitle">
+        Fyll i formuläret nedan. Vi kontaktar dig inom några dagar.
+        <br/>
+        ከዚህ በታች ያለውን ቅጽ ይሙሉ። በጥቂት ቀናት ውስጥ እናገኝዎታለን።
+      </p>
+
+      <form id="intake-form" novalidate>
+        <input type="hidden" name="source" id="field-source" value="wifi" />
+        <input type="hidden" name="church_id" id="field-church-id" value="nacka" />
+        <input type="hidden" id="field-membership-type" value="individual" />
+        <input type="hidden" id="field-monthly-fee" value="200" />
+
+        <div class="membership-type">
+          <button type="button" class="type-btn selected" id="type-individual" onclick="selectType('individual')">
+            <span class="price">200 kr</span>
+            <span class="label">Enskild / ግለሰብ</span>
+            <span class="label" style="font-size:11px;color:var(--muted,#666)">per m&#xE5;nad</span>
+          </button>
+          <button type="button" class="type-btn" id="type-family" onclick="selectType('family')">
+            <span class="price">500 kr</span>
+            <span class="label">Familj / ቤተሰብ</span>
+            <span class="label" style="font-size:11px;color:var(--muted,#666)">per m&#xE5;nad</span>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label for="field-first-name">
+            Förnamn <span class="label-am">/ ስም</span>
+          </label>
+          <input type="text" id="field-first-name" name="first_name" required autocomplete="given-name" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-last-name">
+            Efternamn <span class="label-am">/ የአባት ስም</span>
+          </label>
+          <input type="text" id="field-last-name" name="last_name" required autocomplete="family-name" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-phone">
+            Telefon <span class="label-am">/ ስልክ</span>
+          </label>
+          <input type="tel" id="field-phone" name="phone" required autocomplete="tel" inputmode="tel" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-email">
+            E-post <span class="label-am">/ ኢሜይል</span>
+          </label>
+          <input type="email" id="field-email" name="email" autocomplete="email" inputmode="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="field-personal-number">
+            Personnummer <span class="label-am">/ የግል ቁጥር</span>
+          </label>
+          <input type="text" id="field-personal-number" name="personal_number" placeholder="YYYYMMDD-XXXX" autocomplete="off" />
+        </div>
+
+        <div class="family-section" id="family-section">
+          <strong>Familjemedlemmar / የቤተሰብ አባላት</strong>
+          <p style="font-size:12px;color:var(--muted,#666);margin:4px 0 12px">
+            Maka/make + barn under 18 &#xE5;r. / ባለቤት + ከ18 ዓመት በታች ልጆች።
+          </p>
+          <div id="family-members-list"></div>
+          <button type="button" class="add-family-btn" id="add-family-btn" onclick="addFamilyMember()">
+            + L&#xE4;gg till familjemedlem / + የቤተሰብ አባል ጨምር
+          </button>
+        </div>
+
+        <div class="fee-summary" id="fee-summary">
+          Månadsavgift / ወርሃዊ ክፍያ: <span class="fee-amount" id="fee-display">200 kr</span>
+          <div style="font-size:12px;color:var(--muted,#666);margin-top:4px">
+            Dras via autogiro efter första betalningen / ከመጀመሪያው ክፍያ በኋላ በautogiro ይቀነሳል
+          </div>
+        </div>
+
+        <div class="gdpr-box">
+          <div class="gdpr-sv">
+            <strong>GDPR-samtycke:</strong> Genom att skicka detta formulär samtycker du till att
+            Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan lagrar dina personuppgifter
+            i enlighet med GDPR. Dina uppgifter används enbart för medlemshantering och
+            kommunikation. Du kan när som helst begära att dina uppgifter raderas genom att
+            kontakta oss.
+          </div>
+          <div class="gdpr-am">
+            <strong>GDPR ፈቃድ:</strong> ይህንን ቅጽ በመላክ አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ
+            ተዋሕዶ ቤተ ክርስቲያን የግል መረጃዎን በ GDPR መሰረት እንዲያከማች ይስማማሉ። መረጃዎ
+            ለአባልነት አስተዳደር እና ግንኙነት ብቻ ጥቅም ላይ ይውላል። በማንኛውም ጊዜ
+            መረጃዎ እንዲሰረዝ መጠየቅ ይችላሉ።
+          </div>
+          <input type="hidden" id="field-gdpr-consent" name="gdpr_consent" value="" />
+          <button type="button" class="consent-btn" id="consent-btn" onclick="toggleConsent()">
+            <span class="consent-box" id="consent-box"></span>
+            <span>Jag samtycker / እስማማለሁ</span>
+          </button>
+        </div>
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          Skicka ansökan / ማመልከቻ ላክ
+        </button>
+      </form>
+    </div>
+
+    <div class="form-card success-msg" id="success-msg">
+      <h2>Tack! Din ansökan behandlas.</h2>
+      <p class="success-am">አመሰግናለሁ! ማመልከቻዎ በሂደት ላይ ነው።</p>
+      <div id="payment-next-step" style="margin-top:16px;padding:16px;background:#f0f4ff;border-radius:10px;text-align:left;font-size:14px;">
+        <strong>N&#xE4;sta steg — f&#xF6;rsta betalningen:</strong>
+        <p style="margin:8px 0">Swisha <strong id="success-fee">200 kr</strong> till kyrkans Swish-nummer f&#xF6;r att aktivera ditt medlemskap. D&#xE4;refter kopplas autogiro automatiskt.</p>
+        <a id="success-swish-link" class="swish-btn" href="#" style="display:inline-block;width:auto;padding:14px 28px;margin-top:8px;background:#5bbf2e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
+          Swish — betala nu
+        </a>
+        <div id="autogiro-step" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid #d0d8f0;">
+          <strong>Steg 2 — Autogiro:</strong>
+          <p style="margin:6px 0">Signera med BankID s&#xE5; dras avgiften automatiskt varje m&#xE5;nad.</p>
+          <a id="autogiro-link" class="swish-btn" href="#" target="_blank" style="display:inline-block;width:auto;padding:14px 28px;background:var(--accent,#3b5bdb);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
+            Starta autogiro (BankID)
+          </a>
+          <p style="margin-top:8px;font-size:12px;color:var(--muted,#666)">
+            <strong>ደረጃ 2 — Autogiro:</strong> በ BankID ይፈርሙ ፣ ክፍያው በየወሩ በራስ-ሰር ይቀነሳል።
+          </p>
+        </div>
+        <p style="margin-top:12px;font-size:12px;color:var(--muted,#666)">
+          <strong>ቀጣይ ደረጃ:</strong> የመጀመሪያ ክፍያውን በ Swish ይክፈሉ። ከዚያ autogiro በራስ-ሰር ይጀምራል።
+        </p>
+      </div>
+      <br/>
+      <a href="./" class="back-link">&#x2190; Tillbaka till startsidan / ወደ መነሻ ገጽ ተመለስ</a>
+    </div>
+
+        <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3>Kontakt</h3>
+        <p id="footer-church-name">Laddar...</p>
+        <a href="./contact">Kontakta oss</a>
+        <a id="footer-phone" href="#">Telefon</a>
+        <p id="footer-org" style="font-size:11px;margin-top:4px"></p>
+      </div>
+      <div class="footer-col">
+        <h3>Kalender</h3>
+        <a href="./calendar">Kommande evenemang</a>
+        <a href="./live">Gudstjänst live</a>
+      </div>
+      <div class="footer-col">
+        <h3>Hitta snabbt</h3>
+        <a href="./support">Stöd &amp; rådgivning</a>
+        <a href="./intake">Bli medlem</a>
+        <a href="./donate">Ge en gåva</a>
+        <a href="./faq">FAQ</a>
+        <a href="./library">Bibliotek</a>
+      </div>
+      <div class="footer-col">
+        <h3>Sociala kanaler</h3>
+        <a href="https://t.me/kyrka_kanal" target="_blank">Telegram</a>
+        <a href="./about">Om oss</a>
+        <a href="./privacy">Integritetspolicy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Den h&#228;r sidan anv&#228;nder inga kakor och sp&#229;rar dig inte. / &#x12ED;&#x1205; &#x1308;&#x133D; &#x12A9;&#x12AA;&#x12CE;&#x127D;&#x1295; &#x12A0;&#x12ED;&#x1320;&#x1240;&#x121D;&#x121D;&#x1366;
+    </div>
+  </footer>
