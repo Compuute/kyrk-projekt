@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Abune Tekle Haymanot — Etiopiska Ortodoxa Kyrkan">
+  <header class="hero">
+    <div class="logo-placeholder" aria-label="Church logo">✦</div>
+    <h1 id="church-name"></h1>
+    <p id="church-tagline" class="muted"></p>
+  </header>
+
+  <section class="card" id="upcoming-section">
+    <h2 id="upcoming-title">Kommande aktiviteter</h2>
+    <div id="upcoming-list"></div>
+  </section>
+
+  <section class="card" id="announcements-section">
+    <h2 id="announcements-title">Meddelanden</h2>
+    <div id="announcements-list"></div>
+  </section>
+
+  <nav class="grid" id="quick-links">
+    <a class="tile" id="link-member" href="#"></a>
+    <a class="tile" id="link-donate" href="#"></a>
+    <a class="tile" id="link-telegram" href="#"></a>
+    <a class="tile" id="link-youth" href="#"></a>
+  </nav>
+</BaseLayout>
+
+<script>
+  interface BilingualText { sv: string; am: string; }
+  interface LinkItem extends BilingualText { url: string; }
+
+  function t(obj: BilingualText | null | undefined, lang: string): string {
+    if (!obj) return '';
+    return (obj as any)[lang] || obj.sv || '';
+  }
+
+  let content: any = {};
+  let currentLang = 'sv';
+
+  function render(lang: string) {
+    currentLang = lang;
+    const church = content.church || {};
+
+    const el = (id: string) => document.getElementById(id);
+    el('church-name')!.textContent = t(church.name, lang);
+    el('church-tagline')!.textContent = t(church.tagline, lang);
+    el('upcoming-title')!.textContent = lang === 'am' ? 'የቀረቡ ዝግጅቶች' : 'Kommande aktiviteter';
+    el('announcements-title')!.textContent = lang === 'am' ? 'ማስታወቂያዎች' : 'Meddelanden';
+
+    const upList = el('upcoming-list')!;
+    upList.innerHTML = '';
+    const upcoming = content.upcoming || [];
+    if (upcoming.length === 0) {
+      upList.innerHTML = `<div class="empty">${lang === 'am' ? 'ምንም ዝግጅት የለም' : 'Inga kommande aktiviteter'}</div>`;
+    } else {
+      upcoming.forEach((item: any) => {
+        upList.innerHTML += `
+          <div class="activity-item">
+            <div class="activity-title">${t(item.title, lang)}</div>
+            <div class="activity-meta">${item.date} kl ${item.time}</div>
+            <div class="activity-desc">${t(item.description, lang)}</div>
+          </div>`;
+      });
+    }
+
+    const annList = el('announcements-list')!;
+    annList.innerHTML = '';
+    const announcements = content.announcements || [];
+    if (announcements.length === 0) {
+      annList.innerHTML = `<div class="empty">${lang === 'am' ? 'ምንም ማስታወቂያ የለም' : 'Inga meddelanden'}</div>`;
+    } else {
+      announcements.forEach((item: any) => {
+        annList.innerHTML += `
+          <div class="announcement-item">
+            <div class="announcement-title">${t(item.title, lang)}</div>
+            <div class="announcement-date">${item.date}</div>
+            <div class="announcement-body">${t(item.body, lang)}</div>
+          </div>`;
+      });
+    }
+
+    const links = content.links || {};
+    ['member', 'donate', 'telegram', 'youth'].forEach(key => {
+      const a = el('link-' + key);
+      if (a && links[key]) {
+        a.textContent = t(links[key], lang);
+        (a as HTMLAnchorElement).href = links[key].url || '#';
+      }
+    });
+  }
+
+  fetch('/content.json', { credentials: 'omit', cache: 'no-store' })
+    .then(r => r.ok ? r.json() : {})
+    .then(data => { content = data; render(currentLang); })
+    .catch(() => {});
+
+  document.addEventListener('lang-change', (e: any) => render(e.detail.lang));
+
+  const navLang = (navigator.language || 'sv').toLowerCase();
+  if (navLang.startsWith('am')) currentLang = 'am';
+</script>

@@ -1,0 +1,51 @@
+{
+  "version": "2.0",
+  "church": {
+    "name": {"sv": "Abune Tekle Haymanot Etiopiska Ortodoxa Kyrkan", "am": "አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን"},
+    "tagline": {"sv": "Välkommen hem — Nacka", "am": "እንኳን ወደ ቤትዎ ደህና መጡ — ናካ"},
+    "youtube_channel_id": "",
+    "address": "Saltsjö-Boo, Nacka",
+    "swish_number": "1234567890"
+  },
+  "upcoming": [
+    {
+      "title": {"sv": "Söndagsgudstjänst", "am": "የእሁድ ቅዳሴ"},
+      "date": "2025-06-08",
+      "time": "11:00",
+      "description": {"sv": "Gudstjänst med nattvard. Alla välkomna.", "am": "ቅዳሴ ከቁርባን ገር። ሁሉም እንኳን ደህና መጡ።"}
+    },
+    {
+      "title": {"sv": "Youth Tech Workshop", "am": "የወጣቶች ቴክ ወርክሾፐ"},
+      "date": "2025-06-12",
+      "time": "16:00",
+      "description": {"sv": "Kodning och robotik för 13-25 år.", "am": "ለ13-25 ዓመት ወጣቶች ኮዲንግ እና ሮቦቲክስ።"}
+    },
+    {
+      "title": {"sv": "Barnens bibelstund", "am": "የልጆች መጽሐፍ ቅዱስ ሰዓት"},
+      "date": "2025-06-14",
+      "time": "10:00",
+      "description": {"sv": "Berättelser och pyssel för 4-10 år.", "am": "ለ4-10 ዓመት ልጆች ታሪኮች እና የእጅ ሥራዎች።"}
+    }
+  ],
+  "announcements": [
+    {
+      "title": {"sv": "Nytt bidrag beviljat!", "am": "አዲስ ድጋፍ ተፈቀደ!"},
+      "body": {"sv": "Vi har fått 200 000 SEK från Arvsfonden för ungdomsverksamheten.", "am": "ከአርቭስፎንደን 200,000 SEK ለወጣቶች ፕሮግራም ተቀብለናል።"},
+      "date": "2025-06-01"
+    }
+  ],
+  "links": {
+    "member": {"sv": "Bli medlem", "am": "አባል ይሁኑ", "url": "./intake.html"},
+    "donate": {"sv": "Ge en gåva", "am": "ስጦታ ይስጡ", "url": "./donate.html"},
+    "telegram": {"sv": "Följ oss på Telegram", "am": "በቴሌግራም ይከተሉን", "url": "https://t.me/kyrka_kanal"},
+    "youth": {"sv": "Ungdomsverksamhet", "am": "የወጣቶች ፕሮግራም", "url": "./index.html"},
+    "live": {"sv": "Gudstjänst live", "am": "የቀጥታ ቅዳሴ", "url": "./live.html"}
+  },
+  "footer": {
+    "privacy": {
+      "sv": "Den här sidan använder inga kakor och spårar dig inte. Läs vår integritetspolicy.",
+      "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም። የግላዊነት ፖሊሲያችንን ያንብቡ።"
+    },
+    "privacy_url": "./privacy.html"
+  }
+}

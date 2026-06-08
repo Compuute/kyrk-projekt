@@ -1,0 +1,73 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#3b5bdb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kyrkan" />
+  {description && <meta name="description" content={description} />}
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <title>{title}</title>
+  <style is:global>
+    @import '../styles/globals.css';
+  </style>
+  <slot name="head" />
+</head>
+<body>
+  <main class="container">
+    <slot name="back-link" />
+
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" data-lang="sv">🇸🇪 Svenska</button>
+      <button class="lang-pill" data-lang="am">🇪🇹 አማርኛ</button>
+    </div>
+
+    <slot />
+  </main>
+
+  <footer class="foot">
+    <p class="muted small" id="footer-text">
+      Den här sidan använder inga kakor och spårar dig inte.
+      <br />
+      ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም።
+    </p>
+  </footer>
+
+  <script>
+    const pills = document.querySelectorAll('.lang-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const lang = pill.getAttribute('data-lang') || 'sv';
+        pills.forEach(p => p.classList.toggle('active', p.getAttribute('data-lang') === lang));
+        document.body.setAttribute('data-lang', lang);
+        document.dispatchEvent(new CustomEvent('lang-change', { detail: { lang } }));
+      });
+    });
+
+    const navLang = (navigator.language || 'sv').toLowerCase();
+    if (navLang.startsWith('am')) {
+      document.body.setAttribute('data-lang', 'am');
+      pills.forEach(p => p.classList.toggle('active', p.getAttribute('data-lang') === 'am'));
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
