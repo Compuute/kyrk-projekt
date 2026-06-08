@@ -9,93 +9,8 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <title>Ge en gåva — Abune Tekle Haymanot</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    .donate-card {
-      background: var(--card, #ffffff);
-      border: 1px solid var(--border, #e5e5e5);
-      border-radius: 14px;
-      padding: 24px 20px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-    .amount-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 16px 0;
-    }
-    .amount-btn {
-      padding: 14px;
-      border: 2px solid var(--accent);
-      border-radius: 10px;
-      background: transparent;
-      color: var(--accent);
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .amount-btn.selected {
-      background: var(--accent);
-      color: white;
-    }
-    .amount-custom {
-      width: 100%;
-      padding: 14px;
-      border: 2px solid var(--border, #e5e5e5);
-      border-radius: 10px;
-      background: transparent;
-      color: white;
-      font-size: 18px;
-      text-align: center;
-      margin: 10px 0;
-    }
-    .swish-btn {
-      display: block;
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 12px;
-      background: #5bbf2e;
-      color: white;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      text-align: center;
-      margin: 12px 0;
-    }
-    .swish-btn:hover { opacity: 0.9; }
-    .other-methods {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 16px;
-    }
-    .method-btn {
-      display: block;
-      padding: 14px;
-      border: 1px solid var(--border, #e5e5e5);
-      border-radius: 10px;
-      background: transparent;
-      color: white;
-      font-size: 15px;
-      text-decoration: none;
-      text-align: center;
-    }
-    .receipt-note {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 16px;
-      line-height: 1.5;
-    }
-    .back-link {
-      display: inline-block;
-      margin-bottom: 16px;
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 14px;
-    }
-  </style>
+  <script src="app.js"></script>
+  <!-- All CSS in styles.css -->
 </head>
 <body>
   <main class="container">
@@ -187,9 +102,7 @@
         // Swish deep link format
         // On mobile: opens Swish app directly
         // On desktop: shows a message to use mobile
-        swishBtn.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
-          SWISH_NUMBER + '"},"amount":{"value":' + selectedAmount +
-          '},"message":{"value":"Gåva till kyrkan","editable":false}}';
+        swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, 'Gåva till kyrkan');
         swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
       } else {
         swishBtn.href = '#';

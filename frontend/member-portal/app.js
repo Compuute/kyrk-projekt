@@ -235,6 +235,80 @@ if (typeof window !== 'undefined') {
   window.setupLanguageSwitcher = setupLanguageSwitcher;
 }
 
+// --------------------------------------------------- shared form helpers
+
+function validateName(name) {
+  if (!name || name.trim().length < 2) return false;
+  if (/\d/.test(name)) return false;
+  return true;
+}
+
+function validatePhone(phone) {
+  if (!phone) return false;
+  var clean = phone.replace(/[-\s]/g, '');
+  return /^(\+46|0)\d{7,10}$/.test(clean);
+}
+
+function validatePersonnummer(pnr) {
+  if (!pnr) return true;
+  var clean = pnr.replace(/[-\s]/g, '');
+  if (clean.length === 12) clean = clean.substring(2);
+  if (clean.length !== 10) return false;
+  if (!/^\d{10}$/.test(clean)) return false;
+  var sum = 0;
+  for (var i = 0; i < 10; i++) {
+    var d = parseInt(clean[i], 10);
+    if (i % 2 === 0) d *= 2;
+    if (d > 9) d -= 9;
+    sum += d;
+  }
+  return sum % 10 === 0;
+}
+
+function toggleConsent(inputId, btnId, boxId) {
+  var input = document.getElementById(inputId || 'field-gdpr-consent');
+  var btn = document.getElementById(btnId || 'consent-btn');
+  var box = document.getElementById(boxId || 'consent-box');
+  if (input.value === 'true') {
+    input.value = '';
+    btn.classList.remove('checked');
+    box.textContent = '';
+  } else {
+    input.value = 'true';
+    btn.classList.add('checked');
+    box.textContent = '✓';
+  }
+}
+
+function buildSwishLink(swishNumber, amount, message) {
+  if (!swishNumber || !amount) return '#';
+  return 'swish://payment?data={"version":1,"payee":{"value":"' +
+    swishNumber + '"},"amount":{"value":' + amount +
+    '},"message":{"value":"' + (message || 'Betalning') + '","editable":false}}';
+}
+
+function setupLangPills() {
+  var pills = document.querySelectorAll('.lang-pill');
+  for (var i = 0; i < pills.length; i++) {
+    pills[i].addEventListener('click', function () {
+      var lang = this.getAttribute('data-lang');
+      for (var j = 0; j < pills.length; j++) {
+        pills[j].classList.toggle('active', pills[j].getAttribute('data-lang') === lang);
+      }
+      document.body.setAttribute('data-lang', lang);
+    });
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.validateName = validateName;
+  window.validatePhone = validatePhone;
+  window.validatePersonnummer = validatePersonnummer;
+  window.toggleConsent = toggleConsent;
+  window.buildSwishLink = buildSwishLink;
+  window.setupLangPills = setupLangPills;
+}
+
 // Node exposure (for tests)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -242,6 +316,10 @@ if (typeof module !== 'undefined' && module.exports) {
     renderPage: renderPage,
     switchLanguage: switchLanguage,
     detectLanguage: detectLanguage,
-    _t: _t
+    _t: _t,
+    validateName: validateName,
+    validatePhone: validatePhone,
+    validatePersonnummer: validatePersonnummer,
+    buildSwishLink: buildSwishLink
   };
 }

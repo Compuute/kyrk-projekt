@@ -9,7 +9,9 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <title>Bli medlem / አባል ይሁኑ — Abune Tekle Haymanot</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="app.js"></script>
   <style>
+    /* Overrides only — base styles in styles.css */
     .form-card {
       background: var(--card, #fff);
       border: 1px solid var(--border, #e5e5e5);
@@ -427,35 +429,7 @@
     </footer>
   </main>
   <script>
-  function validatePersonnummer(pnr) {
-    if (!pnr) return true; // optional field
-    var clean = pnr.replace(/[-\s]/g, '');
-    // Accept YYYYMMDDXXXX (12) or YYMMDDXXXX (10)
-    if (clean.length === 12) clean = clean.substring(2);
-    if (clean.length !== 10) return false;
-    if (!/^\d{10}$/.test(clean)) return false;
-    // Luhn mod 10
-    var sum = 0;
-    for (var i = 0; i < 10; i++) {
-      var d = parseInt(clean[i], 10);
-      if (i % 2 === 0) d *= 2;
-      if (d > 9) d -= 9;
-      sum += d;
-    }
-    return sum % 10 === 0;
-  }
-
-  function validatePhone(phone) {
-    if (!phone) return false;
-    var clean = phone.replace(/[-\s]/g, '');
-    return /^(\+46|0)\d{7,10}$/.test(clean);
-  }
-
-  function validateName(name) {
-    if (!name || name.trim().length < 2) return false;
-    if (/\d/.test(name)) return false;
-    return true;
-  }
+  // validateName, validatePhone, validatePersonnummer, toggleConsent, buildSwishLink — loaded from app.js
 
   var familyCount = 0;
 
@@ -519,20 +493,6 @@
     return members;
   }
 
-  function toggleConsent() {
-    var input = document.getElementById('field-gdpr-consent');
-    var btn = document.getElementById('consent-btn');
-    var box = document.getElementById('consent-box');
-    if (input.value === 'true') {
-      input.value = '';
-      btn.classList.remove('checked');
-      box.textContent = '';
-    } else {
-      input.value = 'true';
-      btn.classList.add('checked');
-      box.textContent = '✓';
-    }
-  }
   </script>
 
   <script>
@@ -651,9 +611,7 @@
               var swishLink = document.getElementById('success-swish-link');
               var swishNr = (churchConfig && churchConfig.swish_number) || '';
               if (swishNr) {
-                swishLink.href = 'swish://payment?data={"version":1,"payee":{"value":"' +
-                  swishNr + '"},"amount":{"value":' + fee +
-                  '},"message":{"value":"Medlemsavgift","editable":false}}';
+                swishLink.href = buildSwishLink(swishNr, fee, 'Medlemsavgift');
                 swishLink.textContent = 'Swish — ' + fee + ' kr';
               } else {
                 swishLink.style.display = 'none';
