@@ -337,6 +337,97 @@ function setupErrorMonitoring() {
   });
 }
 
+// ------------------------------------------------ church selector
+
+function getSelectedChurch() {
+  if (typeof localStorage === 'undefined') return 'nacka';
+  return localStorage.getItem('selectedChurch') || 'nacka';
+}
+
+function setSelectedChurch(churchId) {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('selectedChurch', churchId);
+  }
+}
+
+function initChurchSelector() {
+  if (typeof document === 'undefined') return;
+
+  var bar = document.getElementById('church-bar');
+  var modal = document.getElementById('church-modal');
+  if (!bar || !modal) return;
+
+  bar.addEventListener('click', function () { modal.classList.add('open'); });
+
+  var closeBtn = modal.querySelector('.church-modal-close');
+  if (closeBtn) closeBtn.addEventListener('click', function () { modal.classList.remove('open'); });
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) modal.classList.remove('open');
+  });
+
+  fetch('./churches.json', { credentials: 'omit' })
+    .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
+    .then(function (data) {
+      var churches = data.churches || [];
+      var list = modal.querySelector('.church-list');
+      var search = modal.querySelector('.church-search');
+      var lang = document.body.getAttribute('data-lang') || 'sv';
+      var selected = getSelectedChurch();
+
+      function renderList(filter) {
+        list.innerHTML = '';
+        var filtered = churches.filter(function (c) {
+          if (!filter) return true;
+          var q = filter.toLowerCase();
+          return (c.name.sv || '').toLowerCase().indexOf(q) >= 0 ||
+                 (c.name.am || '').indexOf(q) >= 0 ||
+                 (c.city || '').toLowerCase().indexOf(q) >= 0;
+        });
+        filtered.forEach(function (c) {
+          var item = document.createElement('div');
+          item.className = 'church-list-item';
+          item.innerHTML = '<div><div class="church-item-name">' + _t(c.name, lang) + '</div>' +
+            '<div class="church-item-city">' + c.city + '</div></div>' +
+            '<button class="church-item-select">' + (lang === 'am' ? 'ምረጥ' : 'Välj') + '</button>';
+          item.addEventListener('click', function () {
+            setSelectedChurch(c.id);
+            window.location.reload();
+          });
+          list.appendChild(item);
+        });
+      }
+
+      renderList('');
+      if (search) {
+        search.addEventListener('input', function () { renderList(this.value); });
+      }
+
+      var current = churches.find(function (c) { return c.id === selected; });
+      if (current) {
+        var nameEl = bar.querySelector('.church-bar-name');
+        if (nameEl) nameEl.textContent = _t(current.name, lang) + ' — ' + current.city;
+      }
+
+      var locateBtn = modal.querySelector('.church-locate-btn');
+      if (locateBtn && navigator.geolocation) {
+        locateBtn.addEventListener('click', function () {
+          navigator.geolocation.getCurrentPosition(function (pos) {
+            var lat = pos.coords.latitude;
+            var lng = pos.coords.longitude;
+            churches.sort(function (a, b) {
+              var da = Math.pow(a.coords.lat - lat, 2) + Math.pow(a.coords.lng - lng, 2);
+              var db = Math.pow(b.coords.lat - lat, 2) + Math.pow(b.coords.lng - lng, 2);
+              return da - db;
+            });
+            renderList('');
+          });
+        });
+      }
+    })
+    .catch(function () {});
+}
+
 if (typeof window !== 'undefined') {
   window.validateName = validateName;
   window.validatePhone = validatePhone;
@@ -345,6 +436,8 @@ if (typeof window !== 'undefined') {
   window.buildSwishLink = buildSwishLink;
   window.setupLangPills = setupLangPills;
   window.registerServiceWorker = registerServiceWorker;
+  window.initChurchSelector = initChurchSelector;
+  window.getSelectedChurch = getSelectedChurch;
   setupErrorMonitoring();
 }
 

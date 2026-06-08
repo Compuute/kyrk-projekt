@@ -1,0 +1,103 @@
+{
+  "churches": [
+    {
+      "id": "nacka",
+      "name": {"sv": "Abune Tekle Haymanot", "am": "አቡነ ተክለ ሃይማኖት"},
+      "city": "Nacka",
+      "address": "Saltsjö-Boo, Nacka",
+      "org_number": "802492-9237",
+      "swish_number": "1234567890",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 59.32, "lng": 18.17}
+    },
+    {
+      "id": "goteborg",
+      "name": {"sv": "Kidist Selassie", "am": "ቅድስት ሥላሴ"},
+      "city": "Göteborg",
+      "address": "Göteborg",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 57.71, "lng": 11.97}
+    },
+    {
+      "id": "stockholm",
+      "name": {"sv": "Menbere Tsebaot Kidist Selassie", "am": "መንበረ ጸባዖት ቅድስት ሥላሴ"},
+      "city": "Stockholm",
+      "address": "Hägersten, Stockholm",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 59.30, "lng": 18.00}
+    },
+    {
+      "id": "malmo",
+      "name": {"sv": "Debre Mihret Kidist Mariam", "am": "ደብረ ምሕረት ቅድስት ማርያም"},
+      "city": "Malmö",
+      "address": "Malmö",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 55.60, "lng": 13.00}
+    },
+    {
+      "id": "orebro",
+      "name": {"sv": "Medhane Alem", "am": "መድኃኔ ዓለም"},
+      "city": "Örebro",
+      "address": "Örebro",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 59.27, "lng": 15.21}
+    },
+    {
+      "id": "jonkoping",
+      "name": {"sv": "Kidist Mariam", "am": "ቅድስት ማርያም"},
+      "city": "Jönköping",
+      "address": "Jönköping",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 57.78, "lng": 14.16}
+    },
+    {
+      "id": "linkoping",
+      "name": {"sv": "Debre Genet Kidus Gebreal", "am": "ደብረ ገነት ቅዱስ ገብርኤል"},
+      "city": "Linköping",
+      "address": "Linköping",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 58.41, "lng": 15.63}
+    },
+    {
+      "id": "vasteras",
+      "name": {"sv": "Kidus Mikael", "am": "ቅዱስ ሚካኤል"},
+      "city": "Västerås",
+      "address": "Västerås",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 59.61, "lng": 16.55}
+    },
+    {
+      "id": "sodertalje",
+      "name": {"sv": "Abune Aregawi", "am": "አቡነ አረጋዊ"},
+      "city": "Södertälje",
+      "address": "Södertälje",
+      "org_number": "",
+      "swish_number": "",
+      "phone": "",
+      "email": "",
+      "coords": {"lat": 59.20, "lng": 17.63}
+    }
+  ]
+}
