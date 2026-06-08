@@ -397,6 +397,52 @@ body[data-lang="am"] {
 }
 .nav-dropdown-menu a:hover { background: var(--bg); }
 
+/* Secondary top bar (quick links) */
+.top-bar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 16px;
+  background: #1a1a2e;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.top-bar::-webkit-scrollbar { display: none; }
+.top-bar a, .top-bar button {
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #ccc;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.top-bar a:hover, .top-bar button:hover { color: #fff; }
+.top-bar .top-bar-cta {
+  background: var(--cta, #CA8A04);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 6px 14px;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto;
+}
+.breadcrumb a { color: var(--accent); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
 /* Church selector (top bar) */
 .church-bar {
   background: var(--accent);
