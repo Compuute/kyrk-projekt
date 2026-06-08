@@ -291,10 +291,6 @@
       setupLanguageSwitcher(content);
     })();
   </script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(function() {});
-    }
-  </script>
+  <script>registerServiceWorker();</script>
 </body>
 </html>

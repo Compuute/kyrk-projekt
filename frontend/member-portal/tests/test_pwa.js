@@ -65,7 +65,10 @@ test('sw.js exists', function () {
 });
 
 test('HTML registers service worker', function () {
-  assert.ok(html.includes('serviceWorker.register'), 'missing SW registration');
+  var appJs = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf-8');
+  var registeredInHtml = html.includes('serviceWorker.register') || html.includes('registerServiceWorker');
+  var registeredInApp = appJs.includes('serviceWorker.register');
+  assert.ok(registeredInHtml && registeredInApp, 'SW must be registered via HTML or app.js');
 });
 
 test('sw.js caches essential files', function () {

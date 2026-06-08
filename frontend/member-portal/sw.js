@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kyrka-v3';
+const CACHE_NAME = 'kyrka-v4';
 const OFFLINE_URLS = [
   '/',
   '/index.html',
@@ -19,7 +19,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_URLS))
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -31,9 +30,15 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (event) => {
-  // Network-first for content.json (always want fresh content)
-  if (event.request.url.includes('content.json')) {
+  const url = event.request.url;
+
+  // Network-first for HTML and content.json (always want fresh navigation)
+  if (event.request.mode === 'navigate' || url.includes('content.json')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -46,7 +51,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate: serve cache immediately, fetch update in background
+  // Stale-while-revalidate for CSS, JS, images, fonts
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const fetchPromise = fetch(event.request).then((response) => {
@@ -55,7 +60,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
-      });
+      }).catch(() => cached);
       return cached || fetchPromise;
     })
   );
@@ -70,7 +75,6 @@ self.addEventListener('push', (event) => {
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     data: { url: data.url || '/' },
-    // Show bilingual if available
     ...(data.body_am ? { actions: [{ action: 'open', title: 'Öppna / ክፈት' }] } : {}),
   };
   event.waitUntil(self.registration.showNotification(title, options));

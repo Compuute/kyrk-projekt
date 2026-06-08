@@ -300,6 +300,43 @@ function setupLangPills() {
   }
 }
 
+function registerServiceWorker() {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('/sw.js').then(function (reg) {
+    reg.addEventListener('updatefound', function () {
+      var newWorker = reg.installing;
+      if (!newWorker) return;
+      newWorker.addEventListener('statechange', function () {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateBanner(reg);
+        }
+      });
+    });
+  }).catch(function () {});
+}
+
+function showUpdateBanner(reg) {
+  if (typeof document === 'undefined') return;
+  var banner = document.createElement('div');
+  banner.setAttribute('role', 'alert');
+  banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#7C3AED;color:#fff;padding:14px 20px;text-align:center;font-size:15px;font-weight:600;z-index:9999;display:flex;justify-content:center;align-items:center;gap:12px;';
+  banner.innerHTML = '<span>Ny version tillgänglig</span><button style="background:#fff;color:#7C3AED;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;" id="sw-update-btn">Uppdatera</button>';
+  document.body.appendChild(banner);
+  document.getElementById('sw-update-btn').addEventListener('click', function () {
+    if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    window.location.reload();
+  });
+}
+
+function setupErrorMonitoring() {
+  if (typeof window === 'undefined') return;
+  window.addEventListener('error', function (e) {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('https://membership-intake-479770870521.europe-north1.run.app/healthz', '');
+    }
+  });
+}
+
 if (typeof window !== 'undefined') {
   window.validateName = validateName;
   window.validatePhone = validatePhone;
@@ -307,6 +344,8 @@ if (typeof window !== 'undefined') {
   window.toggleConsent = toggleConsent;
   window.buildSwishLink = buildSwishLink;
   window.setupLangPills = setupLangPills;
+  window.registerServiceWorker = registerServiceWorker;
+  setupErrorMonitoring();
 }
 
 // Node exposure (for tests)

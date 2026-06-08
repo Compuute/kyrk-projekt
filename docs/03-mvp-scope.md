@@ -15,6 +15,10 @@
   - Donation page with Swish deep links
   - Bilingual (Swedish + Amharic)
   - Dynamic per-church config via content.json
+  - PWA with service worker (network-first HTML, stale-while-revalidate CSS/JS)
+  - Security headers via `_headers` (HSTS, CSP, X-Frame-Options)
+  - Update notification banner ("Ny version tillgänglig")
+  - Design system: Lexend + Noto Sans Ethiopic, purple #7C3AED + gold #CA8A04, WCAG AAA
 
 ### Automation
 - `n8n` workflows:
