@@ -228,6 +228,20 @@ function setupLangPills() {
     pill.addEventListener("click", function() {
       const lang = this.getAttribute("data-lang");
       if (!lang) return;
+      if (typeof document !== "undefined") {
+        document.cookie = "selected_language=" + encodeURIComponent(lang) + "; path=/; max-age=31536000; SameSite=Lax";
+      }
+      if (typeof window !== "undefined") {
+        const path = window.location.pathname;
+        const isPrefixed = path.startsWith("/sv/") || path.startsWith("/am/") || path === "/sv" || path === "/am";
+        if (isPrefixed) {
+          const targetPrefix = "/" + lang;
+          const currentPrefix = path.startsWith("/sv") ? "/sv" : "/am";
+          const rest = path.substring(currentPrefix.length);
+          window.location.href = targetPrefix + (rest || "/");
+          return;
+        }
+      }
       pills.forEach((p) => p.classList.toggle("active", p.getAttribute("data-lang") === lang));
       document.body.setAttribute("data-lang", lang);
       applyLanguage(lang);

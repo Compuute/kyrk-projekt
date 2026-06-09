@@ -364,6 +364,27 @@ function setupLangPills(): void {
     pill.addEventListener('click', function (this: HTMLElement) {
       const lang = this.getAttribute('data-lang') as Lang | null;
       if (!lang) return;
+      
+      // Update cookie immediately
+      if (typeof document !== 'undefined') {
+        document.cookie = 'selected_language=' + encodeURIComponent(lang) + '; path=/; max-age=31536000; SameSite=Lax';
+      }
+
+      // Check if we are running in prefixed edge routing (/sv/... or /am/...)
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname;
+        const isPrefixed = path.startsWith('/sv/') || path.startsWith('/am/') || path === '/sv' || path === '/am';
+        
+        if (isPrefixed) {
+          const targetPrefix = '/' + lang;
+          const currentPrefix = path.startsWith('/sv') ? '/sv' : '/am';
+          const rest = path.substring(currentPrefix.length);
+          window.location.href = targetPrefix + (rest || '/');
+          return;
+        }
+      }
+
+      // Fallback: client-side DOM toggle (for local dev filesystem/11ty server)
       pills.forEach(p => p.classList.toggle('active', p.getAttribute('data-lang') === lang));
       document.body.setAttribute('data-lang', lang);
       applyLanguage(lang as Lang);
