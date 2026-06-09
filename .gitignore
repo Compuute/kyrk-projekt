@@ -54,3 +54,5 @@ dist/
 *.sqlite3
 node_modules/
 frontend/member-portal/dist/
+# compiled from app.ts by esbuild — do not edit directly (ADR-014)
+frontend/member-portal/app.js

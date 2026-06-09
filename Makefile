@@ -21,12 +21,13 @@ SERVICES := membership-service membership-intake certificate-service reporting-s
 ENV ?= dev
 DOCS_PORT ?= 8090
 
-.PHONY: help install test test-% lint local-ci tf-validate docs-serve onboarding bootstrap deploy smoke screenshots clean
+.PHONY: help install test test-% build-js lint local-ci tf-validate docs-serve onboarding bootstrap deploy smoke screenshots clean
 
 help:
 	@echo "kyrk-projekt — common targets"
 	@echo
 	@echo "  make install          install all service requirements (one venv)"
+	@echo "  make build-js         typecheck + compile app.ts → app.js (esbuild)"
 	@echo "  make test             run full test suite (Python + Node)"
 	@echo "  make test-<service>   run tests for one service, e.g. test-admin-web"
 	@echo "  make lint             python syntax check + terraform fmt"
@@ -47,7 +48,15 @@ install:
 	  (cd services/$$svc && $(PIP) install -q -r requirements.txt); \
 	done
 
-test:
+# Typecheck + compile app.ts → app.js using esbuild (ADR-014)
+build-js:
+	@echo "==> typecheck app.ts"
+	@(cd frontend/member-portal && npx tsc --noEmit)
+	@echo "==> compile app.ts → app.js"
+	@(cd frontend/member-portal && npx esbuild app.ts --bundle=false --platform=node --outfile=app.js)
+	@echo "==> app.js OK"
+
+test: build-js
 	@set -e; \
 	for svc in $(SERVICES); do \
 	  printf "==> %s\n" "$$svc"; \
@@ -91,7 +100,7 @@ deploy:
 	@echo "Watching run…"
 	gh run watch
 
-deploy-sites:
+deploy-sites: build-js
 	@command -v wrangler >/dev/null 2>&1 || { echo "wrangler CLI is required (npm i -g wrangler)"; exit 1; }
 	@npx @11ty/eleventy
 	wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal

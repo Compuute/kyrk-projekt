@@ -385,3 +385,71 @@ a live chat during a service, a ticket booking flow with seat selection),
 evaluate HTMX as a progressive enhancement first. Reach for React or SvelteKit
 only if HTMX is provably insufficient — and only for that screen, not the
 entire portal.
+
+---
+
+## ADR-014: TypeScript för app.js — inte hela frontend
+
+**Date:** 2026-06
+**Status:** accepted
+
+**Context:**
+`frontend/member-portal/app.js` är den enda filen med komplex runtime-logik:
+church-val, språkväxling, content-fetch, PWA-registrering, Swish-länkbygge,
+personnummer-validering och formulärhantering. Filen är 553 rader och växer
+med varje ny kyrka eller funktion.
+
+De två övriga runtime JS-filerna är:
+- `sw.js` (94 rader) — Service Worker, ändras sällan, ingen komplex logik
+- `wifi-intake-portal/content.js` (95 rader) — isolerad wifi-portal, stabil
+
+Testerna (`tests/*.js`) är avsiktligt beroende-fria Node.js-assertions och
+ska aldrig ha ett build-steg (se ADR-013: noll externa testberoenden).
+
+**Problem som TypeScript löser i app.js:**
+1. **Stavfel på content.json-nycklar** — `youtube_chanel_id` istället för
+   `youtube_channel_id` är en tyst bug i vanilla JS, en kompileringsfel i TS.
+2. **Null-dereference** — `content.upcoming[0].title.sv` kraschar om
+   `upcoming` är tom. TypeScript tvingar fram null-checks.
+3. **Fel funktionssignatur** — `applyLanguage('svenska')` i stället för
+   `applyLanguage('sv' | 'am')` fångas vid kompilering, inte i produktion.
+4. **Kontraktbrott mot content.json** — TypeScript-interface `ContentConfig`
+   och `Church` dokumenterar och enforcar JSON-schemat maskinellt.
+
+**Varför INTE migrera sw.js, content.js eller testerna:**
+- `sw.js` och `content.js` är trivialt korta och stabila — TypeScript ger
+  noll värde relativt kostnaden av ett nytt build-steg per fil.
+- Testerna är avsiktligt dependency-fria. TypeScript kräver `tsc` eller
+  `ts-node`, vilket bryter principen om noll-beroende-testning (ADR-013).
+
+**Decision:**
+Migrera enbart `app.js` → `app.ts`. Kompilera med `esbuild` (inte `tsc`)
+eftersom `esbuild` är 100× snabbare (~20 ms vs ~2 s), inte kräver en
+tsconfig-driven bundle-pipeline, och producerar identisk output.
+
+Typcheck körs separat med `tsc --noEmit` (ingen output, bara fel).
+Detta ger fullständig typsäkerhet utan att röra den befintliga 11ty-pipelinen.
+
+**Build-pipeline:**
+```
+app.ts  →[tsc --noEmit]→  (typcheck, inga filer)
+app.ts  →[esbuild]→  app.js  →[11ty]→  dist/
+```
+
+`sw.js`, `content.js` och alla `tests/*.js` är oförändrade.
+
+**Consequence:**
+- `app.ts` är den auktoritativa källkoden. `app.js` är genererad output.
+- `app.js` läggs till i `.gitignore` för member-portal (genererad fil).
+- `make test` kör `tsc --noEmit` + `esbuild` + `11ty` + Node-tester
+  i sekvens. Allt annat är identiskt med förut.
+- Befintliga test-filer importerar fortfarande `../app.js` — de
+  importerar esbuild-outputen, inte TypeScript-källan. Testerna kräver
+  noll ändringar.
+- `node_modules` i member-portal växer med `typescript` + `esbuild`
+  (~8 MB dev-dependencies, aldrig deployade till Cloudflare Pages).
+
+**When to revisit:**
+Om `sw.js` eller `content.js` växer förbi ~300 rader med komplex
+kontrollflöde — migrera dem individuellt med samma mönster.
+
