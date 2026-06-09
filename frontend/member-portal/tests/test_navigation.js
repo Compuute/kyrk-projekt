@@ -2,8 +2,27 @@ var assert = require('assert');
 var fs = require('fs');
 var path = require('path');
 
-var ROOT = path.join(__dirname, '..');
-var pages = fs.readdirSync(ROOT).filter(function (f) { return f.endsWith('.html'); });
+var ROOT = path.join(__dirname, '..', 'dist');
+
+function getPages(dir, baseDir) {
+  baseDir = baseDir || dir;
+  var results = [];
+  var list = fs.readdirSync(dir);
+  list.forEach(function (file) {
+    var fullPath = path.join(dir, file);
+    var stat = fs.statSync(fullPath);
+    if (stat && stat.isDirectory()) {
+      if (file !== 'icons' && file !== 'churches') {
+        results = results.concat(getPages(fullPath, baseDir));
+      }
+    } else if (file.endsWith('.html')) {
+      results.push(path.relative(baseDir, fullPath));
+    }
+  });
+  return results;
+}
+
+var pages = getPages(ROOT);
 var passed = 0;
 var failed = 0;
 
@@ -41,12 +60,12 @@ serviceLinks.forEach(function (link) {
 
 // --- Service pages exist ---
 serviceLinks.forEach(function (link) {
-  var file = link.replace('./', '') + '.html';
+  var file = link.replace('./', '') + '/index.html';
   ok(fs.existsSync(path.join(ROOT, file)), file + ' exists');
 });
 
 // --- Each service page has bilingual content (sv + am) ---
-var serviceFiles = ['baptism.html', 'tezkar.html', 'library.html', 'support.html', 'venue.html'];
+var serviceFiles = ['baptism/index.html', 'tezkar/index.html', 'library/index.html', 'support/index.html', 'venue/index.html'];
 serviceFiles.forEach(function (file) {
   var html = fs.readFileSync(path.join(ROOT, file), 'utf8');
   var hasAmharic = /[ሀ-፿]/.test(html);
@@ -55,7 +74,7 @@ serviceFiles.forEach(function (file) {
 });
 
 // --- FAQ page has accordion ---
-var faqHtml = fs.readFileSync(path.join(ROOT, 'faq.html'), 'utf8');
+var faqHtml = fs.readFileSync(path.join(ROOT, 'faq', 'index.html'), 'utf8');
 ok(faqHtml.indexOf('faq-item') > 0, 'faq.html has accordion items');
 ok(/class="am"/.test(faqHtml), 'faq.html has Amharic question spans');
 ok(faqHtml.indexOf('faq-q') > 0, 'faq.html has clickable questions');
@@ -64,7 +83,7 @@ var faqCount = (faqHtml.match(/class="faq-item"/g) || []).length;
 ok(faqCount >= 8, 'faq.html has at least 8 FAQ items (found ' + faqCount + ')');
 
 // --- Calendar page loads events ---
-var calHtml = fs.readFileSync(path.join(ROOT, 'calendar.html'), 'utf8');
+var calHtml = fs.readFileSync(path.join(ROOT, 'calendar', 'index.html'), 'utf8');
 ok(calHtml.indexOf('getContentUrl') > 0 || calHtml.indexOf('content.json') > 0, 'calendar.html loads church content');
 ok(calHtml.indexOf('cal-list') > 0, 'calendar.html has event list container');
 ok(calHtml.indexOf('schedule-title') > 0, 'calendar.html has weekly schedule');
@@ -86,7 +105,7 @@ churches.churches.forEach(function (c) {
 });
 
 // --- Swish desktop fallback ---
-var donateHtml = fs.readFileSync(path.join(ROOT, 'donate.html'), 'utf8');
+var donateHtml = fs.readFileSync(path.join(ROOT, 'donate', 'index.html'), 'utf8');
 ok(donateHtml.indexOf('isMobile') > 0, 'donate.html has mobile detection');
 ok(donateHtml.indexOf('alert(') > 0, 'donate.html shows alert on desktop');
 

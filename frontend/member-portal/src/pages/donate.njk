@@ -4,10 +4,19 @@ title: "Ge en gava"
 breadcrumb: "Ge en gava"
 ---
 
+<a href="/" class="back-link" id="back-link">
+  <span class="sv">← Tillbaka</span>
+  <span class="am" style="display:none;">← ተመለስ</span>
+</a>
+
 <div class="donate-card">
-      <h1 id="donate-title">Ge en gåva</h1>
+      <h1 id="donate-title">
+        <span class="sv">Ge en gåva</span>
+        <span class="am" style="display:none;">ስጦታ ይስጡ</span>
+      </h1>
       <p id="donate-desc" style="color: #aaa; font-size: 14px;">
-        Ditt stöd gör vår verksamhet möjlig. Alla gåvor går till församlingens arbete.
+        <span class="sv">Ditt stöd gör vår verksamhet möjlig. Alla gåvor går till församlingens arbete.</span>
+        <span class="am" style="display:none;">ድጋፍዎ ሥራችንን ይቻላል ያደርጋል። ሁሉም ስጦታዎች ለቤተ ክርስቲያኑ ሥራ ይውላሉ።</span>
       </p>
 
       <div class="amount-grid" id="amount-grid">
@@ -16,14 +25,18 @@ breadcrumb: "Ge en gava"
         <button class="amount-btn selected" data-amount="200">200 kr</button>
         <button class="amount-btn" data-amount="500">500 kr</button>
         <button class="amount-btn" data-amount="1000">1000 kr</button>
-        <button class="amount-btn" data-amount="custom">Annat</button>
+        <button class="amount-btn" data-amount="custom">
+          <span class="sv">Annat</span>
+          <span class="am" style="display:none;">ሌላ</span>
+        </button>
       </div>
 
       <input type="number" class="amount-custom" id="custom-amount"
              placeholder="Ange belopp i SEK" style="display:none;" />
 
       <a class="swish-btn" id="swish-btn" href="#">
-        Swish — betala nu
+        <span class="sv">Swish — betala nu</span>
+        <span class="am" style="display:none;">Swish — አሁን ይክፈሉ</span>
       </a>
 
       <div class="other-methods">
@@ -33,9 +46,82 @@ breadcrumb: "Ge en gava"
       </div>
 
       <div class="receipt-note" id="receipt-note">
-        <strong>Gåvokvitto:</strong> Gåvor över 200 kr ger rätt till skattereduktion.
-        Ange din e-post nedan så skickar vi ett gåvokvitto.
+        <span class="sv"><strong>Gåvokvitto:</strong> Gåvor över 200 kr ger rätt till skattereduktion. Ange din e-post nedan så skickar vi ett gåvokvitto.</span>
+        <span class="am" style="display:none;"><strong>የስጦታ ደረሰኝ:</strong> ከ200 ክር በላይ ስጦታዎች ለግብር ቅናሽ ያስተዋውቃሉ።</span>
         <br/><br/>
         Org.nr: 802492-9237 · Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan
       </div>
     </div>
+
+  <script>
+    var SWISH_NUMBER = '';
+    var BANKGIRO_NUMBER = '';
+
+    // Load church config dynamically
+    fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (data) {
+        var church = (data && data.church) || {};
+        SWISH_NUMBER = church.swish_number || '';
+        BANKGIRO_NUMBER = church.bankgiro_number || '';
+        if (BANKGIRO_NUMBER) {
+          document.getElementById('bankgiro-btn').textContent = 'Bankgiro: ' + BANKGIRO_NUMBER;
+        }
+        updateSwishLink();
+      })
+      .catch(function () {});
+
+    var selectedAmount = 200;
+    var buttons = document.querySelectorAll('.amount-btn');
+    var customInput = document.getElementById('custom-amount');
+    var swishBtn = document.getElementById('swish-btn');
+
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        buttons.forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        if (btn.dataset.amount === 'custom') {
+          customInput.style.display = 'block';
+          customInput.focus();
+          selectedAmount = parseInt(customInput.value) || 0;
+        } else {
+          customInput.style.display = 'none';
+          selectedAmount = parseInt(btn.dataset.amount);
+        }
+        updateSwishLink();
+      });
+    });
+
+    customInput.addEventListener('input', function() {
+      selectedAmount = parseInt(customInput.value) || 0;
+      updateSwishLink();
+    });
+
+    function isMobile() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    function updateSwishLink() {
+      // swish://payment
+      if (selectedAmount > 0 && SWISH_NUMBER) {
+        if (isMobile()) {
+          swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, 'Gåva till kyrkan');
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.onclick = null;
+        } else {
+          swishBtn.href = '#';
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.onclick = function (e) {
+            e.preventDefault();
+            alert('Öppna Swish-appen på din telefon och swisha ' + selectedAmount + ' kr till ' + SWISH_NUMBER + '\n\nSwish-nummer: ' + SWISH_NUMBER);
+          };
+        }
+      } else {
+        swishBtn.href = '#';
+        swishBtn.textContent = 'Swish — välj belopp';
+        swishBtn.onclick = null;
+      }
+    }
+
+    updateSwishLink();
+  </script>

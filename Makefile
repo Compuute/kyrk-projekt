@@ -54,6 +54,7 @@ test:
 	  (cd services/$$svc && $(PYTHON) -m pytest -q); \
 	done
 	@echo "==> member-portal"
+	@npx @11ty/eleventy
 	@(cd frontend/member-portal && for t in tests/test_*.js; do node "$$t"; done)
 	@echo "==> wifi-intake-portal"
 	@(cd frontend/wifi-intake-portal && node tests/test_content_decision.js)
@@ -92,7 +93,8 @@ deploy:
 
 deploy-sites:
 	@command -v wrangler >/dev/null 2>&1 || { echo "wrangler CLI is required (npm i -g wrangler)"; exit 1; }
-	wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
+	@npx @11ty/eleventy
+	wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal
 	wrangler pages deploy frontend/wifi-intake-portal --project-name=kyrka-wifi
 	@echo "Static sites deployed to Cloudflare Pages."
 

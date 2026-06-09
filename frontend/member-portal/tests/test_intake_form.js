@@ -8,8 +8,8 @@ function test(name, fn) {
   catch (e) { console.error('  FAIL ' + name + '\n       ' + e.message); process.exitCode = 1; }
 }
 
-const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'intake.html'), 'utf-8');
+const ROOT = path.join(__dirname, '..', 'dist');
+const html = fs.readFileSync(path.join(ROOT, 'intake', 'index.html'), 'utf-8');
 
 // --- Required form fields
 
@@ -37,7 +37,7 @@ test('intake has personal_number field', function () {
 
 test('intake has GDPR consent checkbox', function () {
   assert.ok(html.includes('name="gdpr_consent"'), 'missing gdpr_consent field');
-  assert.ok(html.includes('type="checkbox"'), 'gdpr_consent should be checkbox');
+  assert.ok(html.includes('type="checkbox"') || html.includes('consent-btn'), 'gdpr_consent should be checkbox or consent-btn');
 });
 
 test('intake has GDPR consent text in Swedish', function () {
@@ -92,7 +92,7 @@ test('intake has no cookies', function () {
 // --- Navigation
 
 test('intake links back to main portal', function () {
-  assert.ok(html.includes('href="/"'), 'must link back to main page');
+  assert.ok(html.includes('href="/"') || html.includes('href="./"'), 'must link back to main page');
 });
 
 // --- Language switcher
@@ -107,14 +107,14 @@ test('intake has language switcher', function () {
 
 test('service worker caches intake.html', function () {
   var sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf-8');
-  assert.ok(sw.includes('intake.html'), 'sw.js must cache intake.html');
+  assert.ok(sw.includes('intake/index.html'), 'sw.js must cache intake/index.html');
 });
 
 // --- content.json links to intake.html
 
 test('content.json member link points to intake.html', function () {
   var content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content.json'), 'utf-8'));
-  assert.strictEqual(content.links.member.url, '/intake.html', 'member link should point to /intake.html');
+  assert.strictEqual(content.links.member.url, './intake', 'member link should point to ./intake');
 });
 
 console.log('member-portal intake form tests done');

@@ -41,3 +41,43 @@ breadcrumb: "Gudstjanst"
     <p style="color:#666;font-size:12px;text-align:center;margin-top:24px;" id="footer-note">
       Ingen inspelning sparas av ditt besök. Inga kakor.
     </p>
+
+    <script>
+      (function() {
+        loadChurchContent(function(config) {
+          if (!config) return;
+
+          // If church has a YouTube channel, show the embed
+          var channelId = config.church && config.church.youtube_channel_id;
+          if (channelId) {
+            var videoArea = document.getElementById('video-area');
+            videoArea.innerHTML =
+              '<div class="video-container">' +
+              '<iframe src="https://www.youtube.com/embed/live_stream?channel=' + channelId + '&autoplay=1" ' +
+              'allow="autoplay; encrypted-media" allowfullscreen></iframe>' +
+              '</div>' +
+              '<p style="font-size:12px;color:#888;text-align:center;">' +
+              'Om streamen inte visas — <a href="https://www.youtube.com/channel/' + channelId + '/live" ' +
+              'target="_blank" style="color:var(--accent)">öppna på YouTube</a></p>';
+          }
+
+          // Update church name in title if available
+          var lang = (navigator.language || 'sv').slice(0,2) === 'am' ? 'am' : 'sv';
+          if (config.church && config.church.name) {
+            document.title = (lang === 'am' ? 'ቀጥታ — ' : 'Live — ') +
+              (config.church.name[lang] || config.church.name.sv || '');
+          }
+
+          // Amharic translations
+          if (lang === 'am') {
+            document.getElementById('live-title').textContent = 'የቀጥታ ቅዳሴ';
+            document.getElementById('live-subtitle').textContent = 'ቅዳሴያችንን በቀጥታ ይከታተሉ። ከእኛ ጋር ይጸልዩ።';
+            document.getElementById('back-link').textContent = '← ተመለስ';
+            document.getElementById('no-stream-text').textContent = 'አሁን ቀጥታ ስርጭት የለም';
+            document.getElementById('check-schedule-text').textContent = 'ለመጪ ቅዳሴዎች ከታች ያለውን መርሐ ግብር ይመልከቱ';
+            document.getElementById('schedule-title').textContent = 'የቅዳሴ መርሐ ግብር';
+            document.getElementById('footer-note').textContent = 'ምንም ቀረጻ አይቀመጥም። ኩኪዎች የሉም።';
+          }
+        });
+      })();
+    </script>

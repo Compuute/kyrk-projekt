@@ -21,10 +21,27 @@ function test(name, fn) {
   catch (e) { console.error('  FAIL ' + name + '\n       ' + e.message); process.exitCode = 1; }
 }
 
-const ROOT = path.join(__dirname, '..');
-const pages = fs.readdirSync(ROOT).filter(function (f) {
-  return f.endsWith('.html');
-});
+const ROOT = path.join(__dirname, '..', 'dist');
+
+function getPages(dir, baseDir) {
+  baseDir = baseDir || dir;
+  var results = [];
+  var list = fs.readdirSync(dir);
+  list.forEach(function (file) {
+    var fullPath = path.join(dir, file);
+    var stat = fs.statSync(fullPath);
+    if (stat && stat.isDirectory()) {
+      if (file !== 'icons' && file !== 'churches') {
+        results = results.concat(getPages(fullPath, baseDir));
+      }
+    } else if (file.endsWith('.html')) {
+      results.push(path.relative(baseDir, fullPath));
+    }
+  });
+  return results;
+}
+
+const pages = getPages(ROOT);
 
 console.log('  Found ' + pages.length + ' HTML pages: ' + pages.join(', '));
 

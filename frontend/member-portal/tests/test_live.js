@@ -8,8 +8,8 @@ function test(name, fn) {
   catch (e) { console.error('  FAIL ' + name + '\n       ' + e.message); process.exitCode = 1; }
 }
 
-const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'live.html'), 'utf-8');
+const ROOT = path.join(__dirname, '..', 'dist');
+const html = fs.readFileSync(path.join(ROOT, 'live', 'index.html'), 'utf-8');
 const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content.json'), 'utf-8'));
 
 test('live page has video area', function () {
@@ -36,12 +36,12 @@ test('live page has bilingual text', function () {
 });
 
 test('live page has CTA buttons', function () {
-  assert.ok(html.includes('intake.html'), 'must link to membership');
-  assert.ok(html.includes('donate.html'), 'must link to donation');
+  assert.ok(html.includes('./intake') || html.includes('intake.html'), 'must link to membership');
+  assert.ok(html.includes('./donate') || html.includes('donate.html'), 'must link to donation');
 });
 
 test('live page has back link', function () {
-  assert.ok(html.includes('./index.html'), 'must link back to main');
+  assert.ok(html.includes('href="./"') || html.includes('./index.html'), 'must link back to main');
 });
 
 test('live page has no cookies', function () {
@@ -54,7 +54,7 @@ test('live page has fallback for no stream', function () {
 
 test('content.json has live link', function () {
   assert.ok(content.links && content.links.live, 'links must include live');
-  assert.ok(content.links.live.url === './live.html', 'live link must point to live.html');
+  assert.ok(content.links.live.url === './live', 'live link must point to ./live');
 });
 
 test('live page is modulärt (channel from config, not hardcoded)', function () {

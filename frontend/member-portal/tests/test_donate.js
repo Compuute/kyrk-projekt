@@ -8,8 +8,8 @@ function test(name, fn) {
   catch (e) { console.error('  FAIL ' + name + '\n       ' + e.message); process.exitCode = 1; }
 }
 
-const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'donate.html'), 'utf-8');
+const ROOT = path.join(__dirname, '..', 'dist');
+const html = fs.readFileSync(path.join(ROOT, 'donate', 'index.html'), 'utf-8');
 
 // --- Swish integration
 

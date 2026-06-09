@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#3b5bdb" />
-  <meta name="mobile-web-app-capable" content="yes" />
+  {% if page.url == "/" %}
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  {% endif %}
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <title>{{ title }}</title>
@@ -36,7 +38,7 @@
     <a href="./">Hem</a>
     <a href="./intake">Bli medlem</a>
     <div class="nav-dropdown">
-      <button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler &#x25BE;</button>
+      <button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">Fler tjänster &#x25BE;</button>
       <div class="nav-dropdown-menu">
         <a href="./funeral">Begravning</a>
         <a href="./baptism">Dop</a>
@@ -51,6 +53,10 @@
     <a href="./faq">FAQ</a>
   </nav>
   <main class="container">
+    <div class="lang-switcher" id="lang-switcher">
+      <button class="lang-pill active" id="lang-sv" data-lang="sv">&#x1F1F8;&#x1F1EA; Svenska</button>
+      <button class="lang-pill" id="lang-am" data-lang="am">&#x1F1EA;&#x1F1F9; &#x12A0;&#x121B;&#x122D;&#x129B;</button>
+    </div>
     {{ content | safe }}
   </main>
   <footer class="site-footer">
@@ -84,6 +90,6 @@
     </div>
     <div class="footer-bottom">Inga kakor, ingen sparning.</div>
   </footer>
-  <script>setupLangPills(); initChurchSelector(); initChurchData();</script>
+  <script>registerServiceWorker(); setupLangPills(); initChurchSelector(); initChurchData();</script>
 </body>
 </html>

@@ -8,7 +8,7 @@ function test(name, fn) {
   catch (e) { console.error('  FAIL ' + name + '\n       ' + e.message); process.exitCode = 1; }
 }
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', 'dist');
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf-8');
 
 // --- manifest.json

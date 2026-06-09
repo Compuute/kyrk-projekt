@@ -25,3 +25,26 @@ breadcrumb: "Kalender"
         <div class="activity-meta">Lördag kl 16:00</div>
       </div>
     </div>
+
+    <script>
+      (function () {
+        fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : {}; })
+          .then(function (data) {
+            var events = data.events || [];
+            var list = document.getElementById('cal-list');
+            if (!events.length) {
+              list.innerHTML = '<p class="muted sv">Inga planerade aktiviteter.</p><p class="muted am">ምንም የታቀዱ ተግባራት የሉም።</p>';
+              return;
+            }
+            events.forEach(function (e) {
+              var div = document.createElement('div');
+              div.className = 'activity-item';
+              div.innerHTML = '<div class="activity-title"><span class="sv">' + e.title.sv + '</span><span class="am">' + e.title.am + '</span></div>' +
+                              '<div class="activity-meta">' + e.date + '</div>';
+              list.appendChild(div);
+            });
+            applyLanguage(document.querySelector('.lang-pill.active').getAttribute('data-lang'));
+          }).catch(function () {});
+      })();
+    </script>

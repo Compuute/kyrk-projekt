@@ -1,18 +1,20 @@
 module.exports = function(eleventyConfig) {
   var portal = "frontend/member-portal";
 
-  eleventyConfig.addPassthroughCopy(portal + "/app.js");
-  eleventyConfig.addPassthroughCopy(portal + "/calendar-engine.js");
-  eleventyConfig.addPassthroughCopy(portal + "/styles.css");
-  eleventyConfig.addPassthroughCopy(portal + "/sw.js");
-  eleventyConfig.addPassthroughCopy(portal + "/_headers");
-  eleventyConfig.addPassthroughCopy(portal + "/robots.txt");
-  eleventyConfig.addPassthroughCopy(portal + "/sitemap.xml");
-  eleventyConfig.addPassthroughCopy(portal + "/manifest.json");
-  eleventyConfig.addPassthroughCopy(portal + "/content.json");
-  eleventyConfig.addPassthroughCopy(portal + "/churches.json");
-  eleventyConfig.addPassthroughCopy(portal + "/churches");
-  eleventyConfig.addPassthroughCopy(portal + "/icons");
+  eleventyConfig.addPassthroughCopy({
+    [portal + "/app.js"]: "app.js",
+    [portal + "/calendar-engine.js"]: "calendar-engine.js",
+    [portal + "/styles.css"]: "styles.css",
+    [portal + "/sw.js"]: "sw.js",
+    [portal + "/_headers"]: "_headers",
+    [portal + "/robots.txt"]: "robots.txt",
+    [portal + "/sitemap.xml"]: "sitemap.xml",
+    [portal + "/manifest.json"]: "manifest.json",
+    [portal + "/content.json"]: "content.json",
+    [portal + "/churches.json"]: "churches.json",
+    [portal + "/churches"]: "churches",
+    [portal + "/icons"]: "icons"
+  });
 
   return {
     dir: {

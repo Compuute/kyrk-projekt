@@ -8,8 +8,8 @@ function test(name, fn) {
   catch (e) { console.error('  FAIL ' + name + '\n       ' + e.message); process.exitCode = 1; }
 }
 
-const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'privacy.html'), 'utf-8');
+const ROOT = path.join(__dirname, '..', 'dist');
+const html = fs.readFileSync(path.join(ROOT, 'privacy', 'index.html'), 'utf-8');
 
 // --- GDPR Article references
 

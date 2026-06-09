@@ -3,9 +3,9 @@ var fs = require('fs');
 var path = require('path');
 var app = require('../app.js');
 
-var root = path.join(__dirname, '..');
-var intakeHtml = fs.readFileSync(path.join(root, 'intake.html'), 'utf8');
-var donateHtml = fs.readFileSync(path.join(root, 'donate.html'), 'utf8');
+var root = path.join(__dirname, '..', 'dist');
+var intakeHtml = fs.readFileSync(path.join(root, 'intake', 'index.html'), 'utf8');
+var donateHtml = fs.readFileSync(path.join(root, 'donate', 'index.html'), 'utf8');
 var stylesCSS = fs.readFileSync(path.join(root, 'styles.css'), 'utf8');
 
 var passed = 0;
@@ -54,7 +54,7 @@ ok(app.buildSwishLink('123', 0, 'test') === '#', 'buildSwishLink: zero amount re
 ok(app.buildSwishLink(null, 200, 'test') === '#', 'buildSwishLink: null number returns #');
 
 // --- intake.html uses app.js (not inline duplicates) ---
-ok(intakeHtml.indexOf('<script src="app.js"></script>') > 0, 'intake.html loads app.js');
+ok(intakeHtml.indexOf('<script src="/app.js"></script>') > 0 || intakeHtml.indexOf('<script src="app.js"></script>') > 0, 'intake.html loads app.js');
 ok((intakeHtml.match(/function validateName/g) || []).length === 0, 'intake.html: no duplicate validateName');
 ok((intakeHtml.match(/function validatePhone/g) || []).length === 0, 'intake.html: no duplicate validatePhone');
 ok((intakeHtml.match(/function validatePersonnummer/g) || []).length === 0, 'intake.html: no duplicate validatePersonnummer');
@@ -62,7 +62,7 @@ ok(intakeHtml.indexOf('onclick="toggleConsent()"') > 0, 'intake.html: consent ca
 ok(intakeHtml.indexOf('buildSwishLink(') > 0, 'intake.html: uses shared buildSwishLink');
 
 // --- donate.html uses app.js ---
-ok(donateHtml.indexOf('<script src="app.js"></script>') > 0, 'donate.html loads app.js');
+ok(donateHtml.indexOf('<script src="/app.js"></script>') > 0 || donateHtml.indexOf('<script src="app.js"></script>') > 0, 'donate.html loads app.js');
 ok(donateHtml.indexOf('buildSwishLink(') > 0, 'donate.html: uses shared buildSwishLink');
 
 // --- styles.css has all shared classes ---
