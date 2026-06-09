@@ -501,5 +501,35 @@ Migrera autentisering och multi-tenant RBAC från PropelAuth till Zitadel Cloud.
 **When to revisit:**
 Om Zitadel ändrar sin prismodell så att det blir kostsamt, eller om suveränitetskraven kräver fullständig lokal kontroll, utvärdera Keycloak eller en motsvarande självvärdad IDP igen.
 
+---
+
+## ADR-017: Firestore-lagring för Bidrag (YELLOW) och Säkrad Proxy-lagring för Begravningar (RED) — Alternativ A
+
+**Date:** 2026-06
+**Status:** accepted
+
+**Context:**
+Systemet behöver stödja persistent lagring för begravningsärenden (`FuneralCase`) och bidragsansökningar (`GrantApplication`).
+* **Bidragsansökningar** innehåller endast projektbeskrivningar, budgetar och målgrupper utan några personuppgifter. Detta klassificeras som **YELLOW-zon** (aggregat/finansiellt/strategiskt).
+* **Begravningsärenden** innehåller namn, dödsdatum, födelsedatum samt kontaktpersons namn och telefonnummer för avlidna och anhöriga. Detta klassificeras som **RED-zon** (känsliga personuppgifter / PII).
+
+Enligt systemets arkitekturella principer ([`docs/01-architecture-red-yellow-green.md`](01-architecture-red-yellow-green.md)) ska den publikt exponerade frontenden `admin-web` vara ett **tillståndslöst UI-lager** med lägsta möjliga behörighet. Att låta `admin-web` ha direkta databasnycklar eller läs-/skrivrättigheter till RED-zon-data i Firestore bryter mot principen om minsta behörighet (*least privilege*) och ökar attackytan vid en eventuell kompromiss av webbservern.
+
+**Decision:**
+Vi implementerar **Alternativ A (Strikt Säkerhet)**:
+1. **Bidrag (YELLOW):** `admin-web` sparar och läser bidragsdata direkt mot en Firestore-samling (`grants`) via en lokal `FirestoreGrantTracker`.
+2. **Begravningar (RED):** Databaslagringen flyttas helt till `membership-service` (vår säkrade, autentiserade RED-zon-backend) via en `FirestoreFuneralTracker` som hanterar samlingen `funerals`.
+3. **API-Proxy:** Vi exponerar säkra och rollbaserade API-endpoints `/api/funerals` i `membership-service`. I `admin-web` implementeras en HTTP-klient (`HttpxFuneralTracker`) som skickar vidare förfrågningar till backend med användarens autentiserings-token bifogad.
+
+**Consequence:**
+* **Säkerhet:** RED-zon-uppgifter är säkert isolerade bakom en autentiserings- och auktoriseringsbarriär. Webbservern `admin-web` har inget direkt databaskonto med access till begravningsdatan.
+* **Behörighetsstyrning:** Kyrko-isolering och rollbaserad åtkomst (t.ex. att endast `admin` och `pastor` kan se begravningsärenden) hanteras centralt och enhetligt i backend-tjänsten istället för att dupliceras i frontenden.
+* **Nätverksprestanda:** Ett extra nätverkshopp (~10–30 ms) tillkommer mellan `admin-web` och `membership-service` vid hantering av begravningsärenden, vilket är försumbart för ett administrativt gränssnitt.
+* **Underhåll och testning:** Testsviterna förblir fristående. Lokala tester använder in-memory-mockar och adaptertester mockar Firestore-klienten direkt, vilket eliminerar beroenden på externa resurser eller live GCP-anslutningar vid lokala byggen.
+
+**When to revisit:**
+Om vi i framtiden behöver utföra tunga analytiska beräkningar eller rapportering på begravningsdata i YELLOW-zonen (t.ex. i `reporting-service`), måste vi se till att datan anonymiseras eller pseudonymiseras i backend innan den skickas vidare.
+
+
 
 

@@ -355,6 +355,66 @@ gcloud firestore query --collection-group=audit_events \
 
 ---
 
+## 6. Firestore connection or service communication failure (RED proxy issues)
+
+### Symptoms
+
+- Users report errors when loading or saving Funeral Cases or Grant Applications in the admin dashboard.
+- `admin-web` logs show `HTTPX` connection timeouts or `ConnectError` trying to reach `membership-service` (for funerals).
+- `membership-service` or `admin-web` logs show `google.api_core.exceptions.PermissionDenied` or GCP credential errors (for Firestore).
+
+### Severity
+
+- **Production** → Page during office hours unless it blocks critical operations (like an active funeral ceremony arrangement).
+- **Dev** → Fix during office hours.
+
+### Immediate action
+
+```bash
+# 1. Check if the backend services can communicate
+URL=$(gcloud run services describe membership-service --region=$REGION --project=$PROJECT --format='value(status.url)')
+curl -i -H "Authorization: Bearer TEST" "$URL/healthz"
+
+# 2. Check the MEMBERSHIP_BASE_URL environment variable on admin-web
+gcloud run services describe admin-web --region=$REGION --project=$PROJECT \
+  --format='value(spec.template.spec.containers[0].env)' | grep MEMBERSHIP_BASE_URL
+```
+
+### Diagnosis
+
+1. **Firestore Permission Errors (`PermissionDenied`)**:
+   - If the log shows `PermissionDenied: 7 Missing or insufficient permissions`, the runtime Service Account of the service (e.g., `membership-service-sa` for funerals, or `admin-web-sa` for grants) does not have the `roles/datastore.user` role in the GCP project.
+   - Verify IAM bindings:
+     ```bash
+     gcloud projects get-iam-policy $PROJECT \
+       --filter="bindings.members:serviceAccount:<service-sa>@$PROJECT.iam.gserviceaccount.com"
+     ```
+2. **Network Timeout / Internal routing errors**:
+   - If `admin-web` fails to connect to `membership-service` with a connection timeout:
+     - Check if the target service is failing to start (e.g., crashing on load due to a missing environment variable or library mismatch).
+     - Check if egress routing is restricted. By default, Cloud Run services communicate over public URLs, so both must allow public ingress or have appropriate VPC serverless connectors configured.
+3. **Missing Firestore Database**:
+   - If the log shows database not found:
+     - Verify Firestore database has been created in the GCP project (in Native Mode).
+
+### Remediation
+
+1. **Fix IAM permissions**:
+   Add the required Datastore User role to the service account:
+   ```bash
+   gcloud projects add-iam-policy-binding $PROJECT \
+     --member="serviceAccount:<service-sa>@$PROJECT.iam.gserviceaccount.com" \
+     --role="roles/datastore.user"
+   ```
+2. **Fix env configuration**:
+   If `MEMBERSHIP_BASE_URL` is misconfigured or missing on `admin-web`, update it:
+   ```bash
+   gcloud run services update admin-web --region=$REGION --project=$PROJECT \
+     --set-env-vars=MEMBERSHIP_BASE_URL=$URL
+   ```
+
+---
+
 ## Escalation ladder
 
 | Severity | Who to page | Within |
