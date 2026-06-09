@@ -12,8 +12,8 @@ The platform uses three data zones with strict flow rules.
 
 **Rules**
 - Field-level encryption on identity fields
-- All endpoints require authentication (PropelAuth)
-- RBAC enforced (admin, pastor, secretary, viewer)
+- All endpoints require authentication (Zitadel Cloud OIDC)
+- RBAC enforced (admin, pastor, editor, viewer)
 - No public search endpoints
 - No bulk export without admin approval
 - All access is logged

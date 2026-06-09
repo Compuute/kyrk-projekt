@@ -1,88 +1,63 @@
 # 06 — Auth Strategy
 
-## MVP: PropelAuth
+Authentication and multi-tenant Role-Based Access Control (RBAC) are powered by **Zitadel Cloud (SaaS)**. This Swiss-hosted identity provider is chosen to guarantee 100% EU/Swiss data sovereignty and eliminate GDPR/FISA sovereignty risks (complying with [ADR-016](file:///Users/compuute/DevWorkspace/projects/kyrk-projekt/kyrk-projekt/docs/14-architecture-decisions.md)).
 
-> [!NOTE]
-> **Planned Migration**: PropelAuth is designated to be replaced by **Zitadel Cloud** (SaaS) in Phase 3 to eliminate GDPR/FISA sovereignty risks associated with US-based cloud infrastructure. See [ADR-016](14-architecture-decisions.md) and the backlog issue.
->
-> For the initial MVP, we use [PropelAuth](https://www.propelauth.com/) for multi-tenant RBAC via the `propelauth-fastapi` library.
+---
 
+## Zitadel Cloud Integration
 
-### Why
+The system uses standard OpenID Connect (OIDC) and JSON Web Key Sets (JWKS) to authenticate users and verify access tokens locally in downstream services.
 
-- Multi-tenant out of the box: one PropelAuth "organization" == one church.
-- RBAC out of the box: roles map cleanly to our admin / pastor / secretary / viewer model.
-- FastAPI library is maintained and small.
-- Free tier is sufficient for MVP workloads.
-- No custom auth code — we avoid weeks of work and a large class of security bugs.
+### Multi-Tenancy Mapping
+- **Organization (Zitadel Org)**: Maps to a single local church (`church_id`). Each church owns its separate Zitadel organization.
+- **Project Grants**: The primary organization (`EOTK Sverige`) defines the global `kyrk-portal` project and grants access to individual church organizations. This allows local church admins to manage their own users and roles autonomously.
+- **Roles**:
+  - `admin` — full RED read/write, can issue certificates, can approve AI outputs.
+  - `pastor` — RED read/write within their church, can issue certificates.
+  - `editor` — RED write for intake/update, no certificate issuance.
+  - `viewer` — YELLOW read only (statistics, financial reports).
 
-### Integration model
+### Architecture & Verification
+- **Frontend (`admin-web`)**: Handles standard OIDC authorization code flow. Directs unauthenticated users to Zitadel's login portal and exchanges the returned code for tokens via `/login/callback`. Token payload is stored in the secure HTTP-only `kyrk_session` cookie.
+- **Downstream Services**: Receive the user's OIDC token as a bearer header. The adapter (`ZitadelAuthAdapter`) fetches the JWKS from Zitadel dynamically (`/oauth/v2/keys`) and verifies token authenticity and claims locally using RS256 signature verification.
+- **Hexagonal Isolation**: Route handlers do not import vendor identity SDKs directly. The session and authentication details are abstracted behind a clean `SessionPort` and `AuthPort`, making tests fast and mockable.
 
-- `organization` in PropelAuth = one church (`church_id`).
-- Users belong to one or more organizations with a role per organization.
-- Roles:
-  - `admin` — full RED read/write, can issue certificates, can approve AI outputs
-  - `pastor` — RED read/write within their church, can issue certificates
-  - `secretary` — RED write for intake/update, no certificate issuance
-  - `viewer` — YELLOW read only (KPI, reports)
+---
 
-### FastAPI wiring
+## Endpoint RBAC Rules
 
-Each service initializes `propelauth-fastapi` once at startup and uses a
-dependency for role checks. Services define an internal `AuthPort` interface
-so the real PropelAuth client can be swapped for a fake in tests.
+| Zone | Role required | Allowed Roles |
+|---|---|---|
+| RED write | `admin`, `pastor`, or `editor` (scoped by endpoint) | `admin`, `pastor`, `editor` |
+| RED read | `admin`, `pastor`, or `editor` | `admin`, `pastor`, `editor` |
+| Certificate issue | `admin` or `pastor` | `admin`, `pastor` |
+| YELLOW read | `viewer` or higher | `admin`, `pastor`, `editor`, `viewer` |
+| YELLOW write (ingest) | Service account role (e.g. backend tasks) | N/A (Internal) |
+| GREEN public (wifi portal) | No auth | Public |
+| GREEN admin (AI approve) | `admin` | `admin` |
 
-### Endpoint rules
+---
 
-| Zone | Role required |
-|---|---|
-| RED write | admin or pastor or secretary (scoped by endpoint) |
-| RED read | admin, pastor, secretary |
-| Certificate issue | admin or pastor |
-| YELLOW read | viewer or higher |
-| YELLOW write (ingest from background task) | service account, not user |
-| GREEN public (wifi portal) | no auth |
-| GREEN admin (approve AI output) | admin |
+## Troubleshooting & Verification
 
-### Secrets
+### Local Development Environment
+To run the services locally in production authentication mode (`ADAPTER_MODE=production`), set the following environment variables:
+- `ZITADEL_ISSUER_URL`: The instance issuer URL (e.g., `https://kyrk-auth-oqvxjf.us1.zitadel.cloud`)
+- `ZITADEL_CLIENT_ID`: The OIDC application Client ID
+- `ZITADEL_CLIENT_SECRET`: The application Client Secret (required for Basic authorization code exchange)
+- `ZITADEL_REDIRECT_URI`: E.g., `http://localhost:8080/login/callback`
 
-- PropelAuth URL, API key, verifier key: stored in GCP Secret Manager.
-- Loaded at service startup via ADC + Secret Manager client.
+### Testing
+All OIDC token validation code is tested locally using mock JWKS clients.
+Run python unit tests:
+```bash
+source .venv/bin/activate
+./scripts/local-ci.sh tests
+```
+
+---
 
 ## Phase 2: BankID
 
-BankID is planned for Phase 2 as the identity verification layer for
-membership intake.
-
-### Model
-
-- BankID verifies *identity* (this is Anna Andersson, personnummer 19xx…).
-- PropelAuth manages *sessions and roles* (Anna is an admin in Church A).
-- They complement each other — BankID for who-you-are, PropelAuth for what-you-can-do.
-
-### Interface now
-
-`services/membership-service` already defines a `BankIdPort` interface with a
-stub implementation. Phase 2 replaces the stub with a real BankID client
-without changing any calling code.
-
-## Phase 3: Zitadel Cloud (SaaS) Migration
-
-To address the GDPR and FISA sovereignty risks of using a US-based provider (PropelAuth) for handling user identity and access details, we will migrate authentication and multi-tenant RBAC to **Zitadel Cloud**.
-
-### Why Zitadel Cloud
-
-- **Swiss-Hosted SaaS**: Zitadel is a Swiss company offering hosting in Switzerland/EU, providing full compliance with EU data sovereignty standards and no risk from US FISA/Cloud Act search warrants.
-- **Zero Ops Overhead**: Fully managed SaaS model, avoiding the database (PostgreSQL), server, patching, and scaling overhead of self-hosting Keycloak.
-- **Native Multi-Tenancy**: Zitadel "Organizations" map perfectly to our church multi-tenancy model.
-- **Standardized Tokens**: Replaces the proprietary `propelauth-fastapi` SDK with standard JWT token verification via JWKS (e.g. using `pyjwt` or `authlib`), preventing vendor lock-in.
-- **Drop-in Adapter Swap**: Using the hexagonal architecture, the change is entirely isolated to replacing `PropelAuthAdapter` with a new `ZitadelAuthAdapter` implementing `AuthPort`.
-
-## Security model summary
-
-
-- All RED endpoints require authentication.
-- YELLOW read endpoints require at least `viewer`.
-- GREEN: public (wifi portal) or admin (review queues).
-- No API keys in code — everything via Secret Manager.
-- Service accounts are per-service (least privilege).
+BankID acts as the identity verification layer for membership intake (verifying *who you are*), complementing Zitadel (which manages *what you can do*).
+`services/membership-service` defines a `BankIdPort` interface, currently stubbed in dev mode, ready to be replaced with a real BankID provider client without altering core business logic.
