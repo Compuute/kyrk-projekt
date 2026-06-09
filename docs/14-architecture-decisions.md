@@ -470,4 +470,36 @@ kontrollflöde — migrera dem individuellt med samma mönster.
 - Historiska n8n-workflows raderas från katalogen `automation/n8n/`.
 **When to revisit:** Om kraven på orkestrering ökar (t.ex. vid behov av komplexa transaktioner över flera dagar, komplicerade retry-policies eller behov av att icke-teknisk personal ska bygga flöden), utvärdera GCP Cloud Workflows eller Temporal.
 
+---
+
+## ADR-016: Migration från PropelAuth till Zitadel Cloud (SaaS) för suveränitet och noll-drift
+
+**Date:** 2026-06
+**Status:** accepted
+
+**Context:**
+PropelAuth (som används för multi-tenant RBAC i MVP) är en amerikansk SaaS-tjänst. Eftersom den hanterar inloggningar, e-postadresser, IP-adresser och aktivitetsloggar för kyrkomedlemmar och administratörer (vilka kan innehålla RED-zon personuppgifter och därmed medför GDPR- och FISA-relaterade suveränitetsrisker under amerikansk lagstiftning), måste vi migrera till en fullständigt EU/schweizisk datasuverän lösning.
+
+Vi utvärderade följande alternativ för att lösa detta:
+1. **Självvärdad Keycloak på Cloud Run/GKE:**
+   - **Fördel:** Fullständig kontroll över data och infrastruktur.
+   - **Nackdel:** Extremt hög operationell driftsbörda. Keycloak kräver databashantering (PostgreSQL), skalning, patchning, certifikat och kontinuerliga säkerhetsuppdateringar. Detta strider mot vårt mål om noll operationell driftsbörda ("no-ops").
+2. **Zitadel Cloud (SaaS):**
+   - **Fördel:** Schweiziskt värdskap och schweiziskt bolag (100 % EU/schweizisk datasuveränitet, ingen risk för amerikanska FISA-husrannsakningsorder), fullt stöd för OIDC multi-tenancy (Zitadel "Organizations"), generös gratisnivå (25 000 förfrågningar/månad) och noll operationell driftsbörda då det är en fullt hanterad molntjänst.
+   - **Nackdel:** Fortfarande ett beroende av en extern SaaS-leverantör, men suveränitets- och GDPR-risken är helt eliminerad till skillnad från PropelAuth.
+
+**Decision:**
+Migrera autentisering och multi-tenant RBAC från PropelAuth till Zitadel Cloud. Vi drar nytta av vår befintliga hexagonala arkitektur (`AuthPort`) för att byta ut `PropelAuthAdapter` mot en standard-baserad `ZitadelAuthAdapter`.
+
+**Consequence:**
+- Ingen operationell driftsbörda för att underhålla identitetshantering (identitetsdatabas, uppdateringar, infrastruktur).
+- Fullständig efterlevnad av GDPR och suveränitetsprinciper genom att använda ett schweiziskt SaaS-alternativ med dataresidens inom EU/Schweiz.
+- Kodmässigt isoleras ändringen helt till adapter-lagret (`ZitadelAuthAdapter` ersätter `PropelAuthAdapter`).
+- Vi byter ut det proprietära `propelauth-fastapi`-biblioteket mot standardiserad OIDC-tokenverifiering (t.ex. med hjälp av `pyjwt` eller `authlib` för att läsa JWKS från Zitadel).
+- Nya miljövariabler (`ZITADEL_ISSUER_URL`, `ZITADEL_CLIENT_ID` etc.) läggs till och motsvarande `PROPELAUTH_`-miljövariabler avvecklas.
+
+**When to revisit:**
+Om Zitadel ändrar sin prismodell så att det blir kostsamt, eller om suveränitetskraven kräver fullständig lokal kontroll, utvärdera Keycloak eller en motsvarande självvärdad IDP igen.
+
+
 

@@ -135,9 +135,9 @@ appears.
 ```
 RED (encrypted, authenticated)    YELLOW (aggregates)    GREEN (public / AI)
 ─────────────────────────────     ───────────────────    ────────────────────
-membership-intake                 activity-service       wifi-intake-portal
-membership-service                reporting-service      openclaw prompts
-certificate-service                                      n8n sanitizer
+membership-intake                 reporting-service      wifi-intake-portal
+membership-service                                       openclaw prompts
+certificate-service                                      openclaw sanitizer
 admin-web (forwards user tokens)
 ```
 

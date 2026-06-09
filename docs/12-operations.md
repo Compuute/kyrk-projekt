@@ -66,7 +66,7 @@ It will:
    - All GCS buckets
    - Secret Manager secret resources (empty — no values yet)
 3. **Prompt you for secret values** and populate them:
-   - `propelauth-api-key`
+   - `propelauth-api-key` (Note: To be replaced by Zitadel credentials post-migration, see [ADR-016](14-architecture-decisions.md))
    - `anthropic-api-key`
    - `fortnox-client-id`, `fortnox-client-secret`
    - `admin-notify-webhook`
@@ -236,9 +236,8 @@ Treat as a security incident. Follow
 ### Suspected unauthorized RED access
 
 1. Query `audit_events` for the suspicious user / time window.
-2. Revoke the user in PropelAuth immediately.
-3. Rotate the PropelAuth API key (generate new + `gcloud secrets
-   versions add`).
+2. Revoke the user in the identity provider immediately (PropelAuth for MVP, Zitadel Console in Phase 3).
+3. Rotate the API keys/credentials (PropelAuth API key or Zitadel Service User keys; generate new + `gcloud secrets versions add`).
 4. Follow up with a forced role-review across all churches.
 5. Post-mortem.
 

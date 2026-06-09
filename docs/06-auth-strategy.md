@@ -2,8 +2,11 @@
 
 ## MVP: PropelAuth
 
-We use [PropelAuth](https://www.propelauth.com/) for multi-tenant RBAC via the
-`propelauth-fastapi` library.
+> [!NOTE]
+> **Planned Migration**: PropelAuth is designated to be replaced by **Zitadel Cloud** (SaaS) in Phase 3 to eliminate GDPR/FISA sovereignty risks associated with US-based cloud infrastructure. See [ADR-016](14-architecture-decisions.md) and the backlog issue.
+>
+> For the initial MVP, we use [PropelAuth](https://www.propelauth.com/) for multi-tenant RBAC via the `propelauth-fastapi` library.
+
 
 ### Why
 
@@ -37,7 +40,7 @@ so the real PropelAuth client can be swapped for a fake in tests.
 | RED read | admin, pastor, secretary |
 | Certificate issue | admin or pastor |
 | YELLOW read | viewer or higher |
-| YELLOW write (ingest from n8n) | service account, not user |
+| YELLOW write (ingest from background task) | service account, not user |
 | GREEN public (wifi portal) | no auth |
 | GREEN admin (approve AI output) | admin |
 
@@ -63,7 +66,20 @@ membership intake.
 stub implementation. Phase 2 replaces the stub with a real BankID client
 without changing any calling code.
 
+## Phase 3: Zitadel Cloud (SaaS) Migration
+
+To address the GDPR and FISA sovereignty risks of using a US-based provider (PropelAuth) for handling user identity and access details, we will migrate authentication and multi-tenant RBAC to **Zitadel Cloud**.
+
+### Why Zitadel Cloud
+
+- **Swiss-Hosted SaaS**: Zitadel is a Swiss company offering hosting in Switzerland/EU, providing full compliance with EU data sovereignty standards and no risk from US FISA/Cloud Act search warrants.
+- **Zero Ops Overhead**: Fully managed SaaS model, avoiding the database (PostgreSQL), server, patching, and scaling overhead of self-hosting Keycloak.
+- **Native Multi-Tenancy**: Zitadel "Organizations" map perfectly to our church multi-tenancy model.
+- **Standardized Tokens**: Replaces the proprietary `propelauth-fastapi` SDK with standard JWT token verification via JWKS (e.g. using `pyjwt` or `authlib`), preventing vendor lock-in.
+- **Drop-in Adapter Swap**: Using the hexagonal architecture, the change is entirely isolated to replacing `PropelAuthAdapter` with a new `ZitadelAuthAdapter` implementing `AuthPort`.
+
 ## Security model summary
+
 
 - All RED endpoints require authentication.
 - YELLOW read endpoints require at least `viewer`.
