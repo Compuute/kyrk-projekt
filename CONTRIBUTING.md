@@ -19,7 +19,7 @@ Read those before your first PR.
      — non-negotiables.
 
 2. **Run the tests locally** with `make test`. You should see
-   **158 passed** across all six services plus the wifi portal.
+   **377 passed** across all five services plus the member and wifi portals.
    If anything is red on `main`, open an issue — do not paper over it.
 
 3. **Run local CI before pushing** with `./scripts/local-ci.sh`.
@@ -131,7 +131,7 @@ The PR template asks you to fill in:
 
 Required CI checks (from `ci.yml`):
 
-- All 6 service test suites green
+- All 5 service test suites green
 - Wifi portal node tests green
 - Python compileall
 - Terraform fmt + validate

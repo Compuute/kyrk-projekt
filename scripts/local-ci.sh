@@ -14,7 +14,11 @@
 
 set -u
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -n "${BASH_VERSION:-}" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+fi
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_DIR"
 
@@ -22,7 +26,6 @@ SERVICES=(
   membership-service
   membership-intake
   certificate-service
-  activity-service
   reporting-service
   admin-web
 )
@@ -34,8 +37,8 @@ BLUE='\033[0;34m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-# Scorecard: name => "pass" | "fail" | "skip"
-declare -A SCORE
+# Scorecard: status|name
+RESULTS=""
 
 print_header() {
   printf "\n${BOLD}${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
@@ -43,14 +46,14 @@ print_header() {
   printf "${BOLD}${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
 }
 
-mark_pass() { SCORE["$1"]="pass"; printf "  ${GREEN}✓${RESET} %s\n" "$1"; }
-mark_fail() { SCORE["$1"]="fail"; printf "  ${RED}✗${RESET} %s\n" "$1"; }
-mark_skip() { SCORE["$1"]="skip"; printf "  ${YELLOW}-${RESET} %s (skipped: %s)\n" "$1" "$2"; }
+mark_pass() { RESULTS="${RESULTS}pass|${1}\n"; printf "  ${GREEN}✓${RESET} %s\n" "$1"; }
+mark_fail() { RESULTS="${RESULTS}fail|${1}\n"; printf "  ${RED}✗${RESET} %s\n" "$1"; }
+mark_skip() { RESULTS="${RESULTS}skip|${1}\n"; printf "  ${YELLOW}-${RESET} %s (skipped: %s)\n" "$1" "$2"; }
 
 # ---------------------------------------------------------------- pytest
 
 run_pytest() {
-  print_header "pytest (6 services)"
+  print_header "pytest (5 services)"
   for svc in "${SERVICES[@]}"; do
     if [ ! -d "services/$svc" ]; then
       mark_skip "$svc" "directory missing"
@@ -190,7 +193,7 @@ for svc in services:
 sys.exit(1 if failed else 0)
 PY
   if [ $? -eq 0 ]; then
-    mark_pass "6 Dockerfiles valid"
+    mark_pass "5 Dockerfiles valid"
   else
     mark_fail "Dockerfile validation"
     cat /tmp/docker.err | sed 's/^/    /'
@@ -233,13 +236,17 @@ run_workflow_lint() {
 print_summary() {
   print_header "Summary"
   local fails=0
-  for k in "${!SCORE[@]}"; do
-    case "${SCORE[$k]}" in
-      pass) printf "  ${GREEN}✓${RESET} %s\n" "$k" ;;
-      fail) printf "  ${RED}✗${RESET} %s\n" "$k"; fails=$((fails+1)) ;;
-      skip) printf "  ${YELLOW}-${RESET} %s\n" "$k" ;;
+  
+  # Print the sorted list
+  while IFS='|' read -r status name; do
+    [ -z "$status" ] && continue
+    case "$status" in
+      pass) printf "  ${GREEN}✓${RESET} %s\n" "$name" ;;
+      fail) printf "  ${RED}✗${RESET} %s\n" "$name"; fails=$((fails+1)) ;;
+      skip) printf "  ${YELLOW}-${RESET} %s\n" "$name" ;;
     esac
-  done | sort
+  done <<< "$(printf "%b" "$RESULTS" | sort -t'|' -k2)"
+
   echo
   if [ $fails -eq 0 ]; then
     printf "${GREEN}${BOLD}All checks passed.${RESET}\n"

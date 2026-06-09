@@ -110,9 +110,9 @@ module "storage" {
   for_each = local.buckets
   source   = "./modules/storage"
 
-  project_id     = var.project_id
-  region         = var.region
-  name           = "${var.project_id}-${each.value}"
+  project_id = var.project_id
+  region     = var.region
+  name       = "${var.project_id}-${each.value}"
   # Org policy blocks allUsers — wifi portal content served via Cloudflare instead
   public_read    = false
   retention_days = each.key == "openclaw_pending" ? 90 : null
@@ -140,7 +140,7 @@ module "secrets" {
         "membership-intake",
         "certificate-service",
         "reporting-service",
-      ] : {
+        ] : {
         secret = "propelauth-api-key"
         member = "serviceAccount:${local.service_account_emails[s]}"
       }

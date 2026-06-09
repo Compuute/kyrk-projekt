@@ -11,7 +11,7 @@
 #   make onboarding      # build build/onboarding.html (new-hire pack)
 #   make bootstrap ENV=dev   # runs scripts/bootstrap.sh
 #   make deploy ENV=dev      # triggers the deploy workflow via gh
-#   make smoke ENV=dev       # curls /healthz on all six services
+#   make smoke ENV=dev       # curls /healthz on all five services
 #   make clean           # remove __pycache__, .pytest_cache, build/
 
 SHELL := /bin/bash
@@ -37,7 +37,7 @@ help:
 	@echo "  make onboarding       build build/onboarding.html for new hires"
 	@echo "  make bootstrap ENV=dev  run scripts/bootstrap.sh"
 	@echo "  make deploy ENV=dev     trigger deploy.yml via gh CLI"
-	@echo "  make smoke ENV=dev      curl /healthz on all six services"
+	@echo "  make smoke ENV=dev      curl /healthz on all five services"
 	@echo "  make clean              remove build artifacts"
 	@echo
 	@echo "Services: $(SERVICES)"
