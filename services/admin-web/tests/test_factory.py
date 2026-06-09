@@ -8,6 +8,7 @@ from app.adapters.factory import (
     make_translator,
     make_funeral_tracker,
     make_grant_tracker,
+    make_session_adapter,
 )
 from app.adapters.fake_clients import (
     FakeActivityClient,
@@ -27,6 +28,8 @@ def _clear_env(monkeypatch):
         "REPORTING_BASE_URL",
         "ANTHROPIC_API_KEY",
         "MEMBERSHIP_BASE_URL",
+        "ZITADEL_ISSUER_URL",
+        "ZITADEL_CLIENT_ID",
     ):
         monkeypatch.delenv(key, raising=False)
 
@@ -99,3 +102,20 @@ def test_production_grant_tracker_picks_firestore(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
     tracker = make_grant_tracker()
     assert type(tracker).__name__ == "FirestoreGrantTracker"
+
+
+def test_production_session_requires_env(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    with pytest.raises(RuntimeError, match="ZITADEL_ISSUER_URL"):
+        make_session_adapter()
+    monkeypatch.setenv("ZITADEL_ISSUER_URL", "https://auth.example")
+    with pytest.raises(RuntimeError, match="ZITADEL_CLIENT_ID"):
+        make_session_adapter()
+    monkeypatch.setenv("ZITADEL_CLIENT_ID", "client")
+    with pytest.raises(RuntimeError, match="ZITADEL_CLIENT_SECRET"):
+        make_session_adapter()
+    monkeypatch.setenv("ZITADEL_CLIENT_SECRET", "secret")
+    with pytest.raises(RuntimeError, match="ZITADEL_REDIRECT_URI"):
+        make_session_adapter()
+    monkeypatch.setenv("ZITADEL_REDIRECT_URI", "https://redirect.example")
+    assert type(make_session_adapter()).__name__ == "JWTSessionAdapter"

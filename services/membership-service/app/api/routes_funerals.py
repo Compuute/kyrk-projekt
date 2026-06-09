@@ -118,7 +118,7 @@ class FuneralCaseModel(BaseModel):
 
 
 def _check_auth(actor: Actor) -> None:
-    if actor.role not in (Role.ADMIN, Role.PASTOR, Role.SECRETARY):
+    if actor.role not in (Role.ADMIN, Role.PASTOR, Role.EDITOR):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="not authorized for RED zone operations"

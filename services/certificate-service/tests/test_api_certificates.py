@@ -19,8 +19,8 @@ def test_issue_requires_auth(client):
     assert client.post("/certificates", json=_body()).status_code == 401
 
 
-def test_secretary_forbidden_to_issue(client):
-    r = client.post("/certificates", json=_body(), headers=_headers("secretary"))
+def test_editor_forbidden_to_issue(client):
+    r = client.post("/certificates", json=_body(), headers=_headers("editor"))
     assert r.status_code == 403
 
 
@@ -64,9 +64,9 @@ def test_download_requires_auth(client):
     assert r.status_code == 401
 
 
-def test_download_forbidden_for_secretary(client):
+def test_download_forbidden_for_editor(client):
     cert_id = client.post("/certificates", json=_body(), headers=_headers("pastor")).json()["certificate_id"]
-    r = client.get(f"/certificates/{cert_id}/download", headers=_headers("secretary"))
+    r = client.get(f"/certificates/{cert_id}/download", headers=_headers("editor"))
     assert r.status_code == 403
 
 

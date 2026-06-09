@@ -4,8 +4,8 @@ ADAPTER_MODE=memory (default): in-memory repo/audit + fake auth.
 ADAPTER_MODE=production: Firestore repo/audit + PropelAuth.
 
 Required env vars in production mode:
-- PROPELAUTH_URL
-- PROPELAUTH_API_KEY
+- ZITADEL_ISSUER_URL
+- ZITADEL_CLIENT_ID
 
 IAM notes: the service account needs
 - roles/datastore.user on Firestore (security rules enforce per-collection)
@@ -61,11 +61,11 @@ def make_pdf_generator() -> PdfGeneratorPort:
 
 def make_auth() -> AuthPort:
     if _mode() == "production":
-        from app.adapters.propelauth_auth import PropelAuthAdapter
+        from app.adapters.zitadel_auth import ZitadelAuthAdapter
 
-        url = _require_env("PROPELAUTH_URL")
-        key = _require_env("PROPELAUTH_API_KEY")
-        return PropelAuthAdapter(auth_url=url, api_key=key)
+        issuer = _require_env("ZITADEL_ISSUER_URL")
+        client_id = _require_env("ZITADEL_CLIENT_ID")
+        return ZitadelAuthAdapter(issuer_url=issuer, client_id=client_id)
     from app.adapters.fake_auth import FakeAuthAdapter
 
     return FakeAuthAdapter()

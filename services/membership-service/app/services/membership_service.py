@@ -14,8 +14,8 @@ from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
 
 
-_WRITE_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY}
-_READ_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY}
+_WRITE_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.EDITOR}
+_READ_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.EDITOR}
 _DEACTIVATE_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR}
 
 

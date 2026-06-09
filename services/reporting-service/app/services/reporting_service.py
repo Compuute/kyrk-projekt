@@ -10,7 +10,7 @@ from app.ports.report_repository import ReportRepository
 
 
 _WRITE_ROLES: set[Role] = {Role.ADMIN}  # service-account role or admin
-_READ_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY, Role.VIEWER}
+_READ_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.EDITOR, Role.VIEWER}
 
 
 @dataclass(frozen=True)

@@ -1,19 +1,22 @@
-"""Zitadel Session adapter for production.
+"""Zitadel OIDC-backed authentication adapter.
 
-Validates the session cookie as a standard Zitadel OIDC token.
+Reads ONLY the claims the service actually needs:
+- user_id (sub)
+- organization id (urn:zitadel:iam:org:id claim, treated as church_id)
+- role within the project (urn:zitadel:iam:org:project:roles claim)
 """
 from __future__ import annotations
 
 import jwt
-from app.ports.session import SessionInfo
+from app.domain.errors import NotAuthorized
+from app.domain.models import Actor, Role
 
 
-class JWTSessionAdapter:
-    def __init__(self, issuer_url: str, client_id: str, client_secret: str = "", redirect_uri: str = "") -> None:
+class ZitadelAuthAdapter:
+    def __init__(self, issuer_url: str, client_id: str) -> None:
         self._issuer_url = issuer_url.rstrip("/")
         self._client_id = client_id
-        self._client_secret = client_secret
-        self._redirect_uri = redirect_uri
+        # Lazy load JWK client
         self._jwks_client = None
 
     def _get_jwks_client(self) -> jwt.PyJWKClient:
@@ -22,14 +25,15 @@ class JWTSessionAdapter:
             self._jwks_client = jwt.PyJWKClient(jwks_url)
         return self._jwks_client
 
-    def validate(self, cookie_value: str | None) -> SessionInfo | None:
-        if not cookie_value:
-            return None
+    def authenticate(self, token: str) -> Actor:
+        if not token:
+            raise NotAuthorized("missing token")
+
         try:
             jwks_client = self._get_jwks_client()
-            signing_key = jwks_client.get_signing_key_from_jwt(cookie_value)
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
             payload = jwt.decode(
-                cookie_value,
+                token,
                 signing_key.key,
                 algorithms=["RS256"],
                 audience=self._client_id,
@@ -41,14 +45,19 @@ class JWTSessionAdapter:
                     "verify_aud": True,
                 },
             )
-        except Exception:
-            # Invalid or expired token — reject silently.
-            return None
+        except Exception as exc:
+            raise NotAuthorized("invalid token") from exc
 
         user_id = payload.get("sub", "")
         church_id = payload.get("urn:zitadel:iam:org:id", "")
         
-        # Extract role
+        # Extract role from project roles claim
+        # Standard Zitadel format:
+        # "urn:zitadel:iam:org:project:roles": {
+        #     "admin": {
+        #         "376715707620060793": ["376715707620060793"]
+        #     }
+        # }
         roles_claim = payload.get("urn:zitadel:iam:org:project:roles", {})
         assigned_role = None
 
@@ -62,6 +71,7 @@ class JWTSessionAdapter:
                 if assigned_role:
                     break
 
+        # Fallback 1: check if role is mapped but projects list is in different shape
         if not assigned_role:
             for role_name in roles_claim:
                 if role_name in {"admin", "pastor", "editor", "viewer"}:
@@ -69,29 +79,15 @@ class JWTSessionAdapter:
                     break
 
         if not user_id or not church_id or not assigned_role:
-            return None
+            raise NotAuthorized("user missing required OIDC claims")
 
-        return SessionInfo(
-            token=cookie_value,
+        try:
+            role = Role(assigned_role)
+        except ValueError as exc:
+            raise NotAuthorized("unknown role") from exc
+
+        return Actor(
             user_id=user_id,
             church_id=church_id,
-            role=assigned_role,
+            role=role,
         )
-
-    def exchange_code(self, code: str) -> str:
-        import httpx
-        token_url = f"{self._issuer_url}/oauth/v2/token"
-        data = {
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": self._redirect_uri,
-            "client_id": self._client_id,
-            "client_secret": self._client_secret,
-        }
-        r = httpx.post(token_url, data=data, timeout=10.0)
-        r.raise_for_status()
-        token_data = r.json()
-        token = token_data.get("id_token") or token_data.get("access_token")
-        if not token:
-            raise RuntimeError("No token returned from Zitadel")
-        return token

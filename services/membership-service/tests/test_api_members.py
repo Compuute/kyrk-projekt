@@ -57,7 +57,7 @@ def test_update_patches_fields(client):
 
 def test_deactivate_requires_admin_or_pastor(client):
     member_id = client.post("/members", json=_body(), headers=_headers("admin")).json()["member_id"]
-    r = client.post(f"/members/{member_id}/deactivate", headers=_headers("secretary"))
+    r = client.post(f"/members/{member_id}/deactivate", headers=_headers("editor"))
     assert r.status_code == 403
 
     r = client.post(f"/members/{member_id}/deactivate", headers=_headers("pastor"))

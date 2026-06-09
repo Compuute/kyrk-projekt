@@ -36,20 +36,20 @@ def test_viewer_cannot_create_member(service):
         service.create(_actor(Role.VIEWER), _payload())
 
 
-def test_secretary_can_create_and_update(service):
-    member = service.create(_actor(Role.SECRETARY), _payload())
+def test_editor_can_create_and_update(service):
+    member = service.create(_actor(Role.EDITOR), _payload())
     updated = service.update(
-        _actor(Role.SECRETARY),
+        _actor(Role.EDITOR),
         member.member_id,
         UpdateMemberInput(phone="+4670999999"),
     )
     assert updated.phone == "+4670999999"
 
 
-def test_secretary_cannot_deactivate(service):
+def test_editor_cannot_deactivate(service):
     member = service.create(_actor(Role.ADMIN), _payload())
     with pytest.raises(NotAuthorized):
-        service.deactivate(_actor(Role.SECRETARY), member.member_id)
+        service.deactivate(_actor(Role.EDITOR), member.member_id)
 
 
 def test_pastor_can_deactivate(service):

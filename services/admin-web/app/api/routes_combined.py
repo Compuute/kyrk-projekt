@@ -60,7 +60,29 @@ router = APIRouter()
 
 
 @router.get("/login", response_class=HTMLResponse)
-def get_login(request: Request, flash: str | None = None, level: str = "error"):
+def get_login(
+    request: Request,
+    flash: str | None = None,
+    level: str = "error",
+    settings: Settings = Depends(get_settings),
+):
+    if os.getenv("ADAPTER_MODE", "memory").lower() == "production":
+        # Construct OIDC authorization redirect URL
+        scope = "openid+profile+email+urn:zitadel:iam:org:project:roles"
+        redirect_uri = settings.zitadel_redirect_uri
+        if not redirect_uri:
+            # Fallback dynamic construction
+            redirect_uri = str(request.url_for("login_callback"))
+        auth_url = (
+            f"{settings.zitadel_issuer_url.rstrip('/')}/oauth/v2/authorize"
+            f"?client_id={settings.zitadel_client_id}"
+            f"&response_type=code"
+            f"&scope={scope}"
+            f"&redirect_uri={redirect_uri}"
+            f"&state=mystate"
+        )
+        return RedirectResponse(auth_url)
+
     return TEMPLATES.TemplateResponse(
         request=request,
         name="login.html",
@@ -75,9 +97,32 @@ def post_login(
     role: str = Form(...),
     settings: Settings = Depends(get_settings),
 ):
-    if role not in {"admin", "pastor", "secretary", "viewer"}:
+    if role not in {"admin", "pastor", "editor", "viewer"}:
         return _flash_redirect("/login", "unknown role", level="error")
     token = f"{user_id}:{church_id}:{role}"
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    response.set_cookie(
+        key=settings.cookie_name,
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=settings.cookie_secure,
+    )
+    return response
+
+
+@router.get("/login/callback")
+def login_callback(
+    code: str,
+    state: str | None = None,
+    settings: Settings = Depends(get_settings),
+    session_adapter: SessionPort = Depends(get_session_adapter),
+):
+    try:
+        token = session_adapter.exchange_code(code)
+    except Exception as exc:
+        return _flash_redirect("/login", f"Failed to exchange token: {str(exc)}", level="error")
+
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(
         key=settings.cookie_name,

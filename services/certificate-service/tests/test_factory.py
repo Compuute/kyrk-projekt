@@ -14,7 +14,7 @@ from app.adapters.stub_pdf_generator import StubPdfGenerator
 
 @pytest.fixture(autouse=True)
 def _clear_env(monkeypatch):
-    for key in ("ADAPTER_MODE", "PROPELAUTH_URL", "PROPELAUTH_API_KEY"):
+    for key in ("ADAPTER_MODE", "ZITADEL_ISSUER_URL", "ZITADEL_CLIENT_ID"):
         monkeypatch.delenv(key, raising=False)
 
 
@@ -37,13 +37,13 @@ def test_production_audit_picks_firestore(monkeypatch):
 
 def test_production_auth_requires_env(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_URL"):
+    with pytest.raises(RuntimeError, match="ZITADEL_ISSUER_URL"):
         make_auth()
-    monkeypatch.setenv("PROPELAUTH_URL", "https://auth.example")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_API_KEY"):
+    monkeypatch.setenv("ZITADEL_ISSUER_URL", "https://auth.example")
+    with pytest.raises(RuntimeError, match="ZITADEL_CLIENT_ID"):
         make_auth()
-    monkeypatch.setenv("PROPELAUTH_API_KEY", "key")
-    assert type(make_auth()).__name__ == "PropelAuthAdapter"
+    monkeypatch.setenv("ZITADEL_CLIENT_ID", "client")
+    assert type(make_auth()).__name__ == "ZitadelAuthAdapter"
 
 
 def test_production_pdf_generator_picks_html(monkeypatch):

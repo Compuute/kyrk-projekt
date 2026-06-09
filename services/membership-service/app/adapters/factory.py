@@ -11,8 +11,8 @@ ADAPTER_MODE=production wires:
 
 Required env vars in production mode:
 - KMS_KEY_NAME            full key resource name
-- PROPELAUTH_URL          tenant URL
-- PROPELAUTH_API_KEY      API key (load via Secret Manager)
+- ZITADEL_ISSUER_URL      Zitadel issuer URL
+- ZITADEL_CLIENT_ID       Zitadel client ID
 
 Unknown ADAPTER_MODE falls back to memory and logs a warning via a
 simple stderr write to avoid pulling in a logging dependency here.
@@ -66,11 +66,11 @@ def make_encryption() -> EncryptionPort:
 
 def make_auth() -> AuthPort:
     if _mode() == "production":
-        from app.adapters.propelauth_auth import PropelAuthAdapter
+        from app.adapters.zitadel_auth import ZitadelAuthAdapter
 
-        url = _require_env("PROPELAUTH_URL")
-        key = _require_env("PROPELAUTH_API_KEY")
-        return PropelAuthAdapter(auth_url=url, api_key=key)
+        issuer = _require_env("ZITADEL_ISSUER_URL")
+        client_id = _require_env("ZITADEL_CLIENT_ID")
+        return ZitadelAuthAdapter(issuer_url=issuer, client_id=client_id)
     from app.adapters.fake_auth import FakeAuthAdapter
 
     return FakeAuthAdapter()

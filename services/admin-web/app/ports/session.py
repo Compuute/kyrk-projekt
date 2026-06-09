@@ -29,3 +29,10 @@ class SessionPort(Protocol):
         decide whether to redirect to /login or return 401.
         """
         ...
+
+    def exchange_code(self, code: str) -> str:
+        """Exchange the OIDC authorization code for an ID/Access token.
+
+        May raise an exception if the exchange fails.
+        """
+        ...

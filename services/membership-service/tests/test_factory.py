@@ -26,8 +26,8 @@ from app.adapters.in_memory_member_repository import InMemoryMemberRepository
 def _clear_env(monkeypatch):
     monkeypatch.delenv("ADAPTER_MODE", raising=False)
     monkeypatch.delenv("KMS_KEY_NAME", raising=False)
-    monkeypatch.delenv("PROPELAUTH_URL", raising=False)
-    monkeypatch.delenv("PROPELAUTH_API_KEY", raising=False)
+    monkeypatch.delenv("ZITADEL_ISSUER_URL", raising=False)
+    monkeypatch.delenv("ZITADEL_CLIENT_ID", raising=False)
 
 
 def test_default_mode_is_memory():
@@ -50,13 +50,13 @@ def test_production_encryption_requires_key_name(monkeypatch):
         make_encryption()
 
 
-def test_production_auth_requires_propelauth_env(monkeypatch):
+def test_production_auth_requires_zitadel_env(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_URL"):
+    with pytest.raises(RuntimeError, match="ZITADEL_ISSUER_URL"):
         make_auth()
 
-    monkeypatch.setenv("PROPELAUTH_URL", "https://auth.example")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_API_KEY"):
+    monkeypatch.setenv("ZITADEL_ISSUER_URL", "https://auth.example")
+    with pytest.raises(RuntimeError, match="ZITADEL_CLIENT_ID"):
         make_auth()
 
 

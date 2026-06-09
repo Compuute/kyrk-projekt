@@ -164,3 +164,166 @@ activePage: "home"
       Den h&#228;r sidan anv&#228;nder inga kakor och sp&#229;rar dig inte. / &#x12ED;&#x1205; &#x1308;&#x133D; &#x12A9;&#x12AA;&#x12CE;&#x127D;&#x1295; &#x12A0;&#x12ED;&#x1320;&#x1240;&#x121D;&#x121D;&#x1366;
     </div>
   </footer>
+
+  <script>
+    function toggleQrConsent() {
+      var input = document.getElementById('qr-consent');
+      var btn = document.getElementById('qr-consent-btn');
+      var box = document.getElementById('qr-consent-box');
+      if (input.value === 'true') {
+        input.value = '';
+        btn.style.borderColor = '#ccc';
+        btn.style.background = '#f9f9f9';
+        box.textContent = '';
+        box.style.background = '#fff';
+        box.style.borderColor = 'var(--accent)';
+      } else {
+        input.value = 'true';
+        btn.style.borderColor = '#22c55e';
+        btn.style.background = '#f0fdf4';
+        box.textContent = '✓';
+        box.style.background = '#22c55e';
+        box.style.borderColor = '#22c55e';
+        box.style.color = '#fff';
+      }
+    }
+
+    function toggleTaxConsent() {
+      var input = document.getElementById('qr-tax-consent');
+      var btn = document.getElementById('qr-tax-btn');
+      var box = document.getElementById('qr-tax-box');
+      if (input.value === 'true') {
+        input.value = '';
+        btn.style.borderColor = '#ccc';
+        btn.style.background = '#f9f9f9';
+        box.textContent = '';
+        box.style.background = '#fff';
+        box.style.borderColor = 'var(--accent)';
+      } else {
+        input.value = 'true';
+        btn.style.borderColor = '#22c55e';
+        btn.style.background = '#f0fdf4';
+        box.textContent = '✓';
+        box.style.background = '#22c55e';
+        box.style.borderColor = '#22c55e';
+        box.style.color = '#fff';
+      }
+    }
+
+    function submitQuickReg(e) {
+      e.preventDefault();
+      var firstName = document.getElementById('qr-fname').value.trim();
+      var lastName = document.getElementById('qr-lname').value.trim();
+      var phone = document.getElementById('qr-phone').value.trim();
+      var email = document.getElementById('qr-email').value.trim();
+      var pnr = document.getElementById('qr-pnr').value.trim();
+      var action = document.getElementById('qr-action').value;
+      var consent = document.getElementById('qr-consent').value;
+      var taxConsent = document.getElementById('qr-tax-consent').value;
+      var errorEl = document.getElementById('qr-error');
+      errorEl.style.display = 'none';
+
+      if (!validateName(firstName)) {
+        errorEl.textContent = 'Ange ditt förnamn (min 2 tecken, inga siffror). / ስምዎን ያስገቡ።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+      if (!validateName(lastName)) {
+        errorEl.textContent = 'Ange ditt efternamn (min 2 tecken, inga siffror). / የአባት ስምዎን ያስገቡ።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+      if (!validatePhone(phone)) {
+        errorEl.textContent = 'Ogiltigt telefonnummer (07X-XXX XX XX). / ልክ ያልሆነ ስልክ ቁጥር።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+      if (pnr && !validatePersonnummer(pnr)) {
+        errorEl.textContent = 'Ogiltigt personnummer (YYYYMMDD-XXXX). / ልክ ያልሆነ የግል ቁጥር።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+      if (consent !== 'true') {
+        errorEl.textContent = 'Du måste ge ditt GDPR-samtycke. / ፈቃድዎን መስጠት አለብዎት።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+      if (action === 'register_and_switch' && !pnr) {
+        errorEl.textContent = 'Personnummer krävs för att byta kyrkoskatt. / ለቤተ ክርስቲያን ግብር ለመቀየር የግል ቁጥር ያስፈልጋል።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+      if (action === 'register_and_switch' && taxConsent !== 'true') {
+        errorEl.textContent = 'Du måste samtycka till att kyrkoavgiften uppbärs via Skatteverket. / በግብር ስርዓት ለመሰብሰብ መስማማት አለብዎት።';
+        errorEl.style.display = 'block';
+        return false;
+      }
+
+      var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
+      var churchId = getSelectedChurch();
+
+      var payload = {
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone,
+        email: email || (firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@example.com'),
+        personal_number: pnr || '19900101-0000',
+        gdpr_consent: true,
+        consent_timestamp: new Date().toISOString(),
+        source: 'quick_register',
+        church_id: churchId,
+        membership_type: 'individual',
+        monthly_fee_sek: 200,
+        family_members: []
+      };
+
+      var submitBtn = document.getElementById('qr-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Skickar... / በመላክ ላይ...';
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) {
+        if (r.status === 202 || r.status === 201) {
+          document.getElementById('quick-register').style.display = 'none';
+          document.getElementById('register-intro').style.display = 'none';
+          
+          var successEl = document.getElementById('qr-success');
+          var detailEl = document.getElementById('qr-success-detail');
+          var detailAmEl = document.getElementById('qr-success-detail-am');
+          
+          if (action === 'register_and_switch') {
+            detailEl.textContent = 'Vi har tagit emot din medlemsansökan och påbörjat bytet av kyrkoskatt. Vi kontaktar dig inom kort.';
+            detailAmEl.textContent = 'የአባልነት ማመልከቻዎን ተቀብለን የቤተ ክርስቲያን ግብር መቀየር ጀምረናል። በቅርቡ እናገኝዎታለን።';
+          } else {
+            detailEl.textContent = 'Tack för din medlemsansökan! Vi kontaktar dig inom kort.';
+            detailAmEl.textContent = 'ለአባልነት ማመልከቻዎ እናመሰግናለን! በቅርቡ እናገኝዎታለን።';
+          }
+          
+          detailAmEl.style.display = 'block';
+          successEl.style.display = 'block';
+          return;
+        }
+        if (r.status === 409) {
+          throw { msg: 'Du är redan registrerad. / እርስዎ ቀድሞ ተመዝግበዋል።' };
+        }
+        throw { msg: 'Tekniskt fel. Försök igen. / የቴክኒክ ችግር።' };
+      })
+      .catch(function(err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Registrera mig →';
+        if (err && err.msg) {
+          errorEl.textContent = err.msg;
+        } else {
+          errorEl.textContent = 'Kunde inte ansluta. Försök igen. / መገናኘት አልተቻለም።';
+        }
+        errorEl.style.display = 'block';
+      });
+
+      return false;
+    }
+  </script>

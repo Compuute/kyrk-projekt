@@ -16,7 +16,7 @@ class SubmissionStatus(str, Enum):
 class Role(str, Enum):
     ADMIN = "admin"
     PASTOR = "pastor"
-    SECRETARY = "secretary"
+    EDITOR = "editor"
     VIEWER = "viewer"
 
 

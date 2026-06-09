@@ -7,8 +7,8 @@ Required env vars in production mode:
 - INTAKE_BASE_URL
 - CERTIFICATE_BASE_URL
 - REPORTING_BASE_URL          (activity endpoints are now served here too)
-- PROPELAUTH_VERIFIER_KEY   RS256 public key PEM (from Secret Manager)
-- PROPELAUTH_ISSUER          tenant issuer URL
+- ZITADEL_ISSUER_URL         Zitadel issuer URL
+- ZITADEL_CLIENT_ID          Zitadel client ID
 
 NOTE: ACTIVITY_BASE_URL is no longer needed -- activity-service was merged
 into reporting-service. The activity client now defaults to REPORTING_BASE_URL.
@@ -135,9 +135,16 @@ def make_session_adapter() -> SessionPort:
     if _mode() == "production":
         from app.adapters.jwt_session import JWTSessionAdapter
 
-        key = _require_env("PROPELAUTH_VERIFIER_KEY")
-        issuer = _require_env("PROPELAUTH_ISSUER")
-        return JWTSessionAdapter(verifier_key=key, issuer=issuer)
+        issuer = _require_env("ZITADEL_ISSUER_URL")
+        client_id = _require_env("ZITADEL_CLIENT_ID")
+        client_secret = _require_env("ZITADEL_CLIENT_SECRET")
+        redirect_uri = _require_env("ZITADEL_REDIRECT_URI")
+        return JWTSessionAdapter(
+            issuer_url=issuer,
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+        )
     from app.adapters.fake_session import FakeSessionAdapter
 
     return FakeSessionAdapter()

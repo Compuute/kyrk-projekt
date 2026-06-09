@@ -16,8 +16,8 @@ from app.adapters.stub_bigquery_export import StubBigQueryExport
 def _clear_env(monkeypatch):
     for key in (
         "ADAPTER_MODE",
-        "PROPELAUTH_URL",
-        "PROPELAUTH_API_KEY",
+        "ZITADEL_ISSUER_URL",
+        "ZITADEL_CLIENT_ID",
         "BIGQUERY_PROJECT_ID",
         "BIGQUERY_DATASET_ID",
     ):
@@ -55,5 +55,10 @@ def test_production_bigquery_requires_env(monkeypatch):
 
 def test_production_auth_requires_env(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_URL"):
+    with pytest.raises(RuntimeError, match="ZITADEL_ISSUER_URL"):
         make_auth()
+    monkeypatch.setenv("ZITADEL_ISSUER_URL", "https://auth.example")
+    with pytest.raises(RuntimeError, match="ZITADEL_CLIENT_ID"):
+        make_auth()
+    monkeypatch.setenv("ZITADEL_CLIENT_ID", "client")
+    assert type(make_auth()).__name__ == "ZitadelAuthAdapter"

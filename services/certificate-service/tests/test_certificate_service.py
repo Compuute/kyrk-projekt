@@ -30,9 +30,9 @@ def test_pastor_can_issue(service):
     assert cert.church_id == "c1"
 
 
-def test_secretary_cannot_issue(service):
+def test_editor_cannot_issue(service):
     with pytest.raises(NotAuthorized):
-        service.issue(_actor(Role.SECRETARY), _payload())
+        service.issue(_actor(Role.EDITOR), _payload())
 
 
 def test_viewer_cannot_issue(service):

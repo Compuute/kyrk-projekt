@@ -6,7 +6,7 @@ Roles are modeled via PropelAuth, scoped per `church_id` (PropelAuth organizatio
 |---|---|---|---|---|---|
 | `admin` | yes | yes | yes | yes | yes |
 | `pastor` | yes | yes | yes | yes | no |
-| `secretary` | yes | intake / update only | no | yes | no |
+| `editor` | yes | intake / update only | no | yes | no |
 | `viewer` | no | no | no | yes | no |
 
 ## Principles

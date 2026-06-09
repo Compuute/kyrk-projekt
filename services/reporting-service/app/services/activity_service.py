@@ -14,8 +14,8 @@ from app.domain.models import (
 from app.ports.activity_repository import ActivityRepository
 
 
-_WRITE_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY}
-_READ_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY, Role.VIEWER}
+_WRITE_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.EDITOR}
+_READ_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.EDITOR, Role.VIEWER}
 
 
 @dataclass(frozen=True)

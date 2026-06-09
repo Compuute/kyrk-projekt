@@ -22,7 +22,7 @@ from app.ports.rate_limiter import RateLimiterPort
 from app.ports.submission_repository import SubmissionRepository
 
 
-_ADMIN_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.SECRETARY}
+_ADMIN_ROLES: set[Role] = {Role.ADMIN, Role.PASTOR, Role.EDITOR}
 
 
 @dataclass(frozen=True)
