@@ -88,11 +88,14 @@ def make_notification() -> NotificationPort:
     return FakeNotification()
 
 
-def make_funeral_tracker() -> FuneralTrackerPort:
+def make_funeral_tracker(token: str | None = None) -> FuneralTrackerPort:
     if _mode() == "production":
-        from app.adapters.fake_funeral_tracker import FakeFuneralTracker
+        from app.adapters.httpx_funeral_tracker import HttpxFuneralTracker
 
-        return FakeFuneralTracker()
+        return HttpxFuneralTracker(
+            base_url=_require_env("MEMBERSHIP_BASE_URL"),
+            token=token or "",
+        )
     from app.adapters.fake_funeral_tracker import FakeFuneralTracker
 
     return FakeFuneralTracker()
@@ -100,10 +103,9 @@ def make_funeral_tracker() -> FuneralTrackerPort:
 
 def make_grant_tracker() -> GrantTrackerPort:
     if _mode() == "production":
-        # Firestore adapter would be imported here when available
-        from app.adapters.fake_grant_tracker import FakeGrantTracker
+        from app.adapters.firestore_grant_tracker import FirestoreGrantTracker
 
-        return FakeGrantTracker()
+        return FirestoreGrantTracker()
     from app.adapters.fake_grant_tracker import FakeGrantTracker
 
     return FakeGrantTracker()

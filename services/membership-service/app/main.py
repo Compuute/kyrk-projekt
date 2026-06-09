@@ -9,11 +9,13 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from app.api.routes_members import router as members_router
+from app.api.routes_funerals import router as funerals_router
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="membership-service", version="0.1.0")
     app.include_router(members_router)
+    app.include_router(funerals_router)
 
     @app.get("/healthz", tags=["infra"])
     def healthz() -> dict[str, str]:

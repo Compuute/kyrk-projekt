@@ -8,6 +8,7 @@ from app.adapters.fake_auth import FakeAuthAdapter
 from app.adapters.in_memory_audit import InMemoryAuditAdapter
 from app.adapters.in_memory_encryption import InMemoryEncryptionAdapter
 from app.adapters.in_memory_member_repository import InMemoryMemberRepository
+from app.adapters.in_memory_funeral_tracker import InMemoryFuneralTracker
 from app.api import deps
 from app.main import create_app
 from app.services.membership_service import MembershipService
@@ -16,6 +17,11 @@ from app.services.membership_service import MembershipService
 @pytest.fixture
 def repo() -> InMemoryMemberRepository:
     return InMemoryMemberRepository()
+
+
+@pytest.fixture
+def funeral_tracker() -> InMemoryFuneralTracker:
+    return InMemoryFuneralTracker()
 
 
 @pytest.fixture
@@ -39,10 +45,11 @@ def service(repo, encryption, audit) -> MembershipService:
 
 
 @pytest.fixture
-def client(repo, encryption, audit, auth) -> TestClient:
+def client(repo, encryption, audit, auth, funeral_tracker) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_repo] = lambda: repo
     app.dependency_overrides[deps.get_encryption] = lambda: encryption
     app.dependency_overrides[deps.get_audit] = lambda: audit
     app.dependency_overrides[deps.get_auth] = lambda: auth
+    app.dependency_overrides[deps.get_funeral_tracker] = lambda: funeral_tracker
     return TestClient(app)

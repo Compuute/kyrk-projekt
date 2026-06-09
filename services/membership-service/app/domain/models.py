@@ -59,3 +59,54 @@ class Actor:
     user_id: str
     church_id: str
     role: Role
+
+
+@dataclass
+class FuneralCase:
+    case_id: str
+    church_id: str
+    status: str = "registered"
+    created_at: datetime | None = None
+
+    # Deceased info (RED-zone personal data, handled securely in backend)
+    deceased_name: str = ""
+    deceased_name_am: str = ""
+    date_of_death: str = ""
+    date_of_birth: str = ""
+    contact_person: str = ""
+    contact_phone: str = ""
+
+    # Service options
+    package: str = "standard"  # enkel | standard | komplett
+    repatriation: bool = False
+    repatriation_destination: str = ""  # "ethiopia" | "eritrea" | other
+    ceremony_date: str = ""
+    ceremony_time: str = ""
+    burial_location: str = ""
+
+    # Eder
+    eder_name: str = ""
+    eder_contribution: float = 0.0
+
+    # Financials
+    package_price: float = 0.0
+    repatriation_price: float = 0.0
+    total_price: float = 0.0
+    paid: bool = False
+
+    # Checklist (stored as JSON-serializable dict)
+    checklist: dict[str, bool] = field(default_factory=dict)
+
+    # Memorial
+    memorial_page_url: str = ""
+    memorial_text_sv: str = ""
+    memorial_text_am: str = ""
+    memorial_photo_url: str = ""
+
+    # Grief calendar
+    grief_calendar_active: bool = False
+    next_memorial_date: str = ""
+    next_memorial_name: str = ""
+
+    notes: str = ""
+

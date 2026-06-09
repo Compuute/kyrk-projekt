@@ -6,6 +6,8 @@ from app.adapters.factory import (
     make_intake_client,
     make_reporting_client,
     make_translator,
+    make_funeral_tracker,
+    make_grant_tracker,
 )
 from app.adapters.fake_clients import (
     FakeActivityClient,
@@ -24,6 +26,7 @@ def _clear_env(monkeypatch):
         "CERTIFICATE_BASE_URL",
         "REPORTING_BASE_URL",
         "ANTHROPIC_API_KEY",
+        "MEMBERSHIP_BASE_URL",
     ):
         monkeypatch.delenv(key, raising=False)
 
@@ -81,3 +84,18 @@ def test_production_translator_requires_api_key(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test-key")
     translator = make_translator()
     assert type(translator).__name__ == "AnthropicTranslator"
+
+
+def test_production_funeral_tracker_requires_base_url(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    with pytest.raises(RuntimeError, match="MEMBERSHIP_BASE_URL"):
+        make_funeral_tracker()
+    monkeypatch.setenv("MEMBERSHIP_BASE_URL", "https://membership.example")
+    tracker = make_funeral_tracker()
+    assert type(tracker).__name__ == "HttpxFuneralTracker"
+
+
+def test_production_grant_tracker_picks_firestore(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    tracker = make_grant_tracker()
+    assert type(tracker).__name__ == "FirestoreGrantTracker"

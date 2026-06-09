@@ -82,12 +82,6 @@ def get_notification() -> NotificationPort:
     return _NOTIFICATION
 
 
-def get_funeral_tracker() -> FuneralTrackerPort:
-    global _FUNERAL_TRACKER
-    if _FUNERAL_TRACKER is None:
-        _FUNERAL_TRACKER = make_funeral_tracker()
-    return _FUNERAL_TRACKER
-
 
 def get_grant_tracker() -> GrantTrackerPort:
     global _GRANT_TRACKER
@@ -139,3 +133,7 @@ def redirect_if_unauthenticated(
     if info is None:
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
     return info
+
+
+def get_funeral_tracker(session: SessionInfo = Depends(current_session)) -> FuneralTrackerPort:
+    return make_funeral_tracker(token=session.token)

@@ -26,6 +26,7 @@ from app.ports.audit import AuditPort
 from app.ports.auth import AuthPort
 from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
+from app.ports.funeral_tracker import FuneralTrackerPort
 
 
 def _mode() -> str:
@@ -73,6 +74,23 @@ def make_auth() -> AuthPort:
     from app.adapters.fake_auth import FakeAuthAdapter
 
     return FakeAuthAdapter()
+
+
+_FUNERAL_TRACKER: FuneralTrackerPort | None = None
+
+
+def make_funeral_tracker() -> FuneralTrackerPort:
+    global _FUNERAL_TRACKER
+    if _mode() == "production":
+        from app.adapters.firestore_funeral_tracker import FirestoreFuneralTracker
+
+        return FirestoreFuneralTracker()
+
+    if _FUNERAL_TRACKER is None:
+        from app.adapters.in_memory_funeral_tracker import InMemoryFuneralTracker
+
+        _FUNERAL_TRACKER = InMemoryFuneralTracker()
+    return _FUNERAL_TRACKER
 
 
 def _require_env(name: str) -> str:

@@ -14,6 +14,7 @@ from app.adapters.factory import (
     make_auth,
     make_encryption,
     make_member_repository,
+    make_funeral_tracker,
 )
 from app.domain.errors import NotAuthorized
 from app.domain.models import Actor
@@ -21,6 +22,7 @@ from app.ports.audit import AuditPort
 from app.ports.auth import AuthPort
 from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
+from app.ports.funeral_tracker import FuneralTrackerPort
 from app.services.membership_service import MembershipService
 
 
@@ -30,6 +32,7 @@ _REPO: MemberRepository | None = None
 _AUTH: AuthPort | None = None
 _ENCRYPTION: EncryptionPort | None = None
 _AUDIT: AuditPort | None = None
+_FUNERAL_TRACKER: FuneralTrackerPort | None = None
 
 
 def get_repo() -> MemberRepository:
@@ -58,6 +61,13 @@ def get_audit() -> AuditPort:
     if _AUDIT is None:
         _AUDIT = make_audit()
     return _AUDIT
+
+
+def get_funeral_tracker() -> FuneralTrackerPort:
+    global _FUNERAL_TRACKER
+    if _FUNERAL_TRACKER is None:
+        _FUNERAL_TRACKER = make_funeral_tracker()
+    return _FUNERAL_TRACKER
 
 
 def get_service(

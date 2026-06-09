@@ -14,6 +14,7 @@ from app.adapters.factory import (
     make_auth,
     make_encryption,
     make_member_repository,
+    make_funeral_tracker,
 )
 from app.adapters.fake_auth import FakeAuthAdapter
 from app.adapters.in_memory_audit import InMemoryAuditAdapter
@@ -30,10 +31,12 @@ def _clear_env(monkeypatch):
 
 
 def test_default_mode_is_memory():
+    from app.adapters.in_memory_funeral_tracker import InMemoryFuneralTracker
     assert isinstance(make_member_repository(), InMemoryMemberRepository)
     assert isinstance(make_audit(), InMemoryAuditAdapter)
     assert isinstance(make_encryption(), InMemoryEncryptionAdapter)
     assert isinstance(make_auth(), FakeAuthAdapter)
+    assert isinstance(make_funeral_tracker(), InMemoryFuneralTracker)
 
 
 def test_explicit_memory_mode(monkeypatch):
@@ -69,3 +72,9 @@ def test_production_audit_picks_firestore(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
     audit = make_audit()
     assert type(audit).__name__ == "FirestoreAuditAdapter"
+
+
+def test_production_funeral_tracker_picks_firestore(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    tracker = make_funeral_tracker()
+    assert type(tracker).__name__ == "FirestoreFuneralTracker"
