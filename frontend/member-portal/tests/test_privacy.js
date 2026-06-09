@@ -85,7 +85,7 @@ test('mentions children data protection', function () {
 // --- Navigation
 
 test('has back link to main portal', function () {
-  assert.ok(html.includes('./index.html'), 'must link back to main page');
+  assert.ok(html.includes('./index.html') || html.includes('href="./"'), 'must link back to main page');
 });
 
 // --- No tracking

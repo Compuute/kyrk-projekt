@@ -41,10 +41,13 @@ class TestReadmeMentionsServices:
 
     def test_every_html_page_in_readme_or_docs(self):
         portal = ROOT / "frontend" / "member-portal"
+        missing = []
         for html in sorted(portal.glob("*.html")):
-            assert html.name in ALL_DOCS, (
-                f"'{html.name}' exists but is not mentioned in any doc"
-            )
+            if html.name not in ALL_DOCS:
+                missing.append(html.name)
+        assert not missing, (
+            f"The following HTML pages exist but are not mentioned in any doc: {missing}"
+        )
 
 
 class TestWorkflowsDocumented:

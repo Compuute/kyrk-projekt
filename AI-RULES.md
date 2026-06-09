@@ -242,8 +242,15 @@ som är rådgivande. Tre hooks konfigurerade:
 
 ## Hur du verifierar att din kod är OK
 
+Det rekommenderas att köra tester i en virtuell miljö (`.venv`) för att undvika globala paketkonflikter (t.ex. Starlette/FastAPI-kollisioner).
+
 ```bash
-# Från kyrk-projekt/
+# Skapa och aktivera virtuell miljö (om det inte redan är gjort)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r services/membership-service/requirements.txt  # installera beroenden vid behov
+
+# Kör tester från kyrk-projekt/
 python -m pytest tests/ --tb=short                              # projektguards (63 tester)
 python -m pytest services/admin-web/tests/ --tb=short           # admin-web (161 tester)
 cd frontend/member-portal && node tests/test_all_pages.js       # frontend

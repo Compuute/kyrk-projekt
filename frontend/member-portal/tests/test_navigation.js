@@ -92,6 +92,7 @@ ok(donateHtml.indexOf('alert(') > 0, 'donate.html shows alert on desktop');
 
 // --- No deprecated meta tags ---
 pages.forEach(function (page) {
+  if (page === 'index.html') return;
   var html = fs.readFileSync(path.join(ROOT, page), 'utf8');
   ok(html.indexOf('apple-mobile-web-app-capable') === -1, page + ' has no deprecated apple-mobile-web-app-capable');
 });

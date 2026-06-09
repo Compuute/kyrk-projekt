@@ -50,6 +50,13 @@ make test      # 350+ tests across all services + frontends
 | Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, Fonus-jämförelse |
 | Om oss | [/about.html](https://kyrka-portal.pages.dev/about.html) | Kyrkans historia, Tewahedo-tron, verksamhet |
 | Kontakt | [/contact.html](https://kyrka-portal.pages.dev/contact.html) | Adress, telefon, tider, Telegram |
+| Dop & medlemskap | [/baptism.html](https://kyrka-portal.pages.dev/baptism.html) | Bokning och info om dop |
+| Kalender | [/calendar.html](https://kyrka-portal.pages.dev/calendar.html) | Kommande gudstjänster och aktiviteter |
+| Vanliga frågor | [/faq.html](https://kyrka-portal.pages.dev/faq.html) | Vanliga frågor om tro, medlemskap och avgifter |
+| Bibliotek | [/library.html](https://kyrka-portal.pages.dev/library.html) | Digitalt bibliotek med böcker och texter |
+| Support | [/support.html](https://kyrka-portal.pages.dev/support.html) | Teknisk support för medlemmar |
+| Memorial / Tezkar | [/tezkar.html](https://kyrka-portal.pages.dev/tezkar.html) | Information och regler kring Tezkar |
+| Lokaler | [/venue.html](https://kyrka-portal.pages.dev/venue.html) | Hitta till våra lokaler och kyrkor |
 
 Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga kakor.
 
@@ -135,7 +142,9 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 ### Publika HTML-sidor
 
 Alla sidor i `frontend/member-portal/`: `index.html`, `intake.html`,
-`donate.html`, `live.html`, `privacy.html`. Alla tvåspråkiga (sv+am),
+`donate.html`, `live.html`, `privacy.html`, `funeral.html`, `about.html`,
+`contact.html`, `baptism.html`, `calendar.html`, `faq.html`, `library.html`,
+`support.html`, `tezkar.html`, `venue.html`. Alla tvåspråkiga (sv+am),
 alla med back-link till index.html, alla cachade av service worker.
 
 ### Säkerhet (10 defense-in-depth lager)
