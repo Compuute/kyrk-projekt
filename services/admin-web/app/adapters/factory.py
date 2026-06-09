@@ -111,10 +111,9 @@ def make_grant_tracker() -> GrantTrackerPort:
 
 def make_content_store() -> ContentStorePort:
     if _mode() == "production":
-        # Cloud Storage adapter would be imported here when available
-        from app.adapters.fake_content_store import FakeContentStore
+        from app.adapters.cloudflare_kv_store import CloudflareKVContentStore
 
-        return FakeContentStore()
+        return CloudflareKVContentStore()
     from app.adapters.fake_content_store import FakeContentStore
 
     return FakeContentStore()

@@ -422,6 +422,9 @@ function setSelectedChurch(churchId: string): void {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem('selectedChurch', churchId);
   }
+  if (typeof document !== 'undefined') {
+    document.cookie = 'selected_church=' + encodeURIComponent(churchId) + '; path=/; max-age=31536000; SameSite=Lax';
+  }
 }
 
 function getContentUrl(): string {
@@ -430,6 +433,12 @@ function getContentUrl(): string {
 }
 
 function loadChurchContent(callback: (data: Partial<ContentConfig>) => void): void {
+  // If KV injected the configuration at the edge, use it immediately
+  if (typeof window !== 'undefined' && (window as any).__KYRK_CONFIG__) {
+    callback((window as any).__KYRK_CONFIG__);
+    return;
+  }
+
   const url = getContentUrl();
   fetch(url, { credentials: 'omit', cache: 'no-store' })
     .then(r => {
@@ -540,6 +549,10 @@ function applyChurchToPage(church: Church, lang: Lang): void {
 function initChurchData(): void {
   if (typeof document === 'undefined') return;
   const churchId = getSelectedChurch();
+  // Ensure cookie is in sync with localStorage for Edge routing
+  if (!document.cookie.includes('selected_church=')) {
+    document.cookie = 'selected_church=' + encodeURIComponent(churchId) + '; path=/; max-age=31536000; SameSite=Lax';
+  }
   fetch('./churches.json', { credentials: 'omit' })
     .then(r => r.ok ? r.json() as Promise<{ churches: Church[] }> : { churches: [] })
     .then(data => {

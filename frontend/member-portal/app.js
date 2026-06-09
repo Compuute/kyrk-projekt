@@ -1,232 +1,176 @@
-/*
- * Member portal logic for the bilingual church site (sv + am).
- *
- * Exports (via global `window` in the browser, `module.exports` in Node):
- *   - loadContent(url): fetch + JSON parse (browser only)
- *   - pickLanguage(config, lang): extract text for one language from bilingual config
- *   - renderPage(content, lang): populate DOM elements
- *   - switchLanguage(lang): re-render without reload
- *   - detectLanguage(): pick default from navigator.language
- *   - setupLanguageSwitcher(content): wire up the language pill buttons
- *
- * The decision logic is pure so it can be unit-tested with Node's built-in
- * assert module — no framework, no build step.
- */
-
-// ----------------------------------------------------------------- helpers
-
-/**
- * Given a bilingual object like {"sv": "Hej", "am": "ሰላም"},
- * return the text for `lang`, falling back to "sv" if the key is missing.
- */
+"use strict";
 function _t(obj, lang) {
-  if (!obj || typeof obj !== 'object') return '';
-  if (typeof obj[lang] === 'string') return obj[lang];
-  if (typeof obj.sv === 'string') return obj.sv;
-  return '';
+  if (!obj || typeof obj !== "object") return "";
+  if (typeof obj[lang] === "string") return obj[lang];
+  if (typeof obj.sv === "string") return obj.sv;
+  return "";
 }
-
-// ---------------------------------------------------------- pure functions
-
 function pickLanguage(config, lang) {
-  if (!config || typeof config !== 'object') {
-    return {
-      churchName: '',
-      churchTagline: '',
-      upcoming: [],
-      announcements: [],
-      links: {},
-      footerPrivacy: ''
-    };
+  if (!config || typeof config !== "object") {
+    return { churchName: "", churchTagline: "", upcoming: [], announcements: [], links: {}, footerPrivacy: "" };
   }
-  var l = lang || 'sv';
-  var church = config.church || {};
-  var upcoming = (config.upcoming || []).map(function (item) {
-    return {
-      title: _t(item.title, l),
-      date: item.date || '',
-      time: item.time || '',
-      description: _t(item.description, l)
-    };
+  const l = lang || "sv";
+  const church = config.church ?? { name: { sv: "", am: "" }, tagline: { sv: "", am: "" } };
+  const upcoming = (config.upcoming ?? []).map((item) => ({
+    title: _t(item.title, l),
+    date: item.date ?? "",
+    time: item.time ?? "",
+    description: _t(item.description, l)
+  }));
+  const announcements = (config.announcements ?? []).map((item) => ({
+    title: _t(item.title, l),
+    date: item.date ?? "",
+    body: _t(item.body, l)
+  }));
+  const rawLinks = config.links ?? {};
+  const links = {};
+  Object.keys(rawLinks).forEach((key) => {
+    const entry = rawLinks[key];
+    if (entry) {
+      links[key] = { text: _t(entry, l), url: entry.url ?? "#" };
+    }
   });
-  var announcements = (config.announcements || []).map(function (item) {
-    return {
-      title: _t(item.title, l),
-      date: item.date || '',
-      body: _t(item.body, l)
-    };
-  });
-  var rawLinks = config.links || {};
-  var links = {};
-  Object.keys(rawLinks).forEach(function (key) {
-    var entry = rawLinks[key];
-    links[key] = {
-      text: _t(entry, l),
-      url: (entry && entry.url) || '#'
-    };
-  });
-  var footer = config.footer || {};
+  const footer = config.footer ?? { privacy: { sv: "", am: "" } };
   return {
     churchName: _t(church.name, l),
     churchTagline: _t(church.tagline, l),
-    upcoming: upcoming,
-    announcements: announcements,
-    links: links,
+    upcoming,
+    announcements,
+    links,
     footerPrivacy: _t(footer.privacy, l)
   };
 }
-
 function renderPage(content, lang) {
-  if (typeof document === 'undefined') return; // Node safety
-
-  var view = pickLanguage(content, lang);
-  var l = lang || 'sv';
-
-  // Set body data-lang for CSS font selection
-  document.body.setAttribute('data-lang', l);
-
-  var el = function (id) { return document.getElementById(id); };
-
-  // Header
-  el('church-name').textContent = view.churchName;
-  el('church-tagline').textContent = view.churchTagline;
-
-  // Section titles
-  var upcomingTitle = l === 'am' ? 'የቀረቡ ዝግጅቶች' : 'Kommande aktiviteter';
-  var announcementsTitle = l === 'am' ? 'ማስታወቂያዎች' : 'Meddelanden';
-  el('upcoming-title').textContent = upcomingTitle;
-  el('announcements-title').textContent = announcementsTitle;
-
-  // Upcoming activities
-  var upList = el('upcoming-list');
-  upList.innerHTML = '';
-  if (view.upcoming.length === 0) {
-    var emptyDiv = document.createElement('div');
-    emptyDiv.className = 'empty';
-    emptyDiv.textContent = l === 'am' ? 'ምንም ዝግጅት የለም' : 'Inga kommande aktiviteter';
-    upList.appendChild(emptyDiv);
-  } else {
-    view.upcoming.forEach(function (item) {
-      var div = document.createElement('div');
-      div.className = 'activity-item';
-      var titleEl = document.createElement('div');
-      titleEl.className = 'activity-title';
-      titleEl.textContent = item.title;
-      var metaEl = document.createElement('div');
-      metaEl.className = 'activity-meta';
-      metaEl.textContent = item.date + ' kl ' + item.time;
-      var descEl = document.createElement('div');
-      descEl.className = 'activity-desc';
-      descEl.textContent = item.description;
-      div.appendChild(titleEl);
-      div.appendChild(metaEl);
-      div.appendChild(descEl);
-      upList.appendChild(div);
-    });
+  if (typeof document === "undefined") return;
+  const view = pickLanguage(content, lang);
+  const l = lang ?? "sv";
+  document.body.setAttribute("data-lang", l);
+  const el = (id) => document.getElementById(id);
+  const nameEl = el("church-name");
+  if (nameEl) nameEl.textContent = view.churchName;
+  const taglineEl = el("church-tagline");
+  if (taglineEl) taglineEl.textContent = view.churchTagline;
+  const upcomingTitle = l === "am" ? "\u12E8\u1240\u1228\u1261 \u12DD\u130D\u1305\u1276\u127D" : "Kommande aktiviteter";
+  const announcementsTitle = l === "am" ? "\u121B\u1235\u1273\u12C8\u1242\u12EB\u12CE\u127D" : "Meddelanden";
+  const upTitleEl = el("upcoming-title");
+  if (upTitleEl) upTitleEl.textContent = upcomingTitle;
+  const annTitleEl = el("announcements-title");
+  if (annTitleEl) annTitleEl.textContent = announcementsTitle;
+  const upList = el("upcoming-list");
+  if (upList) {
+    upList.innerHTML = "";
+    if (view.upcoming.length === 0) {
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "empty";
+      emptyDiv.textContent = l === "am" ? "\u121D\u1295\u121D \u12DD\u130D\u1305\u1275 \u12E8\u1208\u121D" : "Inga kommande aktiviteter";
+      upList.appendChild(emptyDiv);
+    } else {
+      view.upcoming.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "activity-item";
+        const titleEl = document.createElement("div");
+        titleEl.className = "activity-title";
+        titleEl.textContent = item.title;
+        const metaEl = document.createElement("div");
+        metaEl.className = "activity-meta";
+        metaEl.textContent = item.date + " kl " + item.time;
+        const descEl = document.createElement("div");
+        descEl.className = "activity-desc";
+        descEl.textContent = item.description;
+        div.appendChild(titleEl);
+        div.appendChild(metaEl);
+        div.appendChild(descEl);
+        upList.appendChild(div);
+      });
+    }
   }
-
-  // Announcements
-  var annList = el('announcements-list');
-  annList.innerHTML = '';
-  if (view.announcements.length === 0) {
-    var emptyAnn = document.createElement('div');
-    emptyAnn.className = 'empty';
-    emptyAnn.textContent = l === 'am' ? 'ምንም ማስታወቂያ የለም' : 'Inga meddelanden';
-    annList.appendChild(emptyAnn);
-  } else {
-    view.announcements.forEach(function (item) {
-      var div = document.createElement('div');
-      div.className = 'announcement-item';
-      var titleEl = document.createElement('div');
-      titleEl.className = 'announcement-title';
-      titleEl.textContent = item.title;
-      var dateEl = document.createElement('div');
-      dateEl.className = 'announcement-date';
-      dateEl.textContent = item.date;
-      var bodyEl = document.createElement('div');
-      bodyEl.className = 'announcement-body';
-      bodyEl.textContent = item.body;
-      div.appendChild(titleEl);
-      div.appendChild(dateEl);
-      div.appendChild(bodyEl);
-      annList.appendChild(div);
-    });
+  const annList = el("announcements-list");
+  if (annList) {
+    annList.innerHTML = "";
+    if (view.announcements.length === 0) {
+      const emptyAnn = document.createElement("div");
+      emptyAnn.className = "empty";
+      emptyAnn.textContent = l === "am" ? "\u121D\u1295\u121D \u121B\u1235\u1273\u12C8\u1242\u12EB \u12E8\u1208\u121D" : "Inga meddelanden";
+      annList.appendChild(emptyAnn);
+    } else {
+      view.announcements.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "announcement-item";
+        const titleEl = document.createElement("div");
+        titleEl.className = "announcement-title";
+        titleEl.textContent = item.title;
+        const dateEl = document.createElement("div");
+        dateEl.className = "announcement-date";
+        dateEl.textContent = item.date;
+        const bodyEl = document.createElement("div");
+        bodyEl.className = "announcement-body";
+        bodyEl.textContent = item.body;
+        div.appendChild(titleEl);
+        div.appendChild(dateEl);
+        div.appendChild(bodyEl);
+        annList.appendChild(div);
+      });
+    }
   }
-
-  // Quick links — render ALL links from content.json dynamically
-  var linksContainer = el('quick-links');
+  const linksContainer = el("quick-links");
   if (linksContainer) {
-    linksContainer.innerHTML = '';
-    Object.keys(view.links).forEach(function (key) {
-      var link = view.links[key];
-      if (!link || !link.text) return;
-      var a = document.createElement('a');
-      a.className = 'tile';
-      a.id = 'link-' + key;
+    linksContainer.innerHTML = "";
+    Object.keys(view.links).forEach((key) => {
+      const link = view.links[key];
+      if (!link?.text) return;
+      const a = document.createElement("a");
+      a.className = "tile";
+      a.id = "link-" + key;
       a.href = link.url;
       a.textContent = link.text;
       linksContainer.appendChild(a);
     });
   }
-
-  // Footer
-  var footerEl = el('footer-privacy');
+  const footerEl = el("footer-privacy");
   if (footerEl) {
-    var privacyUrl = (content.footer && content.footer.privacy_url) || './privacy';
-    footerEl.innerHTML = '';
-    footerEl.appendChild(document.createTextNode(view.footerPrivacy + ' '));
-    var privacyLink = document.createElement('a');
+    const privacyUrl = content?.footer?.privacy_url ?? "./privacy";
+    footerEl.innerHTML = "";
+    footerEl.appendChild(document.createTextNode(view.footerPrivacy + " "));
+    const privacyLink = document.createElement("a");
     privacyLink.href = privacyUrl;
-    privacyLink.textContent = l === 'am' ? 'ያንብቡ →' : 'Läs här →';
-    privacyLink.style.color = 'inherit';
-    privacyLink.style.textDecoration = 'underline';
+    privacyLink.textContent = l === "am" ? "\u12EB\u1295\u1265\u1261 \u2192" : "L\xE4s h\xE4r \u2192";
+    privacyLink.style.color = "inherit";
+    privacyLink.style.textDecoration = "underline";
     footerEl.appendChild(privacyLink);
   }
-
-  // Update language pills
-  var pills = document.querySelectorAll('.lang-pill');
-  for (var i = 0; i < pills.length; i++) {
-    pills[i].classList.toggle('active', pills[i].getAttribute('data-lang') === l);
-  }
+  const pills = document.querySelectorAll(".lang-pill");
+  pills.forEach((pill) => {
+    pill.classList.toggle("active", pill.getAttribute("data-lang") === l);
+  });
 }
-
 function switchLanguage(lang) {
-  // _currentContent is set by setupLanguageSwitcher
-  if (typeof window !== 'undefined' && window._memberPortalContent) {
+  if (typeof window !== "undefined" && window._memberPortalContent) {
     renderPage(window._memberPortalContent, lang);
   }
 }
-
 function detectLanguage() {
-  if (typeof navigator === 'undefined') return 'sv';
-  var navLang = (navigator.language || 'sv').toLowerCase();
-  if (navLang.indexOf('am') === 0) return 'am';
-  if (navLang.indexOf('sv') === 0) return 'sv';
-  return 'sv';
+  if (typeof navigator === "undefined") return "sv";
+  const navLang = (navigator.language ?? "sv").toLowerCase();
+  if (navLang.startsWith("am")) return "am";
+  return "sv";
 }
-
 function loadContent(url) {
-  return fetch(url, { credentials: 'omit', cache: 'no-store' })
-    .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('bad config')); })
-    .catch(function () { return {}; });
+  return fetch(url, { credentials: "omit", cache: "no-store" }).then((r) => r.ok ? r.json() : Promise.reject(new Error("bad config"))).catch(() => ({}));
 }
-
 function setupLanguageSwitcher(content) {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     window._memberPortalContent = content;
   }
-  if (typeof document === 'undefined') return;
-  var pills = document.querySelectorAll('.lang-pill');
-  for (var i = 0; i < pills.length; i++) {
-    pills[i].addEventListener('click', function () {
-      var lang = this.getAttribute('data-lang');
-      switchLanguage(lang);
+  if (typeof document === "undefined") return;
+  const pills = document.querySelectorAll(".lang-pill");
+  pills.forEach((pill) => {
+    pill.addEventListener("click", function() {
+      const lang = this.getAttribute("data-lang");
+      if (lang === "sv" || lang === "am") switchLanguage(lang);
     });
-  }
+  });
 }
-
-// Browser exposure
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.loadContent = loadContent;
   window.pickLanguage = pickLanguage;
   window.renderPage = renderPage;
@@ -234,293 +178,232 @@ if (typeof window !== 'undefined') {
   window.detectLanguage = detectLanguage;
   window.setupLanguageSwitcher = setupLanguageSwitcher;
 }
-
-// --------------------------------------------------- shared form helpers
-
 function validateName(name) {
   if (!name || name.trim().length < 2) return false;
   if (/\d/.test(name)) return false;
   return true;
 }
-
 function validatePhone(phone) {
   if (!phone) return false;
-  var clean = phone.replace(/[-\s]/g, '');
+  const clean = phone.replace(/[-\s]/g, "");
   return /^(\+46|0)\d{7,10}$/.test(clean);
 }
-
 function validatePersonnummer(pnr) {
   if (!pnr) return true;
-  var clean = pnr.replace(/[-\s]/g, '');
+  let clean = pnr.replace(/[-\s]/g, "");
   if (clean.length === 12) clean = clean.substring(2);
   if (clean.length !== 10) return false;
   if (!/^\d{10}$/.test(clean)) return false;
-  var sum = 0;
-  for (var i = 0; i < 10; i++) {
-    var d = parseInt(clean[i], 10);
+  let sum = 0;
+  for (let i = 0; i < 10; i++) {
+    let d = parseInt(clean[i] ?? "0", 10);
     if (i % 2 === 0) d *= 2;
     if (d > 9) d -= 9;
     sum += d;
   }
   return sum % 10 === 0;
 }
-
 function toggleConsent(inputId, btnId, boxId) {
-  var input = document.getElementById(inputId || 'field-gdpr-consent');
-  var btn = document.getElementById(btnId || 'consent-btn');
-  var box = document.getElementById(boxId || 'consent-box');
-  if (input.value === 'true') {
-    input.value = '';
-    btn.classList.remove('checked');
-    box.textContent = '';
+  const input = document.getElementById(inputId ?? "field-gdpr-consent");
+  const btn = document.getElementById(btnId ?? "consent-btn");
+  const box = document.getElementById(boxId ?? "consent-box");
+  if (!input || !btn || !box) return;
+  if (input.value === "true") {
+    input.value = "";
+    btn.classList.remove("checked");
+    box.textContent = "";
   } else {
-    input.value = 'true';
-    btn.classList.add('checked');
-    box.textContent = '✓';
+    input.value = "true";
+    btn.classList.add("checked");
+    box.textContent = "\u2713";
   }
 }
-
 function buildSwishLink(swishNumber, amount, message) {
-  if (!swishNumber || !amount) return '#';
-  return 'swish://payment?data={"version":1,"payee":{"value":"' +
-    swishNumber + '"},"amount":{"value":' + amount +
-    '},"message":{"value":"' + (message || 'Betalning') + '","editable":false}}';
+  if (!swishNumber || !amount) return "#";
+  return 'swish://payment?data={"version":1,"payee":{"value":"' + swishNumber + '"},"amount":{"value":' + amount + '},"message":{"value":"' + (message ?? "Betalning") + '","editable":false}}';
 }
-
 function setupLangPills() {
-  var pills = document.querySelectorAll('.lang-pill');
-  for (var i = 0; i < pills.length; i++) {
-    pills[i].addEventListener('click', function () {
-      var lang = this.getAttribute('data-lang');
-      for (var j = 0; j < pills.length; j++) {
-        pills[j].classList.toggle('active', pills[j].getAttribute('data-lang') === lang);
-      }
-      document.body.setAttribute('data-lang', lang);
+  const pills = document.querySelectorAll(".lang-pill");
+  pills.forEach((pill) => {
+    pill.addEventListener("click", function() {
+      const lang = this.getAttribute("data-lang");
+      if (!lang) return;
+      pills.forEach((p) => p.classList.toggle("active", p.getAttribute("data-lang") === lang));
+      document.body.setAttribute("data-lang", lang);
       applyLanguage(lang);
     });
-  }
+  });
 }
-
 function applyLanguage(lang) {
-  var svEls = document.querySelectorAll('.sv');
-  var amEls = document.querySelectorAll('.am');
-  for (var i = 0; i < svEls.length; i++) svEls[i].style.display = lang === 'sv' ? '' : 'none';
-  for (var i = 0; i < amEls.length; i++) amEls[i].style.display = lang === 'am' ? '' : 'none';
+  document.querySelectorAll(".sv").forEach((el) => {
+    el.style.display = lang === "sv" ? "" : "none";
+  });
+  document.querySelectorAll(".am").forEach((el) => {
+    el.style.display = lang === "am" ? "" : "none";
+  });
 }
-
 function registerServiceWorker() {
-  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
-  navigator.serviceWorker.register('/sw.js').then(function (reg) {
-    reg.addEventListener('updatefound', function () {
-      var newWorker = reg.installing;
+  if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("/sw.js").then((reg) => {
+    reg.addEventListener("updatefound", () => {
+      const newWorker = reg.installing;
       if (!newWorker) return;
-      newWorker.addEventListener('statechange', function () {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+      newWorker.addEventListener("statechange", () => {
+        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
           showUpdateBanner(reg);
         }
       });
     });
-  }).catch(function () {});
+  }).catch(() => {
+  });
 }
-
 function showUpdateBanner(reg) {
-  if (typeof document === 'undefined') return;
-  var banner = document.createElement('div');
-  banner.setAttribute('role', 'alert');
-  banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#7C3AED;color:#fff;padding:14px 20px;text-align:center;font-size:15px;font-weight:600;z-index:9999;display:flex;justify-content:center;align-items:center;gap:12px;';
-  banner.innerHTML = '<span>Ny version tillgänglig</span><button style="background:#fff;color:#7C3AED;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;" id="sw-update-btn">Uppdatera</button>';
+  if (typeof document === "undefined") return;
+  const banner = document.createElement("div");
+  banner.setAttribute("role", "alert");
+  banner.style.cssText = "position:fixed;bottom:0;left:0;right:0;background:#7C3AED;color:#fff;padding:14px 20px;text-align:center;font-size:15px;font-weight:600;z-index:9999;display:flex;justify-content:center;align-items:center;gap:12px;";
+  banner.innerHTML = '<span>Ny version tillg\xE4nglig</span><button style="background:#fff;color:#7C3AED;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;" id="sw-update-btn">Uppdatera</button>';
   document.body.appendChild(banner);
-  document.getElementById('sw-update-btn').addEventListener('click', function () {
-    if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+  document.getElementById("sw-update-btn")?.addEventListener("click", () => {
+    reg.waiting?.postMessage({ type: "SKIP_WAITING" });
     window.location.reload();
   });
 }
-
 function setupErrorMonitoring() {
-  if (typeof window === 'undefined') return;
-  window.addEventListener('error', function (e) {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon('https://membership-intake-479770870521.europe-north1.run.app/healthz', '');
-    }
+  if (typeof window === "undefined") return;
+  window.addEventListener("error", () => {
+    navigator.sendBeacon?.("https://membership-intake-479770870521.europe-north1.run.app/healthz", "");
   });
 }
-
-// ------------------------------------------------ church selector
-
 function getSelectedChurch() {
-  if (typeof localStorage === 'undefined') return 'nacka';
-  return localStorage.getItem('selectedChurch') || 'nacka';
+  if (typeof localStorage === "undefined") return "nacka";
+  return localStorage.getItem("selectedChurch") ?? "nacka";
 }
-
 function setSelectedChurch(churchId) {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('selectedChurch', churchId);
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("selectedChurch", churchId);
+  }
+  if (typeof document !== "undefined") {
+    document.cookie = "selected_church=" + encodeURIComponent(churchId) + "; path=/; max-age=31536000; SameSite=Lax";
   }
 }
-
 function getContentUrl() {
-  var church = getSelectedChurch();
-  return './churches/' + church + '/content.json';
+  const church = getSelectedChurch();
+  return "./churches/" + church + "/content.json";
 }
-
 function loadChurchContent(callback) {
-  var url = getContentUrl();
-  fetch(url, { credentials: 'omit', cache: 'no-store' })
-    .then(function (r) {
-      if (r.ok) return r.json();
-      return fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
-        .then(function (r2) { return r2.ok ? r2.json() : {}; });
-    })
-    .then(function (data) { callback(data); })
-    .catch(function () { callback({}); });
-}
-
-function initChurchSelector() {
-  if (typeof document === 'undefined') return;
-
-  var bar = document.getElementById('church-bar');
-  var modal = document.getElementById('church-modal');
-  if (!bar || !modal) return;
-
-  bar.addEventListener('click', function () { modal.classList.add('open'); });
-
-  var closeBtn = modal.querySelector('.church-modal-close');
-  if (closeBtn) closeBtn.addEventListener('click', function () { modal.classList.remove('open'); });
-
-  modal.addEventListener('click', function (e) {
-    if (e.target === modal) modal.classList.remove('open');
-  });
-
-  fetch('./churches.json', { credentials: 'omit' })
-    .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
-    .then(function (data) {
-      var churches = data.churches || [];
-      var list = modal.querySelector('.church-list');
-      var search = modal.querySelector('.church-search');
-      var lang = document.body.getAttribute('data-lang') || 'sv';
-      var selected = getSelectedChurch();
-
-      function renderList(filter) {
-        list.innerHTML = '';
-        var filtered = churches.filter(function (c) {
-          if (!filter) return true;
-          var q = filter.toLowerCase();
-          return (c.name.sv || '').toLowerCase().indexOf(q) >= 0 ||
-                 (c.name.am || '').indexOf(q) >= 0 ||
-                 (c.city || '').toLowerCase().indexOf(q) >= 0;
-        });
-        filtered.forEach(function (c) {
-          var item = document.createElement('div');
-          item.className = 'church-list-item';
-          item.innerHTML = '<div><div class="church-item-name">' + _t(c.name, lang) + '</div>' +
-            '<div class="church-item-city">' + c.city + '</div></div>' +
-            '<button class="church-item-select">' + (lang === 'am' ? 'ምረጥ' : 'Välj') + '</button>';
-          item.addEventListener('click', function () {
-            showChurchDetail(c, modal, lang);
-          });
-          list.appendChild(item);
-        });
-      }
-
-      renderList('');
-      if (search) {
-        search.addEventListener('input', function () { renderList(this.value); });
-      }
-
-      var current = churches.find(function (c) { return c.id === selected; });
-      if (current) {
-        var nameEl = bar.querySelector('.church-bar-name');
-        if (nameEl) nameEl.textContent = _t(current.name, lang) + ' — ' + current.city;
-      }
-
-      var locateBtn = modal.querySelector('.church-locate-btn');
-      if (locateBtn && navigator.geolocation) {
-        locateBtn.addEventListener('click', function () {
-          navigator.geolocation.getCurrentPosition(function (pos) {
-            var lat = pos.coords.latitude;
-            var lng = pos.coords.longitude;
-            churches.sort(function (a, b) {
-              var da = Math.pow(a.coords.lat - lat, 2) + Math.pow(a.coords.lng - lng, 2);
-              var db = Math.pow(b.coords.lat - lat, 2) + Math.pow(b.coords.lng - lng, 2);
-              return da - db;
-            });
-            renderList('');
-          });
-        });
-      }
-    })
-    .catch(function () {});
-}
-
-function applyChurchToPage(church, lang) {
-  if (typeof document === 'undefined' || !church) return;
-  var name = _t(church.name, lang);
-
-  // Page title
-  var titleEl = document.querySelector('title');
-  if (titleEl && name) {
-    var parts = titleEl.textContent.split('—');
-    if (parts.length > 1) titleEl.textContent = parts[0].trim() + ' — ' + name;
+  if (typeof window !== "undefined" && window.__KYRK_CONFIG__) {
+    callback(window.__KYRK_CONFIG__);
+    return;
   }
-
-  // Footer church name
-  var footerName = document.getElementById('footer-church-name');
+  const url = getContentUrl();
+  fetch(url, { credentials: "omit", cache: "no-store" }).then((r) => {
+    if (r.ok) return r.json();
+    return fetch("./content.json", { credentials: "omit", cache: "no-store" }).then((r2) => r2.ok ? r2.json() : {});
+  }).then((data) => callback(data)).catch(() => callback({}));
+}
+function initChurchSelector() {
+  if (typeof document === "undefined") return;
+  const bar = document.getElementById("church-bar");
+  const modal = document.getElementById("church-modal");
+  if (!bar || !modal) return;
+  bar.addEventListener("click", () => modal.classList.add("open"));
+  modal.querySelector(".church-modal-close")?.addEventListener("click", () => modal.classList.remove("open"));
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.remove("open");
+  });
+  fetch("./churches.json", { credentials: "omit" }).then((r) => r.ok ? r.json() : { churches: [] }).then((data) => {
+    const churches = data.churches ?? [];
+    const list = modal.querySelector(".church-list");
+    const search = modal.querySelector(".church-search");
+    const lang = document.body.getAttribute("data-lang") ?? "sv";
+    const selected = getSelectedChurch();
+    function renderList(filter) {
+      if (!list) return;
+      list.innerHTML = "";
+      const filtered = filter ? churches.filter((c) => (c.name.sv ?? "").toLowerCase().includes(filter.toLowerCase()) || (c.name.am ?? "").includes(filter) || (c.city ?? "").toLowerCase().includes(filter.toLowerCase())) : churches;
+      filtered.forEach((c) => {
+        const item = document.createElement("div");
+        item.className = "church-list-item";
+        item.innerHTML = '<div><div class="church-item-name">' + _t(c.name, lang) + '</div><div class="church-item-city">' + c.city + '</div></div><button class="church-item-select">' + (lang === "am" ? "\u121D\u1228\u1325" : "V\xE4lj") + "</button>";
+        item.addEventListener("click", () => {
+          if (modal) showChurchDetail(c, modal, lang);
+        });
+        list.appendChild(item);
+      });
+    }
+    renderList("");
+    search?.addEventListener("input", function() {
+      renderList(this.value);
+    });
+    const current = churches.find((c) => c.id === selected);
+    if (current) {
+      const nameEl = bar.querySelector(".church-bar-name");
+      if (nameEl) nameEl.textContent = _t(current.name, lang) + " \u2014 " + current.city;
+    }
+    const locateBtn = modal.querySelector(".church-locate-btn");
+    if (locateBtn && "geolocation" in navigator) {
+      locateBtn.addEventListener("click", () => {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          churches.sort((a, b) => {
+            const da = Math.pow((a.coords?.lat ?? 0) - lat, 2) + Math.pow((a.coords?.lng ?? 0) - lng, 2);
+            const db = Math.pow((b.coords?.lat ?? 0) - lat, 2) + Math.pow((b.coords?.lng ?? 0) - lng, 2);
+            return da - db;
+          });
+          renderList("");
+        });
+      });
+    }
+  }).catch(() => {
+  });
+}
+function applyChurchToPage(church, lang) {
+  if (typeof document === "undefined" || !church) return;
+  const name = _t(church.name, lang);
+  const titleEl = document.querySelector("title");
+  if (titleEl && name) {
+    const parts = titleEl.textContent?.split("\u2014") ?? [];
+    if (parts.length > 1) titleEl.textContent = (parts[0] ?? "").trim() + " \u2014 " + name;
+  }
+  const footerName = document.getElementById("footer-church-name");
   if (footerName) footerName.innerHTML = name;
-
-  // Footer org number
-  var footerOrg = document.getElementById('footer-org');
-  if (footerOrg && church.org_number) footerOrg.textContent = 'Org.nr: ' + church.org_number;
-
-  // Footer phone
-  var footerPhone = document.getElementById('footer-phone');
+  const footerOrg = document.getElementById("footer-org");
+  if (footerOrg && church.org_number) footerOrg.textContent = "Org.nr: " + church.org_number;
+  const footerPhone = document.getElementById("footer-phone");
   if (footerPhone && church.phone) {
-    footerPhone.href = 'tel:' + church.phone.replace(/\s/g, '');
+    footerPhone.href = "tel:" + church.phone.replace(/\s/g, "");
     footerPhone.textContent = church.phone;
   }
 }
-
 function initChurchData() {
-  if (typeof document === 'undefined') return;
-  var churchId = getSelectedChurch();
-  fetch('./churches.json', { credentials: 'omit' })
-    .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
-    .then(function (data) {
-      var church = (data.churches || []).find(function (c) { return c.id === churchId; });
-      if (church) {
-        var lang = document.body.getAttribute('data-lang') || 'sv';
-        applyChurchToPage(church, lang);
-      }
-    })
-    .catch(function () {});
+  if (typeof document === "undefined") return;
+  const churchId = getSelectedChurch();
+  if (!document.cookie.includes("selected_church=")) {
+    document.cookie = "selected_church=" + encodeURIComponent(churchId) + "; path=/; max-age=31536000; SameSite=Lax";
+  }
+  fetch("./churches.json", { credentials: "omit" }).then((r) => r.ok ? r.json() : { churches: [] }).then((data) => {
+    const church = (data.churches ?? []).find((c) => c.id === churchId);
+    if (church) {
+      const lang = document.body.getAttribute("data-lang") ?? "sv";
+      applyChurchToPage(church, lang);
+    }
+  }).catch(() => {
+  });
 }
-
 function showChurchDetail(church, modal, lang) {
-  var inner = modal.querySelector('.church-modal-inner');
-  var name = _t(church.name, lang);
-  inner.innerHTML =
-    '<button class="church-modal-close" onclick="this.closest(\'.church-modal\').classList.remove(\'open\')">Stäng &#x2715;</button>' +
-    '<h2>' + name + '</h2>' +
-    '<div style="margin:16px 0">' +
-      (church.address ? '<p><strong>' + (lang === 'am' ? 'አድራሻ:' : 'Besöksadress:') + '</strong><br/>' + church.address + '</p>' : '') +
-      (church.phone ? '<p style="margin-top:12px"><strong>' + (lang === 'am' ? 'ስልክ:' : 'Telefon:') + '</strong><br/>' + church.phone + '</p>' : '') +
-      (church.email ? '<p style="margin-top:12px"><strong>' + (lang === 'am' ? 'ኢሜይል:' : 'E-post:') + '</strong><br/>' + church.email + '</p>' : '') +
-      (church.org_number ? '<p style="margin-top:12px;font-size:13px;color:var(--muted)">Org.nr: ' + church.org_number + '</p>' : '') +
-    '</div>' +
-    '<button class="church-locate-btn" id="select-church-btn" style="margin-top:16px">' +
-      (lang === 'am' ? 'ይህንን ቤተ ክርስቲያን ይምረጡ' : 'Välj denna kyrka') +
-    '</button>' +
-    '<button style="display:block;width:100%;padding:12px;margin-top:8px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--fg);cursor:pointer;font-size:14px" onclick="window.location.reload()">' +
-      (lang === 'am' ? 'ተመለስ' : 'Tillbaka till listan') +
-    '</button>';
-  document.getElementById('select-church-btn').addEventListener('click', function () {
+  const inner = modal.querySelector(".church-modal-inner");
+  if (!inner) return;
+  const name = _t(church.name, lang);
+  inner.innerHTML = `<button class="church-modal-close" onclick="this.closest('.church-modal').classList.remove('open')">St\xE4ng &#x2715;</button><h2>` + name + '</h2><div style="margin:16px 0">' + (church.address ? "<p><strong>" + (lang === "am" ? "\u12A0\u12F5\u122B\u123B:" : "Bes\xF6ksadress:") + "</strong><br/>" + church.address + "</p>" : "") + (church.phone ? '<p style="margin-top:12px"><strong>' + (lang === "am" ? "\u1235\u120D\u12AD:" : "Telefon:") + "</strong><br/>" + church.phone + "</p>" : "") + (church.email ? '<p style="margin-top:12px"><strong>' + (lang === "am" ? "\u12A2\u121C\u12ED\u120D:" : "E-post:") + "</strong><br/>" + church.email + "</p>" : "") + (church.org_number ? '<p style="margin-top:12px;font-size:13px;color:var(--muted)">Org.nr: ' + church.org_number + "</p>" : "") + '</div><button class="church-locate-btn" id="select-church-btn" style="margin-top:16px">' + (lang === "am" ? "\u12ED\u1205\u1295\u1295 \u1264\u1270 \u12AD\u122D\u1235\u1272\u12EB\u1295 \u12ED\u121D\u1228\u1321" : "V\xE4lj denna kyrka") + '</button><button style="display:block;width:100%;padding:12px;margin-top:8px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--fg);cursor:pointer;font-size:14px" onclick="window.location.reload()">' + (lang === "am" ? "\u1270\u1218\u1208\u1235" : "Tillbaka till listan") + "</button>";
+  document.getElementById("select-church-btn")?.addEventListener("click", () => {
     setSelectedChurch(church.id);
-    var churchIdField = document.getElementById('field-church-id');
+    const churchIdField = document.getElementById("field-church-id");
     if (churchIdField) churchIdField.value = church.id;
     window.location.reload();
   });
 }
-
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.validateName = validateName;
   window.validatePhone = validatePhone;
   window.validatePersonnummer = validatePersonnummer;
@@ -536,18 +419,16 @@ if (typeof window !== 'undefined') {
   window.loadChurchContent = loadChurchContent;
   setupErrorMonitoring();
 }
-
-// Node exposure (for tests)
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = {
-    pickLanguage: pickLanguage,
-    renderPage: renderPage,
-    switchLanguage: switchLanguage,
-    detectLanguage: detectLanguage,
-    _t: _t,
-    validateName: validateName,
-    validatePhone: validatePhone,
-    validatePersonnummer: validatePersonnummer,
-    buildSwishLink: buildSwishLink
+    pickLanguage,
+    renderPage,
+    switchLanguage,
+    detectLanguage,
+    _t,
+    validateName,
+    validatePhone,
+    validatePersonnummer,
+    buildSwishLink
   };
 }

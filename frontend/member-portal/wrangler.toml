@@ -1,6 +1,10 @@
 name = "kyrka-portal"
 compatibility_date = "2025-06-01"
 
+[[kv_namespaces]]
+binding = "kyrka_content"
+id = "kyrka-content-id-placeholder"
+
 # Cloudflare Pages project. Deploy with:
 #   wrangler pages deploy . --project-name=kyrka-portal
 #
