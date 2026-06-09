@@ -2,7 +2,7 @@
 {% block title %}Innehållsredigerare — Admin{% endblock %}
 {% block content %}
 <h1>Innehållsredigerare</h1>
-<p class="muted">Redigera det tvåspråkiga innehållet för medlemsportalen (sv + am).</p>
+<p class="muted">Redigera det tvåspråkiga innehållet för medlemsportalen (sv + am). Klicka i ett አማርኛ-fält för att öppna det etiopiska tangentbordet.</p>
 
 <form method="post" action="/content-editor/save">
   <table class="content-table">
@@ -10,7 +10,10 @@
       <tr>
         <th>Nyckel</th>
         <th>Svenska</th>
-        <th>አማርኛ (Amhariska)</th>
+        <th>
+          አማርኛ (Amhariska)
+          <span class="kb-hint">— klicka i fältet → tangentbord öppnas</span>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -21,8 +24,24 @@
           <textarea name="sv::{{ row.key }}" rows="2" class="editor-textarea">{{ row.sv }}</textarea>
         </td>
         <td>
-          <textarea name="am::{{ row.key }}" rows="2" class="editor-textarea am-textarea" id="am-{{ loop.index }}">{{ row.am }}</textarea>
-          <button type="button" class="translate-btn" data-sv-field="sv::{{ row.key }}" data-am-field="am-{{ loop.index }}">Översätt till አማርኛ</button>
+          <textarea
+            name="am::{{ row.key }}"
+            rows="2"
+            class="editor-textarea am-textarea"
+            id="am-{{ loop.index }}"
+            lang="am"
+            dir="ltr"
+            spellcheck="false"
+            autocorrect="off"
+            autocomplete="off"
+            data-sv-field="sv::{{ row.key }}"
+          >{{ row.am }}</textarea>
+          <button
+            type="button"
+            class="translate-btn"
+            data-sv-field="sv::{{ row.key }}"
+            data-am-field="am-{{ loop.index }}"
+          >AI: Översätt till አማርኛ</button>
         </td>
       </tr>
       {% endfor %}
@@ -35,73 +54,486 @@
   </div>
 </form>
 
+<!-- ===== Ethiopic Virtual Keyboard ===== -->
+<div id="am-keyboard" class="am-keyboard" role="dialog" aria-label="Amhariskt tangentbord" hidden>
+  <div class="am-kb-topbar">
+    <span class="am-kb-label">አማርኛ ፊደሎች — välj tecken att infoga</span>
+    <input
+      type="text"
+      id="am-kb-filter"
+      class="am-kb-filter"
+      placeholder="🔍 Sök tecken…"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Filtrera tecken"
+    >
+    <button type="button" id="am-kb-backspace" class="am-kb-icon-btn" title="Radera tecken">⌫</button>
+    <button type="button" id="am-kb-close"     class="am-kb-icon-btn" title="Stäng tangentbord">✕</button>
+  </div>
+
+  <div class="am-kb-vowel-header" aria-hidden="true">
+    <div class="am-kb-consonant-col"></div>
+    <div title="1:a form">፩</div>
+    <div title="2:a form">፪</div>
+    <div title="3:e form">፫</div>
+    <div title="4:e form">፬</div>
+    <div title="5:e form">፭</div>
+    <div title="6:e form (neutral)">፮</div>
+    <div title="7:e form">፯</div>
+  </div>
+
+  <div class="am-kb-scroll">
+    <div id="am-kb-chars" class="am-kb-chars"></div>
+  </div>
+
+  <div class="am-kb-specials">
+    <button type="button" class="am-sp-wide" data-char=" ">␣ Mellanslag</button>
+    <button type="button" class="am-sp-wide" data-char="&#10;">↵ Ny rad</button>
+    <button type="button" class="am-sp" data-char="።" title="Ethiopic fullstop">።</button>
+    <button type="button" class="am-sp" data-char="፣" title="Ethiopic comma">፣</button>
+    <button type="button" class="am-sp" data-char="፤" title="Ethiopic semicolon">፤</button>
+    <button type="button" class="am-sp" data-char="፥" title="Ethiopic colon">፥</button>
+    <button type="button" class="am-sp" data-char="፩">፩</button>
+    <button type="button" class="am-sp" data-char="፪">፪</button>
+    <button type="button" class="am-sp" data-char="፫">፫</button>
+    <button type="button" class="am-sp" data-char="፬">፬</button>
+    <button type="button" class="am-sp" data-char="፭">፭</button>
+    <button type="button" class="am-sp" data-char="፮">፮</button>
+    <button type="button" class="am-sp" data-char="፯">፯</button>
+    <button type="button" class="am-sp" data-char="፰">፰</button>
+    <button type="button" class="am-sp" data-char="፱">፱</button>
+    <button type="button" class="am-sp" data-char="፲">፲</button>
+  </div>
+</div>
+<!-- ===== End Keyboard ===== -->
+
 <style>
-  .content-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-  }
-  .content-table th,
-  .content-table td {
-    padding: 8px 6px;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-    vertical-align: top;
-    text-align: left;
-  }
-  .content-table th {
-    font-weight: 600;
-    color: var(--muted);
-    font-size: 13px;
-  }
-  .key-cell {
-    width: 180px;
-    word-break: break-all;
-  }
-  .key-cell code {
-    background: #eef0f3;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-  }
-  .editor-textarea {
-    width: 100%;
-    font-size: 14px;
-    padding: 6px 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-family: inherit;
-    resize: vertical;
-  }
-  .am-textarea {
-    font-family: 'Noto Sans Ethiopic', inherit;
-  }
-  .translate-btn {
-    margin-top: 4px;
-    font-size: 12px;
-    padding: 3px 8px;
-    background: #f2f4f8;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
-    color: var(--accent);
-  }
-  .translate-btn:hover {
-    background: #e3e7f0;
-  }
+/* ── Table ── */
+.content-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.content-table th,
+.content-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  vertical-align: top;
+  text-align: left;
+}
+.content-table th {
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 13px;
+}
+.key-cell {
+  width: 180px;
+  word-break: break-all;
+}
+.key-cell code {
+  background: #eef0f3;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.kb-hint {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--accent);
+  margin-left: 4px;
+}
+.editor-textarea {
+  width: 100%;
+  font-size: 14px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+.editor-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.am-textarea {
+  font-family: 'Noto Sans Ethiopic', 'Ethiopic', Georgia, inherit;
+}
+.am-textarea.am-active {
+  border-color: #7c6af5;
+  box-shadow: 0 0 0 2px rgba(124, 106, 245, 0.18);
+}
+.translate-btn {
+  margin-top: 4px;
+  font-size: 12px;
+  padding: 3px 8px;
+  background: #f2f4f8;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--accent);
+}
+.translate-btn:hover { background: #e3e7f0; }
+
+/* ── Virtual Keyboard ── */
+.am-keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #1e1f2e;
+  color: #e8e9f3;
+  border-top: 2px solid #7c6af5;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+  font-family: 'Noto Sans Ethiopic', 'Ethiopic', Georgia, inherit;
+  display: flex;
+  flex-direction: column;
+  max-height: 300px;
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+.am-keyboard[hidden] { display: none; }
+
+.am-kb-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #16172b;
+  border-bottom: 1px solid #2e2f45;
+  flex-shrink: 0;
+}
+.am-kb-label {
+  font-size: 12px;
+  color: #9b9cc4;
+  white-space: nowrap;
+  font-family: 'Noto Sans Ethiopic', Georgia, inherit;
+}
+.am-kb-filter {
+  flex: 1;
+  background: #2a2b40;
+  border: 1px solid #3e3f5a;
+  border-radius: 6px;
+  color: #e8e9f3;
+  font-size: 13px;
+  padding: 4px 10px;
+  outline: none;
+  font-family: inherit;
+}
+.am-kb-filter:focus { border-color: #7c6af5; }
+.am-kb-icon-btn {
+  background: #2a2b40;
+  border: 1px solid #3e3f5a;
+  color: #c5c6e8;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.1s;
+}
+.am-kb-icon-btn:hover { background: #3e3f5a; color: #fff; }
+
+/* Vowel form header row */
+.am-kb-vowel-header {
+  display: grid;
+  grid-template-columns: 28px repeat(7, 1fr);
+  gap: 2px;
+  padding: 4px 8px 2px;
+  font-size: 11px;
+  color: #6e6f99;
+  text-align: center;
+  flex-shrink: 0;
+  border-bottom: 1px solid #2e2f45;
+}
+.am-kb-consonant-col { font-size: 10px; }
+
+/* Character grid */
+.am-kb-scroll {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 8px;
+}
+.am-kb-chars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.am-kb-row {
+  display: grid;
+  grid-template-columns: 28px repeat(7, 1fr);
+  gap: 2px;
+  align-items: center;
+}
+.am-kb-row-label {
+  font-size: 11px;
+  color: #6e6f99;
+  text-align: center;
+  user-select: none;
+}
+.am-kb-char {
+  font-size: 18px;
+  background: #2a2b40;
+  border: 1px solid #3e3f5a;
+  border-radius: 4px;
+  color: #e8e9f3;
+  padding: 4px 2px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.2;
+  transition: background 0.08s, transform 0.05s;
+  font-family: 'Noto Sans Ethiopic', 'Ethiopic', Georgia, inherit;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-kb-char:hover  { background: #7c6af5; border-color: #7c6af5; color: #fff; }
+.am-kb-char:active { transform: scale(0.9); }
+
+/* Special characters row */
+.am-kb-specials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #16172b;
+  border-top: 1px solid #2e2f45;
+  flex-shrink: 0;
+}
+.am-sp, .am-sp-wide {
+  background: #2a2b40;
+  border: 1px solid #3e3f5a;
+  border-radius: 4px;
+  color: #c5c6e8;
+  font-size: 14px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: 'Noto Sans Ethiopic', Georgia, inherit;
+  transition: background 0.08s;
+}
+.am-sp:hover, .am-sp-wide:hover { background: #3e3f5a; }
+.am-sp-wide { font-size: 12px; padding: 3px 10px; }
 </style>
 
 <script>
+/* ── Ethiopic Syllabary Data ── */
+var FIDEL = [
+  {n:'ሀ', c:['ሀ','ሁ','ሂ','ሃ','ሄ','ህ','ሆ']},
+  {n:'ለ', c:['ለ','ሉ','ሊ','ላ','ሌ','ል','ሎ']},
+  {n:'ሐ', c:['ሐ','ሑ','ሒ','ሓ','ሔ','ሕ','ሖ']},
+  {n:'መ', c:['መ','ሙ','ሚ','ማ','ሜ','ም','ሞ']},
+  {n:'ሠ', c:['ሠ','ሡ','ሢ','ሣ','ሤ','ሥ','ሦ']},
+  {n:'ረ', c:['ረ','ሩ','ሪ','ራ','ሬ','ር','ሮ']},
+  {n:'ሰ', c:['ሰ','ሱ','ሲ','ሳ','ሴ','ስ','ሶ']},
+  {n:'ሸ', c:['ሸ','ሹ','ሺ','ሻ','ሼ','ሽ','ሾ']},
+  {n:'ቀ', c:['ቀ','ቁ','ቂ','ቃ','ቄ','ቅ','ቆ']},
+  {n:'ቐ', c:['ቐ','ቑ','ቒ','ቓ','ቔ','ቕ','ቖ']},
+  {n:'በ', c:['በ','ቡ','ቢ','ባ','ቤ','ብ','ቦ']},
+  {n:'ቨ', c:['ቨ','ቩ','ቪ','ቫ','ቬ','ቭ','ቮ']},
+  {n:'ተ', c:['ተ','ቱ','ቲ','ታ','ቴ','ት','ቶ']},
+  {n:'ቸ', c:['ቸ','ቹ','ቺ','ቻ','ቼ','ች','ቾ']},
+  {n:'ኀ', c:['ኀ','ኁ','ኂ','ኃ','ኄ','ኅ','ኆ']},
+  {n:'ነ', c:['ነ','ኑ','ኒ','ና','ኔ','ን','ኖ']},
+  {n:'ኘ', c:['ኘ','ኙ','ኚ','ኛ','ኜ','ኝ','ኞ']},
+  {n:'አ', c:['አ','ኡ','ኢ','ኣ','ኤ','እ','ኦ']},
+  {n:'ከ', c:['ከ','ኩ','ኪ','ካ','ኬ','ክ','ኮ']},
+  {n:'ኸ', c:['ኸ','ኹ','ኺ','ኻ','ኼ','ኽ','ኾ']},
+  {n:'ወ', c:['ወ','ዉ','ዊ','ዋ','ዌ','ው','ዎ']},
+  {n:'ዐ', c:['ዐ','ዑ','ዒ','ዓ','ዔ','ዕ','ዖ']},
+  {n:'ዘ', c:['ዘ','ዙ','ዚ','ዛ','ዜ','ዝ','ዞ']},
+  {n:'ዠ', c:['ዠ','ዡ','ዢ','ዣ','ዤ','ዥ','ዦ']},
+  {n:'የ', c:['የ','ዩ','ዪ','ያ','ዬ','ይ','ዮ']},
+  {n:'ደ', c:['ደ','ዱ','ዲ','ዳ','ዴ','ድ','ዶ']},
+  {n:'ዸ', c:['ዸ','ዹ','ዺ','ዻ','ዼ','ዽ','ዾ']},
+  {n:'ጀ', c:['ጀ','ጁ','ጂ','ጃ','ጄ','ጅ','ጆ']},
+  {n:'ገ', c:['ገ','ጉ','ጊ','ጋ','ጌ','ግ','ጎ']},
+  {n:'ጘ', c:['ጘ','ጙ','ጚ','ጛ','ጜ','ጝ','ጞ']},
+  {n:'ጠ', c:['ጠ','ጡ','ጢ','ጣ','ጤ','ጥ','ጦ']},
+  {n:'ጨ', c:['ጨ','ጩ','ጪ','ጫ','ጬ','ጭ','ጮ']},
+  {n:'ጰ', c:['ጰ','ጱ','ጲ','ጳ','ጴ','ጵ','ጶ']},
+  {n:'ጸ', c:['ጸ','ጹ','ጺ','ጻ','ጼ','ጽ','ጾ']},
+  {n:'ፀ', c:['ፀ','ፁ','ፂ','ፃ','ፄ','ፅ','ፆ']},
+  {n:'ፈ', c:['ፈ','ፉ','ፊ','ፋ','ፌ','ፍ','ፎ']},
+  {n:'ፐ', c:['ፐ','ፑ','ፒ','ፓ','ፔ','ፕ','ፖ']},
+];
+
+/* ── State ── */
+var activeTextarea = null;
+var kbEl       = document.getElementById('am-keyboard');
+var charsEl    = document.getElementById('am-kb-chars');
+var filterEl   = document.getElementById('am-kb-filter');
+var closeBtn   = document.getElementById('am-kb-close');
+var backspBtn  = document.getElementById('am-kb-backspace');
+
+/* ── Render character grid ── */
+function renderChars(filter) {
+  charsEl.innerHTML = '';
+  var q = (filter || '').trim();
+  FIDEL.forEach(function(row) {
+    var filtered = q ? row.c.filter(function(ch) { return ch === q || row.n === q; }) : row.c;
+    if (filtered.length === 0) return;
+
+    var rowDiv = document.createElement('div');
+    rowDiv.className = 'am-kb-row';
+
+    var label = document.createElement('div');
+    label.className = 'am-kb-row-label';
+    label.textContent = row.n;
+    rowDiv.appendChild(label);
+
+    var shown = q ? filtered : row.c; // when filtering, only show matches; else all 7
+    if (q) {
+      // pad to keep grid alignment — blank placeholders
+      for (var i = 0; i < 7; i++) {
+        var ch = row.c[i];
+        var matches = filtered.indexOf(ch) !== -1;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        if (matches) {
+          btn.className = 'am-kb-char';
+          btn.textContent = ch;
+          btn.setAttribute('data-char', ch);
+        } else {
+          btn.className = 'am-kb-char';
+          btn.style.opacity = '0.15';
+          btn.textContent = ch;
+          btn.disabled = true;
+        }
+        rowDiv.appendChild(btn);
+      }
+    } else {
+      row.c.forEach(function(ch) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'am-kb-char';
+        btn.textContent = ch;
+        btn.setAttribute('data-char', ch);
+        rowDiv.appendChild(btn);
+      });
+    }
+    charsEl.appendChild(rowDiv);
+  });
+}
+
+/* ── Insert at cursor ── */
+function insertAtCursor(ta, text) {
+  var s = ta.selectionStart;
+  var e = ta.selectionEnd;
+  var v = ta.value;
+  ta.value = v.slice(0, s) + text + v.slice(e);
+  ta.selectionStart = ta.selectionEnd = s + text.length;
+  ta.dispatchEvent(new Event('input'));
+}
+
+/* ── Show / hide keyboard ── */
+function showKeyboard(ta) {
+  activeTextarea = ta;
+  document.querySelectorAll('.am-textarea').forEach(function(t) {
+    t.classList.remove('am-active');
+  });
+  ta.classList.add('am-active');
+  kbEl.removeAttribute('hidden');
+  filterEl.value = '';
+  renderChars('');
+  // Scroll page so the textarea is visible above the keyboard
+  setTimeout(function() {
+    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function hideKeyboard() {
+  kbEl.setAttribute('hidden', '');
+  if (activeTextarea) {
+    activeTextarea.classList.remove('am-active');
+  }
+  activeTextarea = null;
+}
+
+/* ── Event: open keyboard on am-textarea focus ── */
+document.querySelectorAll('.am-textarea').forEach(function(ta) {
+  ta.addEventListener('focus', function() {
+    showKeyboard(ta);
+  });
+});
+
+/* ── Event: character click (delegated) ── */
+charsEl.addEventListener('mousedown', function(e) {
+  var btn = e.target.closest('.am-kb-char');
+  if (!btn || btn.disabled) return;
+  e.preventDefault(); // prevent textarea from losing focus
+  if (activeTextarea) {
+    insertAtCursor(activeTextarea, btn.getAttribute('data-char'));
+    activeTextarea.focus();
+  }
+});
+
+/* ── Event: special characters ── */
+document.querySelector('.am-kb-specials').addEventListener('mousedown', function(e) {
+  var btn = e.target.closest('[data-char]');
+  if (!btn) return;
+  e.preventDefault();
+  if (activeTextarea) {
+    insertAtCursor(activeTextarea, btn.getAttribute('data-char'));
+    activeTextarea.focus();
+  }
+});
+
+/* ── Event: backspace ── */
+backspBtn.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  if (!activeTextarea) return;
+  var s = activeTextarea.selectionStart;
+  var e2 = activeTextarea.selectionEnd;
+  var v = activeTextarea.value;
+  if (s === e2 && s > 0) {
+    // Delete one Ethiopic character (may be 1 or 2 UTF-16 code units for surrogate pairs)
+    // Ethiopic chars are in BMP so always 1 code unit
+    activeTextarea.value = v.slice(0, s - 1) + v.slice(e2);
+    activeTextarea.selectionStart = activeTextarea.selectionEnd = s - 1;
+  } else {
+    activeTextarea.value = v.slice(0, s) + v.slice(e2);
+    activeTextarea.selectionStart = activeTextarea.selectionEnd = s;
+  }
+  activeTextarea.dispatchEvent(new Event('input'));
+  activeTextarea.focus();
+});
+
+/* ── Event: close ── */
+closeBtn.addEventListener('click', function() {
+  hideKeyboard();
+});
+
+/* ── Event: filter ── */
+filterEl.addEventListener('input', function() {
+  renderChars(filterEl.value.trim());
+});
+filterEl.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { filterEl.value = ''; renderChars(''); }
+});
+
+/* ── Close keyboard on Escape in textarea ── */
+document.querySelectorAll('.am-textarea').forEach(function(ta) {
+  ta.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { hideKeyboard(); }
+  });
+});
+
+/* ── AI translate buttons (unchanged logic) ── */
 document.querySelectorAll('.translate-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     var svFieldName = btn.getAttribute('data-sv-field');
-    var amFieldId = btn.getAttribute('data-am-field');
-    var svTextarea = document.querySelector('textarea[name="' + svFieldName + '"]');
-    var amTextarea = document.getElementById(amFieldId);
+    var amFieldId   = btn.getAttribute('data-am-field');
+    var svTextarea  = document.querySelector('textarea[name="' + svFieldName + '"]');
+    var amTextarea  = document.getElementById(amFieldId);
     if (!svTextarea || !amTextarea) return;
     var text = svTextarea.value;
     if (!text.trim()) return;
-    btn.textContent = 'Översätter...';
+    btn.textContent = 'Översätter…';
     btn.disabled = true;
     fetch('/content-editor/translate', {
       method: 'POST',
@@ -111,7 +543,7 @@ document.querySelectorAll('.translate-btn').forEach(function(btn) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       amTextarea.value = data.translated || '';
-      btn.textContent = 'Översätt till አማርኛ';
+      btn.textContent = 'AI: Översätt till አማርኛ';
       btn.disabled = false;
     })
     .catch(function() {
@@ -120,5 +552,8 @@ document.querySelectorAll('.translate-btn').forEach(function(btn) {
     });
   });
 });
+
+/* ── Initial render ── */
+renderChars('');
 </script>
 {% endblock %}

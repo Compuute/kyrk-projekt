@@ -935,6 +935,9 @@ def content_add_activity_save(
     activity_date: str = Form(...),
     activity_time: str = Form(...),
     description_sv: str = Form(...),
+    # Optional manual Amharic — if provided, skip AI translation for that field
+    title_am: str = Form(""),
+    description_am: str = Form(""),
     store: ContentStorePort = Depends(get_content_store),
     translator: TranslationPort = Depends(get_translator),
 ):
@@ -942,18 +945,19 @@ def content_add_activity_save(
     if isinstance(session, RedirectResponse):
         return session
 
-    title_am = translator.translate(title_sv, "sv", "am")
-    description_am = translator.translate(description_sv, "sv", "am")
+    # Use manual Amharic text if the admin typed it; otherwise auto-translate
+    final_title_am = title_am.strip() or translator.translate(title_sv, "sv", "am")
+    final_desc_am  = description_am.strip() or translator.translate(description_sv, "sv", "am")
 
     content = store.load()
     if "upcoming" not in content:
         content["upcoming"] = []
 
     content["upcoming"].append({
-        "title": {"sv": title_sv, "am": title_am},
+        "title": {"sv": title_sv, "am": final_title_am},
         "date": activity_date,
         "time": activity_time,
-        "description": {"sv": description_sv, "am": description_am},
+        "description": {"sv": description_sv, "am": final_desc_am},
     })
 
     store.save(content)
