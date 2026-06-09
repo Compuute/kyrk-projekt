@@ -2,13 +2,13 @@
 
 ## Goal
 
-Make it impossible, in the normal n8n flow, for identity data to reach the
+Make it impossible, in the normal execution flow, for identity data to reach the
 Anthropic API or any GREEN destination.
 
 ## How a profile is applied
 
-1. The n8n workflow declares `sanitizerProfile: <name>` in its workflow JSON.
-2. A Function node loads `profiles.json`, picks the profile, and runs it
+1. The template declares `sanitizerProfile: <name>` in its JSON config.
+2. The orchestrator loads `profiles.json`, picks the profile, and runs it
    against the payload.
 3. The sanitizer walks the payload recursively. Each key and string value is
    checked:
@@ -39,6 +39,6 @@ The helper exits non-zero if the payload would be rejected.
 
 ## Defense in depth
 
-The n8n sanitizer is the first line. `reporting-service` also rejects any
+The OpenClaw sanitizer is the first line. `reporting-service` also rejects any
 PII at ingress (`app/domain/pii_guard.py`), so even if a workflow mis-points
 at a raw source, the service itself will refuse to return the data.

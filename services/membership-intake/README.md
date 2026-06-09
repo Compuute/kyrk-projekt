@@ -21,7 +21,7 @@ endpoint is public. No read endpoints are exposed publicly.
   - consent_timestamp (ISO 8601)
 - GDPR consent is required — rejected otherwise.
 - Submission is stored with status `pending`.
-- A webhook fires to notify the admin (n8n-compatible).
+- A webhook fires to notify the admin.
 - BankID integration is interface-only for MVP.
 
 ## Running

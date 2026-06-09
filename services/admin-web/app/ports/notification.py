@@ -1,7 +1,7 @@
 """Port for dispatching notifications (webhook, Telegram, etc).
 
-Abstracts away HOW notifications are sent so we're not locked
-to n8n, httpx, or any specific webhook provider.
+The implementation is injected at startup. The route doesn't couple
+to httpx, specific webhook structures, or any particular provider.
 """
 from __future__ import annotations
 

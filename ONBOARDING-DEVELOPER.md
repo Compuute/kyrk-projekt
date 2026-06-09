@@ -88,7 +88,6 @@ services/
   certificate-service/      ← Certifikat (FastAPI)
   reporting-service/        ← KPI + PII-guard (FastAPI)
 automation/
-  n8n/workflows/            ← 10 workflow-definitioner
   openclaw/                 ← 6 AI-promptmallar
   grants/database.json      ← 12 bidragskällor
 infra/terraform/            ← GCP-infrastruktur

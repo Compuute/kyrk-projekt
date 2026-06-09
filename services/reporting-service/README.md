@@ -10,7 +10,7 @@ asset (aggregate data) at the same trust level.
 **YELLOW** -- strict. On every ingest path the service rejects any payload
 containing a forbidden field (`personal_number`, `name`, `first_name`,
 `last_name`, `email`, `phone`). Violations return **422**. This is a
-defense-in-depth layer behind the n8n sanitizer.
+defense-in-depth layer behind the OpenClaw sanitizer.
 
 ## Defense layers (5 independent)
 

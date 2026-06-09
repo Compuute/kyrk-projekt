@@ -25,7 +25,7 @@
 
 1. **reporting-service** validates ingress and rejects forbidden fields
    with a 422 (`app/domain/pii_guard.py`).
-2. **n8n sanitizer** runs before every HTTP call to Anthropic, using
+2. **OpenClaw sanitizer** runs before every HTTP call to Anthropic, using
    profiles defined in `sanitizer/profiles.json`.
 3. **Template system prompt** explicitly tells the model to return an
    error if it believes it has received personal data.
@@ -36,7 +36,7 @@
 
 If a sanitizer violation fires:
 
-1. n8n aborts the workflow (the API call never happens).
+1. The orchestrator aborts the execution (the API call never happens).
 2. The offending payload is hashed and logged; the raw payload is discarded.
 3. Admin is alerted via `ADMIN_NOTIFY_WEBHOOK`.
 4. A postmortem is required before the workflow is re-enabled.

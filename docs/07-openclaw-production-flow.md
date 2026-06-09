@@ -2,27 +2,27 @@
 
 OpenClaw is the set of versioned prompt templates the platform uses to call the
 Anthropic API. It is NOT a service — it is a folder of JSON templates orchestrated
-by n8n.
+by background tasks or scheduled scripts.
 
 ## End-to-end flow
 
 ```
 ┌────────────┐   ┌──────────────────┐   ┌───────────┐   ┌────────────────┐   ┌──────────────┐   ┌─────────────┐
-│ n8n cron   │──▶│ reporting-service │──▶│ sanitizer │──▶│ Anthropic API  │──▶│ pending_review│──▶│ admin review │
+│ Scheduler  │──▶│ reporting-service │──▶│ sanitizer │──▶│ Anthropic API  │──▶│ pending_review│──▶│ admin review │
 │ (trigger)  │   │ (YELLOW aggregate)│   │ (profile) │   │ (JSON output)  │   │ storage (GCS) │   │ + apply      │
 └────────────┘   └──────────────────┘   └───────────┘   └────────────────┘   └──────────────┘   └─────────────┘
 ```
 
 ## Steps
 
-1. **Trigger.** n8n cron fires (e.g. quarterly on the 1st).
-2. **Fetch aggregates.** n8n calls `reporting-service` for the declared period and report type.
-3. **Validate.** n8n applies the sanitizer profile declared on the OpenClaw template. Any field outside the whitelist aborts the run.
+1. **Trigger.** Scheduler fires a cron or trigger (e.g. quarterly on the 1st).
+2. **Fetch aggregates.** The orchestrator calls `reporting-service` for the declared period and report type.
+3. **Validate.** The orchestrator applies the sanitizer profile declared on the OpenClaw template. Any field outside the whitelist aborts the run.
 4. **Render prompt.** The template's `user_prompt_template` is rendered with `{{data}}` substitution.
-5. **Call Anthropic.** n8n calls the API with `response_format: json`, the template's model, max_tokens, and system prompt.
+5. **Call Anthropic.** The orchestrator calls the Anthropic API with `response_format: json`, the template's model, max_tokens, and system prompt.
 6. **Parse + validate.** The response is validated against `expected_output_schema`. Invalid JSON aborts the run.
 7. **Store as pending.** The result is written to `gs://<bucket>/openclaw-pending/<run_id>.json`.
-8. **Notify.** n8n posts an admin notification (email or Slack).
+8. **Notify.** An admin notification is posted (email or Slack webhook).
 9. **Human review.** An admin opens the pending file, reviews, and either approves or rejects.
 10. **Apply.** Approval triggers the downstream action (e.g. update Wi-Fi portal content, draft a board report). Rejection archives the run.
 
@@ -37,8 +37,6 @@ by n8n.
 
 ```
 automation/
-├── n8n/
-│   └── workflows/              (n8n workflow JSON)
 └── openclaw/
     ├── core/                   (reusable prompt templates)
     ├── church/                 (church-specific overrides)
@@ -52,4 +50,4 @@ automation/
 2. Bump `version` and update `description`.
 3. Declare `sanitizer_profile`.
 4. Declare `expected_output_schema`.
-5. Commit. A PR review is required before n8n is wired up.
+5. Commit. A PR review is required before the runner pipeline is wired up.

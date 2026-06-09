@@ -1350,7 +1350,7 @@ def funeral_memorial_page(
     )
 
 
-# ---------------------------------------------------------- funeral JSON API (n8n)
+# ---------------------------------------------------------- funeral JSON API
 
 _FUNERAL_API_PII_BLOCKED = {
     "contact_person", "contact_phone", "contact_email",

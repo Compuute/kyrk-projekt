@@ -42,7 +42,7 @@ def test_production_notifier_requires_webhook(monkeypatch):
     with pytest.raises(RuntimeError, match="ADMIN_NOTIFY_WEBHOOK"):
         make_notifier()
 
-    monkeypatch.setenv("ADMIN_NOTIFY_WEBHOOK", "https://n8n.example/webhook")
+    monkeypatch.setenv("ADMIN_NOTIFY_WEBHOOK", "https://webhook.example/notify")
     notifier = make_notifier()
     assert type(notifier).__name__ == "HttpNotifier"
 

@@ -1,4 +1,4 @@
-"""Notifier port. n8n webhook in production; in-memory for tests."""
+"""Notifier port. Webhook notifier in production; in-memory for tests."""
 from __future__ import annotations
 
 from typing import Protocol

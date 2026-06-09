@@ -1,4 +1,4 @@
-"""PII guard — defense in depth behind the n8n sanitizer.
+"""PII guard — defense in depth behind the OpenClaw sanitizer.
 
 A payload is rejected if any of the forbidden field names appears at any
 depth in a nested dict/list structure. Matching is case-insensitive and

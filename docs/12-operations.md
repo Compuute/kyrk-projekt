@@ -184,10 +184,7 @@ Or from the Firestore console → `audit_events` collection. They contain
 
 ### Sanitizer alarms
 
-If the n8n sanitizer rejects a payload before it reaches Anthropic, the
-workflow posts to `ADMIN_NOTIFY_WEBHOOK` with the run ID and a hash of
-the offending payload (not the payload itself). Set up a Slack or email
-bridge on that webhook.
+If the input sanitizer detects a validation failure before a request is processed, the system raises an alert. Ensure that `ADMIN_NOTIFY_WEBHOOK` is configured to receive error and system alert webhooks.
 
 ## Common incidents
 
@@ -225,7 +222,7 @@ commit. CI + code review stays in the loop — no manual `git push
 Treat as a security incident. Follow
 [`04-ai-boundaries.md#incident-response`](04-ai-boundaries.md):
 
-1. Stop the n8n workflow immediately (`n8n` UI → deactivate).
+1. Stop the background task or trigger mechanism if active.
 2. Capture the `run_id` of the offending call.
 3. Request data deletion from Anthropic per your contract. Zero-retention
    is configured for the kyrk tenant by default, but confirm it was
@@ -252,7 +249,6 @@ Treat as a security incident. Follow
 | Max instances (public services) | 5 | `deploy.yml` flags |
 | Max instances (RED services) | 3 | `deploy.yml` flags |
 | Memory per service | 512Mi | `deploy.yml` flags |
-| Min instances (n8n) | 1 | `infra/terraform/main.tf` |
 | Rate limit (intake) | 5 / 60s / key | service constructor |
 
 Bump these in small, reversible increments — don't 10x everything at
@@ -264,15 +260,14 @@ Roughly for a single small church in dev:
 
 | Resource | Est. monthly |
 |---|---|
-| Cloud Run (scale-to-zero for 5/6 services) | ~€1-3 |
+| Cloud Run (scale-to-zero for all 5 services) | ~€1-3 |
 | Firestore (free tier covers MVP) | €0 |
 | Cloud KMS (one key, low traffic) | <€0.10 |
 | Cloud Storage (4 buckets) | <€0.50 |
 | Secret Manager (6 secrets) | <€0.10 |
 | BigQuery (empty) | €0 |
-| n8n Cloud Run (min 1 instance) | ~€5-10 |
 | Anthropic API (quarterly calls, JSON only) | ~€1-2 per run |
-| **Total** | **~€10-20/month** |
+| **Total** | **~€3-7/month** |
 
 Production with 5 churches and real traffic: budget ~€40-80/month.
 

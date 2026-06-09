@@ -53,14 +53,14 @@ Om du behöver en extern tjänst:
 ```
 RED:    Personnummer, namn, e-post, telefon, adress
         → BARA i membership-intake, membership-service, certificate-service
-        → ALDRIG i reporting-service, admin-web templates, n8n, Telegram
+        → ALDRIG i reporting-service, admin-web templates, Telegram
 
 YELLOW: Aggregerade siffror, KPI, anonymiserad statistik
         → reporting-service, admin-web dashboards
         → Får gå till Anthropic API via sanitizer
 
 GREEN:  Publik information, content, bidragsdatabas
-        → frontend, openclaw, n8n workflows
+        → frontend, openclaw
         → Fritt att skicka till LLM
 ```
 
@@ -71,7 +71,7 @@ GREEN:  Publik information, content, bidragsdatabas
 ### 3. PII-regler
 
 ```
-FÖRBJUDET i Telegram/n8n/webhooks/externa API:er:
+FÖRBJUDET i Telegram/webhooks/externa API:er:
   contact_person, contact_phone, contact_email,
   personal_number, name, email, phone, member_id,
   date_of_birth, address
@@ -189,10 +189,10 @@ Dessa risker ska bevakas:
 
 | # | Risk | Vår mitigation | Status |
 |---|---|---|---|
-| LLM01 | **Prompt Injection** | System-prompt i n8n, ej user-kontrollerbar | ✅ |
+| LLM01 | **Prompt Injection** | System-prompt i OpenClaw/kod, ej user-kontrollerbar | ✅ |
 | LLM02 | **Insecure Output Handling** | Jinja2 auto-escaping, aldrig `safe`-filter | ✅ |
 | LLM03 | **Training Data Poisoning** | Ej relevant (vi tränar ej egna modeller) | N/A |
-| LLM04 | **Model Denial of Service** | Rate limiting på n8n workflows | ⚠️ |
+| LLM04 | **Model Denial of Service** | Rate limiting på bakgrundsjobb / API:er | ⚠️ |
 | LLM05 | **Supply Chain** | test_dependency_safety.py, banned packages | ✅ |
 | LLM06 | **Sensitive Info Disclosure** | Sanitizer profiles, pii_guard, blocked_fields | ✅ |
 | LLM07 | **Insecure Plugin Design** | Inga plugins — direkt API-anrop via portar | ✅ |

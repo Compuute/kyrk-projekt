@@ -26,8 +26,8 @@ make test      # 350+ tests across all services + frontends
 | **Database** | Firestore (EU, CMEK) | Schemaless, EU multi-region, customer-managed encryption |
 | **Encryption** | Cloud KMS | Field-level encryption av personnummer |
 | **Auth** | PropelAuth (RBAC) | Multi-tenant, free tier, no custom auth code |
-| **AI** | Claude (Anthropic API) via n8n + OpenClaw | Bidragsansökningar, översättning sv↔am, KPI-analys |
-| **Automation** | n8n (self-hosted on Cloud Run) | Visuella workflows, inbyggd retry, free |
+| **AI** | Claude (Anthropic API) via OpenClaw | Bidragsansökningar, översättning sv↔am, KPI-analys |
+| **Automation** | FastAPI BackgroundTasks | Asynkrona bakgrundsjobb, webhook-notifieringar |
 | **CDN/WAF** | Cloudflare (free tier) | DDoS, WAF, global edge, auto-SSL |
 | **Infra** | Terraform | Ett `apply` skapar hela GCP-miljön |
 | **CI/CD** | GitHub Actions (4 workflows) | Tests, deploy, e2e healthz, nightly drift check |
@@ -108,25 +108,10 @@ Certifikattyper i koden: `sunday_school_seed`, `sunday_school_plant`,
 |---|---|---|
 | Bidragsansökan (sv/en) | OpenClaw grant-narrative-sv/en + AI (LLM) | ✅ Byggt |
 | Översättning sv↔am | AI via TranslationPort | ✅ Byggt |
-| KPI-analys (kvartalsvis) | OpenClaw + sanitizer + n8n | ✅ Workflow definierad |
-| Telegram admin-bot | Whisper (röst→text) + AI (LLM) (intent) | ✅ Workflow definierad |
-| Proaktiv bidragsbevakning | n8n cron + grant tracker | ✅ Workflow definierad |
-| Auto-genererat veckoinnehåll | n8n + AI (LLM) + content.json | ✅ Workflow definierad |
+| KPI-analys (kvartalsvis) | OpenClaw + sanitizer | ⏳ Planerad (tidigare n8n) |
+| Telegram admin-bot | Whisper (röst→text) + AI (LLM) | ⏳ Planerad (tidigare n8n) |
+| Proaktiv bidragsbevakning | BackgroundTasks + grant tracker | ⏳ Planerad (tidigare n8n) |
 
-### n8n workflows (9 st)
-
-| Workflow | Trigger | Vad |
-|---|---|---|
-| `new_pending_membership_notification` | Webhook | Notifierar admin vid ny intake |
-| `monthly_kpi_export` | Cron | Genererar monthly rapport |
-| `quarterly_openclaw_analysis` | Cron | Sanitizer → Anthropic → review |
-| `fortnox_aggregate_reporting` | Cron | Hämtar finance-aggregat |
-| `wifi_portal_content_update` | Cron | Uppdaterar wifi-portal JSON |
-| `telegram_activity_broadcast` | Webhook | Tvåspråkig broadcast till Telegram |
-| `content_update_notification` | Webhook | Generell content-uppdatering |
-| `telegram_admin_bot` | Webhook | AI admin-bot (amharic röst + text) |
-| `grief_calendar_reminders` | Cron | ተዝካር memorial-påminnelser dag 3/7/12/40/6m/1å |
-| `funeral_case_notification` | Webhook | Notifierar vid nytt begravningsärende |
 
 ### OpenClaw prompt-templates (8 st)
 
@@ -202,7 +187,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`04-ai-boundaries.md`](docs/04-ai-boundaries.md) | Vad AI får/inte får se |
 | [`05-security-principles.md`](docs/05-security-principles.md) | Säkerhetsregler |
 | [`06-auth-strategy.md`](docs/06-auth-strategy.md) | PropelAuth + BankID roadmap |
-| [`07-openclaw-production-flow.md`](docs/07-openclaw-production-flow.md) | n8n → sanitizer → Anthropic → review |
+| [`07-openclaw-production-flow.md`](docs/07-openclaw-production-flow.md) | Pipeline → sanitizer → Anthropic → review |
 | [`10-getting-started.md`](docs/10-getting-started.md) | **15 min onboarding** |
 | [`11-development-guide.md`](docs/11-development-guide.md) | **Adapter-mönster, TDD, lägga till features** |
 | [`12-operations.md`](docs/12-operations.md) | **Deploy, rollback, monitoring** |
@@ -237,8 +222,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | Backend-services | 4 + admin-web |
 | Publika HTML-sidor | 8 (live på Cloudflare) |
 | OpenClaw-templates | 8 |
-| n8n-workflows | 9 |
-| ADRs | 12 |
+| ADRs | 15 |
 | Docs | 27+ |
 | Bidragskällor | 12 |
 | Certifikattyper | 10 |

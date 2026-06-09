@@ -1,4 +1,4 @@
-"""HTTP notifier — fires an n8n webhook when a new pending submission arrives.
+"""HTTP notifier — fires a webhook when a new pending submission arrives.
 
 Payload contains ONLY: submission_id, church_id, received_at, status.
 No identity fields. The admin notification is a pointer, not the data —
@@ -28,6 +28,6 @@ class HttpNotifier:
             httpx.post(self._webhook_url, json=payload, timeout=self._timeout)
         except httpx.HTTPError:
             # Notifier failures must NOT break the intake flow. The
-            # submission is stored; the notification can be retried by
-            # n8n's own retry logic or re-fired manually.
+            # submission is stored; the notification can be retried or
+            # re-fired manually.
             pass

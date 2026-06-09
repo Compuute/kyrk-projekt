@@ -6,8 +6,7 @@ updating the documentation. It checks:
 2. README mentions every HTML page that exists
 3. README test count is not wildly stale
 4. Every HTML page is in the docs index or README
-5. Every n8n workflow is mentioned somewhere in docs
-6. Every OpenClaw template is mentioned somewhere in docs
+5. Every OpenClaw template is mentioned somewhere in docs
 """
 import json
 from pathlib import Path
@@ -51,16 +50,6 @@ class TestReadmeMentionsServices:
 
 
 class TestWorkflowsDocumented:
-    def test_every_n8n_workflow_mentioned(self):
-        workflows_dir = ROOT / "automation" / "n8n" / "workflows"
-        if not workflows_dir.exists():
-            pytest.skip("no workflows dir")
-        for wf in sorted(workflows_dir.glob("*.json")):
-            name = wf.stem
-            assert name in ALL_DOCS, (
-                f"n8n workflow '{name}' is not mentioned in any doc"
-            )
-
     def test_every_openclaw_template_mentioned(self):
         core_dir = ROOT / "automation" / "openclaw" / "core"
         if not core_dir.exists():

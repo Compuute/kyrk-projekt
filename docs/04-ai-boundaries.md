@@ -1,6 +1,6 @@
 # 04 — AI Boundaries
 
-## What the AI (Anthropic API via OpenClaw/n8n) may see
+## What the AI (Anthropic API via OpenClaw) may see
 
 - Activity counts and attendance aggregates (YELLOW)
 - Age-band breakdowns (no individual ages)
@@ -20,8 +20,7 @@
 ## Enforcement
 
 1. **Sanitizer runs first.** `automation/openclaw/sanitizer/profiles.json` defines allowed fields per workflow.
-2. **n8n enforces profile selection.** Each workflow declares its sanitizer profile; payloads are rejected if they fail validation.
-3. **reporting-service rejects PII on ingest.** Any payload containing `personal_number`, `name`, `email`, or `phone` is rejected with a 422.
+2. **reporting-service rejects PII on ingest.** Any payload containing `personal_number`, `name`, `email`, or `phone` is rejected with a 422. This acts as our primary defense-in-depth boundary.
 4. **Structured JSON output.** Prompts use `response_format: json` and declare their output schema. Free-form prose that could leak data is avoided.
 5. **Human-in-the-loop.** All AI outputs land in a `pending_review` state. An admin approves before any downstream action.
 
@@ -29,7 +28,7 @@
 
 If a sanitizer violation is detected:
 1. The offending payload is logged (hash only — the payload itself is discarded).
-2. The n8n workflow fails loudly and alerts the admin.
+2. The background task fails loudly and alerts the admin.
 3. No data is sent to Anthropic.
 4. Postmortem required before the workflow is re-enabled.
 

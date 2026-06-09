@@ -451,7 +451,7 @@ class TestWebhookDispatch:
 
 
 class TestFuneralJsonApi:
-    """P1: GET /api/funerals with X-API-Token for n8n grief calendar."""
+    """P1: GET /api/funerals with X-API-Token for grief calendar scheduler."""
 
     def test_api_requires_token(self, funeral_client):
         resp = funeral_client.get("/api/funerals")

@@ -54,7 +54,7 @@ is insufficient.
 ## ADR-003: n8n for orchestration instead of a custom workflow engine
 
 **Date:** 2025-06
-**Status:** accepted
+**Status:** superseded by ADR-015
 **Context:** the platform needs scheduled jobs (monthly KPI, quarterly
 OpenClaw analysis, Fortnox sync, wifi portal content updates) and
 webhook-triggered flows (new intake notification).
@@ -452,4 +452,22 @@ app.ts  →[esbuild]→  app.js  →[11ty]→  dist/
 **When to revisit:**
 Om `sw.js` eller `content.js` växer förbi ~300 rader med komplex
 kontrollflöde — migrera dem individuellt med samma mönster.
+
+
+---
+
+## ADR-015: Avveckling av n8n till förmån för FastAPI BackgroundTasks
+
+**Date:** 2026-06
+**Status:** accepted
+**Context:** n8n användes ursprungligen för orkestrering och asynkrona jobb (t.ex. webhooks för nya medlemsansökningar, funeral-notifikationer, etc.). Men drift av n8n på Cloud Run medförde en fast kostnad (~5-10 €/månad eftersom minst 1 instans krävdes för cron-tillförlitlighet) samt ytterligare infrastrukturkomponenter (PostgreSQL-databas, Secret Manager-kopplingar, etc.) att underhålla. Dessutom stred det mot principen att minimera komplexitet i infrastrukturen för ett litet MVP-system.
+**Decision:** Avveckla n8n-automationstjänsten helt och hållet från GCP-infrastrukturen. Ersätt asynkrona integrationer (som Telegram-notiser och externa webhooks) med FastAPIs inbyggda `BackgroundTasks` och `httpx` direkt i respektive backend-tjänst (såsom `admin-web`).
+**Consequence:**
+- Enklare infrastruktur med färre rörliga delar och lägre driftskostnad (~0 €/månad för orkestrering då allt körs inom befintliga Cloud Run-tjänster).
+- Ingen n8n Cloud Run-instans eller dedikerad PostgreSQL-databas behövs längre i Terraform.
+- Webhook-integrationer körs nu som icke-blockerande bakgrundsuppgifter (`BackgroundTasks.add_task(...)`) direkt efter framgångsrika databastransaktioner.
+- Nackdel: Vi förlorar n8n:s visuella gränssnitt för att felsöka misslyckade workflows, men fel loggas nu direkt i GCP Cloud Logging för `admin-web` och `membership-intake`, vilket är mer enhetligt.
+- Historiska n8n-workflows raderas från katalogen `automation/n8n/`.
+**When to revisit:** Om kraven på orkestrering ökar (t.ex. vid behov av komplexa transaktioner över flera dagar, komplicerade retry-policies eller behov av att icke-teknisk personal ska bygga flöden), utvärdera GCP Cloud Workflows eller Temporal.
+
 
