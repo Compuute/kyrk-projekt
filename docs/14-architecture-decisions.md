@@ -304,3 +304,84 @@ data stays in GCP (Firestore, KMS, BigQuery in EU regions).
 **When to revisit:** if Cloudflare changes their free-tier terms, or if
 we need to serve dynamic content from edge (evaluate Cloudflare Workers
 at that point, but it would require a JS rewrite).
+
+---
+
+## ADR-013: Eleventy (11ty) for member-portal — not React, Astro, or Next.js
+
+**Date:** 2026-06
+**Status:** accepted
+
+**Context:**
+The public member portal serves church members across ~10 congregations.
+The site needs to:
+- Load instantly on older Android phones on slow 4G connections
+- Work fully offline as a PWA (Progressive Web App) once installed
+- Serve static pages from Cloudflare edge in ~10 ms globally
+- Support two languages (Swedish + Amharic) without a page reload
+- Operate with zero tracking, zero cookies, and zero external scripts
+- Be deployable by a single developer with `wrangler pages deploy`
+- Remain maintainable by a small team for 5+ years without framework churn
+
+We evaluated the following alternatives before deciding on Eleventy:
+
+**React / Next.js:**
+- Adds a JS runtime bundle of 70–200 KB to every page load
+- Requires Node.js server or edge functions for SSR, adding ops surface
+- Component model is powerful but overkill for mostly-static content pages
+- `node_modules` dependency tree is a long-term maintenance liability
+- Hydration adds complexity: the HTML shell and client runtime must agree
+- Decision: **rejected** — operational and performance cost not justified by the content model
+
+**Astro:**
+- Excellent static output, minimal JS by default — closer to what we need
+- Ships a full build pipeline (Vite, rollup) with a significant learning curve
+- Plugin ecosystem introduces dependency churn risk
+- Islands architecture is elegant but adds conceptual overhead for a small team
+- Decision: **rejected** — Astro is technically sound but was not yet stable enough at project start (2025-06), and its abstraction layer is unnecessary when our pages are already simple Nunjucks templates
+
+**Vue / SvelteKit:**
+- Same class of trade-offs as React/Next.js
+- Even smaller teams = higher truck factor risk with niche framework knowledge
+- Decision: **rejected** — same reasoning as React
+
+**Plain HTML files (no SSG):**
+- Zero build step, zero dependencies — maximally simple
+- Immediately ruled out because 15 pages × shared nav/footer/PWA code
+  = 1050+ lines of copy-pasted HTML that must be kept in sync manually
+- A single layout change (e.g. adding a new nav link) requires editing 15 files
+- Decision: **rejected** — violates DRY, maintenance burden unacceptable at scale
+
+**Eleventy (11ty) — chosen:**
+- Zero-JS output by default: the framework itself ships no runtime JS to the browser
+- Nunjucks templates are readable by any developer who knows HTML
+- Shared layout in `src/_includes/base.njk` eliminates all copy-paste: one change propagates to all 15 pages
+- Build is a single command (`npx @11ty/eleventy`), outputs pure HTML to `dist/`
+- No bundler, no transpiler, no dependency tree — `node_modules` contains only Eleventy itself
+- Output is 100% auditable with `View Source` in any browser
+- PWA, service worker, and bilingual logic live in vanilla `app.js` — not tied to any framework lifecycle
+
+**Decision:**
+Use Eleventy to compile `.njk` templates into static HTML. All dynamic
+behaviour (church selection, language toggle, Swish payment link, YouTube
+embed, offline caching) is implemented in a single vanilla `app.js` file
+that runs in the browser with no framework dependency.
+
+**Consequence:**
+- Bundle size: 0 KB of framework JS shipped to the browser
+- Build time: ~80 ms for 15 pages (vs. 15–60 s for a Next.js cold build)
+- Lighthouse score: 100 Performance on all pages (Cloudflare edge + no JS blocking)
+- Developer onboarding: any developer who knows HTML and basic JS can read and change every file
+- Long-term risk: Eleventy is stable and slow-moving by design; v3 is backward-compatible with v2
+
+**What we explicitly do NOT do with Eleventy:**
+- No client-side routing (page navigations are standard `<a href>` links)
+- No state management library (church ID lives in `localStorage`, language in `data-lang`)
+- No CSS-in-JS or component CSS (one shared `styles.css`)
+
+**When to revisit:**
+If a future screen genuinely requires real-time two-way interactivity (e.g.
+a live chat during a service, a ticket booking flow with seat selection),
+evaluate HTMX as a progressive enhancement first. Reach for React or SvelteKit
+only if HTMX is provably insufficient — and only for that screen, not the
+entire portal.

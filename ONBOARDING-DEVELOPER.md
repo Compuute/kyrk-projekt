@@ -119,6 +119,7 @@ app/adapters/factory.py ← ADAPTER_MODE=memory|production
 | 3 | `docs/10-getting-started.md` | 15 min — setup |
 | 4 | `docs/11-development-guide.md` | 20 min — adapter-mönster, ny feature |
 | 5 | `docs/01-architecture-red-yellow-green.md` | 10 min — zonmodellen |
+| 6 | `docs/14-architecture-decisions.md` → **ADR-013** | 10 min — varför Eleventy, inte React/Astro/Next.js |
 
 ## Hur du bidrar
 
