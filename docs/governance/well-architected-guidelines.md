@@ -143,8 +143,10 @@ Vi använder GCP:s inbyggda observabilitetsstack för att minimera extern verkty
 * **Återställningsförfarande**:
   - Dokumenterat i `docs/13-runbook.md` avsnitt "Firestore Restore".
   - Verifieras kvartalsvis genom en testrestaurering till dev-miljön.
-* **Terraform State Backup**:
-  - Lokala state-filer backas upp manuellt (`.backup`-suffixfiler) vid varje `terraform apply`. Framtida: migrera till GCS remote backend med versionshantering och låsning.
+* **Terraform State Backend**:
+  - State lagras i en delad GCS-backend (`gs://kyrk-projekt-tfstate`, `infra/terraform/backend.tf`) med objektversionering och native locking. Miljöer isoleras via terraform-workspaces (`dev`/`prod`).
+* **Terraform Apply via pipeline (GitOps)**:
+  - Infraändringar appliceras av pipelinen, aldrig för hand. PR mot `infra/terraform/**` kör `terraform-plan` (diff per miljö som review-underlag); efter merge till `main` kör `terraform-apply` automatiskt mot **dev**. **Prod** appliceras via manuell `workflow_dispatch` med `environment: prod` (godkännandegate per ops-kontraktet).
 
 ---
 

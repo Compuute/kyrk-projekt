@@ -1,0 +1,80 @@
+name: terraform-apply
+
+# GitOps apply — infrastructure changes are applied by the pipeline, never by
+# hand on a laptop.
+#   - DEV: auto-applies when an infra change merges to main.
+#   - PROD: manual workflow_dispatch with environment=prod. The GitHub `prod`
+#     environment gate (required reviewer, once on a plan that supports it)
+#     enforces the ops-contract approval for terraform_apply.
+#
+# A full `terraform apply` is safe here because the cloud-run module uses
+# lifecycle ignore_changes for pipeline-managed image/env/labels — apply will
+# not revert the CD-deployed runtime config.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/terraform/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+
+permissions:
+  contents: read
+  id-token: write
+
+# Serialize applies per environment; GCS backend locking also protects state.
+concurrency:
+  group: terraform-apply-${{ inputs.environment || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: apply (${{ inputs.environment || 'dev' }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'dev' }}
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve environment
+        id: env
+        run: echo "name=${{ inputs.environment || 'dev' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Generate tfvars from environment secrets
+        run: |
+          cat > terraform.tfvars <<TFVARS
+          project_id        = "${{ secrets.GCP_PROJECT_ID }}"
+          region            = "${{ secrets.GCP_REGION }}"
+          environment       = "${{ steps.env.outputs.name }}"
+          github_repository = "${{ github.repository }}"
+          database_location = "${{ secrets.GCP_REGION }}"
+          TFVARS
+
+      - name: terraform init + select workspace
+        run: |
+          terraform init -input=false
+          terraform workspace select ${{ steps.env.outputs.name }}
+
+      - name: terraform apply
+        run: |
+          terraform apply -auto-approve -input=false
+          echo "## Terraform apply complete — ${{ steps.env.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
