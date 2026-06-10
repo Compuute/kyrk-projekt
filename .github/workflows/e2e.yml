@@ -103,12 +103,17 @@ jobs:
           fi
           echo "cert verify returns 404 for unknown ok"
 
-      - name: Admin-web login page renders
+      - name: Admin-web login redirects to Zitadel
         run: |
           URL=$(gcloud run services describe admin-web --region=${{ env.REGION }} --format='value(status.url)')
-          BODY=$(curl -s "$URL/login")
-          echo "$BODY" | grep -q "Logga in" || { echo "Login page missing 'Logga in' heading"; exit 1; }
-          echo "admin-web login page ok"
+          RESP=$(curl -s -o /dev/null -w "%{http_code} %{redirect_url}" "$URL/login")
+          echo "Response: $RESP"
+          if echo "$RESP" | grep -E -q "(302|303|307) https://kyrk-auth-oqvxjf\.us1\.zitadel\.cloud"; then
+            echo "admin-web login redirects to Zitadel correctly"
+          else
+            echo "Expected redirect to Zitadel, got: $RESP"
+            exit 1
+          fi
 
   # ---------------------------------------------------------------- summary
   summary:
