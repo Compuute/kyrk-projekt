@@ -28,4 +28,20 @@ resource "google_cloud_run_v2_service" "svc" {
   # Allow invocations only from authenticated identities by default.
   # Public endpoints (e.g. membership-intake, certificate verify) are fronted
   # by a signed-request API gateway layer set up in a separate module.
+
+  # The CD pipeline (GitHub Actions deploy.yml) owns the deployed image, the
+  # runtime env vars (Zitadel config, inter-service URLs, ADAPTER_MODE) and the
+  # revision labels — it sets them per deploy with a commit-pinned image tag.
+  # Terraform only defines the base skeleton here, so it must NOT revert what
+  # the pipeline manages; otherwise `terraform apply` would strip the auth env
+  # (incl. ZITADEL_CLIENT_SECRET) and unpin the image, breaking the service.
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+      template[0].containers[0].env,
+      template[0].labels,
+      client,
+      client_version,
+    ]
+  }
 }
