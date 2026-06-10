@@ -4,16 +4,16 @@ Välkommen till kyrk-projekt. Här är allt du behöver för att komma igång.
 
 ## Repo
 
-- **GitHub:** https://github.com/Compuute/.github
+- **GitHub:** https://github.com/Compuute/kyrk-projekt
 - **Branch:** `claude/kyrk-projekt-mvp-foundation-ofWAZ`
 - **Live site:** https://kyrka-portal.pages.dev
-- **Issues (backlog):** https://github.com/Compuute/.github/issues
+- **Issues (backlog):** https://github.com/Compuute/kyrk-projekt/issues
 
 ## Snabbstart (5 minuter)
 
 ```bash
-git clone https://github.com/Compuute/.github.git
-cd .github/kyrk-projekt
+git clone https://github.com/Compuute/kyrk-projekt.git
+cd kyrk-projekt
 
 # Installera beroenden
 pip install -r services/admin-web/requirements.txt
@@ -122,7 +122,7 @@ app/adapters/factory.py ← ADAPTER_MODE=memory|production
 
 ## Hur du bidrar
 
-1. Kolla [issues](https://github.com/Compuute/.github/issues) — välj en
+1. Kolla [issues](https://github.com/Compuute/kyrk-projekt/issues) — välj en
 2. Skapa branch: `git checkout -b feat/kort-beskrivning`
 3. Skriv test FÖRST (TDD)
 4. Implementera
@@ -142,4 +142,4 @@ Se `AI-RULES.md` för alla 10 regler.
 
 ## Kontakt
 
-Frågor? Öppna en [Discussion](https://github.com/Compuute/.github/discussions) eller kontakta Daniel.
+Frågor? Öppna en [Discussion](https://github.com/Compuute/kyrk-projekt/discussions) eller kontakta Daniel.

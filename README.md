@@ -9,8 +9,8 @@ och en Telegram-bot som admin-gränssnitt.
 ## TL;DR
 
 ```bash
-git clone https://github.com/Compuute/.github.git
-cd .github/kyrk-projekt
+git clone https://github.com/Compuute/kyrk-projekt.git
+cd kyrk-projekt
 
 make install   # pip install all service requirements
 make test      # 350+ tests across all services + frontends

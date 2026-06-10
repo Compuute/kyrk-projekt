@@ -28,14 +28,14 @@
 
 | Vad | URL |
 |---|---|
-| **Repo** | https://github.com/Compuute/.github |
+| **Repo** | https://github.com/Compuute/kyrk-projekt |
 | Branch | `claude/kyrk-projekt-mvp-foundation-ofWAZ` |
-| **Issues (backlog)** | https://github.com/Compuute/.github/issues |
-| Pull requests | https://github.com/Compuute/.github/pulls |
-| Actions (CI) | https://github.com/Compuute/.github/actions |
-| Discussions | https://github.com/Compuute/.github/discussions |
-| Settings | https://github.com/Compuute/.github/settings |
-| Collaborators | https://github.com/Compuute/.github/settings/access |
+| **Issues (backlog)** | https://github.com/Compuute/kyrk-projekt/issues |
+| Pull requests | https://github.com/Compuute/kyrk-projekt/pulls |
+| Actions (CI) | https://github.com/Compuute/kyrk-projekt/actions |
+| Discussions | https://github.com/Compuute/kyrk-projekt/discussions |
+| Settings | https://github.com/Compuute/kyrk-projekt/settings |
+| Collaborators | https://github.com/Compuute/kyrk-projekt/settings/access |
 
 ## Cloudflare
 
@@ -55,7 +55,7 @@
 | CSS ser fel ut på mobil | DevTools → Toggle device → iPhone SE (375px) |
 | JavaScript-fel | DevTools → Console |
 | Formulär fungerar inte | DevTools → Console + Network-fliken |
-| GitHub Actions failar | https://github.com/Compuute/.github/actions → klicka på röd run |
+| GitHub Actions failar | https://github.com/Compuute/kyrk-projekt/actions → klicka på röd run |
 
 ## Partners (verifierade kontaktuppgifter)
 

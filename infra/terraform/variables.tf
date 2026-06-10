@@ -18,7 +18,7 @@ variable "environment" {
 variable "github_repository" {
   description = "Owner/repo of the GitHub repository allowed to impersonate sa-deployer via WIF."
   type        = string
-  default     = "Compuute/.github"
+  default     = "Compuute/kyrk-projekt"
 }
 
 variable "database_location" {

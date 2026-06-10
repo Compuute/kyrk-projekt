@@ -184,7 +184,7 @@ If you prefer not to use Terraform, the same setup as a script:
      --workload-identity-pool=github \
      --display-name="GitHub" \
      --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref" \
-     --attribute-condition='attribute.repository=="Compuute/.github"' \
+     --attribute-condition='attribute.repository=="Compuute/kyrk-projekt"' \
      --issuer-uri="https://token.actions.githubusercontent.com"
    ```
 
@@ -215,7 +215,7 @@ If you prefer not to use Terraform, the same setup as a script:
    gcloud iam service-accounts add-iam-policy-binding \
      sa-deployer@$PROJECT.iam.gserviceaccount.com \
      --role=roles/iam.workloadIdentityUser \
-     --member="principalSet://iam.googleapis.com/projects/<PROJECT_NUM>/locations/global/workloadIdentityPools/github/attribute.repository/Compuute/.github"
+     --member="principalSet://iam.googleapis.com/projects/<PROJECT_NUM>/locations/global/workloadIdentityPools/github/attribute.repository/Compuute/kyrk-projekt"
    ```
 
 7. **Create the runtime service accounts** with their IAM bindings.

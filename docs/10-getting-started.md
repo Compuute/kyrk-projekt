@@ -22,8 +22,8 @@ tools are only needed when you're ready to deploy.
 ## Clone and install
 
 ```bash
-git clone https://github.com/Compuute/.github.git
-cd .github/kyrk-projekt
+git clone https://github.com/Compuute/kyrk-projekt.git
+cd kyrk-projekt
 
 # Install dependencies for one service at a time. Each service has its
 # own requirements.txt — they intentionally don't share a monorepo venv
