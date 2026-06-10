@@ -134,7 +134,7 @@ jobs:
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/certificate-service:${{ env.TAG }}
           flags: >-
             --service-account=sa-certificate-service@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
-            --no-allow-unauthenticated
+            --allow-unauthenticated
             --max-instances=3
             --memory=512Mi
           env_vars: |
