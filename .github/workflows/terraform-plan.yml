@@ -1,0 +1,61 @@
+name: terraform-plan
+
+# GitOps review gate. On any PR that touches infra/terraform, show the plan for
+# each environment so reviewers see the exact diff before merge. Read-only —
+# never applies. Pairs with terraform-apply.yml (which applies after merge).
+on:
+  pull_request:
+    paths:
+      - 'infra/terraform/**'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: plan (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, prod]
+    environment: ${{ matrix.environment }}
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: Generate tfvars from environment secrets
+        run: |
+          cat > terraform.tfvars <<TFVARS
+          project_id        = "${{ secrets.GCP_PROJECT_ID }}"
+          region            = "${{ secrets.GCP_REGION }}"
+          environment       = "${{ matrix.environment }}"
+          github_repository = "${{ github.repository }}"
+          database_location = "${{ secrets.GCP_REGION }}"
+          TFVARS
+
+      - name: terraform init + select workspace
+        run: |
+          terraform init -input=false
+          terraform workspace select ${{ matrix.environment }}
+
+      - name: terraform plan
+        run: |
+          set -o pipefail
+          echo "## Terraform plan — ${{ matrix.environment }}" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          terraform plan -no-color -input=false 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
