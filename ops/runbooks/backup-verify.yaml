@@ -1,0 +1,66 @@
+# Backup Verification Runbook — Machine-readable steps for AI agents
+
+name: backup-verify
+description: "Verifiera att senaste Firestore-backup finns och är giltig"
+
+prerequisites:
+  - gcloud CLI authenticated
+  - GCS backup bucket exists
+
+steps:
+  - id: resolve_env
+    action: set_variables
+    variables:
+      PROJECT: "${environment == 'prod' ? 'kyrk-projekt-prod' : 'kyrk-projekt'}"
+      BUCKET: "${PROJECT}-firestore-backups"
+
+  - id: list_backups
+    action: shell
+    command: "gsutil ls -l gs://${BUCKET}/ 2>/dev/null | tail -5 || echo 'NO_BACKUPS'"
+    output: backup_list
+
+  - id: check_exists
+    action: evaluate
+    condition: "'NO_BACKUPS' not in backup_list"
+    on_fail:
+      - action: escalate
+        severity: critical
+        message: "🚨 Inga backups hittades i gs://${BUCKET}/"
+      - action: suggest
+        message: "Kör manuell backup: gcloud firestore export gs://${BUCKET}/$(date +%Y-%m-%d) --project=${PROJECT}"
+
+  - id: check_freshness
+    action: shell
+    command: |
+      LATEST=$(gsutil ls gs://${BUCKET}/ | sort | tail -1)
+      LATEST_DATE=$(echo "$LATEST" | grep -oP '\d{4}-\d{2}-\d{2}')
+      TODAY=$(date +%Y-%m-%d)
+      YESTERDAY=$(date -d '-1 day' +%Y-%m-%d 2>/dev/null || date -v-1d +%Y-%m-%d)
+      if [ "$LATEST_DATE" = "$TODAY" ] || [ "$LATEST_DATE" = "$YESTERDAY" ]; then
+        echo "FRESH:${LATEST_DATE}"
+      else
+        echo "STALE:${LATEST_DATE}"
+      fi
+    output: freshness
+
+  - id: evaluate_freshness
+    action: evaluate
+    condition: "'FRESH' in freshness"
+    on_pass:
+      - action: log
+        message: "✅ Senaste backup är aktuell: ${freshness}"
+    on_fail:
+      - action: escalate
+        severity: critical
+        message: "⚠️ Backup är inaktuell: ${freshness} — bör vara max 24h gammal"
+      - action: suggest
+        message: "Kör manuell backup omedelbart"
+
+  - id: summarize
+    action: report
+    format: json
+    fields:
+      - backup_exists
+      - latest_date
+      - freshness_status
+      - bucket

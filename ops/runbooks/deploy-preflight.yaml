@@ -1,0 +1,77 @@
+# Deploy Preflight Runbook — Machine-readable checklist before deploying
+
+name: deploy-preflight
+description: "Checklista som körs innan deploy. Alla steg måste passera."
+
+parameters:
+  environment:
+    required: true
+    allowed: [dev, prod]
+
+steps:
+  - id: check_ci_green
+    action: shell
+    command: "gh run list --workflow=ci.yml --branch=main --limit=1 --json conclusion -q '.[0].conclusion'"
+    output: ci_status
+    expected: "success"
+    fail_message: "CI är inte grön på main — fix innan deploy"
+
+  - id: check_tests_local
+    action: shell
+    command: "python -m pytest tests/ --tb=short -q 2>&1 | tail -3"
+    expected_contains: "passed"
+    fail_message: "Guard-tester failar lokalt"
+
+  - id: check_tf_valid
+    action: shell
+    command: "cd infra/terraform && terraform validate 2>&1"
+    expected_contains: "Success"
+    fail_message: "Terraform validate failar"
+
+  - id: check_tf_fmt
+    action: shell
+    command: "cd infra/terraform && terraform fmt -check -recursive 2>&1; echo $?"
+    expected: "0"
+    fail_message: "Terraform fmt check failar — kör terraform fmt"
+
+  - id: check_no_drift
+    action: shell
+    command: "python ops/ops-cli.py drift check 2>&1 | tail -1"
+    expected_contains: "No drift"
+    fail_message: "Terraform drift detekterad — reconcile innan deploy"
+
+  - id: check_secrets_exist
+    action: shell
+    command: |
+      PROJECT="${environment == 'prod' ? 'kyrk-projekt-prod' : 'kyrk-projekt'}"
+      for secret in zitadel-client-secret anthropic-api-key fortnox-client-id fortnox-client-secret admin-notify-webhook; do
+        gcloud secrets versions access latest --secret=$secret --project=$PROJECT > /dev/null 2>&1 || echo "MISSING:$secret"
+      done
+    expected_not_contains: "MISSING"
+    fail_message: "Hemligheter saknas i Secret Manager"
+
+  - id: check_images_fresh
+    action: shell
+    command: |
+      PROJECT="${environment == 'prod' ? 'kyrk-projekt-prod' : 'kyrk-projekt'}"
+      for svc in membership-intake membership-service certificate-service reporting-service admin-web; do
+        gcloud artifacts docker images list europe-north1-docker.pkg.dev/$PROJECT/kyrk/$svc --limit=1 --format='value(createTime)' 2>/dev/null || echo "NO_IMAGE:$svc"
+      done
+    expected_not_contains: "NO_IMAGE"
+    fail_message: "Container-images saknas i Artifact Registry"
+
+  - id: prod_approval_gate
+    action: conditional
+    condition: "${environment} == 'prod'"
+    on_true:
+      - action: require_approval
+        message: "Alla preflight-checkar har passerat. Godkänn deploy till PROD?"
+        abort_if_no_approval: true
+
+  - id: summarize
+    action: report
+    format: json
+    fields:
+      - check_name
+      - status
+      - message

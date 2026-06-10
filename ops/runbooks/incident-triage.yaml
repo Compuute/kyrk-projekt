@@ -1,0 +1,113 @@
+# Incident Triage Runbook — Machine-readable decision tree for AI agents
+
+name: incident-triage
+description: "Beslutsträ för att klassificera och hantera incidenter"
+
+prerequisites:
+  - Alert received or anomaly detected
+  - ops-contract.yaml loaded
+
+steps:
+  - id: classify_severity
+    action: decision_tree
+    question: "Vilken typ av problem?"
+    branches:
+      - condition: "PII-data exponerad eller läckt"
+        severity: critical
+        action: immediate_escalate
+        message: "🚨 GDPR-INCIDENT — stoppa alla operationer. Meddela projektansvarig OMEDELBART."
+        runbook_reference: "docs/13-runbook.md § 4. Suspected PII leaked"
+        forbidden_agent_actions:
+          - "Försök ALDRIG åtgärda PII-läcka automatiskt"
+          - "Logga ALDRIG den faktiska PII-datan"
+
+      - condition: "Obehörig åtkomst till RED-data"
+        severity: critical
+        action: immediate_escalate
+        message: "🚨 SECURITY INCIDENT — meddela projektansvarig OMEDELBART."
+        runbook_reference: "docs/13-runbook.md § 5. Suspected unauthorized RED access"
+
+      - condition: "Tjänst returnerar 5xx"
+        severity: high
+        next_step: diagnose_5xx
+
+      - condition: "Deploy misslyckades"
+        severity: medium
+        next_step: diagnose_deploy
+
+      - condition: "Terraform drift detekterad"
+        severity: medium
+        next_step: handle_drift
+
+      - condition: "CVE i beroende"
+        severity: varies
+        next_step: handle_cve
+
+      - condition: "Backup saknas eller inaktuell"
+        severity: high
+        next_step: handle_backup
+
+  - id: diagnose_5xx
+    action: sequence
+    steps:
+      - run_runbook: "runbooks/health-check.yaml"
+      - action: shell
+        command: "python ops/ops-cli.py logs ${affected_service} --severity=ERROR --since=30m"
+      - action: evaluate
+        question: "Är det ett konfigurationsfel (saknad env-var)?"
+        on_yes: "Rapportera felande variabel, föreslå fix via PR"
+        on_no:
+          question: "Är det en downstream-tjänst som är nere?"
+          on_yes: "Identifiera downstream och kör health-check mot den"
+          on_no: "Kör rollback via runbooks/rollback.yaml"
+
+  - id: diagnose_deploy
+    action: sequence
+    steps:
+      - action: log
+        message: "Analysera det senaste deploy-arbetsfödets loggar"
+      - action: shell
+        command: "gh run list --workflow=deploy.yml --limit=3 --json conclusion,databaseId,headSha"
+      - action: evaluate
+        question: "Är felet i build-steget eller deploy-steget?"
+        on_build: "Rapportera Docker build-fel, föreslå fix"
+        on_deploy: "Kontrollera IAM, image-tag, och SA-konfiguration"
+
+  - id: handle_drift
+    action: sequence
+    steps:
+      - action: log
+        message: "Terraform drift detekterad — ÄNDRA INGET"
+      - action: notify
+        severity: warning
+        message: "Terraform drift — manuell granskning krävs. Se plan-output."
+      - action: suggest
+        message: "Skapa PR med terraform plan output för manuell review"
+
+  - id: handle_cve
+    action: sequence
+    steps:
+      - action: evaluate
+        question: "CVSS score?"
+        branches:
+          - condition: "≥ 9.0 (Critical)"
+            action: escalate
+            message: "Kritisk CVE — åtgärda inom 48h"
+          - condition: "≥ 7.0 (High)"
+            action: notify
+            message: "Hög CVE — åtgärda inom 1 vecka"
+          - condition: "< 7.0 (Medium/Low)"
+            action: log
+            message: "Medium/låg CVE — hantera i nästa sprint"
+
+  - id: handle_backup
+    action: sequence
+    steps:
+      - run_runbook: "runbooks/backup-verify.yaml"
+      - action: conditional
+        condition: "backup missing or stale"
+        on_true:
+          - action: shell
+            command: "gcloud firestore export gs://${PROJECT}-firestore-backups/$(date +%Y-%m-%d) --project=${PROJECT}"
+          - action: notify
+            message: "⚠️ Backup var saknad/inaktuell — manuell backup körd"

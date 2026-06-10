@@ -1,0 +1,224 @@
+# ============================================================================
+# Ops Contract — kyrk-projekt
+# ============================================================================
+# Machine-readable operations contract for AI agents.
+# Any agent operating on this environment MUST read this file before
+# performing any infrastructure operation.
+#
+# This file is validated by tests/test_ops_guardrails.py in CI.
+# ============================================================================
+
+meta:
+  version: "1.0"
+  last_updated: "2026-06-10"
+  environment_default: "dev"
+  project_ids:
+    dev: "kyrk-projekt"
+    prod: "kyrk-projekt-prod"
+  region: "europe-north1"
+  services:
+    - membership-intake
+    - membership-service
+    - certificate-service
+    - reporting-service
+    - admin-web
+
+# ============================================================================
+# SLO Targets — what "healthy" means
+# ============================================================================
+slo:
+  availability_percent: 99.5
+  latency_p95_ms: 2000
+  latency_p95_reports_ms: 5000
+  error_budget_hours_per_month: 3.6
+  uptime_check_interval_seconds: 300
+
+# ============================================================================
+# Allowed Operations — agent MAY perform autonomously
+# ============================================================================
+allowed_operations:
+  - id: health_check
+    description: "Kontrollera hälsostatus för alla Cloud Run-tjänster"
+    command: "python ops/ops-cli.py health"
+    risk: low
+    frequency: "every 6 hours or on-demand"
+
+  - id: log_analysis
+    description: "Hämta och analysera loggar (PII filtreras automatiskt)"
+    command: "python ops/ops-cli.py logs {service} --severity=ERROR --since=1h"
+    risk: low
+    pii_filtering: always
+
+  - id: status_report
+    description: "Sammanfatta miljöstatus"
+    command: "python ops/ops-cli.py status"
+    risk: low
+
+  - id: backup_verify
+    description: "Verifiera att senaste Firestore-backup finns och är giltig"
+    command: "python ops/ops-cli.py backup verify"
+    risk: low
+
+  - id: drift_check
+    description: "Kör terraform plan och rapportera infrastrukturdrift"
+    command: "python ops/ops-cli.py drift check"
+    risk: low
+
+  - id: deploy_preflight
+    description: "Kör deploy-checklista utan att deploya"
+    command: "python ops/ops-cli.py deploy preflight {env}"
+    risk: low
+
+  - id: dependency_audit
+    description: "Scanna beroenden för kända CVE:er"
+    command: "pip-audit -r services/{service}/requirements.txt"
+    risk: low
+
+  - id: incident_create
+    description: "Skapa incidentrapport från mall"
+    command: "python ops/ops-cli.py incident create {title}"
+    risk: low
+
+  - id: rollback_dev
+    description: "Rulla tillbaka en tjänst i dev till föregående revision"
+    command: "python ops/ops-cli.py rollback {service} --env=dev"
+    risk: medium
+    environment_restriction: dev
+
+  - id: stale_data_cleanup
+    description: "Rensa intake-ansökningar äldre än 90 dagar (GDPR)"
+    command: "python ops/ops-cli.py cleanup stale-intakes"
+    risk: medium
+    requires_dry_run_first: true
+
+# ============================================================================
+# Approval Required — agent MUST get human approval before executing
+# ============================================================================
+approval_required:
+  - id: deploy_prod
+    description: "Deploya till produktion"
+    reason: "Produktionsändringar kräver mänsklig verifiering"
+    approval_channel: "GitHub PR review + workflow_dispatch"
+
+  - id: rollback_prod
+    description: "Rulla tillbaka en tjänst i produktion"
+    reason: "Produktionsrollback kan påverka aktiva användare"
+    approval_channel: "Verbal eller webhook-bekräftelse"
+
+  - id: secret_rotation
+    description: "Rotera hemligheter i Secret Manager"
+    reason: "Felaktig rotation kan låsa ut alla tjänster"
+    approval_channel: "Manuell process"
+
+  - id: terraform_apply
+    description: "Applicera Terraform-ändringar"
+    reason: "Infrastrukturändringar kan ha oåterkalleliga effekter"
+    approval_channel: "PR review med terraform plan output"
+
+  - id: firestore_restore
+    description: "Återställa Firestore från backup"
+    reason: "Överskriver nuvarande data"
+    approval_channel: "Skriftligt godkännande av projektansvarig"
+
+# ============================================================================
+# Forbidden Operations — agent must NEVER perform
+# ============================================================================
+forbidden_operations:
+  - id: delete_firestore_data
+    description: "Radera dokument eller kollektioner i Firestore"
+    reason: "Irreversibel dataförlust. Alla raderingar sker via applikationslogik med audit trail."
+
+  - id: modify_iam
+    description: "Ändra IAM-policyer, roller eller bindningar"
+    reason: "Kan öppna säkerhetshål. IAM ändras enbart via Terraform PR."
+
+  - id: modify_billing
+    description: "Ändra billing-konfiguration eller budgetar direkt"
+    reason: "Ekonomisk risk. Billing ändras via Terraform."
+
+  - id: access_red_data
+    description: "Läsa, logga, eller exponera RED-zone data (PII)"
+    reason: "GDPR-brott. Personnummer, namn, e-post, telefon får aldrig exponeras."
+
+  - id: modify_dns
+    description: "Ändra DNS-poster eller domänkonfiguration"
+    reason: "Kan göra hela plattformen otillgänglig."
+
+  - id: disable_security
+    description: "Inaktivera auth, KMS-kryptering, WAF eller andra säkerhetsmekanismer"
+    reason: "Exponerar persondata. Nolltolerans."
+
+  - id: force_push_main
+    description: "Utföra git push --force till main"
+    reason: "Omskriver historik. Alla ändringar sker via PR."
+
+  - id: export_red_data
+    description: "Exportera persondata till externa system, loggar eller filer"
+    reason: "GDPR Art. 5 — lagringsminimering. Data stannar i krypterad Firestore."
+
+# ============================================================================
+# Escalation Rules — when to alert a human
+# ============================================================================
+escalation:
+  - condition: "Uptime check fail i ≥2 regioner under ≥5 minuter"
+    severity: critical
+    action: "Notifiera via webhook omedelbart"
+    runbook: "runbooks/health-check.yaml"
+
+  - condition: "5xx error rate > 5% under 5 minuter"
+    severity: critical
+    action: "Notifiera via webhook + överväg automatisk rollback (dev only)"
+    runbook: "runbooks/rollback.yaml"
+
+  - condition: "5xx error rate > 1% under 5 minuter"
+    severity: warning
+    action: "Notifiera via webhook"
+    runbook: "runbooks/health-check.yaml"
+
+  - condition: "P95 latens > 5s under 10 minuter"
+    severity: warning
+    action: "Notifiera via webhook"
+
+  - condition: "Terraform drift detected"
+    severity: warning
+    action: "Skapa rapport + notifiera"
+    runbook: "runbooks/incident-triage.yaml"
+
+  - condition: "Kritisk CVE (CVSS ≥ 9.0) i beroende"
+    severity: critical
+    action: "Skapa incident + notifiera inom 48h"
+
+  - condition: "Budget > 80% av månadsmål"
+    severity: warning
+    action: "Notifiera projektansvarig"
+
+  - condition: "Backup saknas eller äldre än 48h"
+    severity: critical
+    action: "Kör backup omedelbart + notifiera"
+    runbook: "runbooks/backup-verify.yaml"
+
+  - condition: "PII detected i loggar eller agent-output"
+    severity: critical
+    action: "STOPPA alla operationer. Notifiera omedelbart. Behandla som GDPR-incident."
+
+# ============================================================================
+# PII Filtering Rules — always active for agent output
+# ============================================================================
+pii_filter:
+  blocked_patterns:
+    - '\\d{6,8}[-\\s]?\\d{4}'          # Swedish personal number
+    - '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'  # Email
+    - '\\+?\\d{2,4}[-\\s]?\\d{6,10}'   # Phone number
+  blocked_field_names:
+    - personal_number
+    - personnummer
+    - contact_phone
+    - contact_email
+    - email
+    - phone
+    - address
+    - first_name
+    - last_name
+    - date_of_birth
+    - name
+  replacement: "[REDACTED]"

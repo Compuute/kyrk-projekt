@@ -1,0 +1,76 @@
+# Rollback Runbook — Machine-readable steps for AI agents
+# Follows: ops-contract.yaml → allowed_operations.rollback_dev
+# NOTE: prod rollback requires approval_required.rollback_prod
+
+name: rollback
+description: "Rulla tillbaka en Cloud Run-tjänst till föregående revision"
+
+prerequisites:
+  - gcloud CLI authenticated
+  - Service identified as unhealthy (via health-check.yaml)
+  - For prod: human approval obtained
+
+parameters:
+  service:
+    required: true
+    description: "Name of the Cloud Run service to roll back"
+  environment:
+    required: true
+    allowed: [dev, prod]
+    description: "Target environment"
+
+steps:
+  - id: resolve_env
+    action: set_variables
+    variables:
+      PROJECT: "${environment == 'prod' ? 'kyrk-projekt-prod' : 'kyrk-projekt'}"
+      REGION: "europe-north1"
+
+  - id: check_approval
+    action: conditional
+    condition: "${environment} == 'prod'"
+    on_true:
+      - action: require_approval
+        message: "Rollback av ${service} i PROD kräver mänskligt godkännande"
+        channel: webhook
+        abort_if_no_approval: true
+
+  - id: list_revisions
+    action: shell
+    command: "gcloud run revisions list --service=${service} --region=${REGION} --project=${PROJECT} --format='value(metadata.name)' --limit=5"
+    output: revisions
+
+  - id: identify_previous
+    action: shell
+    command: "gcloud run revisions list --service=${service} --region=${REGION} --project=${PROJECT} --format='value(metadata.name)' --limit=2 | tail -1"
+    output: previous_revision
+
+  - id: confirm_revision
+    action: log
+    message: "Rolling back ${service} to revision: ${previous_revision}"
+
+  - id: shift_traffic
+    action: shell
+    command: "gcloud run services update-traffic ${service} --region=${REGION} --project=${PROJECT} --to-revisions=${previous_revision}=100"
+    timeout_seconds: 60
+
+  - id: verify_rollback
+    action: shell
+    command: |
+      URL=$(gcloud run services describe ${service} --region=${REGION} --project=${PROJECT} --format='value(status.url)')
+      curl -s -o /dev/null -w '%{http_code}' "${URL}/healthz" --max-time 10
+    output: post_rollback_code
+
+  - id: evaluate
+    action: evaluate
+    condition: "${post_rollback_code} == '200'"
+    on_pass:
+      - action: notify
+        severity: info
+        message: "✅ ${service} rolled back to ${previous_revision} — now healthy"
+    on_fail:
+      - action: notify
+        severity: critical
+        message: "⚠️ ${service} still unhealthy after rollback to ${previous_revision}"
+      - action: escalate
+        message: "Eskalera till L2 — rollback löste inte problemet"

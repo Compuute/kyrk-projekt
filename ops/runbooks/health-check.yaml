@@ -1,0 +1,76 @@
+# Health Check Runbook — Machine-readable steps for AI agents
+# Follows: ops-contract.yaml → allowed_operations.health_check
+
+name: health-check
+description: "Kontrollera hälsostatus för alla Cloud Run-tjänster"
+trigger:
+  - scheduled (every 6 hours via nightly.yml)
+  - on-demand (via ops-agent.yml or manual)
+  - on-alert (uptime check failure)
+
+prerequisites:
+  - gcloud CLI authenticated
+  - PROJECT and REGION environment variables set
+
+steps:
+  - id: resolve_env
+    action: set_variables
+    variables:
+      PROJECT: "${ENVIRONMENT == 'prod' ? 'kyrk-projekt-prod' : 'kyrk-projekt'}"
+      REGION: "europe-north1"
+      SERVICES: "membership-intake,membership-service,certificate-service,reporting-service,admin-web"
+
+  - id: check_services
+    action: for_each
+    items: "${SERVICES}"
+    steps:
+      - id: get_url
+        action: shell
+        command: "gcloud run services describe ${item} --region=${REGION} --project=${PROJECT} --format='value(status.url)'"
+        output: service_url
+
+      - id: curl_healthz
+        action: shell
+        command: "curl -s -o /dev/null -w '%{http_code}' '${service_url}/healthz' --max-time 10"
+        output: http_code
+        timeout_seconds: 15
+
+      - id: get_revision
+        action: shell
+        command: "gcloud run services describe ${item} --region=${REGION} --project=${PROJECT} --format='value(status.latestReadyRevisionName)'"
+        output: revision
+
+      - id: evaluate
+        action: evaluate
+        condition: "${http_code} == '200'"
+        on_pass:
+          status: healthy
+          message: "${item}: OK (rev=${revision})"
+        on_fail:
+          status: unhealthy
+          message: "${item}: FAILING (HTTP ${http_code}, rev=${revision})"
+          escalate: true
+
+  - id: summarize
+    action: report
+    format: json
+    fields:
+      - service
+      - status
+      - http_code
+      - revision
+      - url
+
+  - id: escalate_if_needed
+    action: conditional
+    condition: "any service status == unhealthy"
+    on_true:
+      - action: notify
+        channel: webhook
+        severity: critical
+        message: "⚠️ Unhealthy services detected in ${ENVIRONMENT}"
+      - action: suggest_runbook
+        runbook: "runbooks/rollback.yaml"
+    on_false:
+      - action: log
+        message: "✅ All services healthy in ${ENVIRONMENT}"
