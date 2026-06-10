@@ -1,0 +1,92 @@
+# Dependabot configuration — automated dependency updates.
+# Follows: well-architected-guidelines.md § 3.1 Beroendehantering
+#
+# PRs are opened weekly (Mondays). Auto-merge is NOT enabled —
+# all updates require human review per governance policy.
+
+version: 2
+
+updates:
+  # Python dependencies (pip) — one per service
+  - package-ecosystem: "pip"
+    directory: "/kyrk-projekt/services/membership-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "pip"
+    directory: "/kyrk-projekt/services/membership-intake"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "pip"
+    directory: "/kyrk-projekt/services/certificate-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "pip"
+    directory: "/kyrk-projekt/services/reporting-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "pip"
+    directory: "/kyrk-projekt/services/admin-web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 5
+
+  # Node.js dependencies (npm) — frontends
+  - package-ecosystem: "npm"
+    directory: "/kyrk-projekt"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "javascript"
+    open-pull-requests-limit: 5
+
+  # GitHub Actions — keep workflows up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "ci"
+    open-pull-requests-limit: 5
+
+  # Terraform providers
+  - package-ecosystem: "terraform"
+    directory: "/kyrk-projekt/infra/terraform"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "terraform"
+    open-pull-requests-limit: 3

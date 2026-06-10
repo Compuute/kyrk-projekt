@@ -1,0 +1,136 @@
+name: ops-agent
+
+# Agent-triggered operations workflow.
+# Can be dispatched manually, by schedule, or via repository_dispatch
+# (for webhook-triggered alert responses).
+#
+# Follows: ops/ops-contract.yaml
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Operation to perform"
+        required: true
+        type: choice
+        options:
+          - health
+          - status
+          - backup-verify
+          - deploy-preflight
+          - dependency-audit
+      environment:
+        description: "Target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+      service:
+        description: "Specific service (optional, for service-specific ops)"
+        required: false
+        type: string
+
+  repository_dispatch:
+    types: [ops-alert]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  REGION: ${{ secrets.GCP_REGION }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  run-operation:
+    name: "ops: ${{ inputs.operation || github.event.client_payload.operation }}"
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || github.event.client_payload.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via WIF
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Resolve operation
+        id: op
+        run: |
+          OP="${{ inputs.operation || github.event.client_payload.operation }}"
+          ENV="${{ inputs.environment || github.event.client_payload.environment || 'dev' }}"
+          SVC="${{ inputs.service || github.event.client_payload.service || '' }}"
+          echo "operation=$OP" >> $GITHUB_OUTPUT
+          echo "env=$ENV" >> $GITHUB_OUTPUT
+          echo "service=$SVC" >> $GITHUB_OUTPUT
+
+      - name: Run health check
+        if: steps.op.outputs.operation == 'health'
+        run: |
+          python kyrk-projekt/ops/ops-cli.py health --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
+          echo "## Health Check Results" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Run status report
+        if: steps.op.outputs.operation == 'status'
+        run: |
+          python kyrk-projekt/ops/ops-cli.py status --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
+          echo "## Status Report" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Verify backup
+        if: steps.op.outputs.operation == 'backup-verify'
+        run: |
+          python kyrk-projekt/ops/ops-cli.py backup verify --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
+          echo "## Backup Verification" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Run deploy preflight
+        if: steps.op.outputs.operation == 'deploy-preflight'
+        run: |
+          python kyrk-projekt/ops/ops-cli.py deploy preflight ${{ steps.op.outputs.env }} | tee /tmp/result.json
+          echo "## Deploy Preflight" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Run dependency audit
+        if: steps.op.outputs.operation == 'dependency-audit'
+        run: |
+          pip install pip-audit
+          echo "## Dependency Audit" >> $GITHUB_STEP_SUMMARY
+          FAIL=0
+          for svc in membership-service membership-intake certificate-service reporting-service admin-web; do
+            echo "### $svc" >> $GITHUB_STEP_SUMMARY
+            if pip-audit -r kyrk-projekt/services/$svc/requirements.txt 2>&1 | tee /tmp/audit-$svc.txt; then
+              echo "✅ No known vulnerabilities" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Vulnerabilities found — see details above" >> $GITHUB_STEP_SUMMARY
+              FAIL=1
+            fi
+          done
+          exit $FAIL
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ops-result-${{ steps.op.outputs.operation }}
+          path: /tmp/result.json
+          retention-days: 30
+          if-no-files-found: ignore
