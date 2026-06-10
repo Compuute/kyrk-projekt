@@ -18,11 +18,17 @@ Read those before your first PR.
    - [`docs/05-security-principles.md`](docs/05-security-principles.md)
      — non-negotiables.
 
-2. **Run the tests locally** with `make test`. You should see
+2. **Set up your environment** with `make install` — installs all service
+   deps **and** the git hooks. A local hook plus a CI gate (`commit-hygiene`)
+   enforce that the **committer is always the human author**: commits authored
+   or committed by an AI tool are blocked (see `AI-RULES.md` RULE 4). Set your
+   git identity first with `git config user.name` / `git config user.email`.
+
+3. **Run the tests locally** with `make test`. You should see
    **377 passed** across all five services plus the member and wifi portals.
    If anything is red on `main`, open an issue — do not paper over it.
 
-3. **Run local CI before pushing** with `./scripts/local-ci.sh`.
+4. **Run local CI before pushing** with `./scripts/local-ci.sh`.
    This mirrors what GitHub Actions does in `ci.yml`: pytest matrix,
    node tests, compileall, terraform validate, Dockerfile static check,
    and workflow YAML lint. If `local-ci.sh` is green, GitHub will be too.

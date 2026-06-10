@@ -160,7 +160,7 @@ Utvecklingskostnaden hittills: 0 kr (byggt med AI-verktyg).
 ### Beslut som väntar (GitHub Issues)
 
 Alla beslut finns som ärenden i GitHub:
-**https://github.com/Compuute/.github/issues**
+**https://github.com/Compuute/kyrk-projekt/issues**
 
 | # | Beslut | Prioritet |
 |---|---|---|
@@ -231,9 +231,9 @@ Samma kodbas. Separerad data. 0 kr per ny kyrka.
 6. Anslut kyrka #2
 
 **Allt spårbart i GitHub Issues:**
-https://github.com/Compuute/.github/issues
+https://github.com/Compuute/kyrk-projekt/issues
 
 ## Frågor?
 
 Kontakta Daniel eller öppna en diskussion:
-https://github.com/Compuute/.github/discussions
+https://github.com/Compuute/kyrk-projekt/discussions
