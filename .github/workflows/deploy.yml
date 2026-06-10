@@ -112,10 +112,9 @@ jobs:
             --memory=512Mi
           env_vars: |
             ADAPTER_MODE=production
-            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+            ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
+            ZITADEL_CLIENT_ID=376717918169271350
             KMS_KEY_NAME=projects/${{ env.PROJECT_ID }}/locations/${{ env.REGION }}/keyRings/kyrk/cryptoKeys/member-pn
-          secrets: |
-            PROPELAUTH_API_KEY=propelauth-api-key:latest
 
   deploy-certificate-service:
     name: deploy certificate-service
@@ -140,9 +139,8 @@ jobs:
             --memory=512Mi
           env_vars: |
             ADAPTER_MODE=production
-            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
-          secrets: |
-            PROPELAUTH_API_KEY=propelauth-api-key:latest
+            ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
+            ZITADEL_CLIENT_ID=376717918169271350
 
 
   deploy-reporting-service:
@@ -168,11 +166,10 @@ jobs:
             --memory=512Mi
           env_vars: |
             ADAPTER_MODE=production
-            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+            ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
+            ZITADEL_CLIENT_ID=376717918169271350
             BIGQUERY_PROJECT_ID=${{ env.PROJECT_ID }}
             BIGQUERY_DATASET_ID=kyrk_analytics
-          secrets: |
-            PROPELAUTH_API_KEY=propelauth-api-key:latest
 
   # ------------------------------------------------------------ tier-2 deploys
   # membership-intake depends on membership-service being live so the
@@ -211,11 +208,10 @@ jobs:
             --memory=512Mi
           env_vars: |
             ADAPTER_MODE=production
-            PROPELAUTH_URL=${{ secrets.PROPELAUTH_URL }}
+            ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
+            ZITADEL_CLIENT_ID=376717918169271350
             MEMBERSHIP_SERVICE_URL=${{ steps.ms.outputs.url }}
             ADMIN_NOTIFY_WEBHOOK=${{ secrets.ADMIN_NOTIFY_WEBHOOK }}
-          secrets: |
-            PROPELAUTH_API_KEY=propelauth-api-key:latest
 
   # admin-web depends on intake + certificate.
   deploy-admin-web:
@@ -243,6 +239,12 @@ jobs:
           echo "intake=$INTAKE" >> $GITHUB_OUTPUT
           echo "cert=$CERT" >> $GITHUB_OUTPUT
 
+      - name: Resolve admin-web URL
+        id: aw
+        run: |
+          URL=$(gcloud run services describe admin-web --region=${{ env.REGION }} --format='value(status.url)' 2>/dev/null || echo "https://localhost:8080")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
       - uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: admin-web
@@ -258,6 +260,11 @@ jobs:
             INTAKE_BASE_URL=${{ steps.urls.outputs.intake }}
             CERTIFICATE_BASE_URL=${{ steps.urls.outputs.cert }}
             ADMIN_WEB_COOKIE_SECURE=true
+            ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
+            ZITADEL_CLIENT_ID=376717918169271350
+            ZITADEL_REDIRECT_URI=${{ steps.aw.outputs.url }}/login/callback
+          secrets: |
+            ZITADEL_CLIENT_SECRET=zitadel-client-secret:latest
 
   # --------------------------------------------------------------- summary
   summary:
