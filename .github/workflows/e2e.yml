@@ -77,11 +77,11 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{
               \"church_id\": \"e2e-smoke\",
-              \"first_name\": \"E2E\",
-              \"last_name\": \"Smoke\",
-              \"phone\": \"+4670000000\",
+              \"first_name\": \"Smoke\",
+              \"last_name\": \"Test\",
+              \"phone\": \"+46701234567\",
               \"email\": \"e2e@example.com\",
-              \"personal_number\": \"19800101-0000\",
+              \"personal_number\": \"19850709-9805\",
               \"gdpr_consent\": true,
               \"consent_timestamp\": \"$TS\"
             }")
