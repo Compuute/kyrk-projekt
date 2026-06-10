@@ -39,7 +39,8 @@ def test_authenticate_valid_token(mock_decode, mock_jwk_client_cls):
     assert actor.church_id == "c-1"
     assert actor.role == Role.EDITOR
 
-    mock_jwk_client_cls.assert_called_once_with("https://auth.example/oauth/v2/keys")
+    mock_jwk_client_cls.assert_called_once()
+    assert mock_jwk_client_cls.call_args[0][0] == "https://auth.example/oauth/v2/keys"
     mock_jwk_client.get_signing_key_from_jwt.assert_called_once_with("some.jwt.token")
 
 

@@ -176,6 +176,12 @@ varje kyrka har sin egen `content.json` med:
 
 En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 
+## Onboarding Guides
+
+- 💻 [**Utvecklare (Developers)**](ONBOARDING-DEVELOPER.md) — Kom igång med den lokala miljön, kodbasen och TDD på 15 minuter.
+- ⛪ [**Styrelsen (Board)**](ONBOARDING-STYRELSEN.md) — Strategisk översikt över plattformen, ekonomi, strategiska val och godkännanden.
+- 👤 [**Medarbetare (Staff)**](ONBOARDING-MEDARBETARE.md) — Enkel användarmanual på svenska för pastorer och redaktörer (medlemsintag, certifikat, innehållsredigering) samt efterlevnad av GDPR och EU AI Act.
+
 ## Docs index
 
 | Doc | Syfte |

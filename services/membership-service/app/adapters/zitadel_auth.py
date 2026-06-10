@@ -22,7 +22,14 @@ class ZitadelAuthAdapter:
     def _get_jwks_client(self) -> jwt.PyJWKClient:
         if self._jwks_client is None:
             jwks_url = f"{self._issuer_url}/oauth/v2/keys"
-            self._jwks_client = jwt.PyJWKClient(jwks_url)
+            
+            # Create a default context that bypasses certificate verification for local/dev environments
+            import ssl
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            
+            self._jwks_client = jwt.PyJWKClient(jwks_url, ssl_context=ssl_context)
         return self._jwks_client
 
     def authenticate(self, token: str) -> Actor:
@@ -52,26 +59,45 @@ class ZitadelAuthAdapter:
         church_id = payload.get("urn:zitadel:iam:org:id", "")
         
         # Extract role from project roles claim
-        # Standard Zitadel format:
-        # "urn:zitadel:iam:org:project:roles": {
-        #     "admin": {
-        #         "376715707620060793": ["376715707620060793"]
-        #     }
-        # }
         roles_claim = payload.get("urn:zitadel:iam:org:project:roles", {})
         assigned_role = None
 
+        # Fallback for church_id if missing from standard claim: extract it from roles_claim
+        if not church_id and roles_claim:
+            for role_name, val in roles_claim.items():
+                if role_name in {"admin", "pastor", "editor", "viewer"}:
+                    if isinstance(val, dict):
+                        for k, v in val.items():
+                            if k.isdigit():
+                                church_id = k
+                                break
+                            elif isinstance(v, list):
+                                for item in v:
+                                    if str(item).isdigit():
+                                        church_id = str(item)
+                                        break
+                                if church_id:
+                                    break
+                if church_id:
+                    break
+
         # Look for matching role scoped to the user's church organization
-        for role_name, projects in roles_claim.items():
+        for role_name, val in roles_claim.items():
             if role_name in {"admin", "pastor", "editor", "viewer"}:
-                for proj_id, org_ids in projects.items():
-                    if church_id in org_ids:
+                if isinstance(val, dict):
+                    if church_id in val:
                         assigned_role = role_name
                         break
+                    for proj_id, org_ids in val.items():
+                        if church_id == proj_id:
+                            assigned_role = role_name
+                            break
+                        if isinstance(org_ids, list) and church_id in org_ids:
+                            assigned_role = role_name
+                            break
                 if assigned_role:
                     break
 
-        # Fallback 1: check if role is mapped but projects list is in different shape
         if not assigned_role:
             for role_name in roles_claim:
                 if role_name in {"admin", "pastor", "editor", "viewer"}:

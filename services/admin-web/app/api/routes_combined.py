@@ -68,7 +68,7 @@ def get_login(
 ):
     if os.getenv("ADAPTER_MODE", "memory").lower() == "production":
         # Construct OIDC authorization redirect URL
-        scope = "openid+profile+email+urn:zitadel:iam:org:project:roles"
+        scope = "openid+profile+email+urn:zitadel:iam:org:project:roles+urn:zitadel:iam:org:id"
         redirect_uri = settings.zitadel_redirect_uri
         if not redirect_uri:
             # Fallback dynamic construction
