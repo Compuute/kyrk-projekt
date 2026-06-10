@@ -27,7 +27,7 @@ jobs:
           - admin-web
     defaults:
       run:
-        working-directory: kyrk-projekt/services/${{ matrix.service }}
+        working-directory: services/${{ matrix.service }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: kyrk-projekt/services/${{ matrix.service }}/requirements.txt
+          cache-dependency-path: services/${{ matrix.service }}/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: kyrk-projekt/frontend/wifi-intake-portal
+        working-directory: frontend/wifi-intake-portal
     steps:
       - uses: actions/checkout@v4
 
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: kyrk-projekt/frontend/member-portal
+        working-directory: frontend/member-portal
     steps:
       - uses: actions/checkout@v4
 
@@ -99,16 +99,16 @@ jobs:
       # Lightweight gate that catches obvious breakage in any service.
       # We deliberately avoid pinning a linter (ruff/black) at this stage —
       # add one when the team agrees on a style.
-      - name: Compile all .py files under kyrk-projekt
+      - name: Compile all .py files in the repo
         run: |
-          python -m compileall -q kyrk-projekt/services kyrk-projekt/automation/openclaw/import
+          python -m compileall -q services automation/openclaw/import
 
   terraform-validate:
     name: terraform validate
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: kyrk-projekt/infra/terraform
+        working-directory: infra/terraform
     steps:
       - uses: actions/checkout@v4
 
@@ -138,7 +138,7 @@ jobs:
       # the PR may be authored/committed by an AI tool or carry AI attribution.
       - name: Check PR commits for AI author/committer/attribution
         run: |
-          bash kyrk-projekt/scripts/check-commit-hygiene.sh \
+          bash scripts/check-commit-hygiene.sh \
             "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
 
   guard-tests:
@@ -146,7 +146,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: kyrk-projekt
+        working-directory: .
     steps:
       - uses: actions/checkout@v4
 

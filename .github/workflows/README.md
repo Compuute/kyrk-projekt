@@ -113,7 +113,7 @@ intentional.
 ### Option A: Terraform (recommended)
 
 ```bash
-cd kyrk-projekt/infra/terraform
+cd infra/terraform
 cp terraform.tfvars.example terraform.tfvars
 # edit terraform.tfvars with your project_id and github_repository
 terraform init

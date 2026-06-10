@@ -3,7 +3,7 @@ name: Frontend E2E
 on:
   push:
     paths:
-      - 'kyrk-projekt/frontend/**'
+      - 'frontend/**'
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: kyrk-projekt/frontend/member-portal
+        working-directory: frontend/member-portal
 
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-screenshots
-          path: kyrk-projekt/frontend/member-portal/test-results/
+          path: frontend/member-portal/test-results/
           retention-days: 7
 
       - name: Upload HTML report
@@ -44,5 +44,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: kyrk-projekt/frontend/member-portal/playwright-report/
+          path: frontend/member-portal/playwright-report/
           retention-days: 7

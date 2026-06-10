@@ -76,7 +76,7 @@ jobs:
       - name: Run health check
         if: steps.op.outputs.operation == 'health'
         run: |
-          python kyrk-projekt/ops/ops-cli.py health --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
+          python ops/ops-cli.py health --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
           echo "## Health Check Results" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
@@ -85,7 +85,7 @@ jobs:
       - name: Run status report
         if: steps.op.outputs.operation == 'status'
         run: |
-          python kyrk-projekt/ops/ops-cli.py status --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
+          python ops/ops-cli.py status --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
           echo "## Status Report" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
@@ -94,7 +94,7 @@ jobs:
       - name: Verify backup
         if: steps.op.outputs.operation == 'backup-verify'
         run: |
-          python kyrk-projekt/ops/ops-cli.py backup verify --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
+          python ops/ops-cli.py backup verify --env=${{ steps.op.outputs.env }} | tee /tmp/result.json
           echo "## Backup Verification" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
@@ -103,7 +103,7 @@ jobs:
       - name: Run deploy preflight
         if: steps.op.outputs.operation == 'deploy-preflight'
         run: |
-          python kyrk-projekt/ops/ops-cli.py deploy preflight ${{ steps.op.outputs.env }} | tee /tmp/result.json
+          python ops/ops-cli.py deploy preflight ${{ steps.op.outputs.env }} | tee /tmp/result.json
           echo "## Deploy Preflight" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           cat /tmp/result.json >> $GITHUB_STEP_SUMMARY
@@ -117,7 +117,7 @@ jobs:
           FAIL=0
           for svc in membership-service membership-intake certificate-service reporting-service admin-web; do
             echo "### $svc" >> $GITHUB_STEP_SUMMARY
-            if pip-audit -r kyrk-projekt/services/$svc/requirements.txt 2>&1 | tee /tmp/audit-$svc.txt; then
+            if pip-audit -r services/$svc/requirements.txt 2>&1 | tee /tmp/audit-$svc.txt; then
               echo "✅ No known vulnerabilities" >> $GITHUB_STEP_SUMMARY
             else
               echo "⚠️ Vulnerabilities found — see details above" >> $GITHUB_STEP_SUMMARY

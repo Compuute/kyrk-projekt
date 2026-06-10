@@ -28,7 +28,7 @@ jobs:
     environment: dev
     defaults:
       run:
-        working-directory: kyrk-projekt/infra/terraform
+        working-directory: infra/terraform
     steps:
       - uses: actions/checkout@v4
 
@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: kyrk-projekt
+        working-directory: .
     steps:
       - uses: actions/checkout@v4
 
@@ -261,7 +261,7 @@ jobs:
 
       - name: Run health check
         run: |
-          python kyrk-projekt/ops/ops-cli.py health --env=dev | tee /tmp/health.json
+          python ops/ops-cli.py health --env=dev | tee /tmp/health.json
           echo "## Nightly Health Report" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           cat /tmp/health.json >> $GITHUB_STEP_SUMMARY
@@ -296,7 +296,7 @@ jobs:
           FAIL=0
           for svc in membership-service membership-intake certificate-service reporting-service admin-web; do
             echo "### $svc" >> $GITHUB_STEP_SUMMARY
-            if pip-audit -r "kyrk-projekt/services/$svc/requirements.txt" --desc 2>&1; then
+            if pip-audit -r "services/$svc/requirements.txt" --desc 2>&1; then
               echo "✅ No known vulnerabilities" >> $GITHUB_STEP_SUMMARY
             else
               echo "⚠️ Vulnerabilities found" >> $GITHUB_STEP_SUMMARY
