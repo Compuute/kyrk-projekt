@@ -21,12 +21,13 @@ SERVICES := membership-service membership-intake certificate-service reporting-s
 ENV ?= dev
 DOCS_PORT ?= 8090
 
-.PHONY: help install test test-% build-js lint local-ci tf-validate docs-serve onboarding bootstrap deploy smoke screenshots clean
+.PHONY: help install install-hooks test test-% build-js lint local-ci tf-validate docs-serve onboarding bootstrap deploy smoke screenshots clean
 
 help:
 	@echo "kyrk-projekt — common targets"
 	@echo
 	@echo "  make install          install all service requirements (one venv)"
+	@echo "  make install-hooks    install git hooks (block AI committers, RULE 4)"
 	@echo "  make build-js         typecheck + compile app.ts → app.js (esbuild)"
 	@echo "  make test             run full test suite (Python + Node)"
 	@echo "  make test-<service>   run tests for one service, e.g. test-admin-web"
@@ -42,11 +43,18 @@ help:
 	@echo
 	@echo "Services: $(SERVICES)"
 
-install:
+install: install-hooks
 	@for svc in $(SERVICES); do \
 	  echo "==> $$svc"; \
 	  (cd services/$$svc && $(PIP) install -q -r requirements.txt); \
 	done
+
+# Point git at the version-controlled hooks dir. Path is resolved relative to
+# the repo top-level so this works whether kyrk-projekt is nested or its own repo.
+install-hooks:
+	@hooks="$$(git rev-parse --show-prefix)scripts/git-hooks"; \
+	  git config core.hooksPath "$$hooks"; \
+	  echo "==> git hooks installed (core.hooksPath=$$hooks)"
 
 # Typecheck + compile app.ts → app.js using esbuild (ADR-014)
 build-js:

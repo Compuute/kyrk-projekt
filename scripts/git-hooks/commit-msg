@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Commit-msg: block AI attribution markers in the commit message.
+# Enforces AI-RULES.md / RULE 4 locally. $1 is the path to the message file.
+set -euo pipefail
+
+MSG_DENY='co-authored-by:[[:space:]]*[^[:space:]]*(claude|anthropic|gpt|copilot)|generated with claude|claude\.ai/code|🤖'
+
+if grep -qiE "$MSG_DENY" "$1"; then
+  echo "BLOCKED (commit-msg): message contains AI attribution." >&2
+  echo "Remove 'Generated with Claude', 'Co-Authored-By: <AI>', claude.ai/code links, etc." >&2
+  echo "(AI-RULES.md RULE 4)" >&2
+  exit 1
+fi

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Pre-commit: block commits whose author/committer identity is an AI tool.
+# Enforces AI-RULES.md / RULE 4 locally (fast feedback). The CI job
+# `commit-hygiene` is the authoritative gate that cannot be bypassed.
+set -euo pipefail
+
+IDENT_DENY='claude|anthropic\.com|openai|chatgpt|gpt-[0-9]|github-copilot|copilot\[bot\]|\bcodex\b|cursor\.(so|com)|\bdevin\b'
+
+who="$(git var GIT_AUTHOR_IDENT) $(git var GIT_COMMITTER_IDENT)"
+if printf '%s' "$who" | grep -qiE "$IDENT_DENY"; then
+  echo "BLOCKED (pre-commit): author/committer looks like an AI tool:" >&2
+  echo "  $who" >&2
+  echo "Set a human identity (AI-RULES.md RULE 4):" >&2
+  echo "  git config user.name  \"Your Name\"" >&2
+  echo "  git config user.email \"you@example.com\"" >&2
+  exit 1
+fi

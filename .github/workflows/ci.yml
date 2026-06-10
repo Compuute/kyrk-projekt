@@ -124,3 +124,19 @@ jobs:
 
       - name: terraform fmt -check
         run: terraform fmt -check -recursive
+
+  commit-hygiene:
+    name: commit hygiene (no AI committers)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Authoritative, non-bypassable gate for AI-RULES.md RULE 4: no commit in
+      # the PR may be authored/committed by an AI tool or carry AI attribution.
+      - name: Check PR commits for AI author/committer/attribution
+        run: |
+          bash kyrk-projekt/scripts/check-commit-hygiene.sh \
+            "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
