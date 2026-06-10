@@ -92,3 +92,35 @@ Arbetsmoment om vi går vidare:
 Sätt **Hold (Alt. B)** tills behovsfrågan är besvarad i sprintplaneringen — så
 vi inte deployar en halvfärdig portal, men inte heller slänger arbete som kan
 återanvändas. Besluta A vs C när vi vet om gäst-Wi-Fi är aktuellt.
+
+## Definition of Done (DoD)
+
+### För själva beslutsärendet (denna issue stängs när):
+- [ ] Behovsfrågan ("har/planerar vi gäst-Wi-Fi i lokalen?") är besvarad och dokumenterad.
+- [ ] Ett alternativ (A / B / C) är valt och motiverat i sprintplaneringen.
+- [ ] Det valda alternativets acceptanskriterier nedan är uppfyllda.
+- [ ] Vilseledande n8n-referenser i README/docs är borttagna (gäller oavsett väg).
+
+### Alt. A — Behåll & färdigställ (klart när):
+- [ ] UniFi gäst-SSID/VLAN uppsatt och isolerat från admin-/internnät.
+- [ ] Walled garden vitlistar portal-domän + content-bucket; oinloggad enhet kan ladda portalen.
+- [ ] External portal pekar mot Cloudflare Pages-sidan; redirect triggar captive-portal-rutan på **iOS och Android**.
+- [ ] "Fortsätt till internet"-knapp implementerad och anropar UniFi authorize-endpoint — en testenhet får **faktiskt** internet efter klick.
+- [ ] `content.json` uppdateras via ny mekanism (BackgroundTasks/edge-KV) eller statisk fil i bucket; portalen visar rätt sektion för vardag/söndag/event.
+- [ ] README uppdaterad (n8n borta); `docs/12-operations.md` beskriver drift.
+- [ ] `make test` grönt inkl. wifi-portal-testet; deployad till `kyrka-wifi`.
+- [ ] Verifierat på minst en riktig enhet i lokalen (iOS + Android).
+
+### Alt. B — Hold (klart när):
+- [ ] README + denna issue tydligt märkta "ej i drift / väntar på beslut".
+- [ ] n8n-referensen borttagen ur README (så den inte ljuger).
+- [ ] Portalen borttagen ur `deploy-sites` (deployas inte halvfärdig).
+- [ ] CI-testet behållet grönt men markerat icke-blockerande, eller medvetet kvar.
+- [ ] Koden orörd och återanvändbar; beslut A/C schemalagt till **namngiven** framtida sprint.
+
+### Alt. C — Avveckla (klart när):
+- [ ] `frontend/wifi-intake-portal/` borttagen.
+- [ ] Content-bucketen (`*-wifi-portal-content`) borttagen ur Terraform **och applad** i dev + prod.
+- [ ] CI-jobbet `wifi-intake-portal (Node)` + rader i `Makefile`/`deploy-sites` borttagna.
+- [ ] Alla README/docs-referenser borttagna.
+- [ ] `make test` grönt; `grep -r wifi-intake-portal` ger inga döda referenser.
