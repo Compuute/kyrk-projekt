@@ -99,3 +99,35 @@ class FirestoreSubmissionRepository:
             .where("status", "==", SubmissionStatus.PENDING.value)
         )
         return [_doc_to_submission(doc.to_dict()) for doc in query.stream()]
+
+    def find_by_personal_number(self, personal_number: str) -> IntakeSubmission | None:
+        clean = personal_number.replace("-", "").replace(" ", "")
+        if not clean:
+            return None
+
+        candidates = {personal_number, clean}
+        if len(clean) == 12:
+            candidates.add(f"{clean[:4]}-{clean[4:8]}-{clean[8:]}")
+            candidates.add(f"{clean[:8]}-{clean[8:]}")
+            candidates.add(f"{clean[2:8]}-{clean[8:]}")
+            candidates.add(clean[2:])
+        elif len(clean) == 10:
+            candidates.add(f"{clean[:6]}-{clean[6:]}")
+            candidates.add(f"19{clean[:6]}-{clean[6:]}")
+            candidates.add(f"19{clean}")
+            candidates.add(f"20{clean[:6]}-{clean[6:]}")
+            candidates.add(f"20{clean}")
+
+        query = self._coll().where("personal_number", "in", list(candidates))
+        clean_target = clean
+        if len(clean_target) == 12:
+            clean_target = clean_target[2:]
+
+        for doc in query.stream():
+            doc_data = doc.to_dict()
+            doc_pnr = doc_data.get("personal_number", "").replace("-", "").replace(" ", "")
+            if len(doc_pnr) == 12:
+                doc_pnr = doc_pnr[2:]
+            if doc_pnr == clean_target:
+                return _doc_to_submission(doc_data)
+        return None
