@@ -140,3 +140,24 @@ jobs:
         run: |
           bash kyrk-projekt/scripts/check-commit-hygiene.sh \
             "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+
+  guard-tests:
+    name: repo guard tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kyrk-projekt
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Repo-wide guard tests (ops contract, PII filtering, dependency safety,
+      # coverage threshold, docs freshness, API contracts). Only stdlib + these.
+      - name: Install test deps
+        run: python -m pip install --upgrade pip pytest pyyaml
+
+      - name: Run guard tests
+        run: pytest tests/ -q

@@ -70,6 +70,8 @@ test: build-js
 	  printf "==> %s\n" "$$svc"; \
 	  (cd services/$$svc && $(PYTHON) -m pytest -q); \
 	done
+	@echo "==> repo guard tests"
+	@$(PYTHON) -m pytest tests/ -q
 	@echo "==> member-portal"
 	@npx @11ty/eleventy
 	@(cd frontend/member-portal && for t in tests/test_*.js; do node "$$t"; done)
