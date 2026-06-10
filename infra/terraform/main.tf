@@ -70,13 +70,6 @@ module "cloud_run" {
   environment       = var.environment
 }
 
-# n8n removed — using FastAPI BackgroundTasks instead (issue #15).
-# n8n service account kept for existing secret bindings.
-resource "google_service_account" "n8n" {
-  account_id   = "sa-n8n-automation"
-  display_name = "n8n automation runtime (legacy)"
-  project      = var.project_id
-}
 
 # CI/CD deployer service account. Impersonated by GitHub Actions via WIF.
 # Roles are granted in iam_bindings.tf so the locality stays in one file.
@@ -103,6 +96,7 @@ module "firestore" {
   region         = var.region
   project_number = data.google_project.current.number
   cmek_key_id    = ""
+  location_id    = var.database_location
 }
 
 # Storage buckets with lifecycle rules per purpose.
@@ -124,50 +118,13 @@ module "secrets" {
   source     = "./modules/secrets"
   project_id = var.project_id
   names = [
-    "propelauth-api-key",
     "anthropic-api-key",
     "fortnox-client-id",
     "fortnox-client-secret",
-    "reporting-service-token",
     "admin-notify-webhook",
   ]
 
   accessors = concat(
-    # PropelAuth API key — every service that authenticates users.
-    [
-      for s in [
-        "membership-service",
-        "membership-intake",
-        "certificate-service",
-        "reporting-service",
-        ] : {
-        secret = "propelauth-api-key"
-        member = "serviceAccount:${local.service_account_emails[s]}"
-      }
-    ],
-    # n8n needs Anthropic API key + Fortnox creds + admin notify webhook.
-    [
-      {
-        secret = "anthropic-api-key"
-        member = "serviceAccount:${google_service_account.n8n.email}"
-      },
-      {
-        secret = "fortnox-client-id"
-        member = "serviceAccount:${google_service_account.n8n.email}"
-      },
-      {
-        secret = "fortnox-client-secret"
-        member = "serviceAccount:${google_service_account.n8n.email}"
-      },
-      {
-        secret = "admin-notify-webhook"
-        member = "serviceAccount:${google_service_account.n8n.email}"
-      },
-      {
-        secret = "reporting-service-token"
-        member = "serviceAccount:${google_service_account.n8n.email}"
-      },
-    ],
     # membership-intake also needs the admin-notify-webhook for its
     # HttpNotifier when production mode is enabled.
     [
@@ -186,3 +143,23 @@ module "bigquery" {
   region     = var.region
   dataset_id = "kyrk_analytics"
 }
+
+# Monitoring — uptime checks, alert policies, notification channels.
+# Follows well-architected-guidelines.md § 6-7.
+module "monitoring" {
+  source             = "./modules/monitoring"
+  project_id         = var.project_id
+  region             = var.region
+  environment        = var.environment
+  notification_email = var.notification_email
+}
+
+# Backup infrastructure — GCS bucket for nightly Firestore exports.
+# Follows well-architected-guidelines.md § 8.
+module "backups" {
+  source            = "./modules/backups"
+  project_id        = var.project_id
+  region            = var.region
+  deployer_sa_email = google_service_account.deployer.email
+}
+

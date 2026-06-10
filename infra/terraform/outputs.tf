@@ -8,10 +8,6 @@ output "bucket_names" {
   value       = { for k, m in module.storage : k => m.name }
 }
 
-output "n8n_service_account" {
-  description = "n8n runtime service account email."
-  value       = google_service_account.n8n.email
-}
 
 output "deployer_service_account" {
   description = "GitHub Actions deployer SA. Bind your WIF principal to impersonate this."

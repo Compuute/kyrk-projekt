@@ -122,37 +122,32 @@ prompt_and_add_secret() {
   ok "$name set"
 }
 
-prompt_and_add_secret "propelauth-api-key"       "PropelAuth API key"
 prompt_and_add_secret "anthropic-api-key"        "Anthropic API key"
 prompt_and_add_secret "fortnox-client-id"        "Fortnox client id"
 prompt_and_add_secret "fortnox-client-secret"    "Fortnox client secret"
 prompt_and_add_secret "admin-notify-webhook"     "Admin notify webhook URL"
-prompt_and_add_secret "reporting-service-token"  "Reporting service n8n token (optional)"
 
 # ----------------------------------------------------- GitHub repo secrets
 step "Setting GitHub repo secrets"
 if [ "$HAVE_GH" = "1" ]; then
-  read -r -p "PropelAuth tenant URL (for GitHub secret PROPELAUTH_URL): " PROPELAUTH_URL
   read -r -p "Admin notify webhook URL (for GitHub secret ADMIN_NOTIFY_WEBHOOK): " WEBHOOK
 
   gh secret set GCP_PROJECT_ID       --body "$PROJECT_ID"       --env "$ENVIRONMENT"
   gh secret set GCP_REGION           --body "$REGION"           --env "$ENVIRONMENT"
   gh secret set GCP_WIF_PROVIDER     --body "$WIF_PROVIDER"     --env "$ENVIRONMENT"
   gh secret set GCP_DEPLOYER_SA      --body "$DEPLOYER_SA"      --env "$ENVIRONMENT"
-  gh secret set PROPELAUTH_URL       --body "$PROPELAUTH_URL"   --env "$ENVIRONMENT"
   gh secret set ADMIN_NOTIFY_WEBHOOK --body "$WEBHOOK"          --env "$ENVIRONMENT"
   ok "GitHub environment secrets set for $ENVIRONMENT"
 else
   cat <<EOF
 
-Set these six secrets manually under Settings → Environments → $ENVIRONMENT:
+Set these five secrets manually under Settings → Environments → $ENVIRONMENT:
 
   GCP_PROJECT_ID       = $PROJECT_ID
   GCP_REGION           = $REGION
   GCP_WIF_PROVIDER     = $WIF_PROVIDER
   GCP_DEPLOYER_SA      = $DEPLOYER_SA
-  PROPELAUTH_URL       = <your PropelAuth tenant URL>
-  ADMIN_NOTIFY_WEBHOOK = <your n8n webhook URL>
+  ADMIN_NOTIFY_WEBHOOK = <your webhook URL>
 EOF
 fi
 

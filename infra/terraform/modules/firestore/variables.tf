@@ -12,3 +12,10 @@ variable "cmek_key_id" {
   type        = string
   default     = ""
 }
+
+variable "location_id" {
+  description = "Firestore database location (e.g. eur3, europe-north1)"
+  type        = string
+  default     = "eur3"
+}
+

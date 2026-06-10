@@ -20,3 +20,16 @@ variable "github_repository" {
   type        = string
   default     = "Compuute/.github"
 }
+
+variable "database_location" {
+  description = "Firestore database location. Default is eur3."
+  type        = string
+  default     = "eur3"
+}
+
+variable "notification_email" {
+  description = "Email address for monitoring alert notifications."
+  type        = string
+  default     = "alerts@compuute.se"
+}
+
