@@ -137,3 +137,15 @@ resource "google_project_iam_member" "deployer_secret_accessor" {
   role    = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${google_service_account.deployer.email}"
 }
+
+# ============================================================================
+# admin-web — secret accessor for Zitadel client secret
+# ============================================================================
+# admin-web needs to access the Zitadel client secret at runtime to perform the OIDC
+# code exchange. The secret was created manually, so we manage only the IAM binding.
+resource "google_secret_manager_secret_iam_member" "admin_web_zitadel_secret" {
+  project   = var.project_id
+  secret_id = "zitadel-client-secret"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${local.service_account_emails["admin-web"]}"
+}
