@@ -52,7 +52,9 @@ jobs:
           TFVARS
 
       - name: terraform init
-        run: terraform init -input=false
+        run: |
+          terraform init -input=false
+          terraform workspace select dev
 
       - name: terraform plan -detailed-exitcode
         id: plan

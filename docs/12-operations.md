@@ -54,7 +54,10 @@ It will:
 
 1. **Check prerequisites.** `terraform`, `gcloud`, `gh`, `git`. Fails
    fast if anything is missing.
-2. **Run `terraform init && terraform apply`** in `infra/terraform/`.
+2. **Run `terraform init`, select the env workspace, then `terraform apply`**
+   in `infra/terraform/` (e.g. `terraform workspace select dev && terraform apply
+   -var-file=terraform.tfvars.dev`). State lives in the shared GCS backend
+   `gs://kyrk-projekt-tfstate`, isolated per workspace (dev/prod) with locking.
    This creates:
    - Artifact Registry repo `kyrk`
    - Cloud KMS keyring `kyrk` + key `member-pn` (annual rotation)
