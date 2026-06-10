@@ -74,6 +74,7 @@ if [ ! -f terraform.tfvars ]; then
 fi
 
 terraform init -input=false
+terraform workspace select "$ENVIRONMENT" 2>/dev/null || terraform workspace new "$ENVIRONMENT"
 terraform apply -auto-approve
 
 ok "terraform apply complete"
