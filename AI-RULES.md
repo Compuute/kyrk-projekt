@@ -272,4 +272,71 @@ Alla måste vara gröna innan du committar.
 | `test_dependency_safety.py` | Banned/osäkra paket | 11 |
 | `test_coverage_threshold.py` | Kod utan tester | 5 |
 | `test_docs_freshness.py` | Odokumenterade features | 7 |
-| **Total** | | **75 guard-tester** |
+| `test_ops_guardrails.py` | Ops-kontrakt, PII-filtrering, runbooks | 8 |
+| **Total** | | **83 guard-tester** |
+
+## 11. Ops Agent Rules — regler för AI-agenter som driftar miljön
+
+AI-agenter som utför **driftsoperationer** (övervakning, hälsokontroller, deploys, backups) måste följa dessa regler utöver alla ovanstående kodregler.
+
+### A. Läs alltid ops-kontraktet först
+
+Innan du utför NÅGON infrastrukturåtgärd, läs `ops/ops-contract.yaml`. Det definierar:
+- `allowed_operations` — det du FÅR göra autonomt
+- `approval_required` — det som kräver mänskligt godkännande
+- `forbidden_operations` — det du ALDRIG får göra
+
+### B. Använd ops-cli för alla operationer
+
+Utför ALDRIG gcloud/terraform-kommandon direkt. Använd istället:
+```bash
+python ops/ops-cli.py health           # Hälsokontroll
+python ops/ops-cli.py logs <service>   # Logganalys (PII-filtrerat)
+python ops/ops-cli.py status           # Miljöstatus
+python ops/ops-cli.py backup verify    # Backup-verifiering
+python ops/ops-cli.py drift check      # Infrastrukturdrift
+python ops/ops-cli.py deploy preflight # Deploy-checklista
+```
+
+Ops-CLI filtrerar **alltid** bort PII från all output.
+
+### C. Strikta förbud för ops-agenter
+
+```
+FÖRBJUDET:
+  - Deploya till prod utan mänskligt godkännande      ❌
+  - Ändra IAM-policyer eller roller                    ❌
+  - Radera Firestore-dokument eller GCS-objekt         ❌
+  - Läsa, logga eller visa RED-data (PII)              ❌
+  - Ändra billing, DNS eller domänkonfiguration        ❌
+  - Köra terraform apply utan godkänd PR               ❌
+  - git push --force till main                         ❌
+
+TILLÅTET (autonomt):
+  - Kolla hälsostatus (health check)                   ✅
+  - Analysera loggar (PII-filtrerat)                   ✅
+  - Verifiera backups                                  ✅
+  - Kolla terraform drift (plan, ej apply)             ✅
+  - Skapa incidentrapporter                            ✅
+  - Rulla tillbaka tjänster i dev                      ✅
+  - Rapportera status och sammanfatta miljö            ✅
+```
+
+### D. Eskalering
+
+Eskalera till människa om:
+1. **Kritisk** — PII-läcka, obehörig åtkomst, tjänst nere i prod
+2. **Varning** — 5xx > 1%, hög latens, terraform drift
+3. **Info** — CVE i beroende, backup nära utgång
+
+Använd runbooks i `ops/runbooks/` som beslutsunderlag.
+
+### E. Audit trail
+
+Alla ops-åtgärder loggas via:
+- GitHub Actions workflow logs (ops-agent.yml)
+- ops-cli.py JSON-output
+- Cloud Logging (för gcloud-kommandon)
+
+Radera ALDRIG loggar eller audit trails.
+
