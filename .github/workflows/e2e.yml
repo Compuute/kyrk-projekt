@@ -72,24 +72,7 @@ jobs:
         run: |
           URL=$(gcloud run services describe membership-intake --region=${{ env.REGION }} --format='value(status.url)')
           TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          PNR=$(python3 -c '
-import random
-def luhn(digits):
-    total = 0
-    for i, d in enumerate(digits):
-        val = int(d)
-        if i % 2 == 0:
-            val *= 2
-            if val > 9: val -= 9
-        total += val
-    return (10 - (total % 10)) % 10
-yy = f"{random.randint(50, 99):02d}"
-mm = f"{random.randint(1, 12):02d}"
-dd = f"{random.randint(1, 28):02d}"
-s3 = f"{random.randint(100, 999):03d}"
-chk = luhn([int(x) for x in f"{yy}{mm}{dd}{s3}"])
-print(f"19{yy}{mm}{dd}-{s3}{chk}")
-')
+          PNR=$(python3 -c 'import random; l = lambda d: (10 - sum(int(x)*2 - (9 if int(x)*2 > 9 else 0) if i % 2 == 0 else int(x) for i, x in enumerate(d)) % 10) % 10; yy = f"{random.randint(50, 99):02d}"; mm = f"{random.randint(1, 12):02d}"; dd = f"{random.randint(1, 28):02d}"; s3 = f"{random.randint(100, 999):03d}"; chk = l(f"{yy}{mm}{dd}{s3}"); print(f"19{yy}{mm}{dd}-{s3}{chk}")')
           CODE=$(curl -s -o /tmp/intake.json -w "%{http_code}" \
             -X POST "$URL/intake" \
             -H "Content-Type: application/json" \
