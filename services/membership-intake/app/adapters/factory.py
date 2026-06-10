@@ -6,15 +6,15 @@ ADAPTER_MODE=memory (default):
 
 ADAPTER_MODE=production:
   FirestoreSubmissionRepository, HttpNotifier, InMemoryRateLimiter
-  (see note), PropelAuthAdapter, HttpxMembershipClient.
+  (see note), ZitadelAuthAdapter, HttpxMembershipClient.
 
 Note on rate limiting: MVP production uses the in-memory limiter per
 Cloud Run instance. When scaling out, swap this for a Redis-backed
 limiter — currently not provisioned to keep MVP cost low.
 
 Required env vars in production mode:
-- PROPELAUTH_URL
-- PROPELAUTH_API_KEY
+- ZITADEL_ISSUER_URL
+- ZITADEL_CLIENT_ID
 - MEMBERSHIP_SERVICE_URL
 - ADMIN_NOTIFY_WEBHOOK
 """
@@ -65,11 +65,11 @@ def make_rate_limiter() -> RateLimiterPort:
 
 def make_auth() -> AuthPort:
     if _mode() == "production":
-        from app.adapters.propelauth_auth import PropelAuthAdapter
+        from app.adapters.zitadel_auth import ZitadelAuthAdapter
 
-        url = _require_env("PROPELAUTH_URL")
-        key = _require_env("PROPELAUTH_API_KEY")
-        return PropelAuthAdapter(auth_url=url, api_key=key)
+        issuer = _require_env("ZITADEL_ISSUER_URL")
+        client_id = _require_env("ZITADEL_CLIENT_ID")
+        return ZitadelAuthAdapter(issuer_url=issuer, client_id=client_id)
     from app.adapters.fake_auth import FakeAuthAdapter
 
     return FakeAuthAdapter()

@@ -16,8 +16,8 @@ from app.adapters.in_memory_submission_repository import InMemorySubmissionRepos
 def _clear_env(monkeypatch):
     for key in (
         "ADAPTER_MODE",
-        "PROPELAUTH_URL",
-        "PROPELAUTH_API_KEY",
+        "ZITADEL_ISSUER_URL",
+        "ZITADEL_CLIENT_ID",
         "MEMBERSHIP_SERVICE_URL",
         "ADMIN_NOTIFY_WEBHOOK",
     ):
@@ -47,12 +47,12 @@ def test_production_notifier_requires_webhook(monkeypatch):
     assert type(notifier).__name__ == "HttpNotifier"
 
 
-def test_production_auth_requires_propelauth_env(monkeypatch):
+def test_production_auth_requires_zitadel_env(monkeypatch):
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_URL"):
+    with pytest.raises(RuntimeError, match="ZITADEL_ISSUER_URL"):
         make_auth()
-    monkeypatch.setenv("PROPELAUTH_URL", "https://auth.example")
-    with pytest.raises(RuntimeError, match="PROPELAUTH_API_KEY"):
+    monkeypatch.setenv("ZITADEL_ISSUER_URL", "https://auth.example")
+    with pytest.raises(RuntimeError, match="ZITADEL_CLIENT_ID"):
         make_auth()
 
 
