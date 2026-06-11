@@ -7,6 +7,7 @@ module.exports = function(eleventyConfig) {
     [portal + "/styles.css"]: "styles.css",
     [portal + "/sw.js"]: "sw.js",
     [portal + "/_headers"]: "_headers",
+    [portal + "/_redirects"]: "_redirects",
     [portal + "/robots.txt"]: "robots.txt",
     [portal + "/sitemap.xml"]: "sitemap.xml",
     [portal + "/manifest.json"]: "manifest.json",
