@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from app.domain.churches import get_issuer
+from app.domain.churches import get_issuer, resolve_church_id
 from app.domain.errors import (
     ChurchNotConfigured,
     ConsentMissing,
@@ -84,7 +84,7 @@ class DonationService:
 
     def list_pending(self, actor: Actor) -> list[DonationRecord]:
         self._require_admin(actor)
-        return self._repo.list_pending(actor.church_id)
+        return self._repo.list_pending(resolve_church_id(actor.church_id))
 
     def verify(self, actor: Actor, donation_id: str) -> VerificationResult:
         self._require_admin(actor)
@@ -135,7 +135,7 @@ class DonationService:
 
     def _load_scoped_pending(self, actor: Actor, donation_id: str) -> DonationRecord:
         donation = self._repo.get(donation_id)
-        if donation is None or donation.church_id != actor.church_id:
+        if donation is None or donation.church_id != resolve_church_id(actor.church_id):
             raise DonationNotFound(donation_id)
         if donation.status is not DonationStatus.PENDING_VERIFICATION:
             raise DonationAlreadyProcessed(donation_id)
