@@ -116,7 +116,6 @@ deploy-sites: build-js
 	@command -v wrangler >/dev/null 2>&1 || { echo "wrangler CLI is required (npm i -g wrangler)"; exit 1; }
 	@npx @11ty/eleventy
 	wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal
-	wrangler pages deploy frontend/wifi-intake-portal --project-name=kyrka-wifi
 	@echo "Static sites deployed to Cloudflare Pages."
 
 deploy-all: deploy deploy-sites

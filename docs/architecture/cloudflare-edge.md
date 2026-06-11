@@ -307,8 +307,9 @@ wrangler pages deployment list --project-name=kyrka-portal
 # Rollback to previous deployment
 wrangler pages deployment rollback --project-name=kyrka-portal
 
-# Redeploy
-wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
+# Redeploy (build with Eleventy first)
+npx @11ty/eleventy
+wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal
 ```
 
 ## Cloudflare setup checklist (one-time)
@@ -316,10 +317,9 @@ wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
 1. **Create Cloudflare account** (free tier) at cloudflare.com
 2. **Add domain** `kyrka.se` (or your domain) → Cloudflare gives you nameservers
 3. **Update registrar** (Loopia, Binero, etc.) to use Cloudflare nameservers
-4. **Create Pages projects:**
+4. **Create Pages project:**
    ```bash
    wrangler pages project create kyrka-portal
-   wrangler pages project create kyrka-wifi
    ```
 5. **Deploy static sites:**
    ```bash
@@ -327,7 +327,6 @@ wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
    ```
 6. **Configure DNS records:**
    - `kyrka.se` → Pages project `kyrka-portal`
-   - `wifi.kyrka.se` → Pages project `kyrka-wifi`
    - `api.kyrka.se` → CNAME to Cloud Run URL (proxied, orange cloud ON)
    - `admin.kyrka.se` → CNAME to Cloud Run URL (proxied, orange cloud ON)
 7. **SSL mode:** Full (strict) — Cloudflare verifies the origin cert from GCP

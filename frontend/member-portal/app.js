@@ -290,7 +290,7 @@ function setupErrorMonitoring() {
   });
 }
 function getSelectedChurch() {
-  if (typeof localStorage === "undefined") return "nacka";
+  if (typeof localStorage === "undefined" || typeof localStorage.getItem !== "function") return "nacka";
   return localStorage.getItem("selectedChurch") ?? "nacka";
 }
 function setSelectedChurch(churchId) {
@@ -303,7 +303,7 @@ function setSelectedChurch(churchId) {
 }
 function getContentUrl() {
   const church = getSelectedChurch();
-  return "./churches/" + church + "/content.json";
+  return "/churches/" + church + "/content.json";
 }
 function loadChurchContent(callback) {
   if (typeof window !== "undefined" && window.__KYRK_CONFIG__) {
@@ -313,7 +313,7 @@ function loadChurchContent(callback) {
   const url = getContentUrl();
   fetch(url, { credentials: "omit", cache: "no-store" }).then((r) => {
     if (r.ok) return r.json();
-    return fetch("./content.json", { credentials: "omit", cache: "no-store" }).then((r2) => r2.ok ? r2.json() : {});
+    return fetch("/content.json", { credentials: "omit", cache: "no-store" }).then((r2) => r2.ok ? r2.json() : {});
   }).then((data) => callback(data)).catch(() => callback({}));
 }
 function initChurchSelector() {
@@ -326,7 +326,7 @@ function initChurchSelector() {
   modal.addEventListener("click", (e) => {
     if (e.target === modal) modal.classList.remove("open");
   });
-  fetch("./churches.json", { credentials: "omit" }).then((r) => r.ok ? r.json() : { churches: [] }).then((data) => {
+  fetch("/churches.json", { credentials: "omit" }).then((r) => r.ok ? r.json() : { churches: [] }).then((data) => {
     const churches = data.churches ?? [];
     const list = modal.querySelector(".church-list");
     const search = modal.querySelector(".church-search");
@@ -396,7 +396,7 @@ function initChurchData() {
   if (!document.cookie.includes("selected_church=")) {
     document.cookie = "selected_church=" + encodeURIComponent(churchId) + "; path=/; max-age=31536000; SameSite=Lax";
   }
-  fetch("./churches.json", { credentials: "omit" }).then((r) => r.ok ? r.json() : { churches: [] }).then((data) => {
+  fetch("/churches.json", { credentials: "omit" }).then((r) => r.ok ? r.json() : { churches: [] }).then((data) => {
     const church = (data.churches ?? []).find((c) => c.id === churchId);
     if (church) {
       const lang = document.body.getAttribute("data-lang") ?? "sv";
@@ -443,6 +443,7 @@ if (typeof module !== "undefined" && module.exports) {
     validateName,
     validatePhone,
     validatePersonnummer,
-    buildSwishLink
+    buildSwishLink,
+    getContentUrl
   };
 }

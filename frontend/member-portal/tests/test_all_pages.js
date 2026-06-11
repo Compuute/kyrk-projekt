@@ -112,6 +112,25 @@ pages.forEach(function (page) {
       page + ' must have <meta name="viewport"> for mobile-first');
   });
 
+  // --- No duplicate element ids (duplicates break getElementById population,
+  //     e.g. a second #footer-church-name stays stuck on "Laddar...")
+  test(page + ' has no duplicate element ids', function () {
+    var ids = (html.match(/\sid="([^"]+)"/g) || []).map(function (m) {
+      return m.replace(/\sid="/, '').replace('"', '');
+    });
+    var seen = {};
+    ids.forEach(function (id) {
+      assert.ok(!seen[id], page + ' has duplicate id="' + id + '"');
+      seen[id] = true;
+    });
+  });
+
+  // --- Exactly one site footer (layout provides it; pages must not add their own)
+  test(page + ' has exactly one footer', function () {
+    var count = (html.match(/<footer/g) || []).length;
+    assert.strictEqual(count, 1, page + ' has ' + count + ' <footer> elements, expected 1');
+  });
+
   // --- Has charset meta (Unicode for Amharic)
   test(page + ' has UTF-8 charset', function () {
     assert.ok(html.toLowerCase().includes('charset="utf-8"') || html.toLowerCase().includes("charset='utf-8'"),

@@ -1,17 +1,24 @@
 name: Frontend E2E
 
+# Tests run against a build of THIS commit, served locally — never against
+# the deployed site. A PR's checks must reflect the PR's own changes, and
+# drift on production must not fail unrelated PRs. The local server mimics
+# Cloudflare Pages URL semantics but does not run the Pages Functions
+# middleware (edge language redirects / KV config are not covered here).
+
 on:
   push:
     paths:
       - 'frontend/**'
+      - '.eleventy.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/frontend-e2e.yml'
   workflow_dispatch:
 
 jobs:
   playwright:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend/member-portal
 
     steps:
       - uses: actions/checkout@v4
@@ -19,17 +26,19 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install Playwright
-        run: |
-          npm init -y
-          npm install playwright @playwright/test
-          npx playwright install --with-deps chromium
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Run E2E tests (Mobile + Desktop)
+        # playwright.config.js webServer builds the site (npx @11ty/eleventy)
+        # and serves frontend/member-portal/dist/ on 127.0.0.1:4173
+        working-directory: frontend/member-portal
         run: npx playwright test tests/e2e.spec.js
-        env:
-          BASE_URL: https://kyrka-portal.pages.dev
 
       - name: Upload failure screenshots
         if: failure()

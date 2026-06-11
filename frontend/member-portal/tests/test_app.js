@@ -159,5 +159,24 @@ test('switchLanguage does not crash in Node (no window._memberPortalContent)', f
   assert.ok(true);
 });
 
+// ---- URL paths ----
+// Pages are served at pretty URLs (/contact/, /donate/), so relative paths
+// like ./churches.json resolve under the page directory and break there.
+// All data fetches must use absolute paths from the site root.
+
+test('getContentUrl returns an absolute path', function () {
+  assert.strictEqual(app.getContentUrl(), '/churches/nacka/content.json');
+});
+
+test('app.js never fetches church data with relative paths', function () {
+  var fs = require('fs');
+  var path = require('path');
+  var src = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf-8');
+  ['./churches.json', './content.json', './churches/'].forEach(function (rel) {
+    assert.ok(src.indexOf(rel) === -1,
+      'app.js must not fetch ' + rel + ' (breaks on /page/ pretty URLs)');
+  });
+});
+
 // ---- Summary ----
 console.log('\nmember-portal tests done: ' + passed + ' passed, ' + failed + ' failed');

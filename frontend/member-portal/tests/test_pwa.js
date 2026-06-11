@@ -85,6 +85,17 @@ test('sw.js uses network-first for content.json', function () {
     'content.json should be network-first for fresh data');
 });
 
+test('sw.js navigation fallback resolves pretty URLs to cached index.html', function () {
+  // Navigations request /contact/ but the cache key is /contact/index.html.
+  // A bare caches.match(event.request) misses and respondWith(undefined)
+  // renders a blank page when the network fails.
+  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf-8');
+  assert.ok(sw.includes('navigationFallback'),
+    'sw must use a navigationFallback that maps /page/ to /page/index.html');
+  assert.ok(!/catch\(\(\) => caches\.match\(event\.request\)\)/.test(sw),
+    'navigate handler must not fall back to a bare caches.match(event.request)');
+});
+
 test('sw.js handles push notifications', function () {
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf-8');
   assert.ok(sw.includes("addEventListener('push'"), 'sw must handle push events');

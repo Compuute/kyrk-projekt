@@ -6,3 +6,5 @@
 /funeral.html /funeral 301
 /about.html /about 301
 /contact.html /contact 301
+/sv / 301
+/sv/* /:splat 301

@@ -529,7 +529,9 @@ body[data-lang="am"] {
 .policy h2 { margin-top: 28px; font-size: 18px; border-bottom: 1px solid #333; padding-bottom: 6px; }
 .policy h3 { margin-top: 18px; font-size: 15px; }
 .policy p, .policy li { font-size: 14px; line-height: 1.7; color: var(--muted); }
-.policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+/* display:block + overflow-x lets wide tables scroll internally instead of
+   stretching the whole page sideways on narrow viewports */
+.policy table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; display: block; overflow-x: auto; }
 .policy th, .policy td { border: 1px solid var(--border); padding: 8px; text-align: left; }
 .policy th { background: var(--card); }
 .lang-section { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--border); }

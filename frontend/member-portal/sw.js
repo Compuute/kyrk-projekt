@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kyrka-v7';
+const CACHE_NAME = 'kyrka-v8';
 const OFFLINE_URLS = [
   '/',
   '/index.html',
@@ -41,6 +41,18 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
+// Navigations request pretty URLs (/contact/) but OFFLINE_URLS are cached
+// under /contact/index.html — a bare caches.match(request) misses and the
+// page renders blank. Try the request, then its index.html form, then /.
+function navigationFallback(request) {
+  return caches.match(request).then((hit) => {
+    if (hit) return hit;
+    const path = new URL(request.url).pathname;
+    const indexKey = path.endsWith('/') ? path + 'index.html' : path + '/index.html';
+    return caches.match(indexKey).then((indexHit) => indexHit || caches.match('/index.html'));
+  });
+}
+
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
 
@@ -53,7 +65,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => navigationFallback(event.request))
     );
     return;
   }

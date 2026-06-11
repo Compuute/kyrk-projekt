@@ -131,40 +131,6 @@ activePage: "home"
 
     <nav class="grid" id="quick-links"></nav>
 
-        <footer class="site-footer">
-    <div class="footer-grid">
-      <div class="footer-col">
-        <h3>Kontakt</h3>
-        <p id="footer-church-name">Laddar...</p>
-        <a href="./contact">Kontakta oss</a>
-        <a id="footer-phone" href="#">Telefon</a>
-        <p id="footer-org" style="font-size:11px;margin-top:4px"></p>
-      </div>
-      <div class="footer-col">
-        <h3>Kalender</h3>
-        <a href="./calendar">Kommande evenemang</a>
-        <a href="./live">Gudstjänst live</a>
-      </div>
-      <div class="footer-col">
-        <h3>Hitta snabbt</h3>
-        <a href="./support">Stöd &amp; rådgivning</a>
-        <a href="./intake">Bli medlem</a>
-        <a href="./donate">Ge en gåva</a>
-        <a href="./faq">FAQ</a>
-        <a href="./library">Bibliotek</a>
-      </div>
-      <div class="footer-col">
-        <h3>Sociala kanaler</h3>
-        <a href="https://t.me/kyrka_kanal" target="_blank">Telegram</a>
-        <a href="./about">Om oss</a>
-        <a href="./privacy">Integritetspolicy</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      Den h&#228;r sidan sp&#229;rar dig inte — endast funktionella kakor (spr&#229;k &amp; f&#246;rsamling). / ይህ ገጽ አይከታተልዎትም — ተግባራዊ ኩኪዎች ብቻ (ቋንቋ እና ቤተ ክርስቲያን)።
-    </div>
-  </footer>
-
   <script>
     function toggleQrConsent() {
       var input = document.getElementById('qr-consent');
@@ -326,4 +292,18 @@ activePage: "home"
 
       return false;
     }
+  </script>
+
+  <script>
+    // Initial render: church name, upcoming events, announcements and the
+    // quick-link tiles all come from the church content config. Without
+    // this call the hero h1 and #quick-links stay empty.
+    (function () {
+      loadContent(getContentUrl()).then(function (content) {
+        var lang = detectLanguage();
+        renderPage(content, lang);
+        setupLanguageSwitcher(content);
+        applyLanguage(lang);
+      });
+    })();
   </script>

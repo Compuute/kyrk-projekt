@@ -12,9 +12,9 @@ How to deploy, roll back, monitor, and respond to incidents.
 gh workflow run deploy.yml -f environment=dev
 gh run watch
 
-# Deploy public sites (Cloudflare Pages)
-wrangler pages deploy frontend/member-portal --project-name=kyrka-portal
-wrangler pages deploy frontend/wifi-intake-portal --project-name=kyrka-wifi
+# Deploy public site (Cloudflare Pages) — build with Eleventy first
+npx @11ty/eleventy
+wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal
 
 # Rollback a backend service
 gcloud run services update-traffic <service> \
@@ -29,7 +29,7 @@ wrangler pages deployment rollback --project-name=kyrka-portal
 
 ```
 Internet → Cloudflare (DNS + CDN + WAF + DDoS, free)
-  ├→ Cloudflare Pages: member-portal (sv+am) + wifi-intake-portal
+  ├→ Cloudflare Pages: member-portal (sv+am)
   └→ Cloudflare proxy → GCP Cloud Run: 4 backend services + admin-web
                               → Firestore (EU, CMEK)
                               → Cloud KMS

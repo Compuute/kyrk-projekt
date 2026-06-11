@@ -435,7 +435,9 @@ function setupErrorMonitoring(): void {
 // ──────────────────────────────────────────────────────── church selector
 
 function getSelectedChurch(): string {
-  if (typeof localStorage === 'undefined') return 'nacka';
+  // Node exposes a global localStorage without working methods unless
+  // started with --localstorage-file, so checking typeof is not enough.
+  if (typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function') return 'nacka';
   return localStorage.getItem('selectedChurch') ?? 'nacka';
 }
 
@@ -450,7 +452,7 @@ function setSelectedChurch(churchId: string): void {
 
 function getContentUrl(): string {
   const church = getSelectedChurch();
-  return './churches/' + church + '/content.json';
+  return '/churches/' + church + '/content.json';
 }
 
 function loadChurchContent(callback: (data: Partial<ContentConfig>) => void): void {
@@ -464,7 +466,7 @@ function loadChurchContent(callback: (data: Partial<ContentConfig>) => void): vo
   fetch(url, { credentials: 'omit', cache: 'no-store' })
     .then(r => {
       if (r.ok) return r.json() as Promise<ContentConfig>;
-      return fetch('./content.json', { credentials: 'omit', cache: 'no-store' })
+      return fetch('/content.json', { credentials: 'omit', cache: 'no-store' })
         .then(r2 => r2.ok ? r2.json() as Promise<ContentConfig> : {} as ContentConfig);
     })
     .then(data => callback(data))
@@ -487,7 +489,7 @@ function initChurchSelector(): void {
     if (e.target === modal) modal.classList.remove('open');
   });
 
-  fetch('./churches.json', { credentials: 'omit' })
+  fetch('/churches.json', { credentials: 'omit' })
     .then(r => r.ok ? r.json() as Promise<{ churches: Church[] }> : { churches: [] })
     .then(data => {
       const churches: Church[] = data.churches ?? [];
@@ -574,7 +576,7 @@ function initChurchData(): void {
   if (!document.cookie.includes('selected_church=')) {
     document.cookie = 'selected_church=' + encodeURIComponent(churchId) + '; path=/; max-age=31536000; SameSite=Lax';
   }
-  fetch('./churches.json', { credentials: 'omit' })
+  fetch('/churches.json', { credentials: 'omit' })
     .then(r => r.ok ? r.json() as Promise<{ churches: Church[] }> : { churches: [] })
     .then(data => {
       const church = (data.churches ?? []).find(c => c.id === churchId);
@@ -643,5 +645,6 @@ if (typeof module !== 'undefined' && (module as any).exports) {
     validatePhone,
     validatePersonnummer,
     buildSwishLink,
+    getContentUrl,
   };
 }
