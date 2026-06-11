@@ -13,7 +13,8 @@ module.exports = function(eleventyConfig) {
     [portal + "/content.json"]: "content.json",
     [portal + "/churches.json"]: "churches.json",
     [portal + "/churches"]: "churches",
-    [portal + "/icons"]: "icons"
+    [portal + "/icons"]: "icons",
+    [portal + "/fonts"]: "fonts"
   });
 
   return {
