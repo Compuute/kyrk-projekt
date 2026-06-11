@@ -3,7 +3,7 @@ compatibility_date = "2025-06-01"
 
 [[kv_namespaces]]
 binding = "kyrka_content"
-id = "kyrka-content-id-placeholder"
+id = "f40a72c8fa544cf6ba3ab9daeb8bb8fc"
 
 # Cloudflare Pages project. Built with Eleventy from the repo root:
 #   npx @11ty/eleventy
