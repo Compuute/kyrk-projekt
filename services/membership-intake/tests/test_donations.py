@@ -12,6 +12,9 @@ from __future__ import annotations
 ADMIN_TOKEN = "Bearer u1:nacka:admin"
 VIEWER_TOKEN = "Bearer u2:nacka:viewer"
 OTHER_CHURCH_ADMIN_TOKEN = "Bearer u3:stockholm:admin"
+# In production, Zitadel sets actor.church_id to the organization id —
+# the registry maps it back to the portal church slug.
+ZITADEL_ORG_ADMIN_TOKEN = "Bearer u4:376713621675248694:admin"
 
 
 def _body(**overrides) -> dict:
@@ -169,6 +172,36 @@ def test_verify_when_email_delivery_fails_keeps_donation_pending(client, email_s
     # Still pending — the kassör can retry once the email provider is back.
     r = client.get("/donations", headers={"Authorization": ADMIN_TOKEN})
     assert len(r.json()) == 1
+
+
+# ------------------------------------------------- Zitadel org-id resolution
+
+
+def test_zitadel_org_admin_sees_nacka_pending(client):
+    client.post("/donations", json=_body())
+    r = client.get("/donations", headers={"Authorization": ZITADEL_ORG_ADMIN_TOKEN})
+    assert r.status_code == 200
+    assert len(r.json()) == 1
+
+
+def test_zitadel_org_admin_can_verify(client, email_sender):
+    donation_id = _register(client)
+    r = client.post(
+        f"/donations/{donation_id}/verify",
+        headers={"Authorization": ZITADEL_ORG_ADMIN_TOKEN},
+    )
+    assert r.status_code == 200
+    assert r.json()["status"] == "verified"
+    assert len(email_sender.sent) == 1
+
+
+def test_unknown_org_id_sees_nothing(client):
+    client.post("/donations", json=_body())
+    r = client.get(
+        "/donations", headers={"Authorization": "Bearer u5:999999999999:admin"}
+    )
+    assert r.status_code == 200
+    assert r.json() == []
 
 
 # --------------------------------------------------------------------- dismiss
