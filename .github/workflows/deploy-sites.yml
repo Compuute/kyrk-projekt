@@ -1,12 +1,14 @@
-# GitOps deploy of the public member portal to Cloudflare Pages.
+# MANUAL FALLBACK deploy of the public member portal to Cloudflare Pages.
 #
-# The kyrka-portal Pages project cannot use Cloudflare's built-in git
-# integration (it is connected to the wrong repository and Cloudflare does
-# not support switching the connected repo on an existing project), so this
-# workflow is the production deploy path: merge to main = deploy.
+# The official deploy path is the Pages project's git integration: the
+# kyrka-portal project was recreated 2026-06-11 connected to this repo, and
+# Cloudflare builds + deploys on every push to main (previews for other
+# branches). See ADR-018 and docs/25-deploy-och-innehallsflode.md.
 #
-# Pull requests get a preview deployment at
-# https://<branch>.kyrka-portal.pages.dev instead.
+# Keep this workflow as a manually triggered escape hatch for when the
+# Pages build pipeline itself is unavailable. It deploys the SAME content
+# the same way (wrangler direct upload from the repo root, bundling
+# functions/).
 #
 # Requires the CLOUDFLARE_API_TOKEN repo secret (custom token with
 # "Cloudflare Pages: Edit" on the account).
@@ -14,23 +16,6 @@
 name: deploy-sites
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "frontend/member-portal/**"
-      - "functions/**"
-      - ".eleventy.js"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/deploy-sites.yml"
-  pull_request:
-    paths:
-      - "frontend/member-portal/**"
-      - "functions/**"
-      - ".eleventy.js"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/deploy-sites.yml"
   workflow_dispatch:
 
 env:
@@ -63,10 +48,5 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BRANCH="${{ github.head_ref }}"
-          else
-            BRANCH="main"
-          fi
           npx wrangler@4 pages deploy frontend/member-portal/dist \
-            --project-name=kyrka-portal --branch="$BRANCH"
+            --project-name=kyrka-portal --branch=main
