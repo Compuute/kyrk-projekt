@@ -52,8 +52,10 @@ test('donate page mentions 200 kr threshold', function () {
 
 // --- Alternative payment
 
-test('donate page has bankgiro as alternative', function () {
-  assert.ok(html.toLowerCase().includes('bankgiro'), 'must offer bankgiro as alternative');
+test('donate page is Swish-only — no bankgiro button', function () {
+  // Bankgiro belongs to the membership/autogiro flow on the intake page,
+  // not to one-off donations.
+  assert.ok(!html.includes('bankgiro-btn'), 'donations must not offer a bankgiro button');
 });
 
 // --- Bilingual

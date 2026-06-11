@@ -39,12 +39,6 @@ breadcrumb: "Ge en gava"
         <span class="am" style="display:none;">Swish — አሁን ይክፈሉ</span>
       </a>
 
-      <div class="other-methods">
-        <a class="method-btn" id="bankgiro-btn" href="#bankgiro">
-          Bankgiro: 5123-4567
-        </a>
-      </div>
-
       <div class="receipt-note" id="receipt-note">
         <span class="sv"><strong>Gåvokvitto:</strong> Ange din e-post nedan så skickar vi ett gåvokvitto när församlingen bekräftat din gåva. Kyrkan är godkänd gåvomottagare hos Skatteverket — för skattereduktion krävs även personnummer, kontakta församlingen.</span>
         <span class="am" style="display:none;"><strong>የስጦታ ደረሰኝ:</strong> ኢሜልዎን ከታች ያስገቡ፣ ስጦታዎ ሲረጋገጥ ደረሰኝ እንልክልዎታለን።</span>
@@ -71,7 +65,6 @@ breadcrumb: "Ge en gava"
 
   <script>
     var SWISH_NUMBER = '';
-    var BANKGIRO_NUMBER = '';
 
     // Load church config dynamically
     fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
@@ -79,10 +72,6 @@ breadcrumb: "Ge en gava"
       .then(function (data) {
         var church = (data && data.church) || {};
         SWISH_NUMBER = church.swish_number || '';
-        BANKGIRO_NUMBER = church.bankgiro_number || '';
-        if (BANKGIRO_NUMBER) {
-          document.getElementById('bankgiro-btn').textContent = 'Bankgiro: ' + BANKGIRO_NUMBER;
-        }
         updateSwishLink();
       })
       .catch(function () {});
@@ -144,9 +133,6 @@ breadcrumb: "Ge en gava"
     // --- Gåvokvitto: register the reported gift; the receipt email is sent
     // once the kassör has matched it against the bank statement.
     var DONATIONS_URL = 'https://membership-intake-479770870521.europe-north1.run.app/donations';
-    var lastMethod = 'swish';
-    swishBtn.addEventListener('click', function () { lastMethod = 'swish'; });
-    document.getElementById('bankgiro-btn').addEventListener('click', function () { lastMethod = 'bankgiro'; });
 
     document.getElementById('receipt-form').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -165,7 +151,7 @@ breadcrumb: "Ge en gava"
         body: JSON.stringify({
           church_id: getSelectedChurch(),
           amount_sek: selectedAmount,
-          method: lastMethod,
+          method: 'swish',
           email: document.getElementById('receipt-email').value.trim(),
           gdpr_consent: document.getElementById('receipt-consent').checked
         })
