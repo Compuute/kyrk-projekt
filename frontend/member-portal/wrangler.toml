@@ -5,9 +5,10 @@ compatibility_date = "2025-06-01"
 binding = "kyrka_content"
 id = "kyrka-content-id-placeholder"
 
-# Cloudflare Pages project. Deploy with:
-#   wrangler pages deploy . --project-name=kyrka-portal
+# Cloudflare Pages project. Built with Eleventy from the repo root:
+#   npx @11ty/eleventy
+#   wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal
 #
 # Or connect this repo in the Cloudflare dashboard for auto-deploy on push.
-# Build command: (none — static files, no build step)
-# Output directory: frontend/member-portal
+# Build command: npx @11ty/eleventy
+# Output directory: frontend/member-portal/dist
