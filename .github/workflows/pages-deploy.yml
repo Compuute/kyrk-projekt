@@ -1,0 +1,62 @@
+name: Deploy member portal (Cloudflare Pages)
+
+# Replaces the Pages git integration, which was connected to the wrong repo
+# (Compuute/.github, where the project lived before the move) and cannot be
+# repointed after project creation. Deploys are direct uploads via wrangler
+# instead.
+#
+# Production deploys require manual owner approval (repo rule). That gate is
+# the `prod` environment's required-reviewers protection rule — the deploy
+# job pauses until approved. The CLOUDFLARE_API_TOKEN secret (Pages:Edit)
+# must be set on the `prod` environment, not repo-wide.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.eleventy.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/pages-deploy.yml'
+  workflow_dispatch:
+
+# Never run two production deploys at once; let an in-flight deploy finish
+# so every queued approval still corresponds to a real commit state.
+concurrency:
+  group: pages-production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: https://kyrka-portal.pages.dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site (eleventy)
+        run: npx @11ty/eleventy
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Account id is not a secret; inline keeps setup to a single token.
+          accountId: 53f6d13a77d3c24c92eb47758a70a296
+          # --branch=main marks the deployment as Production (the project's
+          # production branch). Without it the upload lands as a preview.
+          command: pages deploy frontend/member-portal/dist --project-name=kyrka-portal --branch=main
