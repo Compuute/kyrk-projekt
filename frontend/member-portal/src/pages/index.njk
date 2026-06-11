@@ -327,3 +327,17 @@ activePage: "home"
       return false;
     }
   </script>
+
+  <script>
+    // Initial render: church name, upcoming events, announcements and the
+    // quick-link tiles all come from the church content config. Without
+    // this call the hero h1 and #quick-links stay empty.
+    (function () {
+      loadContent(getContentUrl()).then(function (content) {
+        var lang = detectLanguage();
+        renderPage(content, lang);
+        setupLanguageSwitcher(content);
+        applyLanguage(lang);
+      });
+    })();
+  </script>
