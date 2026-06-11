@@ -92,7 +92,7 @@ Säkerheten bygger på principen om **Defense in Depth** (djupförsvar) och stri
 ## 5. UI/UX & Frontend Best Practices
 
 * **Premium-estetik**:
-  - Gränssnitt ska kännas levande och lyxiga. Använd moderna typsnitt (t.ex. Inter, Outfit) via Google Fonts istället för standardtypsnitt. Harmoniska HSL-färgpaletter och glasfria gradients (glassmorphism) rekommenderas.
+  - Gränssnitt ska kännas levande och lyxiga. Använd moderna typsnitt (t.ex. Inter, Outfit) istället för standardtypsnitt — alltid **self-hostade** som woff2 i repot (se `frontend/member-portal/fonts/`), aldrig via extern CDN som Google Fonts: en CDN-hämtning läcker besökarens IP till tredje part, vilket bryter mot plattformens privacy-by-design. Harmoniska HSL-färgpaletter och glasfria gradients (glassmorphism) rekommenderas.
 * **Micro-animationer**:
   - Interaktiva element ska ha mjuka transitions (t.ex. `transition: all 0.2s ease-in-out`) vid hovring och klick.
 * **Inga trackers eller externa skript på klientsidan**:

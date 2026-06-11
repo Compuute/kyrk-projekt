@@ -12,7 +12,7 @@ och en Telegram-bot som admin-gränssnitt.
 git clone https://github.com/Compuute/kyrk-projekt.git
 cd kyrk-projekt
 
-make install   # pip install all service requirements
+make install   # pip + npm deps and git hooks
 make test      # 350+ tests across all services + frontends
 ```
 
@@ -58,7 +58,7 @@ make test      # 350+ tests across all services + frontends
 | Memorial / Tezkar | [/tezkar.html](https://kyrka-portal.pages.dev/tezkar.html) | Information och regler kring Tezkar |
 | Lokaler | [/venue.html](https://kyrka-portal.pages.dev/venue.html) | Hitta till våra lokaler och kyrkor |
 
-Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga kakor.
+Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga spårningskakor (endast två funktionella kakor: språkval och vald församling).
 
 ### Admin-system (Cloud Run — kräver GCP-deploy)
 

@@ -19,7 +19,7 @@ Read those before your first PR.
      — non-negotiables.
 
 2. **Set up your environment** with `make install` — installs all service
-   deps **and** the git hooks. A local hook plus a CI gate (`commit-hygiene`)
+   deps (pip + npm) **and** the git hooks. A local hook plus a CI gate (`commit-hygiene`)
    enforce that the **committer is always the human author**: commits authored
    or committed by an AI tool are blocked (see `AI-RULES.md` RULE 4). Set your
    git identity first with `git config user.name` / `git config user.email`.

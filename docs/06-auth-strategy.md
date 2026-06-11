@@ -1,6 +1,6 @@
 # 06 — Auth Strategy
 
-Authentication and multi-tenant Role-Based Access Control (RBAC) are powered by **Zitadel Cloud (SaaS)**. This Swiss-hosted identity provider is chosen to guarantee 100% EU/Swiss data sovereignty and eliminate GDPR/FISA sovereignty risks (complying with [ADR-016](file:///Users/compuute/DevWorkspace/projects/kyrk-projekt/kyrk-projekt/docs/14-architecture-decisions.md)).
+Authentication and multi-tenant Role-Based Access Control (RBAC) are powered by **Zitadel Cloud (SaaS)**. This Swiss-hosted identity provider is chosen to guarantee 100% EU/Swiss data sovereignty and eliminate GDPR/FISA sovereignty risks (complying with [ADR-016](14-architecture-decisions.md)).
 
 ---
 

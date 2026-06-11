@@ -6,7 +6,7 @@ Welcome! When running under **Claude Code**, please follow these commands and gu
 
 ## 1. Quick Commands
 
-* **Install Dependencies**: `make install` (installs all service requirements in the virtual environment)
+* **Install Dependencies**: `make install` (installs all Python service requirements in the virtual environment + frontend npm deps via `npm ci`)
 * **Run Repo Guard Tests**: `.venv/bin/pytest tests/`
 * **Run All Tests**: `make test` (Python, Node, PWA, Eleventy, and Guardrails)
 * **Run One Service Tests**: `make test-<service-name>` (e.g., `make test-membership-service`)
