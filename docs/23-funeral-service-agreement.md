@@ -77,10 +77,9 @@ och best practice från Fonus/Lavendla/Fenix.
 | **Evigo** | Balsamering + zinkkista | 2-3 arbetsdagar | Eskalera till alternativ partner |
 | **Ethiopian Airlines (Kales)** | Flygfrakt ARN→ADD | 3+ dagars förbokning | Turkish Airlines backup |
 | **Etiopiens ambassad** | Tillståndsbrev | 30 min (vid kompletta dok) | Eskalera via ambassadkontakt |
-| **Eritreas ambassad** | Tillståndsbrev | 2-5 arbetsdagar | Alternativ rutt om 2%-skatt blockar |
 | **Kyrkogårdsförvaltning** | Gravplats + grävning | 3-5 arbetsdagar | Ring + eskalera |
 | **Skatteverket** | Passersedel | 1-3 arbetsdagar | Skicka påminnelse |
-| **Mottagare (Addis/Asmara)** | Tull + transport | Vid ankomst | WhatsApp-koordinering |
+| **Mottagare (Addis Abeba)** | Tull + transport | Vid ankomst | WhatsApp-koordinering |
 
 ## Ansvarsmatris — hemtransport (tillägg)
 
@@ -103,11 +102,10 @@ och best practice från Fonus/Lavendla/Fenix.
 
 | # | Uppgift | Deadline | Stöd från kyrkan |
 |---|---|---|---|
-| HF1 | **Besluta om destination** (stad i Etiopien/Eritrea) | Dag 1 | Kyrkan frågar vid rådgivningsmötet |
+| HF1 | **Besluta om destination** (stad i Etiopien) | Dag 1 | Kyrkan frågar vid rådgivningsmötet |
 | HF2 | **Uppge mottagare** (namn, telefon, adress) | Inom 3 dagar | Kyrkan behöver detta för AWB + mottagning |
 | HF3 | **Lämna pass/ID** för den avlidne | Inom 2 dagar | Krävs av ambassaden |
-| HF4 | **Eritrea: Verifiera 2%-skattestatus** | Dag 1 | Kyrkan informerar om kravet |
-| HF5 | **Meddela familj i hemland** om beräknad ankomst | När flyg är bokat | Kyrkan ger exakt datum + flygnummer |
+| HF4 | **Meddela familj i hemland** om beräknad ankomst | När flyg är bokat | Kyrkan ger exakt datum + flygnummer |
 
 ## Kundkommunikation — 10 kontaktpunkter
 
@@ -206,7 +204,7 @@ Dag 3/7/12/40/180/365  🕊️  KONTAKTPUNKT 10: ተዝካር-påminnelser
 | Flygfrakt (Ethiopian Airlines ARN→ADD) | 28 000 kr |
 | Ambassad-dokumentation | 2 000 kr |
 | Passersedel + tullhantering | 1 000 kr |
-| Mottagning i Addis Abeba/Asmara | 5 000 kr |
+| Mottagning i Addis Abeba | 5 000 kr |
 | Koordination + administration | 9 000 kr |
 | **Totalt** | **65 000 kr** |
 
@@ -276,7 +274,6 @@ EXTERN: SBF ETISKA RÅD (om SBF-auktoriserade)
 □ Val av paket (Enkel / Standard / Komplett)
 □ Hemtransport: Ja / Nej
   □ Om ja: mottagarens namn + telefon i hemland
-  □ Om ja (Eritrea): kontrollera 2%-skattestatus
 □ Eder-förening: namn + kontaktperson
 □ Särskilda önskemål (blommor, musik, gäster)
 □ Betalningsmetod (Swish / bankgiro / Eder)

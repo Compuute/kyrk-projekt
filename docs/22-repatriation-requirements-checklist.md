@@ -1,7 +1,7 @@
 # 22 — Hemtransport: Dokumentation & Krav (End-to-End)
 
 Komplett checklista för att transportera en avliden person från
-Sverige till Etiopien eller Eritrea. Varje steg har:
+Sverige till Etiopien. Varje steg har:
 - Vilket dokument
 - Vem som utfärdar det
 - Hur lång tid det tar
@@ -22,7 +22,7 @@ DAG 2-4: PREPARERING
   □ Zinkkista monterad (IATA-godkänd)
 
 DAG 3-5: AMBASSAD
-  □ Etiopiska/Eritreanska ambassaden kontaktad
+  □ Etiopiska ambassaden kontaktad
   □ Importtillstånd för hemland
 
 DAG 5-10: FLYGFRAKT
@@ -31,7 +31,7 @@ DAG 5-10: FLYGFRAKT
   □ Lämnad till cargo-terminal (ARN)
 
 DAG 7-14: ANKOMST
-  □ Tull i Addis Abeba / Asmara
+  □ Tull i Addis Abeba
   □ Mottagare hämtar
   □ Transport till begravningsplats
   □ Begravning i hemlandet
@@ -138,50 +138,13 @@ klassificeras inte som gods under tulllagstiftningen.
 
 **Output:** Ambassaden utfärdar ett tillståndsbrev för transport till Etiopien.
 
-### 3.2 Eritreas ambassad i Stockholm (verifierat)
-
-| | |
-|---|---|
-| **Adress** | Stjärnvägen 2B, 4:e våningen, Lidingö (PB 1164, 181 23 Lidingö) |
-| **Telefon** | +46 8 441 71 70 (konsulär: +46 8 441 71 76) |
-| **E-post** | consular@eritrean-embassy.se |
-| **Öppettider** | Sön, Tis, Tor, Fre 09:00-12:00 & 14:30-16:30 |
-| **Källa** | eritreanembassyuk.org, us.embassyeritrea.org |
-
-**Dokument till Eritreas ambassad:**
-1. Dödsbevis — formellt legaliserat (apostille via Notarius Publicus)
-2. Läkarintyg — smittfritt
-3. Balsameringsintyg
-4. Rättsmedicinskt tillstånd (vid onaturlig dödsorsak)
-5. Pass/resehandling för den avlidne
-6. Eritreanskt national-ID (om ej tillgängligt: 3 eritreaner med giltigt ID kan verifiera)
-7. Två vidimerade kopior av dödsbeviset
-
-**⚠️ KRITISK VARNING: 2% diasporaskatt**
-
-Eritreas ambassad kräver bevis på betalning av "Recovery and
-Rehabilitation Tax" (2% av årsinkomst, retroaktivt sedan 1992)
-innan konsulära tjänster ges. Eritreaner som inte betalat kan
-**nekas** ambassad-dokumentation.
-
-**Svenska regeringen** har offentligt kritiserat denna praxis
-som tvångsmässig, men den tillämpas fortfarande av ambassaden.
-
-**Mitigation:**
-- Kontrollera familjens skattestatus tidigt (dag 1)
-- Om ej betalt: **överväg Turkish Airlines-rutt via Istanbul**
-  till Asmara utan ambassaddokumentation
-- Alternativ: eritreanskt medborgarskap-verifikation via
-  tre vittnen med eritreanskt ID
-
-### 3.3 Importtillstånd (hemlandets sida)
+### 3.2 Importtillstånd (hemlandets sida)
 
 | | |
 |---|---|
 | **Etiopien** | Ethiopian Customs Authority utfärdar importklarering |
-| **Eritrea** | Ministry of Health + Customs |
 | **Tid** | 2-5 dagar (parallellt med flygbokning) |
-| **Ansvarig** | Mottagarpartner i Addis/Asmara hanterar |
+| **Ansvarig** | Mottagarpartner i Addis Abeba hanterar |
 
 ## Steg 4: Flygfrakt
 
@@ -220,7 +183,7 @@ som tvångsmässig, men den tillämpas fortfarande av ambassaden.
 
 | Flygbolag | Rutt | Fördelar |
 |---|---|---|
-| Turkish Airlines Cargo | ARN → IST → ADD/ASM | Dagliga avgångar, bra Eritrea-rutt |
+| Turkish Airlines Cargo | ARN → IST → ADD | Dagliga avgångar, bra backup-rutt |
 | Lufthansa Cargo | ARN → FRA → ADD | Star Alliance, pålitligt |
 | Emirates SkyCargo | ARN → DXB → ADD | Via Dubai |
 
@@ -250,7 +213,6 @@ som tvångsmässig, men den tillämpas fortfarande av ambassaden.
 |---|---|
 | **Uppgift** | Hämta vid flygplatsen, tullklarera, transportera till begravningsplats |
 | **Etiopien** | Lokalt begravningsföretag i Addis Abeba |
-| **Eritrea** | Lokalt begravningsföretag i Asmara |
 | **Kostnad** | 3 000 – 5 000 kr |
 | **Kommunikation** | Via telefon/WhatsApp — vi bekräftar ankomst |
 
@@ -263,7 +225,7 @@ som tvångsmässig, men den tillämpas fortfarande av ambassaden.
 | Ambassad-avgifter | 1 000 – 3 000 kr |
 | Flygfrakt (Ethiopian Airlines) | 20 000 – 35 000 kr |
 | Tullhantering (Sverige) | 0 kr |
-| Mottagning i Addis/Asmara | 3 000 – 5 000 kr |
+| Mottagning i Addis Abeba | 3 000 – 5 000 kr |
 | Diverse (transport till Arlanda etc) | 2 000 – 3 000 kr |
 | **Total kostnad** | **39 000 – 71 000 kr** |
 | **Vårt pris till familjen** | **55 000 – 75 000 kr** |
@@ -292,7 +254,6 @@ som tvångsmässig, men den tillämpas fortfarande av ambassaden.
 | Transporttillstånds-ansökan | Svenska | 🔨 Att bygga |
 | Tullexportdeklaration | Svenska/Engelska | 🔨 Att bygga |
 | Ambassad-brev (Etiopien) | Amhariska/Engelska | 🔨 Att bygga |
-| Ambassad-brev (Eritrea) | Tigrinja/Engelska | 🔨 Att bygga |
 | Air Waybill-data | Engelska | 🔨 Att bygga |
 | Balsameringsintyg-begäran | Svenska | 🔨 Att bygga |
 | Mottagarbekräftelse | Amhariska/Engelska | 🔨 Att bygga |
@@ -310,9 +271,7 @@ som tvångsmässig, men den tillämpas fortfarande av ambassaden.
 | Balsameringspartner (Stockholm) | Kritisk | ❌ Att göra |
 | Zinkkista-leverantör | Kritisk | ❌ Att göra |
 | Etiopiens ambassad (Stockholm) | Kritisk | ❌ Att göra |
-| Eritreas ambassad (Stockholm) | Kritisk | ❌ Att göra |
 | Mottagarpartner Addis Abeba | Kritisk | ❌ Att göra |
-| Mottagarpartner Asmara | Kritisk | ❌ Att göra |
 | Arlanda Cargo Terminal | Bra att ha | ❌ Att göra |
 
 ## Risker och mitigeringar

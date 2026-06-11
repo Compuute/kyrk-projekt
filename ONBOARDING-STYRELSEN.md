@@ -40,31 +40,12 @@ genom att byta 5 värden i en konfigurationsfil.
 
 Källa: SKR, Allabolag, Bolagsfakta
 
-### Eritreansk-Ortodoxa Tewahdo Kyrkan i Sverige
-
-Eritreanska kyrkan är en **separat organisation** sedan
-Eritreas autokefali 1993. Teologiskt likartad men
-organisatoriskt oberoende.
-
-| Data | Siffra |
-|---|---|
-| Aktiva medlemmar | ~3 000 |
-| Helgdeltagare | ~5 000 |
-| Registrerade församlingar | ~50 |
-| Städer | Stockholm, Göteborg, Uppsala, Sundsvall, Norrköping, Örebro, Malmö m.fl. |
-| Nationell organisation | Eritreanska Ortodoxa Tewahdo Kyrkan i Sverige (EOKTS) |
-
-**Plattformen kan stödja eritreanska församlingar också** —
-samma kodbas, separerad data. Kräver samarbetsavtal
-mellan ärkestiften.
-
 ### Total marknad
 
 | Grupp | Församlingar | Medlemmar |
 |---|---|---|
 | Etiopisk-Ortodoxa | 9 | ~3 250 |
-| Eritreansk-Ortodoxa | ~50 | ~3 000–5 000 |
-| **Totalt** | **~59** | **~6 250–8 250** |
+| **Totalt** | **9** | **~3 250** |
 
 ## Vad vi har byggt
 
@@ -122,7 +103,7 @@ Komplett tjänstekatalog med 6 paket:
 - Begravning med ceremoni: 28 000 kr
 - Komplett med sorgestöd: 35 000 kr
 
-**Hemtransport till Etiopien/Eritrea:**
+**Hemtransport till Etiopien:**
 - Hemtransport: 70 000 kr
 - Med avskedsceremoni: 85 000 kr
 - Komplett med sorgestöd: 100 000 kr
@@ -136,12 +117,12 @@ per kyrka — se styrelsebeslut #22.
 
 | Mått | Siffra |
 |---|---|
-| Ortodoxa i Sverige (ETH+ERI) | ~6 250–8 250 personer |
-| Dödsfall/år (~0.5%) | ~30–40 |
-| Om vi tar 50% av marknaden | ~15–20 begravningar/år |
+| Etiopisk-ortodoxa i Sverige | ~3 250 personer |
+| Dödsfall/år (~0.5%) | ~16 |
+| Om vi tar 50% av marknaden | ~8 begravningar/år |
 | Genomsnittlig intäkt/begravning | ~40 000 kr |
-| Hemtransport-andel (~30%) | ~5–6 hemtransporter/år |
-| **Estimerad årsintäkt** | **800 000–1 500 000 kr** |
+| Hemtransport-andel (~30%) | ~2–3 hemtransporter/år |
+| **Estimerad årsintäkt** | **400 000–750 000 kr (reviderad – etiopiskt fokus)** |
 
 ## Vad det kostar
 
@@ -203,10 +184,6 @@ ETIOPISK-ORTODOXA ÄRKESTIFTET (org.nr 252002-8859)
 ├── 7. Debre Mitmaq Kidest Mariam (Lund)
 ├── 8. Debre Mewi S:t Michael (Lund)
 └── 9. Etiopisk Gabriel (Umeå)
-
-ERITREANSK-ORTODOXA (separat org, möjlig framtida expansion)
-├── ~50 församlingar i hela Sverige
-└── Kräver samarbetsavtal med EOKTS
 
 Samma kodbas. Separerad data. 0 kr per ny kyrka.
 ```

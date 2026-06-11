@@ -64,7 +64,6 @@
 | **Evigo** (balsamering) | evigo.se | Balsamering + zinkkista |
 | **Kales Group** (Ethiopian Airlines cargo) | +46 8 594 411 90, adam.gunnarsson@kales.com | Flygfrakt ARN→ADD |
 | **Etiopiens ambassad** | Birger Jarlsgatan 39, +46 8 120 485 00 | Hemtransport-tillstånd |
-| **Eritreas ambassad** | Stjärnvägen 2B Lidingö, +46 8 441 71 76 | Hemtransport-tillstånd |
 
 ## Dokumentation
 
