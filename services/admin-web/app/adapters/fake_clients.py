@@ -17,11 +17,14 @@ from app.ports.client_errors import ClientError
 from app.ports.clients import (
     ActivityAggregate,
     ApprovalResult,
+    DismissDonationResult,
     IssueCertificateRequest,
     IssuedCertificate,
     MonthlyReport,
+    PendingDonation,
     PendingSubmission,
     RejectResult,
+    VerifyDonationResult,
 )
 
 
@@ -30,9 +33,15 @@ class FakeIntakeClient:
         self.submissions: dict[str, PendingSubmission] = {}
         self.approve_error: ClientError | None = None
         self.list_error: ClientError | None = None
+        self.donations: dict[str, PendingDonation] = {}
+        self.donations_list_error: ClientError | None = None
+        self.verify_donation_error: ClientError | None = None
 
     def seed(self, item: PendingSubmission) -> None:
         self.submissions[item.submission_id] = item
+
+    def seed_donation(self, item: PendingDonation) -> None:
+        self.donations[item.donation_id] = item
 
     def list_pending(self, token: str) -> list[PendingSubmission]:  # noqa: ARG002
         if self.list_error is not None:
@@ -77,6 +86,45 @@ class FakeIntakeClient:
             status="rejected",
         )
         return RejectResult(submission_id=submission_id, status="rejected")
+
+    def _replace_donation(self, donation_id: str, status: str) -> PendingDonation:
+        d = self.donations.get(donation_id)
+        if d is None:
+            raise ClientError("not found", status_code=404)
+        if d.status != "pending_verification":
+            raise ClientError("already processed", status_code=409)
+        updated = PendingDonation(
+            donation_id=d.donation_id,
+            church_id=d.church_id,
+            amount_sek=d.amount_sek,
+            method=d.method,
+            email_masked=d.email_masked,
+            received_at=d.received_at,
+            status=status,
+        )
+        self.donations[donation_id] = updated
+        return updated
+
+    def list_donations(self, token: str) -> list[PendingDonation]:  # noqa: ARG002
+        if self.donations_list_error is not None:
+            raise self.donations_list_error
+        return [
+            d for d in self.donations.values() if d.status == "pending_verification"
+        ]
+
+    def verify_donation(self, token: str, donation_id: str) -> VerifyDonationResult:  # noqa: ARG002
+        if self.verify_donation_error is not None:
+            raise self.verify_donation_error
+        d = self._replace_donation(donation_id, "verified")
+        return VerifyDonationResult(
+            donation_id=d.donation_id,
+            status="verified",
+            receipt_number=f"GK-2026-{donation_id[:8].upper()}",
+        )
+
+    def dismiss_donation(self, token: str, donation_id: str) -> DismissDonationResult:  # noqa: ARG002
+        d = self._replace_donation(donation_id, "dismissed")
+        return DismissDonationResult(donation_id=d.donation_id, status="dismissed")
 
 
 class FakeCertificateClient:

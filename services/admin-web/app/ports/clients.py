@@ -35,10 +35,37 @@ class RejectResult:
     status: str
 
 
+@dataclass(frozen=True)
+class PendingDonation:
+    donation_id: str
+    church_id: str
+    amount_sek: int
+    method: str
+    email_masked: str
+    received_at: str
+    status: str
+
+
+@dataclass(frozen=True)
+class VerifyDonationResult:
+    donation_id: str
+    status: str
+    receipt_number: str
+
+
+@dataclass(frozen=True)
+class DismissDonationResult:
+    donation_id: str
+    status: str
+
+
 class IntakeClientPort(Protocol):
     def list_pending(self, token: str) -> list[PendingSubmission]: ...
     def approve(self, token: str, submission_id: str) -> ApprovalResult: ...
     def reject(self, token: str, submission_id: str) -> RejectResult: ...
+    def list_donations(self, token: str) -> list[PendingDonation]: ...
+    def verify_donation(self, token: str, donation_id: str) -> VerifyDonationResult: ...
+    def dismiss_donation(self, token: str, donation_id: str) -> DismissDonationResult: ...
 
 
 # ---------------------------------------------------------------- certificates
