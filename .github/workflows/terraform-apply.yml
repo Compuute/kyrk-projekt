@@ -66,7 +66,10 @@ jobs:
           region            = "${{ secrets.GCP_REGION }}"
           environment       = "${{ steps.env.outputs.name }}"
           github_repository = "${{ github.repository }}"
-          database_location = "${{ secrets.GCP_REGION }}"
+          # Firestore location policy: prod = eur3 (multi-region), dev = regional.
+          # Immutable after database creation — a change here makes the plan
+          # show destroy+recreate; export/import the data before applying.
+          database_location = "${{ steps.env.outputs.name == 'prod' && 'eur3' || secrets.GCP_REGION }}"
           TFVARS
 
       - name: terraform init + select workspace
