@@ -1,6 +1,6 @@
 """FastAPI app factory for membership-service.
 
-In production the real adapters (PropelAuth, Firestore, Cloud KMS) are wired
+In production the real adapters (Zitadel, Firestore, Cloud KMS) are wired
 in `deps.py`. The factory here stays minimal so tests can import it without
 side effects.
 """

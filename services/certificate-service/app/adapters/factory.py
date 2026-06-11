@@ -1,7 +1,7 @@
 """Adapter factory for certificate-service.
 
 ADAPTER_MODE=memory (default): in-memory repo/audit + fake auth.
-ADAPTER_MODE=production: Firestore repo/audit + PropelAuth.
+ADAPTER_MODE=production: Firestore repo/audit + Zitadel auth.
 
 Required env vars in production mode:
 - ZITADEL_ISSUER_URL
@@ -9,7 +9,7 @@ Required env vars in production mode:
 
 IAM notes: the service account needs
 - roles/datastore.user on Firestore (security rules enforce per-collection)
-- roles/secretmanager.secretAccessor on propelauth-api-key
+- roles/secretmanager.secretAccessor on zitadel-client-secret
 That's it.
 """
 from __future__ import annotations

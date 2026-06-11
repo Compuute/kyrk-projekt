@@ -1,7 +1,28 @@
+import ssl
+
 import pytest
 from unittest.mock import MagicMock, patch
 
 from app.adapters.jwt_session import JWTSessionAdapter
+
+
+def test_jwks_client_verifies_tls():
+    """Regression: the production JWKS fetch must verify TLS.
+
+    JWTSessionAdapter runs only in ADAPTER_MODE=production (factory wires
+    FakeSessionAdapter otherwise), and the JWKS fetch is the trust anchor for
+    every admin session. Disabling certificate/hostname verification would let
+    a MITM on the issuer connection serve forged signing keys and bypass admin
+    authentication entirely.
+    """
+    adapter = JWTSessionAdapter("https://auth.example", "client")
+    client = adapter._get_jwks_client()
+    ctx = client.ssl_context
+    # None => PyJWKClient/urllib uses the secure system default (verifies). OK.
+    # A custom context is only acceptable if it still verifies cert + hostname.
+    if ctx is not None:
+        assert ctx.verify_mode == ssl.CERT_REQUIRED, "JWKS fetch must verify TLS certs"
+        assert ctx.check_hostname is True, "JWKS fetch must verify the hostname"
 
 
 def test_validate_missing_cookie():

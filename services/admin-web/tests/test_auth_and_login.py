@@ -19,7 +19,7 @@ def test_login_page_renders(client):
     r = client.get("/login")
     assert r.status_code == 200
     assert "Logga in" in r.text
-    assert "PropelAuth" in r.text  # MVP note
+    assert "Zitadel" in r.text  # MVP note: production login is Zitadel OIDC
 
 
 def test_login_sets_cookie_and_redirects(client):

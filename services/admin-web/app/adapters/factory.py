@@ -1,7 +1,7 @@
 """Adapter factory for admin-web.
 
 ADAPTER_MODE=memory (default): fake clients + fake session (colon token).
-ADAPTER_MODE=production: httpx clients + JWT session (PropelAuth RS256).
+ADAPTER_MODE=production: httpx clients + JWT session (Zitadel OIDC, RS256).
 
 Required env vars in production mode:
 - INTAKE_BASE_URL

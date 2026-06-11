@@ -1,4 +1,4 @@
-"""Auth port. The real adapter wraps propelauth-fastapi.
+"""Auth port. The real adapter is ZitadelAuthAdapter (OIDC via pyjwt).
 
 We keep an interface so tests use a fake and the service code is independent
 of the auth provider.

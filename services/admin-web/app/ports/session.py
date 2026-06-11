@@ -1,7 +1,7 @@
 """Session port — abstracts how a session cookie is validated.
 
 MVP: FakeSessionAdapter parses `user_id:church_id:role` from the cookie.
-Production: JWTSessionAdapter validates a real PropelAuth JWT and
+Production: JWTSessionAdapter validates a real Zitadel OIDC JWT and
 extracts the same three fields (user_id, org_id, role).
 
 The port pattern lets the route code call `session_port.validate(cookie)`
