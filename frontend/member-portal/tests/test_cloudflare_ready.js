@@ -1,7 +1,8 @@
 // Tests that the member-portal is Cloudflare Pages-ready.
 //
-// Verifies: no external requests, no cookies, correct cache headers,
-// content.json fetch works, language switching is client-side only.
+// Verifies: no external requests, no tracking cookies (functional-only),
+// correct cache headers, content.json fetch works, language switching is
+// client-side only.
 //
 // Run: node tests/test_cloudflare_ready.js
 
@@ -15,10 +16,18 @@ function test(name, fn) {
 }
 
 const ROOT = path.join(__dirname, '..');
-const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf-8');
-const css = fs.readFileSync(path.join(ROOT, 'styles.css'), 'utf-8');
-const js = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf-8');
-const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content.json'), 'utf-8'));
+// Cloudflare Pages serves the eleventy build output (dist/), not the source
+// tree. index.html only exists there (rendered from src/pages/index.njk), so
+// the "deploy-ready" checks must read the built artifacts.
+const DIST = path.join(ROOT, 'dist');
+if (!fs.existsSync(path.join(DIST, 'index.html'))) {
+  console.error('  FAIL  dist/ not built — run `npx @11ty/eleventy` (or `make test`) first');
+  process.exit(1);
+}
+const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf-8');
+const css = fs.readFileSync(path.join(DIST, 'styles.css'), 'utf-8');
+const js = fs.readFileSync(path.join(DIST, 'app.js'), 'utf-8');
+const content = JSON.parse(fs.readFileSync(path.join(DIST, 'content.json'), 'utf-8'));
 
 // --- No external resources (Cloudflare Pages serves everything local)
 
@@ -44,14 +53,33 @@ test('JS has no fetch to external domains (except content.json)', function () {
   assert.strictEqual(fetches.length, 0, 'Found external fetch calls: ' + fetches.join(', '));
 });
 
-// --- No cookies / tracking
+// --- Cookies: first-party functional only, no tracking
+
+// Functional cookies persist UI preferences (language + selected church) and
+// are disclosed in the privacy footer. Tracking/third-party cookies are not
+// allowed. Each must be SameSite-scoped.
+const FUNCTIONAL_COOKIES = ['selected_language', 'selected_church'];
+const cookieWrites = js.split('\n').filter(function (l) {
+  return /document\.cookie\s*=\s*["'`]/.test(l);
+});
 
 test('HTML has no cookie-setting scripts', function () {
   assert.ok(!html.includes('document.cookie'), 'Found document.cookie in HTML');
 });
 
-test('JS does not set cookies', function () {
-  assert.ok(!js.includes('document.cookie'), 'Found document.cookie in JS');
+test('JS sets only first-party functional cookies', function () {
+  for (const l of cookieWrites) {
+    const name = (l.match(/document\.cookie\s*=\s*["'`]\s*([A-Za-z0-9_]+)=/) || [])[1];
+    assert.ok(name && FUNCTIONAL_COOKIES.includes(name),
+      'Unexpected cookie set (only ' + FUNCTIONAL_COOKIES.join(', ') + ' allowed): ' + l.trim());
+  }
+});
+
+test('every cookie set is SameSite-scoped (no cross-site tracking)', function () {
+  for (const l of cookieWrites) {
+    assert.ok(/SameSite=(Lax|Strict)/i.test(l),
+      'Cookie set without SameSite=Lax/Strict: ' + l.trim());
+  }
 });
 
 test('HTML has no analytics scripts', function () {

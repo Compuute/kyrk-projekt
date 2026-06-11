@@ -83,6 +83,15 @@ jobs:
       - name: Run app tests
         run: node tests/test_app.js
 
+      # The Cloudflare-ready test asserts against the eleventy build output
+      # (dist/), which is what Cloudflare Pages serves. Build it first, from
+      # the repo root where .eleventy.js and package.json live.
+      - name: Build site (eleventy)
+        working-directory: .
+        run: |
+          npm ci
+          npx @11ty/eleventy
+
       - name: Run Cloudflare-ready tests
         run: node tests/test_cloudflare_ready.js
 

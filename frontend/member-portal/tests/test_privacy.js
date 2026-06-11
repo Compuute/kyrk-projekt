@@ -54,9 +54,11 @@ test('mentions EU data residency', function () {
     'must mention EU data storage');
 });
 
-test('mentions no cookies', function () {
+test('discloses cookie policy (functional only, no tracking)', function () {
   assert.ok(html.includes('kakor') || html.includes('cookies'),
-    'must explicitly state no cookies');
+    'must explicitly describe cookie use');
+  assert.ok(html.includes('spårningskakor'),
+    'must state there are no tracking cookies');
   assert.ok(html.includes('ኩኪ'), 'must mention cookies in Amharic too');
 });
 

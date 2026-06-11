@@ -42,7 +42,7 @@ Om allt är grönt är du redo.
 | Kontakt | /contact | Adress, telefon, tider, Telegram |
 | Integritetspolicy | /privacy | GDPR sv + am |
 
-Alla sidor: tvåspråkiga (svenska + amhariska), PWA, offline-stöd, inga kakor.
+Alla sidor: tvåspråkiga (svenska + amhariska), PWA, offline-stöd, inga spårningskakor. Två funktionella kakor (`selected_language`, `selected_church`) bär besökarens egna val till Cloudflare-edgen för rätt språk/församlingsinnehåll — se `functions/_middleware.ts`.
 
 ### Backend-services (5 st, byggda, ej deployade)
 

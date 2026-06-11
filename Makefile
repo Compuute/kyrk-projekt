@@ -48,6 +48,8 @@ install: install-hooks
 	  echo "==> $$svc"; \
 	  (cd services/$$svc && $(PIP) install -q -r requirements.txt); \
 	done
+	@echo "==> npm (frontend build + test deps)"
+	@npm ci
 
 # Point git at the version-controlled hooks dir. Path is resolved relative to
 # the repo top-level so this works whether kyrk-projekt is nested or its own repo.
@@ -74,7 +76,7 @@ test: build-js
 	@$(PYTHON) -m pytest tests/ -q
 	@echo "==> member-portal"
 	@npx @11ty/eleventy
-	@(cd frontend/member-portal && for t in tests/test_*.js; do node "$$t"; done)
+	@(cd frontend/member-portal && for t in tests/test_*.js; do node "$$t" || exit 1; done)
 	@echo "==> wifi-intake-portal"
 	@(cd frontend/wifi-intake-portal && node tests/test_content_decision.js)
 
