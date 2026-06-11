@@ -22,7 +22,7 @@ def _render_html(r: DonationReceipt) -> str:
     return f"""<!DOCTYPE html>
 <html lang="sv">
 <body style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #222;">
-  <h1 style="font-size: 20px;">Gåvokvitto / የስጦታ ደረሰኝ</h1>
+  <h1 style="font-size: 20px;">Gåvokvitto</h1>
   <p>Tack för din gåva till {r.church_name}.</p>
   <table style="border-collapse: collapse; width: 100%;">
     <tr><td style="padding: 4px 8px 4px 0;"><strong>Kvittonummer</strong></td><td>{r.receipt_number}</td></tr>
