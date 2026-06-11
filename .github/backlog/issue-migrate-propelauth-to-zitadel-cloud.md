@@ -1,5 +1,7 @@
 # Issue: Migrera autentisering från PropelAuth till Zitadel Cloud (SaaS)
 
+> **Status (2026-06-11):** Kod-migreringen är **genomförd** — `ZitadelAuthAdapter` + `JWTSessionAdapter` wire:as i production via `factory.py` i samtliga services; ingen levande PropelAuth-kod kvar (endast inaktuella docstrings). **MEN** den aktiva instansen ligger i Zitadels **US-region på gratisnivå** (`kyrk-auth-oqvxjf.us1.zitadel.cloud`), inte EU/Schweiz. Det är ett medvetet, kostnadsmotiverat avsteg under uppbyggnadsfasen — se **[ADR-017](../../docs/14-architecture-decisions.md)**. **Kvarstår innan stängning:** (1) flytta till EU/CH-region före skarp persondata/produktion, (2) fixa `ssl.CERT_NONE` i `JWTSessionAdapter` före deploy, (3) rensa inaktuella PropelAuth-docstrings.
+
 ## Kategori
 - [x] Säkerhet / Datasuveränitet (Security / Sovereignty)
 - [x] Refaktorering / Arkitektur (Refactoring / Architecture)

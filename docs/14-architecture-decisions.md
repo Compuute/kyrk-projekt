@@ -475,7 +475,7 @@ kontrollflöde — migrera dem individuellt med samma mönster.
 ## ADR-016: Migration från PropelAuth till Zitadel Cloud (SaaS) för suveränitet och noll-drift
 
 **Date:** 2026-06
-**Status:** accepted
+**Status:** accepted — implementationen avviker just nu på dataresidens: den aktiva Zitadel-instansen ligger i **US-regionen** (gratisnivå), inte EU/Schweiz. Se **ADR-017**. Den EU/schweiziska datasuveräniteten som beskrivs nedan är ännu **INTE uppfylld** och får inte påstås vara det förrän EU-flytten är gjord.
 
 **Context:**
 PropelAuth (som används för multi-tenant RBAC i MVP) är en amerikansk SaaS-tjänst. Eftersom den hanterar inloggningar, e-postadresser, IP-adresser och aktivitetsloggar för kyrkomedlemmar och administratörer (vilka kan innehålla RED-zon personuppgifter och därmed medför GDPR- och FISA-relaterade suveränitetsrisker under amerikansk lagstiftning), måste vi migrera till en fullständigt EU/schweizisk datasuverän lösning.
@@ -529,6 +529,39 @@ Vi implementerar **Alternativ A (Strikt Säkerhet)**:
 
 **When to revisit:**
 Om vi i framtiden behöver utföra tunga analytiska beräkningar eller rapportering på begravningsdata i YELLOW-zonen (t.ex. i `reporting-service`), måste vi se till att datan anonymiseras eller pseudonymiseras i backend innan den skickas vidare.
+
+---
+
+## ADR-017: Tillfällig Zitadel-instans i US-region (gratisnivå) — avsteg från ADR-016:s dataresidens
+
+**Date:** 2026-06
+**Status:** accepted (tidsbegränsat, villkorat avsteg från [ADR-016](#adr-016-migration-från-propelauth-till-zitadel-cloud-saas-för-suveränitet-och-noll-drift))
+
+**Context:**
+ADR-016 beslutade migration till Zitadel Cloud uttryckligen för **EU/schweizisk dataresidens** (bort från amerikansk jurisdiktion: US Cloud Act / FISA). Zitadels EU/CH-region är dock en **betald** nivå. Under uppbyggnadsfasen vill vi verifiera att **all** auth-funktionalitet fungerar — OIDC authorization-code-flöde, multi-tenancy (Zitadel Organizations per församling), rollerna `admin`/`pastor`/`editor`/`viewer`, lokal JWKS-/RS256-verifiering i samtliga services, samt deploy-pipelinen — innan vi betalar för EU-regionen.
+
+Den **gratisnivå** vi använder för detta ligger i Zitadels **US-region**. Faktiskt nuläge (verifierat mot Zitadel-konsolen, 2026-06-10):
+- Instans: `kyrk-auth-oqvxjf.us1.zitadel.cloud` (`us1` = US-region)
+- Organization: `EOTK Sverige`; projekt: `kyrk-portal`; app: `admin-web` (Web/OIDC, status Active)
+- Client Id matchar `ZITADEL_CLIENT_ID` i `.github/workflows/deploy.yml`
+- Inget är ännu deployat till produktion (`deploy.yml` har aldrig körts); ingen skarp persondata finns i instansen
+
+**Decision:**
+Bygg upp och verifiera all autentiserings- och RBAC-funktionalitet på Zitadels **gratisnivå i US-regionen** under uppbyggnadsfasen. Detta är ett **medvetet, kostnadsmotiverat och tidsbegränsat avsteg** från ADR-016:s krav på EU/schweizisk dataresidens.
+
+**Hård grind (icke förhandlingsbar):**
+Ingen **RED-zon / skarp persondata** (riktiga medlemmar, personnummer, namn, e-post, IP-loggar, riktiga admin-identiteter) får matas in i US-instansen. Endast **test-/syntetisk data** under denna fas. Identitetstjänsten **ska flyttas till Zitadels EU/CH-region innan** något av följande inträffar — vilket som kommer först:
+1. Skarp/kritisk persondata matas in, eller
+2. Systemet tas i publik produktion (första skarpa `deploy.yml`-körningen mot riktiga användare).
+
+**Consequence:**
+- Under uppbyggnadsfasen är dataresidensen **US, inte EU/CH**. ADR-016:s suveränitetsmål är därmed **inte uppfyllt i nuläget** och får inte påstås vara det i någon dokumentation (RULE 2 — dokument och verklighet ska säga samma sak). Berörda docs (`06-auth-strategy.md`, ADR-016, backlog-issuen) bär nu denna caveat.
+- Eftersom endast test-/syntetisk data används medför US-residensen i denna fas **ingen behandling av riktiga personuppgifter** — GDPR-/FISA-risken materialiseras först om grinden ovan bryts.
+- **Migrationsväg vid EU-flytt** (ren adapter-/config-ändring, ingen kodändring tack vare `AuthPort`/`SessionPort`): skapa ny instans i EU/CH-region → ny `ZITADEL_ISSUER_URL` + nytt client-id/secret → uppdatera `deploy.yml` och Secret Manager (`zitadel-client-secret`) → återskapa organizations/projekt/roller → verifiera mot full testsvit.
+- Separat men relaterat: `JWTSessionAdapter` hämtar i nuläget JWKS med TLS-certverifiering avstängd (`ssl.CERT_NONE`) — ska åtgärdas före *varje* deploy, oberoende av region (egen issue/PR).
+
+**When to revisit:**
+Vid den punkt där grinden ovan triggar (all funktion verifierad och redo för produktion, eller innan skarp data). Då: utför EU-region-migrationen, uppdatera ADR-016:s status till uppfylld och sätt denna ADR-017 till **superseded/closed**.
 
 
 
