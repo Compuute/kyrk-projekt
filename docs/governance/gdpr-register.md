@@ -15,7 +15,7 @@ Adress: Saltsjö-Boo, Nacka kommun
 | **Kategorier av personuppgifter** | Förnamn, efternamn, telefon, e-post, personnummer, kyrkotillhörighet |
 | **Rättslig grund** | Samtycke (Art. 6.1.a) med explicit checkbox och tidsstämpel |
 | **Känsliga uppgifter** | Religiös tillhörighet (Art. 9.2.d — behandling av ideell förening med religiöst syfte) |
-| **Mottagare** | Kyrkans admin (pastor, sekreterare, styrelse) via PropelAuth RBAC |
+| **Mottagare** | Kyrkans admin (pastor, sekreterare, styrelse) via Zitadel Cloud RBAC |
 | **Tredjelandsöverföring** | Nej — all data i GCP europe-north1 (Finland) |
 | **Lagringstid** | Aktiva medlemmar: tills radering begärs. Pending (ej godkänd): 30 dagar. |
 | **Tekniska skyddsåtgärder** | KMS-kryptering av personnummer, TLS i transit, per-service IAM, audit trail |
@@ -82,7 +82,7 @@ Adress: Saltsjö-Boo, Nacka kommun
 | Underbiträde | Syfte | DPA | Plats |
 |---|---|---|---|
 | Google Cloud Platform | Hosting, Firestore, KMS, BigQuery | Googles standard-DPA (behöver signeras) | EU (europe-north1) |
-| PropelAuth | RBAC / autentisering | PropelAuth DPA (behöver signeras) | EU/US (enbart admin-email) |
+| Zitadel Cloud | RBAC / autentisering | Zitadel DPA (behöver signeras) | ⚠️ **US (`us1`, gratisnivå)** just nu — endast test-/syntetisk data; flyttas till EU/CH-region före skarp data, se ADR-017. *Granskas av personuppgiftsansvarig.* |
 | Cloudflare | CDN, DDoS-skydd | Cloudflare DPA (automatisk vid konto) | Global edge (ingen persondata) |
 | Anthropic | AI-analys via API | Anthropic DPA (zero-retention) | US (enbart anonyma aggregat) |
 
