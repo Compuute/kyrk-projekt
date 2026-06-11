@@ -49,8 +49,8 @@
   },
   "footer": {
     "privacy": {
-      "sv": "Den här sidan använder inga kakor och spårar dig inte. Läs vår integritetspolicy.",
-      "am": "ይህ ገጽ ኩኪዎችን አይጠቀምም እና አይከታተልዎትም። የግላዊነት ፖሊሲያችንን ያንብቡ።"
+      "sv": "Den här sidan spårar dig inte. Inga spårningskakor — två funktionella kakor sparar dina val (språk och församling). Läs vår integritetspolicy.",
+      "am": "ይህ ገጽ አይከታተልዎትም። የክትትል ኩኪዎች የሉም — ሁለት ተግባራዊ ኩኪዎች ምርጫዎችዎን (ቋንቋ እና ቤተ ክርስቲያን) ያስቀምጣሉ። የግላዊነት ፖሊሲያችንን ያንብቡ።"
     },
     "privacy_url": "./privacy"
   }

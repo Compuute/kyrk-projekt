@@ -48,7 +48,7 @@ Som **Redaktör** kan du ändra texter och meddelanden.
 Som kyrka hanterar vi känsliga personuppgifter (medlemskap i ett trossamfund är en känslig uppgift enligt lag). Systemet är byggt för att följa **GDPR** till punkt och pricka:
 
 1.  **Krypterade personnummer**: Alla personnummer krypteras med en egen krypteringsnyckel (Google Cloud KMS) innan de sparas i databasen. Ingen medarbetare, inte ens systemadministratören, kan läsa personnumren i klartext i databasen.
-2.  **Ingen spårning (Cookies)**: Hemsidan använder inga kakor (cookies), ingen marknadsföringsspårning och skickar ingen data till Google Analytics.
+2.  **Ingen spårning (Cookies)**: Hemsidan använder inga spårningskakor, ingen marknadsföringsspårning och skickar ingen data till Google Analytics. Två funktionella kakor sparar besökarens egna val (språk och vald församling) så att rätt innehåll visas — de spårar inte och delas inte med tredje part.
 3.  **GDPR-register**: Systemet skapar automatiskt det register över personuppgiftsbehandlingar (Artikel 30) som Integritetsskyddsmyndigheten (IMY) kräver av oss.
 
 ---

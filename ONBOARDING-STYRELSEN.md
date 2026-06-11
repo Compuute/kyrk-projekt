@@ -182,7 +182,7 @@ Alla beslut finns som ärenden i GitHub:
 ## Säkerhet och GDPR
 
 - **Inga personuppgifter** lagras på hemsidan
-- **Inga kakor**, ingen spårning, ingen analytics
+- **Inga spårningskakor**, ingen spårning, ingen analytics — endast två funktionella kakor som sparar besökarens egna val (språk och församling)
 - **Personnummer** krypteras med Google Cloud KMS
 - **GDPR-register** (Art. 30) dokumenterat
 - **Granskningsrapport** genereras med en knapptryckning

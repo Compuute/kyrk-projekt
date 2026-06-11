@@ -1,7 +1,8 @@
 // Tests that the member-portal is Cloudflare Pages-ready.
 //
-// Verifies: no external requests, no cookies, correct cache headers,
-// content.json fetch works, language switching is client-side only.
+// Verifies: no external requests, no tracking cookies (functional-only),
+// correct cache headers, content.json fetch works, language switching is
+// client-side only.
 //
 // Run: node tests/test_cloudflare_ready.js
 

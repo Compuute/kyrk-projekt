@@ -63,8 +63,8 @@ Adress: Saltsjö-Boo, Nacka kommun
 | Fält | Värde |
 |---|---|
 | **Ändamål** | Informera om aktiviteter, möjliggöra medlemsregistrering |
-| **Kategorier av personuppgifter** | Inga — webbsidorna samlar INTE in data (inga kakor, ingen spårning, inga analysverktyg) |
-| **Rättslig grund** | Ej tillämpligt — ingen personuppgiftsbehandling |
+| **Kategorier av personuppgifter** | Ingen spårning, inga analysverktyg, ingen insamling till databas. Två funktionella kakor lagrar besökarens egna val i webbläsaren: språk (`selected_language`) och vald församling (`selected_church`); de läses av Cloudflare-edgen för att rendera rätt innehåll. OBS: valet av församling kan indirekt antyda religiös tillhörighet — klassning enligt Art. 9 ska bedömas av personuppgiftsansvarig. |
+| **Rättslig grund** | Funktionella kakor för en tjänst användaren själv begärt (undantagna samtyckeskravet enligt ePrivacy art. 5.3); ingen övrig personuppgiftsbehandling. *Denna rad uppdaterad — ska granskas av personuppgiftsansvarig.* |
 | **Tredjelandsöverföring** | Cloudflare CDN (EU edge). Ingen persondata cachas. |
 | **System** | frontend/member-portal (GREEN), frontend/wifi-intake-portal (GREEN) |
 
