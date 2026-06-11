@@ -51,7 +51,7 @@ CHECKLIST_ITEMS_REPATRIATION = [
     ("rep_air_waybill", "Air Waybill ifylld"),
     ("rep_receiver_confirmed", "Mottagare i hemland bekräftad"),
     ("rep_cargo_delivered", "Levererad till Arlanda Cargo Terminal"),
-    ("rep_arrival_confirmed", "Ankomst bekräftad i Addis/Asmara"),
+    ("rep_arrival_confirmed", "Ankomst bekräftad i Addis"),
     ("rep_passersedel_returned", "Passersedel-kopia returnerad till Skatteverket (inom 2v)"),
 ]
 
