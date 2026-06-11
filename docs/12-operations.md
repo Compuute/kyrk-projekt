@@ -13,8 +13,9 @@ gh workflow run deploy.yml -f environment=dev
 gh run watch
 
 # Deploy public site (Cloudflare Pages): merge to main — the deploy-sites
-# workflow builds and deploys automatically. Manual fallback (from repo root,
-# so functions/ is bundled):
+# workflow builds and deploys automatically. Full flow incl. sequence
+# diagrams: docs/25-deploy-och-innehallsflode.md. Manual fallback (from repo
+# root, so functions/ is bundled):
 npx @11ty/eleventy
 wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal --branch=main
 
