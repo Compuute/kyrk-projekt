@@ -5,24 +5,18 @@ name: Deploy member portal (Cloudflare Pages)
 # repointed after project creation. Deploys are direct uploads via wrangler
 # instead.
 #
-# Production deploys require manual owner approval (repo rule). That gate is
-# the `prod` environment's required-reviewers protection rule — the deploy
-# job pauses until approved. The CLOUDFLARE_API_TOKEN secret (Pages:Edit)
-# must be set on the `prod` environment, not repo-wide.
+# Production deploys require manual owner approval (repo rule). Manual-only
+# trigger, like deploy.yml: environment protection rules (required
+# reviewers) are unavailable on private repos under the Free plan, so the
+# "Run workflow" click is the approval. Deploys what is on main — run it
+# after merging. The CLOUDFLARE_API_TOKEN secret (Pages:Edit) must be set
+# on the `prod` environment, not repo-wide.
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - '.eleventy.js'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
 
 # Never run two production deploys at once; let an in-flight deploy finish
-# so every queued approval still corresponds to a real commit state.
+# so the project's production state always matches one completed run.
 concurrency:
   group: pages-production-deploy
   cancel-in-progress: false
@@ -38,6 +32,14 @@ jobs:
       url: https://kyrka-portal.pages.dev
 
     steps:
+      # "Run workflow" lets you pick any branch; production only ever
+      # deploys from main.
+      - name: Refuse non-main refs
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Production deploys only run from main (got ${{ github.ref }})" >&2
+          exit 1
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v6
