@@ -22,10 +22,18 @@ test('contact page has all contact card elements', function () {
 });
 
 test('contact page has init script that loads churches.json', function () {
-  assert.ok(html.includes('./churches.json'),
-    'contact page must fetch ./churches.json');
+  assert.ok(html.includes("'/churches.json'"),
+    'contact page must fetch /churches.json');
   assert.ok(html.includes('getSelectedChurch'),
     'contact page must look up the selected church via getSelectedChurch()');
+});
+
+test('contact page fetches churches.json with absolute path', function () {
+  // Pages are served at pretty URLs (/contact/), so a relative ./churches.json
+  // would resolve to /contact/churches.json — which Cloudflare Pages answers
+  // with 200 + HTML, breaking JSON.parse. Paths must be absolute.
+  assert.ok(!html.includes("'./churches.json'"),
+    'must not fetch ./churches.json (resolves wrong under /contact/)');
 });
 
 // --- Functional: run the inline init script against a stub DOM
@@ -58,17 +66,20 @@ function makeStubDocument() {
 
 function runContactScript(churches, selectedId) {
   var doc = makeStubDocument();
+  var fetchedUrls = [];
   var ctx = {
     document: doc,
     window: {},
     getSelectedChurch: function () { return selectedId; },
-    fetch: function () {
+    fetch: function (url) {
+      fetchedUrls.push(url);
       return Promise.resolve({
         ok: true,
         json: function () { return Promise.resolve({ churches: churches }); }
       });
     }
   };
+  doc._fetchedUrls = fetchedUrls;
   vm.createContext(ctx);
   vm.runInContext(extractContactScript(), ctx);
   // let the fetch/json promise chain settle
@@ -99,6 +110,11 @@ function runContactScript(churches, selectedId) {
 
   test('address is populated for selected church', function () {
     assert.strictEqual(doc._els['contact-address'].textContent, full.address);
+  });
+
+  test('init script fetches churches.json from site root', function () {
+    assert.deepStrictEqual(doc._fetchedUrls, ['/churches.json'],
+      'fetch URL must be absolute /churches.json, got: ' + JSON.stringify(doc._fetchedUrls));
   });
 
   test('phone card is shown with clickable tel: link (no spaces in href)', function () {

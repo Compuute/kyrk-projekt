@@ -67,7 +67,7 @@ breadcrumb: "Kontakt"
     }
 
     function initContactPage() {
-      fetch('./churches.json', { credentials: 'omit' })
+      fetch('/churches.json', { credentials: 'omit' })
         .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
         .then(function (data) {
           var churchId = getSelectedChurch();
