@@ -1,7 +1,7 @@
-"""Fake PropelAuth adapter for tests and local dev.
+"""Fake auth adapter for tests and local dev.
 
 Tokens are parsed as `user_id:church_id:role`, e.g. `u1:c1:admin`.
-The real adapter (Phase 1 production) wraps propelauth-fastapi.
+The real adapter (production) is ZitadelAuthAdapter (OIDC via pyjwt).
 """
 from __future__ import annotations
 

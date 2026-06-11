@@ -7,7 +7,7 @@ ADAPTER_MODE=production wires:
 - FirestoreMemberRepository (requires google-cloud-firestore)
 - FirestoreAuditAdapter (requires google-cloud-firestore)
 - KmsEncryptionAdapter (requires google-cloud-kms)
-- PropelAuthAdapter (requires propelauth-fastapi)
+- ZitadelAuthAdapter (uses pyjwt for OIDC/JWKS verification)
 
 Required env vars in production mode:
 - KMS_KEY_NAME            full key resource name
