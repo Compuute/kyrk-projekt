@@ -12,9 +12,11 @@ How to deploy, roll back, monitor, and respond to incidents.
 gh workflow run deploy.yml -f environment=dev
 gh run watch
 
-# Deploy public site (Cloudflare Pages) — build with Eleventy first
+# Deploy public site (Cloudflare Pages): merge to main — the deploy-sites
+# workflow builds and deploys automatically. Manual fallback (from repo root,
+# so functions/ is bundled):
 npx @11ty/eleventy
-wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal
+wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal --branch=main
 
 # Rollback a backend service
 gcloud run services update-traffic <service> \
