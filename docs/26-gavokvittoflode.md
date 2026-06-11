@@ -129,6 +129,33 @@ Utöver portal-onboardingen i [doc 25](25-deploy-och-innehallsflode.md):
    via PR. Merge → backend-deploy → kyrkan kan utfärda kvitton.
 4. Ge kyrkans kassör admin-roll (Zitadel) så väntelistan syns.
 
+## Avsändardomän — förutsättning för leverans
+
+Kvittomejlets avsändaradress är dess identitet. Utan egen domän kan
+e-postleverantören inte signera utskicken som våra (DKIM/SPF), och kvitton
+från t.ex. en Gmail-avsändare via tredjepart misslyckas med
+äkthetskontrollen (DMARC) och fastnar i spämfilter — fel risk för ett
+dokument givaren sparar för skatteändamål.
+
+Beslutsläge (utrett 2026-06-11, ingen domän fanns på Cloudflare-kontot
+eller i någon kyrkas data):
+
+- **En delad domän för plattformen räcker** — systemet skickar på
+  kyrkornas vägnar; kyrkans juridiska identitet står i kvittot, inte i
+  avsändaradressen. Inte en domän per kyrka.
+- **Rekommenderad väg:** `.org` eller `.com` via **Cloudflare Registrar**
+  (självkostnadspris ~115 kr/år, köps i dashboarden där DNS:en redan
+  finns, ingen nameserver-flytt). Cloudflare Registrar stödjer inte `.se`;
+  billigaste stabila `.se`-alternativ är svensk registrar utan
+  förnyelsehöjning (~199 kr/år).
+- **Undvik ultrabilliga TLD:er** (`.xyz`, `.online` m.fl.) — dålig
+  e-postreputation motverkar syftet.
+- Avsändaradress: `kvitto@<domänen>`, verifierad i Brevo, med Brevos
+  DKIM/SPF-poster i Cloudflare DNS.
+
+Hela aktiveringen spåras som issue med Definition of Done — se repots
+issues ("Aktivera gåvokvittoflödet i produktion").
+
 ## Drift
 
 - **Secrets** (GitHub, används av backend-deployen): `BREVO_API_KEY`,
