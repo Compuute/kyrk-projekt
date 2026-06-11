@@ -4,7 +4,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.adapters.fake_auth import FakeAuthAdapter
+from app.adapters.fake_email_sender import FakeEmailSender
 from app.adapters.fake_membership_client import FakeMembershipClient
+from app.adapters.in_memory_donation_repository import InMemoryDonationRepository
 from app.adapters.in_memory_notifier import InMemoryNotifier
 from app.adapters.in_memory_rate_limiter import InMemoryRateLimiter
 from app.adapters.in_memory_submission_repository import InMemorySubmissionRepository
@@ -39,6 +41,16 @@ def membership_client() -> FakeMembershipClient:
 
 
 @pytest.fixture
+def donation_repo() -> InMemoryDonationRepository:
+    return InMemoryDonationRepository()
+
+
+@pytest.fixture
+def email_sender() -> FakeEmailSender:
+    return FakeEmailSender()
+
+
+@pytest.fixture
 def service(repo, notifier, limiter, membership_client) -> IntakeService:
     return IntakeService(
         repo=repo,
@@ -49,11 +61,13 @@ def service(repo, notifier, limiter, membership_client) -> IntakeService:
 
 
 @pytest.fixture
-def client(repo, notifier, limiter, auth, membership_client) -> TestClient:
+def client(repo, notifier, limiter, auth, membership_client, donation_repo, email_sender) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_repo] = lambda: repo
     app.dependency_overrides[deps.get_notifier] = lambda: notifier
     app.dependency_overrides[deps.get_limiter] = lambda: limiter
     app.dependency_overrides[deps.get_auth] = lambda: auth
     app.dependency_overrides[deps.get_membership_client] = lambda: membership_client
+    app.dependency_overrides[deps.get_donation_repo] = lambda: donation_repo
+    app.dependency_overrides[deps.get_email_sender] = lambda: email_sender
     return TestClient(app)

@@ -212,6 +212,9 @@ jobs:
             ZITADEL_CLIENT_ID=376717918169271350
             MEMBERSHIP_SERVICE_URL=${{ steps.ms.outputs.url }}
             ADMIN_NOTIFY_WEBHOOK=${{ secrets.ADMIN_NOTIFY_WEBHOOK }}
+            BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}
+            RECEIPT_FROM_EMAIL=${{ secrets.RECEIPT_FROM_EMAIL }}
+            RECEIPT_FROM_NAME=Abune Tekle Haymanot
 
   # admin-web depends on intake + certificate.
   deploy-admin-web:

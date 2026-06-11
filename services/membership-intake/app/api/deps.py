@@ -11,6 +11,8 @@ from fastapi import Depends, Header, HTTPException, status
 
 from app.adapters.factory import (
     make_auth,
+    make_donation_repository,
+    make_email_sender,
     make_membership_client,
     make_notifier,
     make_rate_limiter,
@@ -19,10 +21,13 @@ from app.adapters.factory import (
 from app.domain.errors import NotAuthorized
 from app.domain.models import Actor
 from app.ports.auth import AuthPort
+from app.ports.donation_repository import DonationRepository
+from app.ports.email_sender import EmailSenderPort
 from app.ports.membership_client import MembershipClientPort
 from app.ports.notifier import NotifierPort
 from app.ports.rate_limiter import RateLimiterPort
 from app.ports.submission_repository import SubmissionRepository
+from app.services.donation_service import DonationService
 from app.services.intake_service import IntakeService
 
 
@@ -32,6 +37,8 @@ _NOTIFIER: NotifierPort | None = None
 _LIMITER: RateLimiterPort | None = None
 _AUTH: AuthPort | None = None
 _MEMBERSHIP_CLIENT: MembershipClientPort | None = None
+_DONATION_REPO: DonationRepository | None = None
+_EMAIL_SENDER: EmailSenderPort | None = None
 
 
 def get_repo() -> SubmissionRepository:
@@ -67,6 +74,28 @@ def get_membership_client() -> MembershipClientPort:
     if _MEMBERSHIP_CLIENT is None:
         _MEMBERSHIP_CLIENT = make_membership_client()
     return _MEMBERSHIP_CLIENT
+
+
+def get_donation_repo() -> DonationRepository:
+    global _DONATION_REPO
+    if _DONATION_REPO is None:
+        _DONATION_REPO = make_donation_repository()
+    return _DONATION_REPO
+
+
+def get_email_sender() -> EmailSenderPort:
+    global _EMAIL_SENDER
+    if _EMAIL_SENDER is None:
+        _EMAIL_SENDER = make_email_sender()
+    return _EMAIL_SENDER
+
+
+def get_donation_service(
+    repo: DonationRepository = Depends(get_donation_repo),
+    email_sender: EmailSenderPort = Depends(get_email_sender),
+    limiter: RateLimiterPort = Depends(get_limiter),
+) -> DonationService:
+    return DonationService(repo=repo, email_sender=email_sender, limiter=limiter)
 
 
 def get_service(
