@@ -28,3 +28,19 @@ class DuplicateSubmission(DomainError):
 
 class DownstreamFailure(DomainError):
     """membership-service rejected or errored on the create_member call."""
+
+
+class DonationNotFound(DomainError):
+    pass
+
+
+class DonationAlreadyProcessed(DomainError):
+    """A donation already transitioned out of PENDING_VERIFICATION."""
+
+
+class ChurchNotConfigured(DomainError):
+    """The church is not registered as a receipt issuer (name + org number)."""
+
+
+class ReceiptDeliveryFailure(DomainError):
+    """The email provider failed — the donation stays pending for retry."""

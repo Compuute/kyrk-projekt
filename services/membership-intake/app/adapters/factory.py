@@ -17,6 +17,8 @@ Required env vars in production mode:
 - ZITADEL_CLIENT_ID
 - MEMBERSHIP_SERVICE_URL
 - ADMIN_NOTIFY_WEBHOOK
+- BREVO_API_KEY (donation receipts)
+- RECEIPT_FROM_EMAIL (donation receipts)
 """
 from __future__ import annotations
 
@@ -24,6 +26,8 @@ import os
 import sys
 
 from app.ports.auth import AuthPort
+from app.ports.donation_repository import DonationRepository
+from app.ports.email_sender import EmailSenderPort
 from app.ports.membership_client import MembershipClientPort
 from app.ports.notifier import NotifierPort
 from app.ports.rate_limiter import RateLimiterPort
@@ -84,6 +88,32 @@ def make_membership_client() -> MembershipClientPort:
     from app.adapters.fake_membership_client import FakeMembershipClient
 
     return FakeMembershipClient()
+
+
+def make_donation_repository() -> DonationRepository:
+    if _mode() == "production":
+        from app.adapters.firestore_donation_repository import (
+            FirestoreDonationRepository,
+        )
+
+        return FirestoreDonationRepository()
+    from app.adapters.in_memory_donation_repository import InMemoryDonationRepository
+
+    return InMemoryDonationRepository()
+
+
+def make_email_sender() -> EmailSenderPort:
+    if _mode() == "production":
+        from app.adapters.brevo_email_sender import BrevoEmailSender
+
+        return BrevoEmailSender(
+            api_key=_require_env("BREVO_API_KEY"),
+            from_email=_require_env("RECEIPT_FROM_EMAIL"),
+            from_name=os.getenv("RECEIPT_FROM_NAME", "Kyrkan"),
+        )
+    from app.adapters.fake_email_sender import FakeEmailSender
+
+    return FakeEmailSender()
 
 
 def _require_env(name: str) -> str:

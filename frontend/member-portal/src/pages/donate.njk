@@ -46,11 +46,27 @@ breadcrumb: "Ge en gava"
       </div>
 
       <div class="receipt-note" id="receipt-note">
-        <span class="sv"><strong>Gåvokvitto:</strong> Gåvor över 200 kr ger rätt till skattereduktion. Ange din e-post nedan så skickar vi ett gåvokvitto.</span>
-        <span class="am" style="display:none;"><strong>የስጦታ ደረሰኝ:</strong> ከ200 ክር በላይ ስጦታዎች ለግብር ቅናሽ ያስተዋውቃሉ።</span>
+        <span class="sv"><strong>Gåvokvitto:</strong> Ange din e-post nedan så skickar vi ett gåvokvitto när församlingen bekräftat din gåva. Kyrkan är godkänd gåvomottagare hos Skatteverket — för skattereduktion krävs även personnummer, kontakta församlingen.</span>
+        <span class="am" style="display:none;"><strong>የስጦታ ደረሰኝ:</strong> ኢሜልዎን ከታች ያስገቡ፣ ስጦታዎ ሲረጋገጥ ደረሰኝ እንልክልዎታለን።</span>
         <br/><br/>
         Org.nr: 802492-9237 · Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan
       </div>
+
+      <form id="receipt-form" style="margin-top: 12px;">
+        <input type="email" id="receipt-email" required
+               placeholder="din@epost.se"
+               autocomplete="email" />
+        <label style="display: block; font-size: 13px; margin: 8px 0;">
+          <input type="checkbox" id="receipt-consent" required />
+          <span class="sv">Jag samtycker till att min e-postadress används för att skicka gåvokvittot (GDPR).</span>
+          <span class="am" style="display:none;">ኢሜሌ ለደረሰኝ መላኪያ እንዲውል እስማማለሁ።</span>
+        </label>
+        <button type="submit" class="method-btn" id="receipt-submit">
+          <span class="sv">Begär gåvokvitto</span>
+          <span class="am" style="display:none;">ደረሰኝ ይጠይቁ</span>
+        </button>
+        <p id="receipt-status" style="font-size: 13px; margin-top: 8px;" aria-live="polite"></p>
+      </form>
     </div>
 
   <script>
@@ -124,4 +140,56 @@ breadcrumb: "Ge en gava"
     }
 
     updateSwishLink();
+
+    // --- Gåvokvitto: register the reported gift; the receipt email is sent
+    // once the kassör has matched it against the bank statement.
+    var DONATIONS_URL = 'https://membership-intake-479770870521.europe-north1.run.app/donations';
+    var lastMethod = 'swish';
+    swishBtn.addEventListener('click', function () { lastMethod = 'swish'; });
+    document.getElementById('bankgiro-btn').addEventListener('click', function () { lastMethod = 'bankgiro'; });
+
+    document.getElementById('receipt-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var statusEl = document.getElementById('receipt-status');
+      var submitBtn = document.getElementById('receipt-submit');
+      if (!(selectedAmount > 0)) {
+        statusEl.textContent = 'Välj belopp först.';
+        return;
+      }
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Skickar…';
+      fetch(DONATIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({
+          church_id: getSelectedChurch(),
+          amount_sek: selectedAmount,
+          method: lastMethod,
+          email: document.getElementById('receipt-email').value.trim(),
+          gdpr_consent: document.getElementById('receipt-consent').checked
+        })
+      })
+        .then(function (r) {
+          if (r.status === 202) {
+            document.getElementById('receipt-form').style.display = 'none';
+            statusEl.textContent = '';
+            var ok = document.createElement('p');
+            ok.id = 'receipt-confirmed';
+            ok.style.cssText = 'font-size: 13px; margin-top: 8px;';
+            ok.textContent = 'Tack! Kvittot skickas till din e-post när församlingen bekräftat gåvan (normalt inom några dagar).';
+            document.getElementById('receipt-note').after(ok);
+          } else if (r.status === 429) {
+            statusEl.textContent = 'För många försök — vänta en stund och försök igen.';
+            submitBtn.disabled = false;
+          } else {
+            statusEl.textContent = 'Något gick fel — kontrollera e-postadressen och försök igen.';
+            submitBtn.disabled = false;
+          }
+        })
+        .catch(function () {
+          statusEl.textContent = 'Kunde inte nå servern — försök igen senare.';
+          submitBtn.disabled = false;
+        });
+    });
   </script>

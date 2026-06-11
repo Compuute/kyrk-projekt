@@ -85,3 +85,48 @@ class Actor:
     user_id: str
     church_id: str
     role: Role
+
+
+class DonationStatus(str, Enum):
+    PENDING_VERIFICATION = "pending_verification"
+    VERIFIED = "verified"
+    DISMISSED = "dismissed"
+
+
+@dataclass
+class DonationRecord:
+    """A donor-reported gift awaiting kassör verification.
+
+    The site never sees the actual Swish/bankgiro transaction, so a record
+    starts as PENDING_VERIFICATION and the receipt email is sent only when a
+    kassör has matched it against the bank statement.
+    """
+
+    church_id: str
+    amount_sek: int
+    method: str  # swish | bankgiro
+    email: str
+    gdpr_consent: bool
+    status: DonationStatus = DonationStatus.PENDING_VERIFICATION
+    donation_id: str = field(default_factory=_new_id)
+    received_at: datetime = field(default_factory=_now)
+    processed_at: datetime | None = None
+    processed_by_user_id: str | None = None
+    receipt_number: str = ""
+
+    def redact(self) -> None:
+        """Zero the donor email once the record leaves PENDING."""
+        self.email = _REDACTED
+
+    def mark_verified(self, actor_user_id: str, receipt_number: str) -> None:
+        self.status = DonationStatus.VERIFIED
+        self.processed_at = _now()
+        self.processed_by_user_id = actor_user_id
+        self.receipt_number = receipt_number
+        self.redact()
+
+    def mark_dismissed(self, actor_user_id: str) -> None:
+        self.status = DonationStatus.DISMISSED
+        self.processed_at = _now()
+        self.processed_by_user_id = actor_user_id
+        self.redact()

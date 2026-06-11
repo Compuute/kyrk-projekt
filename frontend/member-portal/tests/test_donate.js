@@ -90,4 +90,30 @@ test('donate page shows church name', function () {
     'should show church name');
 });
 
+// --- Gåvokvitto (receipt request flow)
+
+test('receipt form has email field and GDPR consent', function () {
+  assert.ok(html.includes('id="receipt-email"'), 'missing receipt email input');
+  assert.ok(html.includes('type="email"'), 'email input must have type=email');
+  assert.ok(html.includes('id="receipt-consent"'), 'missing GDPR consent checkbox');
+  assert.ok(html.toLowerCase().includes('gdpr'), 'consent must mention GDPR');
+});
+
+test('receipt form posts to the donations endpoint', function () {
+  assert.ok(html.includes('/donations'), 'must POST to /donations');
+  assert.ok(html.includes("credentials: 'omit'"), 'no cookies on the API call');
+});
+
+test('receipt text does not promise instant receipts', function () {
+  assert.ok(html.includes('bekräftat'),
+    'must explain that the receipt comes after the kassör verifies the gift');
+});
+
+test('receipt text does not overpromise tax reduction', function () {
+  assert.ok(!html.includes('ger rätt till skattereduktion'),
+    'tax reduction requires personnummer + kontrolluppgift — text must not imply the receipt alone is enough');
+  assert.ok(html.includes('personnummer'),
+    'must mention that personnummer is required for skattereduktion');
+});
+
 console.log('member-portal donation tests done');

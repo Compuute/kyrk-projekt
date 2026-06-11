@@ -5,6 +5,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes_donations import router as donations_router
 from app.api.routes_intake import router as intake_router
 from app.api.routes_submissions import router as submissions_router
 
@@ -28,6 +29,7 @@ def create_app() -> FastAPI:
 
     app.include_router(intake_router)
     app.include_router(submissions_router)
+    app.include_router(donations_router)
 
     @app.get("/healthz", tags=["infra"])
     def healthz() -> dict[str, str]:
