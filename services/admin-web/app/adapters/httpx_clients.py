@@ -9,11 +9,14 @@ from app.ports.client_errors import ClientError
 from app.ports.clients import (
     ActivityAggregate,
     ApprovalResult,
+    DismissDonationResult,
     IssueCertificateRequest,
     IssuedCertificate,
     MonthlyReport,
+    PendingDonation,
     PendingSubmission,
     RejectResult,
+    VerifyDonationResult,
 )
 
 
@@ -85,6 +88,73 @@ class HttpxIntakeClient:
             raise ClientError(r.text, status_code=r.status_code)
         data = r.json()
         return RejectResult(submission_id=data["submission_id"], status=data["status"])
+
+    def list_donations(self, token: str) -> list[PendingDonation]:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.get(
+                f"{self._base_url}/donations",
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        return [
+            PendingDonation(
+                donation_id=item["donation_id"],
+                church_id=item["church_id"],
+                amount_sek=item["amount_sek"],
+                method=item["method"],
+                email_masked=item["email_masked"],
+                received_at=item["received_at"],
+                status=item["status"],
+            )
+            for item in r.json()
+        ]
+
+    def verify_donation(self, token: str, donation_id: str) -> VerifyDonationResult:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.post(
+                f"{self._base_url}/donations/{donation_id}/verify",
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        data = r.json()
+        return VerifyDonationResult(
+            donation_id=data["donation_id"],
+            status=data["status"],
+            receipt_number=data["receipt_number"],
+        )
+
+    def dismiss_donation(self, token: str, donation_id: str) -> DismissDonationResult:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.post(
+                f"{self._base_url}/donations/{donation_id}/dismiss",
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        data = r.json()
+        return DismissDonationResult(
+            donation_id=data["donation_id"], status=data["status"]
+        )
 
 
 class HttpxCertificateClient:

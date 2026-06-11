@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Gåvor — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section>
+  <h1>Väntande gåvor</h1>
+  <p class="muted small">Stäm av mot kontoutdraget innan du verifierar — vid
+  verifiering mejlas gåvokvittot till givaren.</p>
+
+  {% if error_message %}
+  <div class="flash flash-error">{{ error_message }}</div>
+  {% endif %}
+
+  {% if not donations %}
+  <div class="card empty">
+    <p>Inga väntande gåvor just nu.</p>
+  </div>
+  {% else %}
+  <div class="list">
+    {% for d in donations %}
+    <div class="list-item">
+      <div class="list-main">
+        <div class="list-name">{{ d.amount_sek }} kr · {{ d.method }}</div>
+        <div class="list-meta muted small">
+          {{ d.received_at }} · {{ d.email_masked }} · id <code>{{ d.donation_id[:8] }}</code>
+        </div>
+      </div>
+      <div class="list-actions">
+        <form method="post" action="/donations/{{ d.donation_id }}/verify" class="inline-form">
+          <button type="submit" class="primary">Verifiera &amp; skicka kvitto</button>
+        </form>
+        <form method="post" action="/donations/{{ d.donation_id }}/dismiss" class="inline-form">
+          <button type="submit" class="danger">Avfärda</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

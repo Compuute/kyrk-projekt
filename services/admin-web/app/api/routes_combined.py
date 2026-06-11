@@ -267,6 +267,80 @@ def reject_submission(
     return _flash_redirect("/submissions", "Avslaget.", level="success")
 
 
+# ------------------------------------------------------------------ donations
+
+
+@router.get("/donations", response_class=HTMLResponse)
+def list_donations(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    intake: IntakeClientPort = Depends(get_intake_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    error_message: str | None = None
+    try:
+        donations = intake.list_donations(session.token)
+    except ClientError as exc:
+        donations = []
+        error_message = f"Kunde inte läsa väntande gåvor: {exc}"
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="donations_list.html",
+        context={
+            "session": session,
+            "donations": donations,
+            "flash": flash,
+            "level": level,
+            "error_message": error_message,
+        },
+    )
+
+
+@router.post("/donations/{donation_id}/verify")
+def verify_donation(
+    donation_id: str,
+    request: Request,
+    intake: IntakeClientPort = Depends(get_intake_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    try:
+        result = intake.verify_donation(session.token, donation_id)
+    except ClientError as exc:
+        return _flash_redirect(
+            "/donations", f"Verifiering misslyckades: {exc}", level="error"
+        )
+    return _flash_redirect(
+        "/donations",
+        f"Gåvan verifierad — kvitto {result.receipt_number} skickat.",
+        level="success",
+    )
+
+
+@router.post("/donations/{donation_id}/dismiss")
+def dismiss_donation(
+    donation_id: str,
+    request: Request,
+    intake: IntakeClientPort = Depends(get_intake_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    try:
+        intake.dismiss_donation(session.token, donation_id)
+    except ClientError as exc:
+        return _flash_redirect(
+            "/donations", f"Avfärdande misslyckades: {exc}", level="error"
+        )
+    return _flash_redirect("/donations", "Gåvan avfärdad — inget kvitto skickat.", level="success")
+
+
 # ---------------------------------------------------------------- certificates
 
 
