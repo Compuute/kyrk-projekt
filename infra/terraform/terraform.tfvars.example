@@ -3,5 +3,12 @@ region            = "europe-north1"
 environment       = "dev"
 github_repository = "Compuute/kyrk-projekt"
 
+# Firestore location. Policy: dev = "europe-north1" (regional), prod = "eur3"
+# (multi-region — redundancy belongs in prod, not dev). NOTE: Firestore
+# location is immutable after database creation; changing this on an existing
+# database makes terraform plan a destroy+recreate. Export/import the data
+# first (see modules/backups) — never apply a location change blind.
+database_location = "europe-north1"
+
 # Copy this file to terraform.tfvars and edit with your values.
 # Do not commit terraform.tfvars.
