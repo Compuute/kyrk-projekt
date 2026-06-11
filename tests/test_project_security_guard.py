@@ -177,3 +177,26 @@ class TestFrontendSecurity:
             source = html.read_text(encoding="utf-8").lower()
             for t in trackers:
                 assert t not in source, f"{html.name} contains tracker: {t}"
+
+
+# TLS verification on the issuer/JWKS connection is the trust anchor for token
+# validation. Disabling it (CERT_NONE / check_hostname=False) lets a MITM serve
+# forged signing keys and bypass auth. The auth adapters run only in production,
+# so there is never a legitimate dev reason to disable it.
+_TLS_BYPASS = re.compile(r"CERT_NONE|check_hostname\s*=\s*False")
+
+
+class TestNoTlsVerificationBypass:
+    @pytest.mark.parametrize("service", _all_services(), ids=lambda s: s.name)
+    def test_no_tls_bypass_in_adapters(self, service):
+        adapters_dir = service / "app" / "adapters"
+        if not adapters_dir.exists():
+            pytest.skip("no adapters dir")
+        violations = []
+        for py in adapters_dir.glob("*.py"):
+            for i, line in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
+                if _TLS_BYPASS.search(line):
+                    violations.append(f"{py.relative_to(ROOT)}:{i} — {line.strip()}")
+        assert violations == [], (
+            "TLS verification disabled in adapter(s):\n" + "\n".join(violations)
+        )

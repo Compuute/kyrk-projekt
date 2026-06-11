@@ -22,14 +22,12 @@ class ZitadelAuthAdapter:
     def _get_jwks_client(self) -> jwt.PyJWKClient:
         if self._jwks_client is None:
             jwks_url = f"{self._issuer_url}/oauth/v2/keys"
-            
-            # Create a default context that bypasses certificate verification for local/dev environments
-            import ssl
-            ssl_context = ssl.create_default_context()
-            ssl_context.check_hostname = False
-            ssl_context.verify_mode = ssl.CERT_NONE
-            
-            self._jwks_client = jwt.PyJWKClient(jwks_url, ssl_context=ssl_context)
+            # No custom ssl_context: PyJWKClient uses the system trust store and
+            # verifies the issuer's TLS certificate + hostname. This fetch is the
+            # trust anchor for every authenticated request, so verification must
+            # never be disabled. These adapters run only in production (factory
+            # wires FakeAuthAdapter otherwise), so there is no dev case for a bypass.
+            self._jwks_client = jwt.PyJWKClient(jwks_url)
         return self._jwks_client
 
     def authenticate(self, token: str) -> Actor:
