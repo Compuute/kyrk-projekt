@@ -13,10 +13,11 @@ Tänk på sajten som en restaurang:
 
 - **GitHub är receptboken.** Alla recept (koden) finns där, och varje ändring
   av ett recept granskas innan den godkänns.
-- **GitHub Actions är köket.** När ett nytt recept godkänns (merge till
-  `main`) lagar köket maten automatiskt och ställer ut den i serveringen.
-- **Cloudflare Pages är serveringen.** Det är där besökarna hämtar maten —
-  snabbt, från ett ställe nära dem (Cloudflares edge-nätverk).
+- **Cloudflare Pages är köket och serveringen.** Pages-projektet är
+  git-kopplat till repot: när ett recept godkänns (merge till `main`)
+  bygger Cloudflare själv maten och serverar den — snabbt, från ett ställe
+  nära besökarna (edge-nätverket). Varje annan branch får automatiskt en
+  provsmakning (preview-URL).
 - **Workers KV är dagens-rätt-tavlan.** Varje kyrka har sin egen ruta på
   tavlan (öppettider, aktiviteter, kontaktuppgifter). Församlingsadmins
   ändrar sin ruta via admin-web — **utan att köket behöver laga något nytt**.
@@ -34,7 +35,7 @@ besökaren får sin tallrik.
 flowchart LR
     subgraph Kod["KODÄNDRINGAR (sällan)"]
         DEV[Utvecklare] -->|PR + review| GH[GitHub main]
-        GH -->|Actions: bygg + deploya| CF[Cloudflare Pages]
+        GH -->|Pages git-koppling: bygg + deploya| CF[Cloudflare Pages]
     end
     subgraph Innehall["INNEHÅLLSÄNDRINGAR (ofta)"]
         ADMIN[Församlingsadmin] -->|admin-web| KV[(Workers KV)]
@@ -61,16 +62,18 @@ hittade tre samverkande fel:
    edge-funktionen (språkrouting + KV-innehåll) var vilande.
 
 Cloudflare stödjer inte att byta repo på ett befintligt Pages-projekt
-(dokumenterad begränsning — enda alternativet är att radera och återskapa
-projektet). I stället för att riskera downtime valde vi att deploya via
-GitHub Actions, vilket ger samma GitOps-resultat och dessutom samlar all
-bygglogg i GitHub där koden redan bor.
+(dokumenterad begränsning). Som första åtgärd deployades sajten via
+GitHub Actions (`deploy-sites`-workflowen). Senare samma dag raderades och
+återskapades Pages-projektet med samma namn — vilket bevarar URL:en — och
+kopplades till rätt repo. Sedan dess är **Pages git-koppling den officiella
+deployvägen** (ADR-018); `deploy-sites` finns kvar som manuellt triggad
+reservväg om Pages byggpipeline skulle vara nere.
 
 ### Besluten i korthet
 
 | Beslut | Varför |
 |---|---|
-| Deploy via GitHub Actions, inte Cloudflares git-koppling | Git-kopplingen pekar på fel repo och kan inte bytas; Actions är beprövat (backend deployas redan så), loggas i GitHub och kräver bara en API-token |
+| Deploy via Pages git-koppling (projektet återskapat mot rätt repo) | Noll hemligheter att rotera, byggloggar och previews direkt i Cloudflare, och deployen kan aldrig divergera från `main`. `deploy-sites`-workflowen behålls som manuell reservväg |
 | Innehåll i Workers KV, inte i git | 10 församlingar som uppdaterar aktiviteter och kontaktuppgifter löpande kan inte gå via PR + deploy; KV ger live-ändring inom minuten via admin-web |
 | `functions/` i repo-roten | Cloudflare Pages letar efter Functions-katalogen i byggets rot — det är därför den måste ligga där och wrangler måste köras från repo-roten |
 | Endast GREEN-innehåll i KV | Zonmodellen (doc 16): KV innehåller publik församlingsinfo, aldrig PII |
@@ -87,35 +90,35 @@ sequenceDiagram
     actor Dev as Utvecklare
     participant GH as GitHub
     participant CI as Actions: CI
-    participant DS as Actions: deploy-sites
     participant CF as Cloudflare Pages
 
     Dev->>GH: Öppnar PR
     GH->>CI: Kör tester (12 checks)
-    GH->>DS: Bygger + deployar PREVIEW
-    DS->>CF: wrangler pages deploy --branch=<branch>
-    CF-->>Dev: Preview-URL: <branch>.kyrka-portal.pages.dev
+    GH-->>CF: Push triggar PREVIEW-bygge
+    CF-->>Dev: Preview-URL: <hash>.kyrka-portal.pages.dev
     Note over Dev: Granskar previewn,<br/>godkänner PR:en
     Dev->>GH: Merge till main
-    GH->>DS: Bygger + deployar PRODUKTION
-    DS->>CF: wrangler pages deploy --branch=main
-    CF-->>CF: Ny produktionsdeploy live
+    GH-->>CF: Push triggar PRODUKTIONS-bygge
+    CF-->>CF: Bygger + deployar — live
 ```
 
-Konkret gör workflowen ([.github/workflows/deploy-sites.yml](../.github/workflows/deploy-sites.yml)):
+Konkret gör Pages-bygget (inställt i Cloudflare-projektet, dokumenterat i
+ADR-018):
 
-1. `npm ci` — installerar byggverktygen
-2. `make build-js` — typkollar och kompilerar `app.ts` → `app.js`
-3. `npx @11ty/eleventy` — bygger HTML-sidorna till `frontend/member-portal/dist/`
-4. `npx wrangler pages deploy` **från repo-roten** — laddar upp `dist/` och
-   bundlar `functions/` (middlewaren)
+1. Klonar repot vid den pushade committen
+2. `npm clean-install` — installerar byggverktygen (automatiskt)
+3. Byggkommando: `make build-js && npx @11ty/eleventy` — typkollar och
+   kompilerar `app.ts` → `app.js`, bygger sedan HTML-sidorna till
+   `frontend/member-portal/dist/`
+4. Deployar `dist/` och bundlar `functions/` (middlewaren) från repo-roten
 
-Den triggas bara när relevanta filer ändras (portalkod, functions,
-byggkonfiguration) — en docs-ändring som den här deployar ingenting.
+Output-katalog: `frontend/member-portal/dist`. Root directory: tom
+(repo-roten — krävs för att `functions/` ska hittas). KV-bindningen
+`kyrka_content` är inställd för både production och preview.
 
-**Var ser jag deployer?** GitHub → fliken **Actions** → workflow
-"deploy-sites". Varje rad = en deploy. Samma deploy syns även i
-Cloudflare-dashboarden under kyrka-portal → Deployments.
+**Var ser jag deployer?** Cloudflare-dashboarden → Workers & Pages →
+kyrka-portal → **Deployments** (bygglogg per deploy). Varje commit får
+också en statusrad i GitHub via Pages-integrationen.
 
 ---
 
@@ -187,11 +190,11 @@ Tre saker sker alltså vid varje sidvisning:
 
 | Symptom | Titta här | Åtgärd |
 |---|---|---|
-| Deploy failade | GitHub → Actions → deploy-sites → fellogg | Fixa, merga igen — eller `gh run rerun <id> --failed` |
+| Bygget failade | Cloudflare → kyrka-portal → Deployments → bygglogg | Fixa, merga igen — eller "Retry deployment" i dashboarden |
 | Fel innehåll på sajten efter deploy | Cloudflare → kyrka-portal → Deployments | `wrangler pages deployment rollback --project-name=kyrka-portal` (omedelbar) |
 | Felaktig kodändring i produktion | GitHub | `git revert` av merge-committen → ny PR → merge (deployar automatiskt) |
 | En kyrkas innehåll är fel | KV via admin-web | Rätta i admin-web; akut: `wrangler kv key put <kyrk-id> --path <fil> --namespace-id=<id> --remote` |
-| Manuell deploy behövs (Actions nere) | — | Från **repo-roten**: `npx @11ty/eleventy && npx wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal --branch=main` |
+| Manuell deploy behövs (Pages-byggen nere) | GitHub → Actions → deploy-sites → Run workflow | Eller från **repo-roten**: `make build-js && npx @11ty/eleventy && npx wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal --branch=main` |
 
 ---
 
@@ -215,13 +218,15 @@ Tre steg per kyrka — inget av dem kräver mer än några minuter:
 
 | Vad | Var | Scope | Används av |
 |---|---|---|---|
-| `CLOUDFLARE_API_TOKEN` (GitHub-secret) | GitHub repo-secrets | Cloudflare Pages: Edit — inget annat | deploy-sites-workflowen |
+| `CLOUDFLARE_API_TOKEN` (GitHub-secret) | GitHub repo-secrets | Cloudflare Pages: Edit — inget annat | deploy-sites (manuell reservväg) |
 | KV-token för admin-web | GCP Secret Manager | Workers KV Storage: Edit — inget annat | `cloudflare_kv_store.py` |
 | KV-namespace `kyrka_content` | Cloudflare-kontot | id `f40a72c8fa544cf6ba3ab9daeb8bb8fc`, bundet till kyrka-portal (production + preview) | middleware + admin-web |
 
 Principen är least privilege: varje token gör exakt en sak. Tokens roteras
 omedelbart om de exponeras (skapa ny → uppdatera secret → revoka gammal).
 
-> **Obs:** Pages-projektets inbyggda git-koppling (till fel repo) är
-> avstängd men finns kvar. Rör den inte — och skapa aldrig nya deployer via
-> Cloudflares "Create deployment"-knapp. Allt går via GitHub.
+> **Obs:** Pages-projektets git-koppling går till `Compuute/kyrk-projekt`
+> med produktionsbranch `main` — det är hela deploymekanismen, rör den
+> inte. Deploya aldrig manuellt vid sidan av (varken wrangler eller
+> "Create deployment"-knappen) annat än via reservvägen ovan när
+> Pages-byggena är nere. En sanning: `main`.

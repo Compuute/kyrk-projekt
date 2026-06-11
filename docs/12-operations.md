@@ -8,15 +8,19 @@ How to deploy, roll back, monitor, and respond to incidents.
 # First time: bootstrap GCP + GitHub secrets
 ./scripts/bootstrap.sh dev
 
-# Deploy backend services (Cloud Run)
+# Deploy backend services (Cloud Run). One truth: main. Always dev first,
+# verify, then prod (prod requires owner approval per repo rules).
 gh workflow run deploy.yml -f environment=dev
 gh run watch
+gh workflow run deploy.yml -f environment=prod   # after dev is verified
 
-# Deploy public site (Cloudflare Pages): merge to main — the deploy-sites
-# workflow builds and deploys automatically. Full flow incl. sequence
-# diagrams: docs/25-deploy-och-innehallsflode.md. Manual fallback (from repo
-# root, so functions/ is bundled):
-npx @11ty/eleventy
+# Deploy public site (Cloudflare Pages): merge to main — the Pages git
+# integration builds and deploys automatically (previews for every other
+# branch). Full flow incl. sequence diagrams:
+# docs/25-deploy-och-innehallsflode.md. Manual fallback when Pages builds
+# are down: Actions → deploy-sites → Run workflow, or from repo root
+# (so functions/ is bundled):
+make build-js && npx @11ty/eleventy
 wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal --branch=main
 
 # Rollback a backend service
@@ -67,7 +71,7 @@ It will:
    - Workload Identity Pool `github` + provider (restricted to one repo)
    - Deployer service account `sa-deployer` with 4 minimum roles
    - All 6 runtime service accounts with per-service IAM bindings
-   - Firestore database (EU multi-region)
+   - Firestore database (dev: regional `europe-north1`; prod: EU multi-region `eur3` — ADR-019)
    - BigQuery dataset `kyrk_analytics`
    - All GCS buckets
    - Secret Manager secret resources (empty — no values yet)

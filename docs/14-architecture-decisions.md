@@ -566,3 +566,91 @@ Vid den punkt där grinden ovan triggar (all funktion verifierad och redo för p
 
 
 
+## ADR-018: Pages git-integration som enda produktionsväg för portalen — via radera + återskapa
+
+**Date:** 2026-06-11
+**Status:** accepted (ersätter det interimistiska Actions-beslutet i doc 25:s första version)
+
+**Context:**
+Pages-projektet `kyrka-portal` var git-kopplat till fel GitHub-repo
+(`Compuute/.github`, där projektet låg före flytten till `Compuute/kyrk-projekt`)
+och hade ett trasigt byggkommando (`npx eleventy` — fel npm-paket). Effekten var
+att sajten frös på sista lyckade deployen medan main gick vidare. Cloudflare
+tillåter varken repo-byte eller git-tillkoppling på ett befintligt Pages-projekt,
+och publika API:t ignorerar tyst ändringsförsök av `source`. Som akut workaround
+byggdes `deploy-sites`-workflowen (wrangler direct upload från Actions) — vilket
+fungerade men gav två parallella deploymekanismer när git-frågan väl löstes.
+
+**Decision:**
+Radera och återskapa Pages-projektet med **samma namn** (bevarar
+`kyrka-portal.pages.dev`), git-kopplat till `Compuute/kyrk-projekt` med
+produktionsbranch `main`. Detta är **den enda automatiska deployvägen**:
+push till main → Cloudflare bygger (`make build-js && npx @11ty/eleventy`,
+output `frontend/member-portal/dist`, root = repo-roten så `functions/`
+bundlas) → produktion. Övriga branches får automatiska previews.
+`deploy-sites` nedgraderas till **manuellt triggad reservväg** (workflow_dispatch)
+för lägen när Pages byggpipeline är nere.
+
+**Consequence:**
+- En sanning: main. Portalen kan inte divergera från git, och inga
+  API-tokens behövs i det normala flödet (reservvägen behåller sin
+  Pages:Edit-token som repo-secret).
+- Återskapandet kräver att projektspecifik konfig återställs manuellt:
+  KV-bindningen `kyrka_content` (id `f40a72c8…`) måste finnas i **både**
+  production och preview, annars ger Pages Functions fel 1101. Detta är
+  dokumenterat i doc 25 och var dagens enda incident vid bytet.
+- Radering av Pages-projekt blockeras tills gamla deployments rensats via
+  API (»too many deployments«) — runbook-detalj värd att minnas.
+- Push till main deployar produktion **utan godkännandesteg** — accepterat
+  under utvecklingsfasen; härdning vid betalversion är backloggad
+  (`.github/backlog/issue-harden-pages-deploy-gating.md`).
+
+**When to revisit:**
+Vid betalversion/skarp drift (godkännandegrind), eller om Cloudflare börjar
+stödja repo-byte på befintliga projekt.
+
+## ADR-019: Firestore-platspolicy per miljö och terraform-apply som ägaroperation
+
+**Date:** 2026-06-11
+**Status:** accepted
+
+**Context:**
+Firestore-platsen styrdes av tre osynkade källor: lokala gitignorade
+tfvars-filer (dev saknade värdet helt och ärvde multi-region-defaulten
+`eur3`; prod stod på regional `europe-north1` — spegelvänt mot rimlig
+policy), CI-workflows som genererade `database_location = GCP_REGION` för
+**båda** miljöerna, och modulens default. Dessutom visade sig CI:s
+`terraform-apply` aldrig ha fungerat: deployer-SA:t har medvetet bara
+app-deploy-roller (run.admin, artifactregistry.writer, m.fl.) och saknar
+allt som full IaC-apply kräver (storage, datastore, KMS, IAM-administration).
+
+**Decision:**
+1. **Platspolicy:** dev = regional `europe-north1` (billig, ingen
+   redundans behövs), prod = multi-region `eur3` (redundansen hör hemma i
+   prod). Policyn kodas **i git**: explicit per miljö i
+   `terraform-plan.yml`/`terraform-apply.yml` samt dokumenterad i
+   `terraform.tfvars.example`.
+2. **Apply-modell:** CI kör **plan-gate** på PR:ar (fungerar, kräver bara
+   läsroller). Full `terraform apply` är en **ägaroperation lokalt** —
+   deployer-SA:t utökas inte; att ge ett WIF-exponerat CI-konto nära nog
+   owner-rättigheter är fel avvägning för ett security-by-design-projekt i
+   denna fas.
+
+**Consequence:**
+- Platsbytet genomfördes 2026-06-11 med tomma databaser. Viktiga
+  driftlärdomar, nu del av runbook-kunskapen: `google_firestore_database`
+  har `deletion_policy = ABANDON` som default — terraform-"destroy" raderar
+  **inte** databasen (bra skydd, behålls), så ett äkta platsbyte kräver
+  manuell `gcloud firestore databases delete` + ~5 minuters cooldown innan
+  databas-id:t kan återanvändas. Med data i databasen tillkommer
+  export/import via backup-bucketen.
+- Slutläge verifierat: dev = `europe-north1`, prod = `eur3`, noll drift i
+  båda workspaces.
+- `terraform-apply`-workflowen finns kvar men förblir trasig tills
+  SA-frågan eventuellt omprövas — den fungerar som dokumentation av
+  CI-flödets tänkta form. Omprövas vid betald GitHub-plan tillsammans med
+  godkännandegrindarna (samma backlog-issue som ADR-018).
+
+**When to revisit:**
+När prod innehåller skarp medlemsdata (platsbyten blir då migreringsprojekt),
+eller om teamet växer så att lokal ägar-apply blir flaskhals.
