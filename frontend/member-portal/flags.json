@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "_doc": "Feature-flag config. Source of truth at runtime is the KV key 'feature_flags' (instant change, no redeploy); this file is the committed default/seed. See docs/15-ab-testing-strategy.md → 'Release-safety layer'. enabled:false = kill switch; rollout 0-100 = % of visitors (by non-PII bucket).",
+  "flags": {
+    "example-new-funeral-layout": { "enabled": false, "rollout": 0 }
+  }
+}
