@@ -36,3 +36,52 @@ breadcrumb: "Kontakt"
         <div id="contact-org"></div>
       </div>
     </div>
+
+  <script>
+    function renderContactInfo(church) {
+      var addressEl = document.getElementById('contact-address');
+      if (!church) {
+        addressEl.textContent = 'Kontaktuppgifter saknas. / መረጃ አልተገኘም።';
+        return;
+      }
+      addressEl.textContent = church.address || 'Adress saknas. / አድራሻ አልተገኘም።';
+
+      if (church.phone) {
+        var phoneLink = document.createElement('a');
+        phoneLink.href = 'tel:' + church.phone.replace(/\s/g, '');
+        phoneLink.textContent = church.phone;
+        document.getElementById('contact-phone').appendChild(phoneLink);
+        document.getElementById('phone-card').style.display = '';
+      }
+      if (church.email) {
+        var emailLink = document.createElement('a');
+        emailLink.href = 'mailto:' + church.email;
+        emailLink.textContent = church.email;
+        document.getElementById('contact-email').appendChild(emailLink);
+        document.getElementById('email-card').style.display = '';
+      }
+      if (church.org_number) {
+        document.getElementById('contact-org').textContent = 'Org.nr: ' + church.org_number;
+        document.getElementById('org-card').style.display = '';
+      }
+    }
+
+    function initContactPage() {
+      fetch('./churches.json', { credentials: 'omit' })
+        .then(function (r) { return r.ok ? r.json() : { churches: [] }; })
+        .then(function (data) {
+          var churchId = getSelectedChurch();
+          var churches = data.churches || [];
+          var church = null;
+          for (var i = 0; i < churches.length; i++) {
+            if (churches[i].id === churchId) { church = churches[i]; break; }
+          }
+          renderContactInfo(church);
+        })
+        .catch(function () {
+          document.getElementById('contact-address').textContent =
+            'Kunde inte ladda kontaktuppgifter. / መረጃ መጫን አልተቻለም።';
+        });
+    }
+    initContactPage();
+  </script>
