@@ -70,6 +70,31 @@ It will:
    - Cloud KMS keyring `kyrk` + key `member-pn` (annual rotation)
    - Workload Identity Pool `github` + provider (restricted to one repo)
    - Deployer service account `sa-deployer` with 4 minimum roles
+     (app pipeline: build, push, deploy Cloud Run, read secrets)
+   - Infra service account `sa-terraform` used only by terraform-apply.yml
+     (editor + IAM/WIF/secret/KMS/storage admin — an IaC identity must be
+     able to administer what the IaC owns). NOTE: this account is a
+     bootstrap chicken-and-egg — it cannot create itself. On a brand-new
+     project a project owner creates it by hand before the first CI apply:
+
+     ```bash
+     gcloud iam service-accounts create sa-terraform \
+       --project=<PROJECT_ID> --display-name="Terraform infra deployer (CI)"
+     for role in roles/editor roles/resourcemanager.projectIamAdmin \
+       roles/iam.serviceAccountAdmin roles/iam.workloadIdentityPoolAdmin \
+       roles/secretmanager.admin roles/cloudkms.admin roles/storage.admin; do
+       gcloud projects add-iam-policy-binding <PROJECT_ID> \
+         --member="serviceAccount:sa-terraform@<PROJECT_ID>.iam.gserviceaccount.com" \
+         --role="$role" --quiet
+     done
+     gcloud iam service-accounts add-iam-policy-binding \
+       sa-terraform@<PROJECT_ID>.iam.gserviceaccount.com --project=<PROJECT_ID> \
+       --role="roles/iam.workloadIdentityUser" \
+       --member="principalSet://iam.googleapis.com/projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github/attribute.repository/<OWNER/REPO>"
+     ```
+
+     The import block in `infra/terraform/imports.tf` adopts the
+     hand-created account into state on the first CI apply.
    - All 6 runtime service accounts with per-service IAM bindings
    - Firestore database (dev: regional `europe-north1`; prod: EU multi-region `eur3` — ADR-019)
    - BigQuery dataset `kyrk_analytics`

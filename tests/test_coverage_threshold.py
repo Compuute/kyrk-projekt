@@ -1,9 +1,11 @@
 """Coverage threshold — fails if new code is added without tests.
 
-This doesn't run coverage itself (that's pytest-cov's job).
-Instead, it checks that every Python source file in app/ has
-at least one corresponding test file. This catches when an AI
-writes 200 lines of new code with 0 tests.
+This doesn't run coverage itself: the authoritative line-coverage gate
+is `pytest --cov=app --cov-fail-under=60` in ci.yml's pytest jobs.
+This guard is the complement — it checks that every Python source file
+in app/ has at least one corresponding test file, which catches when an
+AI writes 200 lines of new code with 0 tests even if the service's
+aggregate coverage stays above the bar.
 """
 from pathlib import Path
 

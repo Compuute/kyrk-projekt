@@ -30,6 +30,9 @@ locals {
     "certificate-service",
     "reporting-service",
     "admin-web",
+    # Pub/Sub-driven agent runtime (docs/28). Its trigger plumbing —
+    # topic, scheduler, push subscription — lives in agent_jobs.tf.
+    "agent-worker",
   ]
 
   # Buckets the platform needs. Names are project-prefixed for uniqueness.
@@ -76,6 +79,17 @@ module "cloud_run" {
 resource "google_service_account" "deployer" {
   account_id   = "sa-deployer"
   display_name = "GitHub Actions deployer"
+  project      = var.project_id
+}
+
+# Infrastructure deployer — used ONLY by terraform-apply.yml. Separate from
+# sa-deployer so the powerful infra identity is never reachable from the
+# app-deploy pipeline, and agent/audit logs can tell the two apart.
+# Bootstrapped once by a project owner (it cannot create itself); the
+# import block in imports.tf adopts it into state on first apply.
+resource "google_service_account" "terraform" {
+  account_id   = "sa-terraform"
+  display_name = "Terraform infra deployer (CI)"
   project      = var.project_id
 }
 

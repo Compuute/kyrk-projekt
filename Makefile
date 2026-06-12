@@ -17,7 +17,7 @@
 SHELL := /bin/bash
 PYTHON := python3
 PIP := pip
-SERVICES := membership-service membership-intake certificate-service reporting-service admin-web
+SERVICES := membership-service membership-intake certificate-service reporting-service admin-web agent-worker
 ENV ?= dev
 DOCS_PORT ?= 8090
 

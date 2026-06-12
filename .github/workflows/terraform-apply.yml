@@ -53,7 +53,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
-          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+          service_account: sa-terraform@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
 
       - uses: hashicorp/setup-terraform@v4
         with:

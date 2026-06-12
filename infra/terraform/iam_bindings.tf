@@ -133,6 +133,43 @@ resource "google_cloud_run_v2_service_iam_member" "admin_web_invoke_reporting" {
 # }
 
 # ============================================================================
+# agent-worker — Firestore (audit_events) + run.invoker on reporting-service
+# ============================================================================
+# The report agent writes its audit trail to Firestore and calls the
+# private reporting-service carrying its identity in
+# X-Serverless-Authorization (same pattern as admin-web). It has no KMS,
+# no secrets beyond its own env, and never touches RED collections —
+# application-level RBAC in reporting-service is enforced by the agent's
+# Zitadel machine-user token.
+
+resource "google_project_iam_member" "agent_worker_firestore" {
+  project = var.project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${local.service_account_emails["agent-worker"]}"
+}
+
+resource "google_cloud_run_v2_service_iam_member" "agent_worker_invoke_reporting" {
+  project  = var.project_id
+  location = var.region
+  name     = "reporting-service"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${local.service_account_emails["agent-worker"]}"
+
+  depends_on = [module.cloud_run]
+}
+
+# The Pub/Sub push identity may do exactly one thing: invoke the worker.
+resource "google_cloud_run_v2_service_iam_member" "pusher_invoke_agent_worker" {
+  project  = var.project_id
+  location = var.region
+  name     = "agent-worker"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.agent_jobs_pusher.email}"
+
+  depends_on = [module.cloud_run]
+}
+
+# ============================================================================
 # Deployer (CI/CD) — minimal roles to build, push, and deploy
 # ============================================================================
 # Granted ONLY what GitHub Actions needs to do its job:
@@ -175,4 +212,40 @@ resource "google_secret_manager_secret_iam_member" "admin_web_zitadel_secret" {
   secret_id = "zitadel-client-secret"
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${local.service_account_emails["admin-web"]}"
+}
+
+# ============================================================================
+# Terraform (IaC) — full administration of everything this module manages
+# ============================================================================
+# Used ONLY by terraform-apply.yml via WIF. An IaC identity must be able to
+# administer what the IaC owns (IAM, KMS, secrets, WIF, buckets, monitoring),
+# so least-privilege here means: a SEPARATE identity from the app deployer,
+# reachable only from this repo's pipeline, with its own audit trail — not a
+# short role list. sa-deployer keeps its four minimal deploy roles.
+
+locals {
+  terraform_project_roles = [
+    "roles/editor",
+    "roles/resourcemanager.projectIamAdmin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/iam.workloadIdentityPoolAdmin",
+    "roles/secretmanager.admin",
+    "roles/cloudkms.admin",
+    "roles/storage.admin",
+  ]
+}
+
+resource "google_project_iam_member" "terraform_roles" {
+  for_each = toset(local.terraform_project_roles)
+
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.terraform.email}"
+}
+
+# Same repo-restricted WIF binding as the deployer SA.
+resource "google_service_account_iam_member" "terraform_wif_user" {
+  service_account_id = google_service_account.terraform.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/projects/${data.google_project.current.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/attribute.repository/${var.github_repository}"
 }
