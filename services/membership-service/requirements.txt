@@ -10,3 +10,4 @@ google-cloud-firestore>=2.14.0
 google-cloud-kms>=2.20.0
 
 
+pytest-cov>=5.0
