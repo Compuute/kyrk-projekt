@@ -32,7 +32,7 @@ class FakeAuthAdapter:
             roles_claim = payload.get("urn:zitadel:iam:org:project:roles", {})
             assigned_role = None
             for role_name, projects in roles_claim.items():
-                if role_name in {"admin", "pastor", "editor", "viewer"}:
+                if role_name in {"admin", "pastor", "editor", "viewer", "teacher"}:
                     for proj_id, org_ids in projects.items():
                         if church_id in org_ids:
                             assigned_role = role_name
@@ -41,7 +41,7 @@ class FakeAuthAdapter:
                         break
             if not assigned_role:
                 for role_name in roles_claim:
-                    if role_name in {"admin", "pastor", "editor", "viewer"}:
+                    if role_name in {"admin", "pastor", "editor", "viewer", "teacher"}:
                         assigned_role = role_name
                         break
                         
