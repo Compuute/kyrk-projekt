@@ -82,6 +82,7 @@ Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd,
 | `certificate-service` | RED | POST /certificates, GET /verify, GET /download (10 cert-typer) | 39 |
 | `reporting-service` | YELLOW | POST /reports/*, GET /activities/export, pii_guard | 36 |
 | `admin-web` | mixed | Alla admin-sidor ovan | 102 |
+| `agent-worker` | YELLOW | POST /pubsub (rapportagenten: Scheduler → Pub/Sub → månadsrapport, audit i `audit_events`) | 22 |
 
 ### Certifikattyper (trilingual: am/sv/en)
 
