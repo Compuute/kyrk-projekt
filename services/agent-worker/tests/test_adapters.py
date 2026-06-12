@@ -68,7 +68,7 @@ def _client_with(handler) -> HttpxReportingClient:
     http = httpx.Client(transport=transport, base_url="http://reporting")
     return HttpxReportingClient(
         base_url="http://reporting",
-        token="agent-token",
+        token_provider=lambda: "agent-token",
         http_client=http,
         retry_wait_seconds=0,
     )
