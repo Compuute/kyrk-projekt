@@ -11,13 +11,13 @@
       {
         "matcher": "Write|Edit",
         "description": "Run vendor lock-in check after code changes",
-        "command": "bash -c 'cd /home/user/kyrk-projekt && grep -rn \"^import httpx\\|^import anthropic\\|^from google\\|^import firebase\\|^import requests\\|^import boto3\" services/*/app/api/*.py services/*/app/ports/*.py 2>/dev/null && echo \"VENDOR LOCK-IN DETECTED\" >&2 && exit 1 || true'"
+        "command": "bash -c 'cd $CLAUDE_PROJECT_DIR && grep -rn \"^import httpx\\|^import anthropic\\|^from google\\|^import firebase\\|^import requests\\|^import boto3\" services/*/app/api/*.py services/*/app/ports/*.py 2>/dev/null && echo \"VENDOR LOCK-IN DETECTED\" >&2 && exit 1 || true'"
       }
     ],
     "Stop": [
       {
         "description": "Run all guard tests before reporting task complete",
-        "command": "bash -c 'cd /home/user/kyrk-projekt && python -m pytest tests/ services/admin-web/tests/ --tb=short -q 2>&1 | tail -5'"
+        "command": "bash -c 'cd $CLAUDE_PROJECT_DIR && python -m pytest tests/ services/admin-web/tests/ --tb=short -q 2>&1 | tail -5'"
       }
     ]
   },
@@ -32,5 +32,6 @@
       "Bash(python -m pytest*)",
       "Bash(node tests/*)"
     ]
-  }
+  },
+  "model": "sonnet"
 }
