@@ -25,6 +25,7 @@ jobs:
           - certificate-service
           - reporting-service
           - admin-web
+          - agent-worker
     defaults:
       run:
         working-directory: services/${{ matrix.service }}
