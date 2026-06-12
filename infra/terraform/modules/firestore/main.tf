@@ -39,3 +39,20 @@ resource "google_kms_crypto_key_iam_member" "firestore_cmek" {
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
   member        = "serviceAccount:service-${var.project_number}@gcp-sa-firestore.iam.gserviceaccount.com"
 }
+
+# TTL: FirestoreRateLimiter writes one counter document per (key, window)
+# with an `expires_at` two windows ahead. The TTL policy lets Firestore
+# garbage-collect old windows; without it the collection grows forever.
+# TTL deletes are background/best-effort, which is fine — the limiter never
+# reads old windows, this is purely hygiene.
+resource "google_firestore_field" "rate_limit_window_ttl" {
+  project    = var.project_id
+  database   = google_firestore_database.default.name
+  collection = "rate_limit_windows"
+  field      = "expires_at"
+
+  ttl_config {}
+
+  # No single-field indexes on a TTL timestamp — nothing queries it.
+  index_config {}
+}

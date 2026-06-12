@@ -33,3 +33,9 @@ variable "notification_email" {
   default     = "alerts@compuute.se"
 }
 
+variable "enable_agent_schedules" {
+  description = "Activate the agent Cloud Scheduler jobs (agent_jobs.tf). Off by default: flip per environment once the worker that consumes agent-jobs is deployed."
+  type        = bool
+  default     = false
+}
+
