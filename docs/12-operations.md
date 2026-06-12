@@ -94,7 +94,9 @@ It will:
      ```
 
      The import block in `infra/terraform/imports.tf` adopts the
-     hand-created account into state on the first CI apply.
+     hand-created account into state on the first CI apply. The full
+     identity model and the rules for humans and AI agents operating the
+     environment live in `docs/29-identitets-och-iam-principer.md`.
    - All 6 runtime service accounts with per-service IAM bindings
    - Firestore database (dev: regional `europe-north1`; prod: EU multi-region `eur3` — ADR-019)
    - BigQuery dataset `kyrk_analytics`
