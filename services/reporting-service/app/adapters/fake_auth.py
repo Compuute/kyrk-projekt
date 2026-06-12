@@ -1,3 +1,8 @@
+"""Fake auth adapter for tests and local dev.
+
+Tokens are parsed as `user_id:church_id:role`, e.g. `u1:c1:admin`.
+The real adapter (production) is ZitadelAuthAdapter (OIDC via pyjwt).
+"""
 from __future__ import annotations
 
 from app.domain.errors import NotAuthorized
@@ -46,3 +51,4 @@ class FakeAuthAdapter:
             return Actor(user_id=user_id, church_id=church_id, role=Role(assigned_role))
         except Exception as exc:
             raise NotAuthorized("invalid token format") from exc
+
