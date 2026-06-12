@@ -22,9 +22,11 @@ from app.api.deps import (
     get_reporting_client,
     get_session_adapter,
     get_settings,
+    get_sunday_school_client,
     get_translator,
 )
 from app.ports.session import SessionInfo, SessionPort
+from app.ports.sunday_school import SundaySchoolClientPort
 from app.config import Settings
 from app.ports.client_errors import ClientError
 from app.ports.clients import (
@@ -97,7 +99,7 @@ def post_login(
     role: str = Form(...),
     settings: Settings = Depends(get_settings),
 ):
-    if role not in {"admin", "pastor", "editor", "viewer"}:
+    if role not in {"admin", "pastor", "editor", "viewer", "teacher"}:
         return _flash_redirect("/login", "unknown role", level="error")
     token = f"{user_id}:{church_id}:{role}"
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
@@ -1618,6 +1620,224 @@ def data_quality_dashboard(
             "flash": flash,
             "level": level,
         },
+    )
+
+
+# -------------------------------------------------------------- sunday school
+
+
+def _participation_label(rate: float) -> str:
+    if rate >= 0.75:
+        return "Bra / ጥሩ"
+    if rate >= 0.5:
+        return "OK / መካከለኛ"
+    return "Lågt / ዝቅተኛ"
+
+
+def _monthly_stats(roster_size: int, records: list) -> list[dict]:
+    """Per-month: sessions, unique children, attendance rate + label.
+
+    Only aggregates leave this function — it feeds both the page and the
+    grant evidence, so it must never include names.
+    """
+    months: dict[str, dict] = {}
+    for record in records:
+        month = record.date[:7]
+        bucket = months.setdefault(
+            month, {"sessions": 0, "present_sum": 0, "unique": set()}
+        )
+        bucket["sessions"] += 1
+        bucket["present_sum"] += record.participants_total
+        bucket["unique"].update(record.present_enrollment_ids)
+    stats = []
+    for month in sorted(months, reverse=True):
+        bucket = months[month]
+        possible = bucket["sessions"] * roster_size
+        rate = bucket["present_sum"] / possible if possible else 0.0
+        stats.append({
+            "month": month,
+            "sessions": bucket["sessions"],
+            "unique_children": len(bucket["unique"]),
+            "rate_pct": round(rate * 100),
+            "label": _participation_label(rate),
+        })
+    return stats
+
+
+def _per_child_stats(enrollments: list, records: list) -> list[dict]:
+    total = len(records)
+    stats = []
+    for enrollment in enrollments:
+        attended = sum(
+            1 for r in records if enrollment.enrollment_id in r.present_enrollment_ids
+        )
+        stats.append({
+            "enrollment": enrollment,
+            "attended": attended,
+            "total": total,
+            "rate_pct": round(attended / total * 100) if total else 0,
+        })
+    return stats
+
+
+@router.get("/sunday-school", response_class=HTMLResponse)
+def sunday_school_groups(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    try:
+        groups = school.list_groups(session.token)
+    except ClientError as exc:
+        groups = []
+        flash = flash or f"Kunde inte hämta grupper: {exc}"
+        level = "error"
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="sunday_school_groups.html",
+        context={"session": session, "groups": groups, "flash": flash, "level": level},
+    )
+
+
+@router.get("/sunday-school/{group_id}", response_class=HTMLResponse)
+def sunday_school_group_detail(
+    request: Request,
+    group_id: str,
+    flash: str | None = None,
+    level: str = "success",
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    try:
+        groups = school.list_groups(session.token)
+        group = next((g for g in groups if g.group_id == group_id), None)
+        if group is None:
+            return _flash_redirect("/sunday-school", "Gruppen hittades inte", level="error")
+        enrollments = school.list_enrollments(session.token, group_id)
+        records = school.list_attendance(session.token, group_id)
+    except ClientError as exc:
+        return _flash_redirect("/sunday-school", f"Fel: {exc}", level="error")
+
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="sunday_school_group.html",
+        context={
+            "session": session,
+            "group": group,
+            "enrollments": enrollments,
+            "records": sorted(records, key=lambda r: r.date, reverse=True),
+            "monthly_stats": _monthly_stats(len(enrollments), records),
+            "child_stats": _per_child_stats(enrollments, records),
+            "today": date.today().isoformat(),
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
+@router.post("/sunday-school/{group_id}/attendance")
+def sunday_school_record_attendance(
+    request: Request,
+    group_id: str,
+    attendance_date: str = Form(...),
+    present: list[str] = Form(default=[]),
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+    activity: ActivityClientPort = Depends(get_activity_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    try:
+        result = school.record_attendance(
+            session.token, group_id, attendance_date, present
+        )
+    except ClientError as exc:
+        return _flash_redirect(
+            f"/sunday-school/{group_id}", f"Kunde inte spara närvaro: {exc}", level="error"
+        )
+
+    # Report the aggregate (counts only — never names) to reporting-service
+    # so every lesson automatically becomes grant evidence.
+    group_name = group_id
+    try:
+        groups = school.list_groups(session.token)
+        match = next((g for g in groups if g.group_id == group_id), None)
+        if match:
+            group_name = match.name
+    except ClientError:
+        pass
+    try:
+        activity.log_activity(
+            session.token,
+            activity_type="sunday_school",
+            date=result.date,
+            location=group_name,
+            funding_tag="sondagsskola",
+            participants_total=result.participants_total,
+            age_band_counts=result.age_band_counts,
+        )
+        message = f"Närvaro sparad / መገኘት ተመዝግቧል ({result.participants_total} barn)"
+    except ClientError:
+        message = (
+            f"Närvaro sparad ({result.participants_total} barn) — "
+            "men rapportering till statistiken misslyckades, försök igen senare"
+        )
+
+    return _flash_redirect(f"/sunday-school/{group_id}", message)
+
+
+@router.post("/sunday-school/{group_id}/enroll")
+def sunday_school_enroll(
+    request: Request,
+    group_id: str,
+    child_first_name: str = Form(...),
+    child_last_name: str = Form(...),
+    birth_year: int = Form(...),
+    guardian_name: str = Form(default=""),
+    guardian_phone: str = Form(default=""),
+    guardian_consent: str = Form(default=""),
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    if guardian_consent != "true":
+        return _flash_redirect(
+            f"/sunday-school/{group_id}",
+            "Vårdnadshavarens samtycke krävs / የወላጅ ፈቃድ ያስፈልጋል",
+            level="error",
+        )
+
+    try:
+        enrollment = school.enroll(
+            session.token,
+            group_id,
+            child_first_name=child_first_name,
+            child_last_name=child_last_name,
+            birth_year=birth_year,
+            guardian_name=guardian_name,
+            guardian_phone=guardian_phone,
+            guardian_consent=True,
+        )
+    except ClientError as exc:
+        return _flash_redirect(
+            f"/sunday-school/{group_id}", f"Kunde inte registrera: {exc}", level="error"
+        )
+
+    return _flash_redirect(
+        f"/sunday-school/{group_id}",
+        f"{enrollment.child_first_name} är registrerad / ተመዝግቧል",
     )
 
 

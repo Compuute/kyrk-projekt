@@ -15,6 +15,7 @@ from app.adapters.factory import (
     make_encryption,
     make_member_repository,
     make_funeral_tracker,
+    make_sunday_school_tracker,
 )
 from app.domain.errors import NotAuthorized
 from app.domain.models import Actor
@@ -23,6 +24,7 @@ from app.ports.auth import AuthPort
 from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
 from app.ports.funeral_tracker import FuneralTrackerPort
+from app.ports.sunday_school import SundaySchoolPort
 from app.services.membership_service import MembershipService
 
 
@@ -68,6 +70,16 @@ def get_funeral_tracker() -> FuneralTrackerPort:
     if _FUNERAL_TRACKER is None:
         _FUNERAL_TRACKER = make_funeral_tracker()
     return _FUNERAL_TRACKER
+
+
+_SUNDAY_SCHOOL: SundaySchoolPort | None = None
+
+
+def get_sunday_school_tracker() -> SundaySchoolPort:
+    global _SUNDAY_SCHOOL
+    if _SUNDAY_SCHOOL is None:
+        _SUNDAY_SCHOOL = make_sunday_school_tracker()
+    return _SUNDAY_SCHOOL
 
 
 def get_service(

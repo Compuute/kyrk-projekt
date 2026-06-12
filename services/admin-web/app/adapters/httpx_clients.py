@@ -229,6 +229,38 @@ class HttpxActivityClient:
             for row in r.json()
         ]
 
+    def log_activity(
+        self,
+        token: str,
+        activity_type: str,
+        date: str,
+        location: str,
+        funding_tag: str,
+        participants_total: int,
+        age_band_counts: dict[str, int],
+    ) -> str:
+        import httpx
+
+        try:
+            r = httpx.post(
+                f"{self._base_url}/activities",
+                json={
+                    "activity_type": activity_type,
+                    "date": date,
+                    "location": location,
+                    "funding_tag": funding_tag,
+                    "participants_total": participants_total,
+                    "age_band_counts": age_band_counts,
+                },
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 201:
+            raise ClientError(r.text, status_code=r.status_code)
+        return r.json()["activity_id"]
+
 
 class HttpxReportingClient:
     def __init__(self, base_url: str, timeout_seconds: float = 5.0) -> None:

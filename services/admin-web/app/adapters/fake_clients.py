@@ -151,6 +151,8 @@ class FakeActivityClient:
     def __init__(self) -> None:
         self.activities: list[ActivityAggregate] = []
         self.export_error: ClientError | None = None
+        self.logged: list[dict] = []
+        self.log_error: ClientError | None = None
 
     def seed(self, item: ActivityAggregate) -> None:
         self.activities.append(item)
@@ -161,6 +163,28 @@ class FakeActivityClient:
         if self.export_error is not None:
             raise self.export_error
         return [a for a in self.activities if start <= a.date <= end]
+
+    def log_activity(
+        self,
+        token: str,  # noqa: ARG002
+        activity_type: str,
+        date: str,
+        location: str,
+        funding_tag: str,
+        participants_total: int,
+        age_band_counts: dict[str, int],
+    ) -> str:
+        if self.log_error is not None:
+            raise self.log_error
+        self.logged.append({
+            "activity_type": activity_type,
+            "date": date,
+            "location": location,
+            "funding_tag": funding_tag,
+            "participants_total": participants_total,
+            "age_band_counts": dict(age_band_counts),
+        })
+        return str(uuid4())
 
 
 class FakeReportingClient:

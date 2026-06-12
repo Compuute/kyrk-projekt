@@ -16,7 +16,7 @@ class FakeSessionAdapter:
         if not cookie_value or cookie_value.count(":") != 2:
             return None
         user_id, church_id, role = cookie_value.split(":")
-        if role not in {"admin", "pastor", "editor", "viewer"}:
+        if role not in {"admin", "pastor", "editor", "viewer", "teacher"}:
             return None
         return SessionInfo(
             token=cookie_value,

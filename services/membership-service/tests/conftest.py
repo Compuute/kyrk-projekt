@@ -9,6 +9,7 @@ from app.adapters.in_memory_audit import InMemoryAuditAdapter
 from app.adapters.in_memory_encryption import InMemoryEncryptionAdapter
 from app.adapters.in_memory_member_repository import InMemoryMemberRepository
 from app.adapters.in_memory_funeral_tracker import InMemoryFuneralTracker
+from app.adapters.in_memory_sunday_school import InMemorySundaySchoolTracker
 from app.api import deps
 from app.main import create_app
 from app.services.membership_service import MembershipService
@@ -22,6 +23,11 @@ def repo() -> InMemoryMemberRepository:
 @pytest.fixture
 def funeral_tracker() -> InMemoryFuneralTracker:
     return InMemoryFuneralTracker()
+
+
+@pytest.fixture
+def sunday_school() -> InMemorySundaySchoolTracker:
+    return InMemorySundaySchoolTracker()
 
 
 @pytest.fixture
@@ -45,11 +51,12 @@ def service(repo, encryption, audit) -> MembershipService:
 
 
 @pytest.fixture
-def client(repo, encryption, audit, auth, funeral_tracker) -> TestClient:
+def client(repo, encryption, audit, auth, funeral_tracker, sunday_school) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_repo] = lambda: repo
     app.dependency_overrides[deps.get_encryption] = lambda: encryption
     app.dependency_overrides[deps.get_audit] = lambda: audit
     app.dependency_overrides[deps.get_auth] = lambda: auth
     app.dependency_overrides[deps.get_funeral_tracker] = lambda: funeral_tracker
+    app.dependency_overrides[deps.get_sunday_school_tracker] = lambda: sunday_school
     return TestClient(app)

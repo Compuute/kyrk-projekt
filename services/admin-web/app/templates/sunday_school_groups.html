@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Söndagsskola — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Söndagsskola / ሰንበት ትምህርት ቤት</h1>
+  <p class="muted small">
+    Välj din grupp för att ta närvaro eller registrera ett nytt barn. /
+    መገኘት ለመውሰድ ወይም አዲስ ልጅ ለመመዝገብ ቡድንዎን ይምረጡ።
+  </p>
+
+  {% if groups %}
+  <table>
+    <thead>
+      <tr>
+        <th>Grupp / ቡድን</th>
+        <th>Beskrivning / መግለጫ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in groups %}
+      <tr>
+        <td><strong>{{ g.name }}</strong></td>
+        <td class="muted">{{ g.description }}</td>
+        <td>
+          <a class="primary" href="/sunday-school/{{ g.group_id }}">
+            Ta närvaro / መገኘት ውሰድ →
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">
+    Inga grupper ännu. Be administratören skapa grupperna
+    (Grunderna, Fortsättning, Krar, Begena, ...). /
+    እስካሁን ቡድኖች የሉም።
+  </p>
+  {% endif %}
+</section>
+{% endblock %}
