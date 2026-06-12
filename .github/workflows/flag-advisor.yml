@@ -1,0 +1,41 @@
+# Risk-based feature-flag advisor. On every PR it inspects the diff and, if the
+# change touches high-blast-radius areas without touching the flag registry,
+# posts ONE advisory comment suggesting a flag. Advisory only — never blocks the
+# PR (the job always succeeds). Mirrors how large teams surface release risk in
+# CI without gating developers.
+name: flag-advisor
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  advise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Advise on feature-flag use
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$BASE" --quiet
+          CHANGED="$(git diff --name-only "origin/$BASE...HEAD")"
+          ADVICE="$(printf '%s\n' "$CHANGED" | bash scripts/flag-risk-advisor.sh)"
+          if [ -z "$ADVICE" ]; then
+            echo "No flag advisory for this change."
+            exit 0
+          fi
+          # Post once: skip if an advisor comment already exists on this PR.
+          if gh pr view "$PR" --json comments -q '.comments[].body' | grep -q 'flag-advisor'; then
+            echo "Advisory already posted; not duplicating."
+            exit 0
+          fi
+          printf '%s' "$ADVICE" | gh pr comment "$PR" --body-file -

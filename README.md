@@ -211,6 +211,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`24-funeral-service-catalog.md`](docs/24-funeral-service-catalog.md) | **Tjänstekatalog: 2 spår, 6 tjänster** |
 | [`25-deploy-och-innehallsflode.md`](docs/25-deploy-och-innehallsflode.md) | **Deploy & innehållsflöde: GitOps, KV, sekvensdiagram** |
 | [`26-gavokvittoflode.md`](docs/26-gavokvittoflode.md) | **Gåvokvitton: kassörsverifiering, Skatteverket, onboarding per kyrka** |
+| [`27-feature-flag-workflow.md`](docs/27-feature-flag-workflow.md) | **Feature flags: release-säkerhet, governance, automatisk risk-rådgivning** |
 | [`28-agentisk-driftmodell.md`](docs/28-agentisk-driftmodell.md) | **Agentisk driftmodell: teknisk skuld, agentkatalog, färdplan** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
