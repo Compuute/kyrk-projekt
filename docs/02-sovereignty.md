@@ -18,7 +18,7 @@ operational control. No third-country data flows. No hidden dependencies.
 |---|---|---|
 | Google Cloud | Hosting | EU regions only; DPA signed |
 | Anthropic API | LLM calls (via n8n) | Aggregated data only; no PII; zero-retention where possible |
-| PropelAuth | RBAC / sessions | EU data region where supported; no PII beyond email in PropelAuth |
+| Zitadel Cloud | RBAC / sessions | EU/CH data region where supported; no PII beyond email in Zitadel |
 | Fortnox | Accounting integration | Aggregates only; no member linkage |
 
 ## Risk rules

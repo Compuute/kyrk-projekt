@@ -16,7 +16,7 @@
 
 - [ ] TDD: tests written before / alongside implementation
 - [ ] Pydantic models for all new inputs
-- [ ] PropelAuth dependency on all new RED endpoints
+- [ ] Zitadel dependency on all new RED endpoints
 - [ ] No PII in GREEN code paths
 - [ ] Audit events for new RED writes
 - [ ] No secrets committed

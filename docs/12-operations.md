@@ -229,7 +229,7 @@ If the input sanitizer detects a validation failure before a request is processe
    look for the exception.
 2. If it's a config error (missing env var), check the deploy workflow
    ran with the right environment secrets.
-3. If it's a downstream error (Firestore / KMS / PropelAuth), check
+3. If it's a downstream error (Firestore / KMS / Zitadel), check
    each of those consoles for quota, outage, or permission issues.
 4. If it's not obvious in 5 minutes: **roll back** to the previous
    revision (see above) and investigate on a branch.
