@@ -767,3 +767,23 @@ body[data-lang="am"] {
   .hero h1 { font-size: 30px; }
   .footer-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* --- Etiopisk kalender (calendar-engine.js) --- */
+.ethcal-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0 12px; }
+.ethcal-titles { text-align:center; }
+.ethcal-title { font-weight:700; color:var(--fg); }
+.ethcal-title .ethcal-am { font-weight:400; opacity:0.8; margin-left:6px; }
+.ethcal-sub { font-size:12px; color:var(--muted); }
+.ethcal-nav { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; color:var(--fg); }
+.ethcal-nav:hover { border-color: var(--accent); }
+.ethcal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+.ethcal-wd { font-size:11px; text-align:center; color:var(--muted); padding:4px 0; }
+.ethcal-cell { position:relative; min-height:52px; border:1px solid var(--border); border-radius:8px; padding:4px; background:var(--card); }
+.ethcal-empty { border:none; background:transparent; }
+.ethcal-day { font-weight:600; font-size:14px; }
+.ethcal-gday { position:absolute; top:4px; right:6px; font-size:10px; color:var(--muted); }
+.ethcal-marks { position:absolute; bottom:3px; left:5px; font-size:11px; }
+.ethcal-today { outline:2px solid var(--accent); outline-offset:-2px; background:var(--bg); }
+.ethcal-fast::after { content:"◆"; position:absolute; bottom:3px; right:6px; font-size:9px; color:var(--accent-light); }
+.ethcal-holiday { border-color: var(--accent-light); }
+.ethcal-legend { font-size:12px; margin-top:10px; }
