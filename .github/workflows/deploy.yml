@@ -216,12 +216,15 @@ jobs:
             RECEIPT_FROM_EMAIL=${{ secrets.RECEIPT_FROM_EMAIL }}
             RECEIPT_FROM_NAME=Abune Tekle Haymanot
 
-  # admin-web depends on intake + certificate.
+  # admin-web depends on intake + certificate + membership (sunday school,
+  # funerals) + reporting (activity logging, KPI).
   deploy-admin-web:
     name: deploy admin-web
     needs:
       - deploy-membership-intake
       - deploy-certificate-service
+      - deploy-membership-service
+      - deploy-reporting-service
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -239,8 +242,14 @@ jobs:
             --region=${{ env.REGION }} --format='value(status.url)')
           CERT=$(gcloud run services describe certificate-service \
             --region=${{ env.REGION }} --format='value(status.url)')
+          MEMBERSHIP=$(gcloud run services describe membership-service \
+            --region=${{ env.REGION }} --format='value(status.url)')
+          REPORTING=$(gcloud run services describe reporting-service \
+            --region=${{ env.REGION }} --format='value(status.url)')
           echo "intake=$INTAKE" >> $GITHUB_OUTPUT
           echo "cert=$CERT" >> $GITHUB_OUTPUT
+          echo "membership=$MEMBERSHIP" >> $GITHUB_OUTPUT
+          echo "reporting=$REPORTING" >> $GITHUB_OUTPUT
 
       - name: Resolve admin-web URL
         id: aw
@@ -262,6 +271,8 @@ jobs:
             ADAPTER_MODE=production
             INTAKE_BASE_URL=${{ steps.urls.outputs.intake }}
             CERTIFICATE_BASE_URL=${{ steps.urls.outputs.cert }}
+            MEMBERSHIP_BASE_URL=${{ steps.urls.outputs.membership }}
+            REPORTING_BASE_URL=${{ steps.urls.outputs.reporting }}
             ADMIN_WEB_COOKIE_SECURE=true
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
             ZITADEL_CLIENT_ID=376717918169271350

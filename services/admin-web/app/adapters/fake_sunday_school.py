@@ -39,6 +39,7 @@ class FakeSundaySchoolClient:
         self.attendance: dict[str, list[AttendanceRecord]] = {}
         self.recorded: list[dict] = []
         self.enrolled: list[dict] = []
+        self.created_groups: list[dict] = []
         self.list_error: ClientError | None = None
         self.record_error: ClientError | None = None
         self.enroll_error: ClientError | None = None
@@ -142,6 +143,26 @@ class FakeSundaySchoolClient:
             "guardian_consent": guardian_consent,
         })
         return enrollment
+
+    def create_group(
+        self, token: str, name: str, description: str, teacher_user_ids: list[str]
+    ) -> SchoolGroup:
+        _, role = self._token_parts(token)
+        if role not in {"admin", "pastor", "editor"}:
+            raise ClientError("staff role required", status_code=403)
+        group = SchoolGroup(
+            group_id=str(uuid4()),
+            name=name,
+            description=description,
+            teacher_user_ids=tuple(teacher_user_ids),
+        )
+        self.seed_group(group)
+        self.created_groups.append({
+            "name": name,
+            "description": description,
+            "teacher_user_ids": list(teacher_user_ids),
+        })
+        return group
 
     def _check_access(self, token: str, group_id: str) -> None:
         group = self.groups.get(group_id)

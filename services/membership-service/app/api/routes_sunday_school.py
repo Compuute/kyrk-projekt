@@ -29,22 +29,26 @@ _STAFF = (Role.ADMIN, Role.PASTOR, Role.EDITOR)
 
 
 class GroupModel(BaseModel):
-    group_id: str
-    church_id: str
+    # group_id/church_id may be omitted on create — the server generates
+    # the id and takes the church from the authenticated actor.
+    group_id: str = ""
+    church_id: str = ""
     name: str = Field(min_length=1, max_length=100)
     description: str = ""
     teacher_user_ids: list[str] = Field(default_factory=list)
     active: bool = True
 
-    def to_domain(self) -> SundaySchoolGroup:
-        return SundaySchoolGroup(
-            church_id=self.church_id,
+    def to_domain(self, church_id: str) -> SundaySchoolGroup:
+        group = SundaySchoolGroup(
+            church_id=church_id,
             name=self.name,
             description=self.description,
             teacher_user_ids=self.teacher_user_ids,
             active=self.active,
-            group_id=self.group_id,
         )
+        if self.group_id:
+            group.group_id = self.group_id
+        return group
 
     @classmethod
     def from_domain(cls, g: SundaySchoolGroup) -> "GroupModel":
@@ -190,11 +194,11 @@ def create_group(
     tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
 ) -> GroupModel:
     _require_staff(actor)
-    if body.church_id != actor.church_id:
+    if body.church_id and body.church_id != actor.church_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="church ID mismatch"
         )
-    group = body.to_domain()
+    group = body.to_domain(actor.church_id)
     tracker.save_group(group)
     return GroupModel.from_domain(group)
 

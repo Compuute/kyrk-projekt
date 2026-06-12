@@ -33,10 +33,34 @@
   </table>
   {% else %}
   <p class="muted">
-    Inga grupper ännu. Be administratören skapa grupperna
-    (Grunderna, Fortsättning, Krar, Begena, ...). /
+    Inga grupper ännu. /
     እስካሁን ቡድኖች የሉም።
   </p>
   {% endif %}
 </section>
+
+{% if session.role in ("admin", "pastor", "editor") %}
+<section class="card">
+  <h2>Skapa grupp / ቡድን ፍጠር</h2>
+  <p class="muted small">
+    T.ex. Grunderna, Fortsättning, Krar, Begena. Ange lärarnas användar-id
+    separerade med komma — de ser då gruppen och kan ta närvaro.
+  </p>
+  <form method="post" action="/sunday-school/groups" class="stacked">
+    <label>
+      Gruppnamn / የቡድን ስም
+      <input type="text" name="group_name" required placeholder="t.ex. Grunderna" />
+    </label>
+    <label>
+      Beskrivning / መግለጫ
+      <input type="text" name="description" />
+    </label>
+    <label>
+      Lärare (användar-id, kommaseparerade) / መምህራን
+      <input type="text" name="teacher_user_ids" placeholder="t.ex. larare1, larare2" />
+    </label>
+    <button type="submit" class="primary">Skapa / ፍጠር</button>
+  </form>
+</section>
+{% endif %}
 {% endblock %}

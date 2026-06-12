@@ -127,3 +127,22 @@ class HttpxSundaySchoolClient:
             child_last_name=row["child_last_name"],
             birth_year=row["birth_year"],
         )
+
+    def create_group(
+        self, token: str, name: str, description: str, teacher_user_ids: list[str]
+    ) -> SchoolGroup:
+        row = self._post(
+            token,
+            "/sunday-school/groups",
+            {
+                "name": name,
+                "description": description,
+                "teacher_user_ids": teacher_user_ids,
+            },
+        )
+        return SchoolGroup(
+            group_id=row["group_id"],
+            name=row["name"],
+            description=row.get("description", ""),
+            teacher_user_ids=tuple(row.get("teacher_user_ids", [])),
+        )

@@ -60,3 +60,6 @@ class SundaySchoolClientPort(Protocol):
         guardian_phone: str,
         guardian_consent: bool,
     ) -> SchoolEnrollment: ...
+    def create_group(
+        self, token: str, name: str, description: str, teacher_user_ids: list[str]
+    ) -> SchoolGroup: ...

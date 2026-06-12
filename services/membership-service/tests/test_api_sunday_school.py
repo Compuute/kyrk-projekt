@@ -296,3 +296,16 @@ def test_attendance_church_isolated(client):
         headers=_headers("admin", church="c2"),
     )
     assert r.status_code == 404
+
+
+def test_create_group_generates_id_and_church(client):
+    """Clients may omit group_id/church_id — the server fills them in."""
+    r = client.post(
+        "/sunday-school/groups",
+        json={"name": "Begena", "description": "", "teacher_user_ids": ["t1"]},
+        headers=_headers("admin"),
+    )
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body["group_id"]
+    assert body["church_id"] == "c1"

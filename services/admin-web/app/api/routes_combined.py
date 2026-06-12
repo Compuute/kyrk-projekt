@@ -1744,6 +1744,37 @@ def sunday_school_group_detail(
     )
 
 
+@router.post("/sunday-school/groups")
+def sunday_school_create_group(
+    request: Request,
+    group_name: str = Form(...),
+    description: str = Form(default=""),
+    teacher_user_ids: str = Form(default=""),
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+
+    if session.role not in {"admin", "pastor", "editor"}:
+        return _flash_redirect(
+            "/sunday-school", "Endast personal kan skapa grupper", level="error"
+        )
+
+    teachers = [t.strip() for t in teacher_user_ids.split(",") if t.strip()]
+    try:
+        group = school.create_group(
+            session.token, name=group_name, description=description,
+            teacher_user_ids=teachers,
+        )
+    except ClientError as exc:
+        return _flash_redirect(
+            "/sunday-school", f"Kunde inte skapa grupp: {exc}", level="error"
+        )
+
+    return _flash_redirect("/sunday-school", f"Gruppen {group.name} är skapad")
+
+
 @router.post("/sunday-school/{group_id}/attendance")
 def sunday_school_record_attendance(
     request: Request,

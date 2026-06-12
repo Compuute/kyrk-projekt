@@ -259,3 +259,42 @@ def test_per_child_attendance_tracking(teacher_client, seeded_school):
     # Maria (e1) attended 3 of 3 sessions, Dawit (e2) 2 of 3.
     assert "3/3" in r.text
     assert "2/3" in r.text
+
+
+# ------------------------------------------------------------- create groups
+
+
+def test_staff_sees_create_group_form(authed_client, seeded_school):
+    r = authed_client.get("/sunday-school")
+    assert 'name="group_name"' in r.text
+
+
+def test_teacher_does_not_see_create_group_form(teacher_client, seeded_school):
+    r = teacher_client.get("/sunday-school")
+    assert 'name="group_name"' not in r.text
+
+
+def test_staff_creates_group(authed_client, sunday_school):
+    r = authed_client.post(
+        "/sunday-school/groups",
+        data={
+            "group_name": "Begena",
+            "description": "Begenalektioner",
+            "teacher_user_ids": "t1, t2",
+        },
+    )
+    assert r.status_code == 303
+    created = sunday_school.created_groups
+    assert len(created) == 1
+    assert created[0]["name"] == "Begena"
+    assert created[0]["teacher_user_ids"] == ["t1", "t2"]
+
+
+def test_teacher_cannot_create_group(teacher_client, sunday_school):
+    r = teacher_client.post(
+        "/sunday-school/groups",
+        data={"group_name": "Begena", "description": "", "teacher_user_ids": ""},
+    )
+    assert r.status_code == 303
+    assert "level=error" in r.headers["location"]
+    assert sunday_school.created_groups == []
