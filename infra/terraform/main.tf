@@ -79,6 +79,17 @@ resource "google_service_account" "deployer" {
   project      = var.project_id
 }
 
+# Infrastructure deployer — used ONLY by terraform-apply.yml. Separate from
+# sa-deployer so the powerful infra identity is never reachable from the
+# app-deploy pipeline, and agent/audit logs can tell the two apart.
+# Bootstrapped once by a project owner (it cannot create itself); the
+# import block in imports.tf adopts it into state on first apply.
+resource "google_service_account" "terraform" {
+  account_id   = "sa-terraform"
+  display_name = "Terraform infra deployer (CI)"
+  project      = var.project_id
+}
+
 # Cloud KMS keyring + keys. Must be created BEFORE Firestore CMEK.
 module "kms" {
   source     = "./modules/kms"

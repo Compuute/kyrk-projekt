@@ -176,3 +176,39 @@ resource "google_secret_manager_secret_iam_member" "admin_web_zitadel_secret" {
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${local.service_account_emails["admin-web"]}"
 }
+
+# ============================================================================
+# Terraform (IaC) — full administration of everything this module manages
+# ============================================================================
+# Used ONLY by terraform-apply.yml via WIF. An IaC identity must be able to
+# administer what the IaC owns (IAM, KMS, secrets, WIF, buckets, monitoring),
+# so least-privilege here means: a SEPARATE identity from the app deployer,
+# reachable only from this repo's pipeline, with its own audit trail — not a
+# short role list. sa-deployer keeps its four minimal deploy roles.
+
+locals {
+  terraform_project_roles = [
+    "roles/editor",
+    "roles/resourcemanager.projectIamAdmin",
+    "roles/iam.serviceAccountAdmin",
+    "roles/iam.workloadIdentityPoolAdmin",
+    "roles/secretmanager.admin",
+    "roles/cloudkms.admin",
+    "roles/storage.admin",
+  ]
+}
+
+resource "google_project_iam_member" "terraform_roles" {
+  for_each = toset(local.terraform_project_roles)
+
+  project = var.project_id
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.terraform.email}"
+}
+
+# Same repo-restricted WIF binding as the deployer SA.
+resource "google_service_account_iam_member" "terraform_wif_user" {
+  service_account_id = google_service_account.terraform.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/projects/${data.google_project.current.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github.workload_identity_pool_id}/attribute.repository/${var.github_repository}"
+}
