@@ -96,6 +96,48 @@ def test_approve_twice_409(client):
     assert r.status_code == 409
 
 
+# ------------------------------------------------- Zitadel org-id resolution
+
+# In production, Zitadel sets actor.church_id to the organization id —
+# the registry maps it back to the portal church slug.
+ZITADEL_ORG_ADMIN = {"Authorization": "Bearer u4:376713621675248694:admin"}
+UNKNOWN_ORG_ADMIN = {"Authorization": "Bearer u5:999999999999:admin"}
+
+
+def test_zitadel_org_admin_sees_nacka_pending(client):
+    sid = _submit(client, church_id="nacka")
+    r = client.get("/submissions", headers=ZITADEL_ORG_ADMIN)
+    assert r.status_code == 200
+    assert [item["submission_id"] for item in r.json()] == [sid]
+
+
+def test_zitadel_org_admin_can_approve(client):
+    sid = _submit(client, church_id="nacka")
+    r = client.post(f"/submissions/{sid}/approve", headers=ZITADEL_ORG_ADMIN)
+    assert r.status_code == 200, r.text
+    assert r.json()["status"] == "approved"
+
+
+def test_zitadel_org_admin_can_reject(client):
+    sid = _submit(client, church_id="nacka")
+    r = client.post(f"/submissions/{sid}/reject", headers=ZITADEL_ORG_ADMIN)
+    assert r.status_code == 200
+    assert r.json()["status"] == "rejected"
+
+
+def test_unknown_org_id_sees_nothing(client):
+    _submit(client, church_id="nacka")
+    r = client.get("/submissions", headers=UNKNOWN_ORG_ADMIN)
+    assert r.status_code == 200
+    assert r.json() == []
+
+
+def test_unknown_org_id_cannot_approve(client):
+    sid = _submit(client, church_id="nacka")
+    r = client.post(f"/submissions/{sid}/approve", headers=UNKNOWN_ORG_ADMIN)
+    assert r.status_code == 404
+
+
 # -------------------------------------------------------------- reject API
 
 
