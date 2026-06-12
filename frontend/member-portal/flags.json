@@ -1,7 +1,21 @@
 {
   "version": 1,
-  "_doc": "Feature-flag config. Source of truth at runtime is the KV key 'feature_flags' (instant change, no redeploy); this file is the committed default/seed. See docs/15-ab-testing-strategy.md → 'Release-safety layer'. enabled:false = kill switch; rollout 0-100 = % of visitors (by non-PII bucket).",
+  "_doc": "Feature-flag registry. Runtime source of truth is the KV key 'feature_flags' (instant change, no redeploy); this file is the reviewed default/seed AND the governance registry. Hygiene is enforced by tests/test_flags_hygiene.js (run by make test): every flag needs type+owner+description; release/experiment flags need a future 'expires'; expired flags fail CI to force cleanup. See docs/27-feature-flag-workflow.md.",
+  "_types": {
+    "release": "short-lived; gates a risky change during rollout, then removed. MUST expire.",
+    "experiment": "A/B test (Phase 3, docs/15). MUST expire.",
+    "ops": "long-lived kill switch / circuit breaker. May omit 'expires'.",
+    "permission": "entitlement/gating by segment. May omit 'expires'."
+  },
   "flags": {
-    "example-new-funeral-layout": { "enabled": false, "rollout": 0 }
+    "example-new-funeral-layout": {
+      "enabled": false,
+      "rollout": 0,
+      "type": "release",
+      "owner": "daniel",
+      "created": "2026-06-12",
+      "expires": "2026-09-30",
+      "description": "Template flag — replace with a real one. Shows the required shape; not wired into the edge yet."
+    }
   }
 }
