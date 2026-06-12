@@ -62,42 +62,53 @@
                                           └───────────────────┘
 ```
 
+**Edge compute (Pages Functions).** The member-portal is not purely static: a
+Cloudflare Pages Function (`functions/_middleware.ts`) runs at the edge on every
+HTML request. It does the language-prefix redirect (`/sv`, `/am`), reads the
+visitor's `selected_church`/`selected_language` cookies, pulls that church's
+config from **Workers KV** (`kyrka_content`), and injects it into the page via
+`HTMLRewriter` — so per-church content is rendered at the edge with no origin
+round-trip. The same hook point evaluates **feature flags** (`docs/27`) when
+active. **Auth** is Zitadel Cloud OIDC (ADR-016): `admin-web` runs the
+authorization-code flow; downstream services verify bearer tokens against
+Zitadel's JWKS (see sequence 5).
+
 ## Sequence diagrams
 
 ### 1. Member visits the church website
 
 ```
-Member          Cloudflare          Cloudflare       GCS
-Browser         DNS                 Pages Edge       (content.json)
-  │                │                   │                │
-  │ GET kyrka.se   │                   │                │
-  ├───────────────►│                   │                │
-  │                │ resolve to CF     │                │
-  │                │──────────────────►│                │
-  │                │                   │ edge cache hit?│
-  │                │                   │───────┐        │
-  │                │                   │  yes  │        │
-  │                │                   │◄──────┘        │
-  │  HTML+CSS+JS   │                   │                │
-  │◄───────────────┼───────────────────┤                │
-  │                │                   │                │
-  │ JS fetches content.json            │                │
-  ├───────────────►│───────────────────┤                │
-  │                │                   │ fetch from GCS │
-  │                │                   ├───────────────►│
-  │                │                   │◄───────────────┤
-  │  content.json  │                   │                │
-  │◄───────────────┼───────────────────┤                │
-  │                │                   │                │
-  │ User clicks    │                   │                │
-  │ 🇪🇹 አማርኛ      │                   │                │
-  │ (client-side   │                   │                │
-  │  JS swap,      │                   │                │
-  │  no request)   │                   │                │
-  │                │                   │                │
+Member          Cloudflare Pages         Pages Function          Workers KV
+Browser         (static dist/)           _middleware.ts          (kyrka_content)
+  │                   │                       │                       │
+  │ GET /             │                       │                       │
+  ├──────────────────►│ onRequest             │                       │
+  │                   ├──────────────────────►│                       │
+  │                   │        no /sv|/am prefix → read cookie/       │
+  │                   │        Accept-Language → 302 /sv/             │
+  │  302 → /sv/       │                       │                       │
+  │◄──────────────────┼───────────────────────┤                       │
+  │ GET /sv/          │                       │                       │
+  ├──────────────────►├──────────────────────►│                       │
+  │                   │   fetch base HTML from ASSETS (dist/)         │
+  │                   │◄──────────────────────┤                       │
+  │                   │   read selected_church cookie → get config    │
+  │                   │                       ├──────────────────────►│
+  │                   │                       │◄──────────────────────┤
+  │                   │   HTMLRewriter: inject window.__KYRK_CONFIG__ │
+  │                   │   (+ window.__KYRK_FLAGS__ when flags active),│
+  │                   │   set lang display CSS, set selected_language │
+  │  HTML (config     │                       │                       │
+  │  already inlined) │                       │                       │
+  │◄──────────────────┼───────────────────────┤                       │
+  │                   │                       │                       │
+  │ Switch language → client-side swap (no request);                  │
+  │ church switch → set cookie, edge re-renders on next nav           │
+  │                   │                       │                       │
 ```
 
-**Latency:** ~20ms (edge-served). No cold start. No container boot.
+**Latency:** ~20ms (edge-served, config inlined at the edge from KV — no
+separate content.json round-trip). No cold start. No container boot.
 
 ### 2. New member submits intake form
 
@@ -127,7 +138,9 @@ Browser         WAF + DDoS          Proxy            membership-intake
   │                │                   │                │ store pending  │
   │                │                   │                ├───────────────►│
   │                │                   │                │◄───────────────┤
-  │                │                   │                │ notify n8n     │
+  │                │                   │                │ queue          │
+  │                │                   │                │ BackgroundTask │
+  │                │                   │                │ (notify admin) │
   │  202 Accepted  │                   │                │                │
   │◄───────────────┼───────────────────┼────────────────┤                │
   │                │                   │                │                │
@@ -173,11 +186,16 @@ Browser         Proxy            admin-web        membership-intake  reporting-s
   │                │                │                │                  │                │
 ```
 
-### 4. Quarterly OpenClaw analysis (n8n automated)
+### 4. Quarterly OpenClaw analysis (scheduled runtime agent)
+
+> Trigger is **Cloud Scheduler** (n8n was decommissioned — ADR-015). This is the
+> "report agent" pattern from the [Agent Operating Model](../governance/agent-operating-model.md)
+> / [doc 28](../28-agentisk-driftmodell.md): scheduler → worker → sanitizer → LLM
+> → pending → human approval. The sanitizer (whitelist) is the PII guarantee.
 
 ```
-n8n             Cloud Run          Sanitizer        Anthropic       Cloud Storage
-(cron)          reporting-svc      (in n8n)         API             (pending review)
+Cloud           Cloud Run          Sanitizer        Anthropic       Firestore
+Scheduler       reporting-svc      (in service)     API             (pending review)
   │                │                  │                │                │
   │ GET /reports/  │                  │                │                │
   │ board-export   │                  │                │                │
@@ -217,6 +235,56 @@ n8n             Cloud Run          Sanitizer        Anthropic       Cloud Storag
   │ (Telegram)     │                  │                │                │
   │                │                  │                │                │
 ```
+
+### 5. Admin login + downstream auth (Zitadel OIDC)
+
+> Auth migrated from PropelAuth to **Zitadel Cloud** (ADR-016). `admin-web` runs
+> the OIDC authorization-code flow; downstream services verify the bearer token
+> locally against Zitadel's JWKS. The JWKS fetch is the trust anchor for every
+> session — it is fetched over **TLS with certificate + hostname verification**
+> (a prior `CERT_NONE` bypass was removed; a repo guard now blocks reintroducing
+> it). Region caveat: the instance is currently US-region on the free tier until
+> the EU move — see ADR-017.
+
+```
+Admin        admin-web         Zitadel          membership-service   Zitadel
+Browser      (JWTSession)      (OIDC IdP)        (ZitadelAuthAdapter) JWKS endpoint
+  │              │                 │                   │                  │
+  │ GET /admin   │                 │                   │                  │
+  ├─────────────►│ no session →    │                   │                  │
+  │              │ 302 to Zitadel  │                   │                  │
+  │  302 login   │                 │                   │                  │
+  │◄─────────────┤                 │                   │                  │
+  │ login at Zitadel (sv/am)       │                   │                  │
+  ├───────────────────────────────►│                   │                  │
+  │  302 /login/callback?code=...  │                   │                  │
+  │◄───────────────────────────────┤                   │                  │
+  │ GET /callback?code             │                   │                  │
+  ├─────────────►│ exchange code   │                   │                  │
+  │              ├────────────────►│ /oauth/v2/token   │                  │
+  │              │◄────────────────┤ id_token (RS256)  │                  │
+  │              │ set kyrk_session│                   │                  │
+  │  303 + cookie│ (HttpOnly)      │                   │                  │
+  │◄─────────────┤                 │                   │                  │
+  │              │                 │                   │                  │
+  │ action needing a RED service (bearer = OIDC token) │                  │
+  ├─────────────►├────────────────────────────────────►│                  │
+  │              │                 │   verify token:   │ GET /oauth/v2/   │
+  │              │                 │   fetch JWKS      │ keys (TLS-VERIFY)│
+  │              │                 │                   ├─────────────────►│
+  │              │                 │                   │◄─────────────────┤
+  │              │                 │   RS256 sig + iss/aud/exp + role +    │
+  │              │                 │   church scope (org-id → portal slug) │
+  │              │                 │   → Actor, or 401/403                 │
+  │   result     │                 │                   │                  │
+  │◄─────────────┼─────────────────────────────────────┤                  │
+  │              │                 │                   │                  │
+```
+
+**Trust anchor:** the JWKS fetch. If its TLS verification were disabled, a MITM
+could serve forged signing keys and forge admin tokens — which is why the
+`CERT_NONE` bypass was removed across all five auth adapters and a guard test
+(`test_project_security_guard`) blocks its return.
 
 ## What Cloudflare sees vs what GCP sees
 
@@ -288,7 +356,11 @@ through Cloudflare. This means:
 1. Is it Cloudflare WAF blocking the request?
    - `curl -v https://api.kyrka.se/intake` — look for `cf-mitigated: challenge` header.
    - **Yes →** Cloudflare WAF false positive. Dashboard → Security → WAF → check the rule → add an exception for `/intake`.
-   - **No →** it's PropelAuth returning 403 (role check). Check the bearer token.
+   - **No →** the service rejected the token (role check). The `ZitadelAuthAdapter`
+     verifies the OIDC bearer token's RS256 signature against Zitadel's JWKS and
+     checks the role claim. A 403 means a valid token without the required role; a
+     401 means the token failed verification (expired/wrong issuer/aud). Check the
+     token's claims and that `ZITADEL_ISSUER_URL` matches.
 
 ### "Content is stale after update"
 
