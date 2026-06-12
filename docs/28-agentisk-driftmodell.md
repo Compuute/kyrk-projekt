@@ -1,4 +1,4 @@
-# 27 — Agentisk driftmodell: teknisk skuld, agentkatalog och färdplan
+# 28 — Agentisk driftmodell: teknisk skuld, agentkatalog och färdplan
 
 Datadriven inventering (2026-06-12) av teknisk skuld plus en realistisk plan
 för att låta AI-agenter ta över det tunga dagliga arbetet — medlemshantering,
