@@ -1,0 +1,17 @@
+{
+  "$comment": "Cloudflare agent access — Layer 1 (read-only diagnose). Governed by docs/governance/agent-access-policy.md. Docs is public (no auth). Observability + Builds require OAuth on first use; grant READ-ONLY scopes only. Bindings (Layer 2) and any write/deploy capability (Layer 3) are deliberately NOT wired here — deploy stays behind deploy.yml + ops-cli per the policy.",
+  "mcpServers": {
+    "cloudflare-docs": {
+      "type": "http",
+      "url": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    "cloudflare-observability": {
+      "type": "http",
+      "url": "https://observability.mcp.cloudflare.com/mcp"
+    },
+    "cloudflare-builds": {
+      "type": "http",
+      "url": "https://builds.mcp.cloudflare.com/mcp"
+    }
+  }
+}

@@ -656,3 +656,29 @@ Vi implementerar **Alternativ A (Strikt Säkerhet)**:
 Om vi i framtiden behöver utföra tunga analytiska beräkningar eller rapportering på begravningsdata i YELLOW-zonen (t.ex. i `reporting-service`), måste vi se till att datan anonymiseras eller pseudonymiseras i backend innan den skickas vidare.
 
 ---
+
+## ADR-021: Agent Operating Model — agentiska AI-grupper utvecklar och driftar plattformen
+
+**Date:** 2026-06
+**Status:** accepted
+
+**Context:**
+Teamet kommer att bestå av agentiska AI-grupper (Claude Code m.fl.) plus mänskliga ägare, som arbetar enligt Anthropics best practice för agenter. Vi hade redan delarna — CLAUDE.md (RULE 1–4), `ops-contract.yaml` (approval/forbidden/escalation för ops), KYA-access-policyn, flagg-governance och CI-gates — men ingen samlad modell för *hur ett agentiskt team opererar säkert*. Utan det riskerar agenter (som är snabba och kan vara självsäkert-fel) att bli en oövervakad väg runt kontrollerna.
+
+**Decision:**
+Anta en [Agent Operating Model](governance/agent-operating-model.md) som paraply över befintliga artefakter. Kärnval:
+- **Deterministiska guardrails > omdöme** — agenter kan inte prata sig förbi en röd CI-check; enforcement ligger i kod, inte i prompts.
+- **Människan äger det oåterkalleliga; agenter äger det reversibla-och-verifierade.** Explicita human-approval-grindar (merge/prod-deploy/schema/pengar/suveränitet/PII) generaliserar `ops-contract`:s `approval_required`.
+- **Least privilege per roll** (Builder/Reviewer/Ops/Research) med scope:ad åtkomst (KYA), tillagd i lager.
+- **Verifiering mot målet** (RULE 1) + gröna räcken före mänsklig review.
+- **Attribution utan AI-committers:** committer = människan (RULE 4); spårbarhet *vilken agent gjorde vad* ligger i PR-beskrivning + sessionstranscripts, inte i git-author.
+
+**Consequence:**
+- Säkerheten skalar med antalet agenter — räckena är desamma oavsett hur många agenter eller hur snabbt de rör sig.
+- Nya förmågor (ny MCP-server, ny agent-roll, write-behörighet) läggs till genom att ändra modellen i en PR granskad av en människa — aldrig ad hoc.
+- KYA-access-policyn + `.mcp.json` blir access-komponenten under modellen (ersätter den fristående PR #18).
+
+**When to revisit:**
+När en ny agent-roll eller en write-/deploy-förmåga övervägs, eller när human-approval-grindarna behöver justeras (t.ex. vid produktionssättning av backend). Uppdatera modellen + berörda referensdokument i en PR.
+
+---
