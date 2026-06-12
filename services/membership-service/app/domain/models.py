@@ -21,6 +21,7 @@ class Role(str, Enum):
     PASTOR = "pastor"
     EDITOR = "editor"
     VIEWER = "viewer"
+    TEACHER = "teacher"
 
 
 def _now() -> datetime:
@@ -59,6 +60,67 @@ class Actor:
     user_id: str
     church_id: str
     role: Role
+
+
+# Same bands as reporting-service expects in YELLOW-zone activity aggregates.
+AGE_BANDS = ("0-6", "7-12", "13-17", "18-25", "26+")
+
+
+def age_band_for(birth_year: int, on_date: str) -> str:
+    """Map a birth year to an age band as of an ISO date (YYYY-MM-DD)."""
+    age = max(0, int(on_date[:4]) - birth_year)
+    if age <= 6:
+        return "0-6"
+    if age <= 12:
+        return "7-12"
+    if age <= 17:
+        return "13-17"
+    if age <= 25:
+        return "18-25"
+    return "26+"
+
+
+@dataclass
+class SundaySchoolGroup:
+    """A Sunday school course group (Grunderna, Fortsättning, Krar, Begena, ...)."""
+    church_id: str
+    name: str
+    description: str = ""
+    teacher_user_ids: list[str] = field(default_factory=list)
+    active: bool = True
+    group_id: str = field(default_factory=_new_id)
+    created_at: datetime = field(default_factory=_now)
+
+
+@dataclass
+class SundaySchoolEnrollment:
+    """A child enrolled in one group. The same child may be enrolled in
+    several groups (one enrollment per group)."""
+    church_id: str
+    group_id: str
+    child_first_name: str
+    child_last_name: str
+    birth_year: int
+    guardian_name: str = ""
+    guardian_phone: str = ""
+    guardian_consent: bool = False
+    member_id: str = ""  # optional link to a Member/family record
+    active: bool = True
+    enrollment_id: str = field(default_factory=_new_id)
+    created_at: datetime = field(default_factory=_now)
+
+
+@dataclass
+class SundaySchoolAttendance:
+    """Attendance for one group on one date. One record per (group, date) —
+    re-registering the same date replaces the record."""
+    church_id: str
+    group_id: str
+    date: str  # ISO date YYYY-MM-DD
+    present_enrollment_ids: list[str] = field(default_factory=list)
+    registered_by_user_id: str = ""
+    attendance_id: str = field(default_factory=_new_id)
+    created_at: datetime = field(default_factory=_now)
 
 
 @dataclass

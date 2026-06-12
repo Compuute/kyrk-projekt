@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }} — Söndagsskola{% endblock %}
+{% block content %}
+<section class="card">
+  <p><a href="/sunday-school">← Alla grupper / ሁሉም ቡድኖች</a></p>
+  <h1>{{ group.name }}</h1>
+  {% if group.description %}<p class="muted">{{ group.description }}</p>{% endif %}
+
+  <h2>Närvaro / መገኘት</h2>
+  <p class="muted small">
+    Bocka för de barn som är här i dag och spara. Står barnet inte i listan —
+    registrera det längre ner. /
+    ዛሬ የተገኙትን ልጆች ምልክት ያድርጉና ያስቀምጡ። ልጁ በዝርዝሩ ውስጥ ከሌለ ከታች ይመዝግቡት።
+  </p>
+
+  {% if enrollments %}
+  <form method="post" action="/sunday-school/{{ group.group_id }}/attendance" class="stacked">
+    <label>
+      Datum / ቀን
+      <input type="date" name="attendance_date" value="{{ today }}" required />
+    </label>
+    {% for e in enrollments %}
+    <label class="checkbox">
+      <input type="checkbox" name="present" value="{{ e.enrollment_id }}" />
+      {{ e.child_first_name }} {{ e.child_last_name }}
+      <span class="muted small">({{ e.birth_year }})</span>
+    </label>
+    {% endfor %}
+    <button type="submit" class="primary">Spara närvaro / መገኘት አስቀምጥ</button>
+  </form>
+  {% else %}
+  <p class="muted">Inga barn registrerade i gruppen ännu. / እስካሁን ምንም ልጆች አልተመዘገቡም።</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Registrera nytt barn / አዲስ ልጅ መዝግብ</h2>
+  <form method="post" action="/sunday-school/{{ group.group_id }}/enroll" class="stacked">
+    <label>
+      Förnamn / ስም
+      <input type="text" name="child_first_name" required />
+    </label>
+    <label>
+      Efternamn / የአባት ስም
+      <input type="text" name="child_last_name" required />
+    </label>
+    <label>
+      Födelseår / የትውልድ ዓመት
+      <input type="number" name="birth_year" min="1990" max="2030" required />
+    </label>
+    <label>
+      Vårdnadshavare / ወላጅ
+      <input type="text" name="guardian_name" />
+    </label>
+    <label>
+      Telefon vårdnadshavare / የወላጅ ስልክ
+      <input type="text" name="guardian_phone" />
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="guardian_consent" value="true" required />
+      Vårdnadshavaren samtycker till registreringen (GDPR) /
+      ወላጁ ለምዝገባው ፈቃድ ሰጥቷል
+    </label>
+    <button type="submit" class="primary">Registrera / መዝግብ</button>
+  </form>
+</section>
+
+{% if monthly_stats %}
+<section class="card">
+  <h2>Deltagande per månad / በወር ተሳትፎ</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Månad / ወር</th>
+        <th>Tillfällen / ክፍለ ጊዜዎች</th>
+        <th>Barn / ልጆች</th>
+        <th>Närvarograd / የመገኘት መጠን</th>
+        <th>Deltagande / ተሳትፎ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in monthly_stats %}
+      <tr>
+        <td>{{ m.month }}</td>
+        <td>{{ m.sessions }}</td>
+        <td>{{ m.unique_children }}</td>
+        <td>{{ m.rate_pct }}%</td>
+        <td>{{ m.label }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if child_stats and records %}
+<section class="card">
+  <h2>Per barn / በልጅ</h2>
+  <p class="muted small">
+    Underlag för nivåcertifikat och för att följa varje barns utveckling. /
+    ለደረጃ ሰርተፊኬት እና የእያንዳንዱን ልጅ እድገት ለመከታተል መሠረት።
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Barn / ልጅ</th>
+        <th>Närvaro / መገኘት</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in child_stats %}
+      <tr>
+        <td>{{ c.enrollment.child_first_name }} {{ c.enrollment.child_last_name }}</td>
+        <td>{{ c.attended }}/{{ c.total }}</td>
+        <td class="muted">{{ c.rate_pct }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if records %}
+<section class="card">
+  <h2>Historik / ታሪክ</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Datum / ቀን</th>
+        <th>Närvarande / የተገኙ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{{ r.date }}</td>
+        <td>{{ r.participants_total }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+{% endblock %}

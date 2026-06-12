@@ -92,6 +92,33 @@ resource "google_cloud_run_v2_service_iam_member" "admin_web_invoke_certificate"
   depends_on = [module.cloud_run]
 }
 
+# membership-service is --no-allow-unauthenticated (RED zone). admin-web
+# reaches it for Sunday school (groups/enrollments/attendance) and
+# funerals, carrying its identity in X-Serverless-Authorization (see
+# admin-web app/adapters/gcp_identity.py) and the user's Zitadel bearer
+# in Authorization for application-level RBAC.
+resource "google_cloud_run_v2_service_iam_member" "admin_web_invoke_membership" {
+  project  = var.project_id
+  location = var.region
+  name     = "membership-service"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${local.service_account_emails["admin-web"]}"
+
+  depends_on = [module.cloud_run]
+}
+
+# reporting-service receives Sunday school attendance aggregates
+# (YELLOW zone, counts only) and serves the KPI activity export.
+resource "google_cloud_run_v2_service_iam_member" "admin_web_invoke_reporting" {
+  project  = var.project_id
+  location = var.region
+  name     = "reporting-service"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${local.service_account_emails["admin-web"]}"
+
+  depends_on = [module.cloud_run]
+}
+
 # membership-intake is currently --allow-unauthenticated for the public
 # POST /intake endpoint. The admin endpoints under it rely on
 # application-level PropelAuth checks. If you tighten intake to

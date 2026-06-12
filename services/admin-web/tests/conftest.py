@@ -13,6 +13,7 @@ from app.adapters.fake_content_store import FakeContentStore
 from app.adapters.fake_funeral_tracker import FakeFuneralTracker
 from app.adapters.fake_grant_tracker import FakeGrantTracker
 from app.adapters.fake_notification import FakeNotification
+from app.adapters.fake_sunday_school import FakeSundaySchoolClient
 from app.adapters.fake_translator import FakeTranslator
 from app.api import deps
 from app.main import create_app
@@ -65,7 +66,12 @@ def translator() -> FakeTranslator:
 
 
 @pytest.fixture
-def client(intake, certificates, activity, reporting, notification, funeral_tracker, grant_tracker, content_store, translator) -> TestClient:
+def sunday_school() -> FakeSundaySchoolClient:
+    return FakeSundaySchoolClient()
+
+
+@pytest.fixture
+def client(intake, certificates, activity, reporting, notification, funeral_tracker, grant_tracker, content_store, translator, sunday_school) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_intake_client] = lambda: intake
     app.dependency_overrides[deps.get_certificate_client] = lambda: certificates
@@ -76,6 +82,7 @@ def client(intake, certificates, activity, reporting, notification, funeral_trac
     app.dependency_overrides[deps.get_grant_tracker] = lambda: grant_tracker
     app.dependency_overrides[deps.get_content_store] = lambda: content_store
     app.dependency_overrides[deps.get_translator] = lambda: translator
+    app.dependency_overrides[deps.get_sunday_school_client] = lambda: sunday_school
     # TestClient must not follow redirects by default — we test the flow explicitly.
     return TestClient(app, follow_redirects=False)
 

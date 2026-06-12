@@ -27,6 +27,7 @@ from app.ports.auth import AuthPort
 from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
 from app.ports.funeral_tracker import FuneralTrackerPort
+from app.ports.sunday_school import SundaySchoolPort
 
 
 def _mode() -> str:
@@ -91,6 +92,23 @@ def make_funeral_tracker() -> FuneralTrackerPort:
 
         _FUNERAL_TRACKER = InMemoryFuneralTracker()
     return _FUNERAL_TRACKER
+
+
+_SUNDAY_SCHOOL: SundaySchoolPort | None = None
+
+
+def make_sunday_school_tracker() -> SundaySchoolPort:
+    global _SUNDAY_SCHOOL
+    if _mode() == "production":
+        from app.adapters.firestore_sunday_school import FirestoreSundaySchoolTracker
+
+        return FirestoreSundaySchoolTracker()
+
+    if _SUNDAY_SCHOOL is None:
+        from app.adapters.in_memory_sunday_school import InMemorySundaySchoolTracker
+
+        _SUNDAY_SCHOOL = InMemorySundaySchoolTracker()
+    return _SUNDAY_SCHOOL
 
 
 def _require_env(name: str) -> str:

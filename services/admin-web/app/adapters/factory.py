@@ -29,6 +29,7 @@ from app.ports.funeral_tracker import FuneralTrackerPort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.notification import NotificationPort
 from app.ports.session import SessionPort
+from app.ports.sunday_school import SundaySchoolClientPort
 from app.ports.translation import TranslationPort
 
 
@@ -62,7 +63,12 @@ def make_activity_client() -> ActivityClientPort:
 
         # activity-service was merged into reporting-service; activity
         # endpoints (/activities/*) are now served by REPORTING_BASE_URL.
-        return HttpxActivityClient(base_url=_require_env("REPORTING_BASE_URL"))
+        from app.adapters.gcp_identity import metadata_id_token_provider
+
+        return HttpxActivityClient(
+            base_url=_require_env("REPORTING_BASE_URL"),
+            id_token_provider=metadata_id_token_provider,
+        )
     from app.adapters.fake_clients import FakeActivityClient
 
     return FakeActivityClient()
@@ -99,6 +105,21 @@ def make_funeral_tracker(token: str | None = None) -> FuneralTrackerPort:
     from app.adapters.fake_funeral_tracker import FakeFuneralTracker
 
     return FakeFuneralTracker()
+
+
+def make_sunday_school_client() -> SundaySchoolClientPort:
+    if _mode() == "production":
+        from app.adapters.httpx_sunday_school import HttpxSundaySchoolClient
+
+        from app.adapters.gcp_identity import metadata_id_token_provider
+
+        return HttpxSundaySchoolClient(
+            base_url=_require_env("MEMBERSHIP_BASE_URL"),
+            id_token_provider=metadata_id_token_provider,
+        )
+    from app.adapters.fake_sunday_school import FakeSundaySchoolClient
+
+    return FakeSundaySchoolClient()
 
 
 def make_grant_tracker() -> GrantTrackerPort:

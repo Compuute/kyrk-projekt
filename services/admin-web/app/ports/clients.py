@@ -113,6 +113,23 @@ class ActivityClientPort(Protocol):
         self, token: str, start: str, end: str
     ) -> list[ActivityAggregate]: ...
 
+    def log_activity(
+        self,
+        token: str,
+        activity_type: str,
+        date: str,
+        location: str,
+        funding_tag: str,
+        participants_total: int,
+        age_band_counts: dict[str, int],
+    ) -> str:
+        """Log one aggregate activity row; returns the activity id.
+
+        YELLOW zone: callers must only pass aggregates — never names or
+        other PII. The reporting-service PII guard rejects violations.
+        """
+        ...
+
 
 # ------------------------------------------------------------------- reporting
 

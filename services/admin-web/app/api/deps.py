@@ -13,6 +13,7 @@ from app.adapters.factory import (
     make_notification,
     make_reporting_client,
     make_session_adapter,
+    make_sunday_school_client,
     make_translator,
 )
 from app.config import Settings, load_settings
@@ -27,6 +28,7 @@ from app.ports.funeral_tracker import FuneralTrackerPort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.notification import NotificationPort
 from app.ports.session import SessionInfo, SessionPort
+from app.ports.sunday_school import SundaySchoolClientPort
 from app.ports.translation import TranslationPort
 
 
@@ -40,6 +42,7 @@ _GRANT_TRACKER: GrantTrackerPort | None = None
 _CONTENT_STORE: ContentStorePort | None = None
 _TRANSLATOR: TranslationPort | None = None
 _SESSION: SessionPort | None = None
+_SUNDAY_SCHOOL: SundaySchoolClientPort | None = None
 _SETTINGS: Settings = load_settings()
 
 
@@ -102,6 +105,13 @@ def get_translator() -> TranslationPort:
     if _TRANSLATOR is None:
         _TRANSLATOR = make_translator()
     return _TRANSLATOR
+
+
+def get_sunday_school_client() -> SundaySchoolClientPort:
+    global _SUNDAY_SCHOOL
+    if _SUNDAY_SCHOOL is None:
+        _SUNDAY_SCHOOL = make_sunday_school_client()
+    return _SUNDAY_SCHOOL
 
 
 def get_session_adapter() -> SessionPort:

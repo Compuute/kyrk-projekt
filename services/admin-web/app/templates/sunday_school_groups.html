@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Söndagsskola — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Söndagsskola / ሰንበት ትምህርት ቤት</h1>
+  <p class="muted small">
+    Välj din grupp för att ta närvaro eller registrera ett nytt barn. /
+    መገኘት ለመውሰድ ወይም አዲስ ልጅ ለመመዝገብ ቡድንዎን ይምረጡ።
+  </p>
+
+  {% if groups %}
+  <table>
+    <thead>
+      <tr>
+        <th>Grupp / ቡድን</th>
+        <th>Beskrivning / መግለጫ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in groups %}
+      <tr>
+        <td><strong>{{ g.name }}</strong></td>
+        <td class="muted">{{ g.description }}</td>
+        <td>
+          <a class="primary" href="/sunday-school/{{ g.group_id }}">
+            Ta närvaro / መገኘት ውሰድ →
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">
+    Inga grupper ännu. /
+    እስካሁን ቡድኖች የሉም።
+  </p>
+  {% endif %}
+</section>
+
+{% if session.role in ("admin", "pastor", "editor") %}
+<section class="card">
+  <h2>Skapa grupp / ቡድን ፍጠር</h2>
+  <p class="muted small">
+    T.ex. Grunderna, Fortsättning, Krar, Begena. Ange lärarnas användar-id
+    separerade med komma — de ser då gruppen och kan ta närvaro.
+  </p>
+  <form method="post" action="/sunday-school/groups" class="stacked">
+    <label>
+      Gruppnamn / የቡድን ስም
+      <input type="text" name="group_name" required placeholder="t.ex. Grunderna" />
+    </label>
+    <label>
+      Beskrivning / መግለጫ
+      <input type="text" name="description" />
+    </label>
+    <label>
+      Lärare (användar-id, kommaseparerade) / መምህራን
+      <input type="text" name="teacher_user_ids" placeholder="t.ex. larare1, larare2" />
+    </label>
+    <button type="submit" class="primary">Skapa / ፍጠር</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
