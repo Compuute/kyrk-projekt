@@ -16,7 +16,7 @@ Ceremoni (gratis)                    Ceremoni (ingår i paket)
 Prästerna officierar                 Prästerna officierar
 Inget annat                          + Logistik (kista, transport, kylrum)
                                      + Dokumentation (dödsanmälan, program)
-                                     + Hemtransport (Etiopien/Eritrea)
+                                     + Hemtransport (Etiopien)
                                      + Digital minnessida
                                      + Sorg-kalender (3/9/12/40 dagar)
                                      + AI-dokumentation (flerspråkig)
@@ -175,9 +175,7 @@ kistan, vem fyller i dödsanmälan? Det är begravningsansvarigs jobb.
 | **Balsameringspartner** (sjukhus/byrå) | Preparering + zinkkista-montering | 0 kr initial | Kritisk |
 | **Zinkkista-leverantör** | Hermetiskt förseglad kista (IATA-krav) | 0 kr initial | Kritisk |
 | **Etiopiens ambassad (Stockholm)** | Dokumentation, snabbspår | 0 kr | Kritisk |
-| **Eritreas ambassad (Stockholm)** | Dokumentation, snabbspår | 0 kr | Kritisk |
 | **Mottagarpartner i Addis Abeba** | Tull, transport till begravningsplats | 0 kr initial | Kritisk |
-| **Mottagarpartner i Asmara** | Tull, transport till begravningsplats | 0 kr initial | Kritisk |
 
 ### Eder-samarbete (strategiskt)
 
@@ -323,7 +321,7 @@ utbyggnad av admin-web — inte ett nytt system.
 - Ingen licensplikt i Sverige — man KAN bedriva verksamheten utan SBF
 - Bättre att visa resultat först, sedan söka auktorisation
 - SBF-auktorisation ger trovärdighet mot svenska kunder — men
-  vår kärnmarknad (etiopisk/eritreansk community) litar mer på
+  vår kärnmarknad (etiopisk community) litar mer på
   kyrkan än på SBF
 
 ### När det lönar sig
@@ -473,7 +471,7 @@ Vi erbjuder det som KÄRNTJÄNST.
 ┌──────────┐    ┌──────────┐    ┌──────────┐
 │ TULL-    │    │ FLYG-    │    │ MOTTAG-  │
 │ VERKET   │───→│ BOLAG    │───→│ ARE      │
-│ export   │    │ cargo    │    │ ADD/ASM  │
+│ export   │    │ cargo    │    │ ADD      │
 └──────────┘    └──────────┘    └──────────┘
 ```
 
@@ -487,7 +485,7 @@ Vi erbjuder det som KÄRNTJÄNST.
 | Flygfrakt (Ethiopian Air) | 20 000–30 000 kr | Ingår | — |
 | Tullhantering | 2 000 kr | Ingår | — |
 | Ambassad-dokumentation | 1 000 kr | Ingår | — |
-| Mottagare i Addis/Asmara | 3 000–5 000 kr | Ingår | — |
+| Mottagare i Addis Abeba | 3 000–5 000 kr | Ingår | — |
 | **Total kostnad** | **41 000–63 000 kr** | **55 000–75 000 kr** | **14 000–12 000 kr** |
 
 ### Nätverkseffekten: flera kyrkor = bättre avtal
@@ -617,7 +615,7 @@ UTAN begravningstjänst:
 MED begravningstjänst:
   "Vi vill bygga en kulturellt anpassad lokal med
    begravningskapell, kylrum, och ceremonisal som
-   betjänar 70 000+ etiopier/eritreaner i Sverige
+   betjänar ~18 000–25 000 etiopier i Sverige
    — en tjänst som INGEN annan erbjuder"
   → Arvsfonden: "Det är nyskapande. Upp till 15M SEK."
 ```

@@ -185,7 +185,7 @@ Yahrzeit (årsminne)          ↔    ተዝካር 1 år
 | Standardiserade paket | 3 paket: Enkel / Standard / Komplett |
 | Ingen upselling | Transparenta priser på hemsidan |
 | Community ownership | Ägd av kyrkan, icke-vinstdrivande |
-| Repatriation som kärntjänst | Hemtransport till Etiopien/Eritrea |
+| Repatriation som kärntjänst | Hemtransport till Etiopien |
 | Religiös plikt | Begravningstjänst som del av kyrkans mission |
 
 ## 4. Muslim burial cooperatives (Europa)
@@ -291,12 +291,11 @@ Eder → pengar → familj → Fonus    Eder → pengar → kyrkan → familj s�
      dålig service, dyrt                bra service, billigare
 ```
 
-## 6. Tyskland — stor etiopisk/eritreansk community
+## 6. Tyskland — stor etiopisk community
 
 | Data | Siffra | Källa |
 |---|---|---|
 | Etiopier i Tyskland | ~50 000 | |
-| Eritreaner i Tyskland | ~80 000+ | |
 | Etiopisk-ortodoxa kyrkor | Medhanealem (Frankfurt), Berlin, Stuttgart, München | Verifierat |
 | Evangelische Kirche begravningsbyrå | **Nej** — enbart liturgisk tjänst | |
 | Katolska begravningsbyrå | **Nej** — enbart liturgisk tjänst | |
@@ -307,7 +306,7 @@ driver inga Bestattungsinstitute. Begravningsbranschen är
 100% privat/kommersiell i Tyskland.
 
 **Insikt:** Om modellen fungerar i Sverige kan den exporteras
-till Tyskland (130 000+ etiopier/eritreaner), och sedan till
+till Tyskland (~50 000 etiopier), och sedan till
 UK, Italien, USA.
 
 ## Jämförelsematris — alla modeller

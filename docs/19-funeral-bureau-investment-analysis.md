@@ -11,7 +11,7 @@ kyrkor i Sverige, byggd på samma plattform som kyrk-projekt.
 | Dödsfall/år i Sverige | 91 300 (2024), stigande | SCB |
 | Kremering | 83% av alla begravningar | Grand View Research |
 | Ortodox diaspora i Sverige | ~120 000–150 000 personer | SCB + uppskattning |
-| Etiopisk/eritreansk i Sverige | ~70 000–80 000+ | SCB (18K ETH + 49K ERI + 2:a gen) |
+| Etiopisk i Sverige | ~18 000–25 000 | SCB (18K ETH + 2:a gen) |
 | Estimerade ortodoxa begravningar/år | ~600–750 | 0.5% dödsrate |
 | Hemtransporter/år (uppskattning) | ~100–150 | ~20–25% av ortodoxa |
 | Fonus genomsnittspris | 38 299 SEK (2024) | Begravo.se |
@@ -26,6 +26,8 @@ kyrkor i Sverige, byggd på samma plattform som kyrk-projekt.
 | **Intäktspotential år 3** (alla ortodoxa) | **8–12 M SEK** | |
 | **Hemtransport-intäkt år 3** | **6–10 M SEK** | |
 | **Total intäktspotential år 3** | **14–22 M SEK** | |
+
+> ⚠️ **Revideringsbehov (etiopiskt fokus, 2026-06):** Hemtransport-/repatrieringsprognoserna för år 3 ovan — och nettoresultaten längre ned (bruttointäkt ~10,95M, netto +5,19M, "10–15M SEK netto") — byggde på den tidigare **kombinerade etiopisk-eritreanska** diasporan. Eftersom den eritreanska gruppen (~49K, merparten av repatrieringsbehovet) inte längre är målgrupp är dessa år-3-siffror **överskattade** och måste räknas om utifrån etiopiskt-only volym (kräver uppdaterade affärsantaganden). Etiopiskt-only år-1-siffrorna (Segment 1) är opåverkade. De icke-repatrieringsrelaterade "alla ortodoxa"-segmenten (grekisk/syrisk m.fl.) är oförändrade.
 
 ## Varför kyrkan är bäst positionerad
 
@@ -56,15 +58,7 @@ kan replikera.
 | Intäkt per hemtransport | 65 000 SEK |
 | **Intäkt år 1** | 90 × 30K + 27 × 65K = **4,5M SEK** |
 
-### Segment 2: Eritreansk-ortodoxa
-
-| Data | Siffra |
-|---|---|
-| Population Sverige | ~40 000–50 000 |
-| Begravningar/år | ~200–250 |
-| Andel med hemtransport-behov | ~40% (högre pga närmare band) |
-
-### Segment 3: Övriga ortodoxa (grekisk, syrisk, rumänsk, serbisk, rysk)
+### Segment 2: Övriga ortodoxa (grekisk, syrisk, rumänsk, serbisk, rysk)
 
 | Data | Siffra |
 |---|---|
@@ -72,7 +66,7 @@ kan replikera.
 | Begravningar/år | ~300–400 |
 | Gemensamma behov | Jordbegravning, ikoner, specifika böner, flerspråkigt |
 
-### Segment 4: Icke-ortodoxa diaspora-grupper
+### Segment 3: Icke-ortodoxa diaspora-grupper
 
 Somaliska, irakiska, afghanska samhällen delar liknande behov:
 flerspråkigt, kulturell kompetens, hemtransport. Enorm marknad (500K+
@@ -116,7 +110,7 @@ kyrkonätverk + AI-native plattform.
 
 ### Eder (begravningsförening) — befintligt system
 
-Etiopiska/eritreanska communityn har redan **Eder** (እድር) —
+Etiopiska communityn har redan **Eder** (እድር) —
 traditionella begravningsföreningar där medlemmar betalar
 månadsavgift (~100–300 kr) och föreningen täcker begravningskostnader.
 Det finns ~50+ Eder-föreningar i Sverige.
@@ -188,7 +182,7 @@ Win-win: Eder-medlemmar får bättre service, vi får volym.
 | Avtal Turkish Airlines (alt. rutt) | 0 kr | Backup via Istanbul |
 | Balsamering/preparering-partner | 0 kr (per tillfälle) | Avtal med hospital/begravningsbyrå |
 | Zinkkista-leverantör | ~8 000–15 000 kr/st | Köps per behov |
-| Ambassad-kontakt (Etiopien, Eritrea) | 0 kr | Etablera relation |
+| Ambassad-kontakt (Etiopien) | 0 kr | Etablera relation |
 | Tulldeklaration-kompetens | 0 kr (vi lär oss) | Kan AI-assisteras |
 | **Summa Fas 4** | **~0 kr initial** (rörliga kostnader) | |
 
@@ -224,7 +218,7 @@ ingen lokal. Break-even vid begravning nr 8-10.
 
 Jämförelse: Fonus genomsnitt **42 000 SEK**, Axelssons **45 000 SEK**.
 
-### Hemtransport till Etiopien/Eritrea
+### Hemtransport till Etiopien
 
 | Tjänst | Pris |
 |---|---|
@@ -307,7 +301,7 @@ Steg 2: Vi ordnar:
   □ Balsamering + zinkkista
   □ Flygfrakt (Ethiopian Airlines, direkt ADD)
   □ Ambassad-notifiering
-  □ Mottagningskoordination i Addis/Asmara
+  □ Mottagningskoordination i Addis Abeba
   ↓
 Steg 3: Familjen betalar ett fast pris
   ↓
@@ -316,7 +310,7 @@ Steg 4: Vi hanterar allt
 Steg 5: Bekräftelse när kroppen anländer
 ```
 
-**Tid:** 7–14 dagar (Sverige → Etiopien/Eritrea)
+**Tid:** 7–14 dagar (Sverige → Etiopien)
 **Pris:** 55 000–75 000 SEK allt inkluderat
 
 ### 5. Sorg-kalender (automatisk)
@@ -367,7 +361,7 @@ Med gemensamt nätverk:
 
 ## P&L-prognos (3 år)
 
-### År 1 (uppstart — fokus etiopisk/eritreansk)
+### År 1 (uppstart — fokus etiopisk)
 
 | Post | Intäkt | Kostnad |
 |---|---|---|
@@ -502,7 +496,7 @@ och zinkkista. **Tidsram:** ~2 veckor.
 ### Vecka 3-4: Avtal
 - [ ] Avtal med sjukhus/kommunalt bårhus (kylförvaring)
 - [ ] Avtal med Ethiopian Airlines (cargo-priser)
-- [ ] Kontakt med Etiopiens/Eritreas ambassad
+- [ ] Kontakt med Etiopiens ambassad
 - [ ] Avtal med balsameringspartner
 
 ### Vecka 5-6: Plattform
