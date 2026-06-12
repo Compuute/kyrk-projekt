@@ -63,7 +63,12 @@ def make_activity_client() -> ActivityClientPort:
 
         # activity-service was merged into reporting-service; activity
         # endpoints (/activities/*) are now served by REPORTING_BASE_URL.
-        return HttpxActivityClient(base_url=_require_env("REPORTING_BASE_URL"))
+        from app.adapters.gcp_identity import metadata_id_token_provider
+
+        return HttpxActivityClient(
+            base_url=_require_env("REPORTING_BASE_URL"),
+            id_token_provider=metadata_id_token_provider,
+        )
     from app.adapters.fake_clients import FakeActivityClient
 
     return FakeActivityClient()
@@ -106,7 +111,12 @@ def make_sunday_school_client() -> SundaySchoolClientPort:
     if _mode() == "production":
         from app.adapters.httpx_sunday_school import HttpxSundaySchoolClient
 
-        return HttpxSundaySchoolClient(base_url=_require_env("MEMBERSHIP_BASE_URL"))
+        from app.adapters.gcp_identity import metadata_id_token_provider
+
+        return HttpxSundaySchoolClient(
+            base_url=_require_env("MEMBERSHIP_BASE_URL"),
+            id_token_provider=metadata_id_token_provider,
+        )
     from app.adapters.fake_sunday_school import FakeSundaySchoolClient
 
     return FakeSundaySchoolClient()

@@ -11,9 +11,23 @@ from app.ports.sunday_school import (
 
 
 class HttpxSundaySchoolClient:
-    def __init__(self, base_url: str, timeout_seconds: float = 5.0) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        timeout_seconds: float = 5.0,
+        id_token_provider=None,
+    ) -> None:
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout_seconds
+        self._id_token_provider = id_token_provider
+
+    def _headers(self, token: str) -> dict[str, str]:
+        headers = {"Authorization": f"Bearer {token}"}
+        if self._id_token_provider is not None:
+            id_token = self._id_token_provider(self._base_url)
+            if id_token:
+                headers["X-Serverless-Authorization"] = f"Bearer {id_token}"
+        return headers
 
     def _get(self, token: str, path: str):
         import httpx
@@ -21,7 +35,7 @@ class HttpxSundaySchoolClient:
         try:
             r = httpx.get(
                 f"{self._base_url}{path}",
-                headers={"Authorization": f"Bearer {token}"},
+                headers=self._headers(token),
                 timeout=self._timeout,
             )
         except httpx.HTTPError as exc:
@@ -37,7 +51,7 @@ class HttpxSundaySchoolClient:
             r = httpx.post(
                 f"{self._base_url}{path}",
                 json=payload,
-                headers={"Authorization": f"Bearer {token}"},
+                headers=self._headers(token),
                 timeout=self._timeout,
             )
         except httpx.HTTPError as exc:
