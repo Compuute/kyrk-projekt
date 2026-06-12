@@ -1,138 +1,162 @@
-# Agent Operating Model (AOM)
+# Agent Operating Model (master)
 
-How **agentic AI groups** develop and operate kyrk-projekt safely. This is the
-umbrella that ties the existing pieces together — [CLAUDE.md](../../CLAUDE.md)
-(rules), [ops-contract.yaml](../../ops/ops-contract.yaml) (ops domain),
-[agent-access-policy.md](agent-access-policy.md) (KYA access), the feature-flag
-governance ([docs/27](../27-feature-flag-workflow.md)), and the CI gates — into
-one model. Aligned with Anthropic's guidance for building effective, safe
-agents. Decision record: [ADR-021](../14-architecture-decisions.md).
+**Den auktoritativa modellen för hur agentiska AI-grupper utvecklar och driftar
+kyrk-projekt säkert.** Det här dokumentet är paraplyet; det styr över och länkar
+ihop de befintliga delarna:
 
-## 1. Premise
-
-The team is AI agent groups (Claude Code and peers) plus human owners. Agents do
-most of the **building and diagnosis**; humans own the **irreversible decisions**
-and remain accountable. The model assumes agents are fast and capable but can be
-**confidently wrong** — so safety comes from *deterministic guardrails and clear
-human gates*, not from trusting agent judgment. (This repo's CLAUDE.md was itself
-written after confident-but-unverified claims wasted cycles — the AOM encodes the
-fix.)
-
-## 2. Principles (Anthropic-aligned)
-
-1. **Deterministic guardrails over judgment.** An agent cannot talk past a red CI
-   check. Enforcement lives in code (gates), not in prompts.
-2. **Humans own the irreversible; agents own the reversible-and-verified.**
-3. **Least privilege per role** — an agent gets the minimum access for its job,
-   added in layers (KYA), never blanket.
-4. **Verify against the target** — no confident-unverified claims (CLAUDE.md
-   RULE 1). Diagnosis is separated from fix; pushback with data is the job,
-   sycophancy is a bug.
-5. **Observable & attributable** — every agent action is visible and traceable to
-   a role, without putting AI names in commits (RULE 4).
-6. **Start simple, grow in layers.** Capability is earned, not granted up front.
-
-## 3. Agent roles & envelopes
-
-A Claude Code session may wear several hats in one turn; the *envelope* is the
-union of these constraints, enforced by the gates in §4–6.
-
-| Role | May touch | Privilege | May NOT |
-|---|---|---|---|
-| **Builder** | code on a branch, tests, docs | write to branch; open PR | merge, deploy, touch RED-zone PII, change released tags |
-| **Reviewer** | the diff, CI output | read + comment | push, merge, approve its own work |
-| **Ops / SRE** | logs, status, deploy-state (read-only) via [`ops-cli.py`](../../ops/ops-cli.py) | read-only diagnosis (KYA Layer 1) | any `ops-contract` forbidden op; anything in `approval_required` without a human |
-| **Research / Diagnose** | repo, docs, read-only MCP | read-only | any write |
-
-No role merges its own PR, deploys to prod, or acts on a §5 gate alone.
-
-## 4. The guardrail stack (deterministic räcken)
-
-Green CI is a **precondition for human review** — an agent's PR is not "done"
-until the räcken are green. Each gate stops a specific agent failure mode:
-
-| Gate (CI) | Enforces | Stops |
+| Komponent | Roll | Plats |
 |---|---|---|
-| **commit hygiene (no AI committers)** | RULE 4 — committer is the human owner | AI names leaking into history |
-| **repo guard** (architecture / security / coverage / docs-freshness / TLS) | hexagonal boundaries, no PII in webhooks, ≥60% cov, no `CERT_NONE`, docs match code | confident-but-wrong structural/security changes |
-| **flag hygiene** | every flag has owner+type+expiry; expired flags fail | flag debt accumulating |
-| **flag advisor** | risk signal on high-blast-radius diffs | shipping risky changes unflagged |
-| **ci / pytest, frontend-e2e / playwright** | behaviour | functional regressions |
-| **terraform-plan (PR)** / **terraform-apply (approval)** | infra changes reviewed before applied | unreviewed infra mutation |
+| Verksamhetsregler (RULE 1–4) | hur en session arbetar | [CLAUDE.md](../../CLAUDE.md) + [AI-RULES.md](../../AI-RULES.md) |
+| Dev-agentroller + modellpolicy | vilka bygg-agenter, vilken modell | [`.claude/agents/`](../../.claude/agents) + CLAUDE.md §4 |
+| Runtime-agentkatalog + skuld + färdplan | vilka drift-agenter, i vilken ordning | [docs/28](../28-agentisk-driftmodell.md) |
+| Ops-domänens grindar | approval/forbidden/escalation för drift | [ops-contract.yaml](../../ops/ops-contract.yaml) |
+| Åtkomst/least privilege (KYA) | vilka verktyg/MCP en agent kopplas till | [agent-access-policy.md](agent-access-policy.md) |
+| Release-säkerhet | rampa ändringar 0→100, kill switch | [docs/15](../15-ab-testing-strategy.md) + [docs/27](../27-feature-flag-workflow.md) |
 
-## 5. Human-approval gates — agent MUST escalate, never act alone
+Beslut: [ADR-021](../14-architecture-decisions.md). Aligned med Anthropics best
+practice för agenter.
 
-Generalises [`ops-contract.yaml` → `approval_required`](../../ops/ops-contract.yaml)
-to the whole team:
+---
 
-- **Merge to main / promote to production** (deploy is a human "promote", not an
-  auto-ship — see the release-safety layer, [docs/15](../15-ab-testing-strategy.md)).
-- **Prod deploy, rollback, secret rotation, terraform apply, Firestore restore**
-  (ops-contract).
-- **Data-model / schema changes** (migration risk).
-- **Money / financial assumptions** — e.g. the year-3 funeral projections; an
-  agent flags the gap, a human supplies the numbers.
-- **Sovereignty / data-residency decisions** — e.g. the EU-region move
-  ([ADR-017](../14-architecture-decisions.md)).
-- **Changing a released semver tag** — forbidden; corrections ship as the next
-  version (global RULE 3 — immutable evidence chain).
-- **Anything touching RED-zone PII.**
+## 1. Premiss
 
-## 6. Never autonomous (forbidden, any role)
+Teamet är AI-agentgrupper (Claude Code m.fl.) plus mänskliga ägare. Agenter gör
+merparten av **byggandet och diagnosen**; människor äger de **oåterkalleliga
+besluten** och förblir ansvariga. Modellen antar att agenter är snabba och
+kapabla men kan vara **självsäkert fel** — så säkerheten kommer från
+*deterministiska räcken och tydliga mänskliga grindar*, inte från att lita på
+agentens omdöme. (Detta repos CLAUDE.md skrevs själv efter att
+självsäkert-overifierade påståenden kostade cykler — modellen kodifierar fixen.)
 
-Per [`ops-contract.yaml` → `forbidden_operations`](../../ops/ops-contract.yaml):
-delete Firestore data, modify IAM / billing / DNS, disable security (auth, KMS,
-WAF), read/export RED-zone PII, `git push --force` to main. Plus global RULE 3
-(released tags immutable) and RULE 4 (no AI committers). Off-limits regardless of
-role or approval.
+## 2. Principer
+
+1. **Deterministiska räcken > omdöme.** En agent kan inte prata sig förbi en röd
+   CI-check. Enforcement ligger i kod, inte i prompts.
+2. **Människan äger det oåterkalleliga; agenter äger det reversibla-och-verifierade.**
+3. **RED-data når aldrig en LLM.** Sanitizer-profiler är obligatoriska; agenter
+   *beslutar* aldrig i RED-zonen — de förbereder, människan godkänner ("Approve
+   AI output"). (doc 28)
+4. **Least privilege per roll**, tillagt i lager (KYA), aldrig blanket.
+5. **Verifiera mot målet** (RULE 1). Diagnos skiljs från fix; pushback med data
+   är jobbet, sycophancy är en bugg.
+6. **Allt agentarbete är spårbart** — utan AI-committers (RULE 4). Runtime-aktör
+   = agentens servicekonto, varje aktion auditloggas.
+7. **Pipelines före agentramverk.** Deterministiska flöden med ett LLM-steg + ett
+   mänskligt godkännande slår tunga ramverk (doc 28 §5). Omprövas vid >3
+   agentflöden i drift.
+8. **Väx i lager.** Förmåga förtjänas, beviljas inte i förväg.
+
+## 3. Två sorters agenter — under samma governance
+
+### 3a. Dev-agenter — bygger plattformen ([`.claude/agents/`](../../.claude/agents))
+
+| Roll | Modell | Får | Får inte |
+|---|---|---|---|
+| **utforskare** | Haiku | read-only kodsökning/kartläggning (Read/Grep/Glob/Bash); svarar med slutsats | ändra något; gissa på arkitektur/säkerhet (ska eskalera) |
+| **implementerare** | Sonnet | implementera mot **färdig spec/DoD**, kopiera etablerade mönster | välja vid tvetydighet/designbeslut (stannar och rapporterar) |
+| **granskare** | Opus | granska diff/PR — prioritet: (1) PII-läckor, (2) korrekthet (kyrk-scoping), (3) arkitektur | godkänna sitt eget arbete |
+
+Modell-default + eskaleringsregler i CLAUDE.md §4 (Sonnet default; Fable/Opus vid
+öppna/högriskuppgifter). Ingen roll merger sin egen PR, deployar till prod, eller
+agerar på en §5-grind ensam.
+
+### 3b. Runtime-agenter — driftar församlingen ([docs/28](../28-agentisk-driftmodell.md))
+
+Rapport-, kassörs-, bidrags-, intake-, söndagsskole- och ops-agenten — var och en
+med zon (RED/YELLOW/GREEN) och krav (scheduler, notifier-retries, granskningsvy).
+Alla följer OpenClaw-mönstret: **sanitizer → mall → LLM → schemavalidering →
+pending → mänsklig granskning**. Detaljerad katalog, hävstångsordning och
+beroenden: doc 28 §4.
+
+## 4. Räckesstacken (deterministisk enforcement)
+
+Grön CI är en **förutsättning för mänsklig review** — en agents PR är inte "klar"
+förrän räckena är gröna. Varje grind stoppar ett specifikt agent-felläge:
+
+| Grind | Enforcar | Stoppar |
+|---|---|---|
+| commit-hygiene (no AI committers) | RULE 4 — committer = människan | AI-namn i historiken |
+| repo guard (arkitektur/säkerhet/täckning/docs-freshness/TLS) | hexagonala gränser, ingen PII i webhooks, ≥60% cov, ingen `CERT_NONE`, docs = kod | självsäkert-fel struktur-/säkerhetsändringar |
+| `tests/test_shared_auth_sync.py` | kanonisk auth-källa identisk i alla tjänster | drift i agent-identitetens auth (doc 28 skuld 1) |
+| flagg-hygien + advisor | flaggor har ägare+utgång; risk-signal på hög-blast-radius | flagg-skuld; oflaggade riskändringar |
+| ci/pytest, frontend-e2e/playwright | beteende | funktionella regressioner |
+| `.claude/settings.json`-hooks (Stop: guard-tester; Write: vendor-lock) | tester före "klart"; inga vendor-imports i routes/ports | agent rapporterar klart med rött; vendor lock-in |
+| terraform-plan (PR) / terraform-apply (approval) | infra granskas före apply | ogranskad infra-mutation |
+
+## 5. Människan måste godkänna — agenten eskalerar, agerar aldrig ensam
+
+Generaliserar [`ops-contract.yaml` → `approval_required`](../../ops/ops-contract.yaml):
+
+- **Merge till main / promote till produktion** (deploy är en mänsklig "promote",
+  inte auto-ship — [docs/15](../15-ab-testing-strategy.md)).
+- **Prod-deploy, rollback, secret-rotation, terraform apply, Firestore-restore.**
+- **Godkänna AI-output i RED-zonen** ("Approve AI output", endast `admin`).
+- **Datamodell-/schemaändringar.**
+- **Pengar / affärsantaganden** (t.ex. år-3-begravningsprognoserna).
+- **Suveränitet / dataresidens** (t.ex. EU-region, [ADR-017](../14-architecture-decisions.md)).
+- **Ändra en släppt semver-tagg** — förbjudet; rättelser släpps som nästa version
+  (RULE 3, oföränderlig bevis-kedja).
+
+## 6. Aldrig autonomt + stoppvillkor
+
+Förbjudet oavsett roll ([`ops-contract.yaml` → `forbidden_operations`](../../ops/ops-contract.yaml)):
+radera Firestore-data, ändra IAM/billing/DNS, inaktivera säkerhet (auth/KMS/WAF),
+läsa/exportera RED-zon-PII, `git push --force` till main. Plus RULE 3/4.
+
+**Agentdrift pausas omedelbart** (doc 28 §7) om: PII upptäcks i en LLM-payload
+eller agentlogg; en agent agerar utanför sin RBAC-roll eller utan auditpost;
+godkännandekön kringgås.
 
 ## 7. Attribution & audit (Know Your Agent)
 
-- **Committer = the human owner** (RULE 4) → accountability is unambiguous and the
-  evidence chain stays clean for security/audit buyers.
-- **Per-agent trail lives outside the git author field.** Auditing *which agent
-  did what* uses: (a) an `Agents:` section in the PR description (role + what it
-  did), and (b) the session transcripts as the full record. So agent work is
-  fully traceable without AI names in commits.
-- **Access** (which MCP server / token / scope an agent has) is registered in
-  [agent-access-policy.md](agent-access-policy.md), mirroring the GDPR
-  sub-processor register.
+- **Committer = människan** (RULE 4) → ansvar är otvetydigt, bevis-kedjan ren.
+- **Per-agent-spår ligger utanför git-author:** *vilken agent gjorde vad* fångas
+  i (a) en `Agents:`-sektion i PR-beskrivningen (roll + vad) och (b)
+  sessionstranscripts. Runtime: aktör = agentens **servicekonto**, varje aktion i
+  `audit_events`-kollektionen.
+- **Åtkomst** (vilken MCP/token/scope) registreras i [agent-access-policy.md](agent-access-policy.md).
 
-## 8. Verification contract
+## 8. Verifieringskontrakt
 
-Every agent change is **verified against the concrete target** (RULE 1) and the
-räcken are green **before** a human reviews. A claim that "X works" is not
-accepted until it is run against X. Being wrong after verification is fine; being
-right without verification does not count.
+Varje agentändring **verifieras mot det konkreta målet** (RULE 1) och räckena är
+gröna **före** mänsklig review. Ett påstående "X funkar" accepteras inte förrän
+det körts mot X. Att ha fel efter verifiering är okej; att ha rätt utan
+verifiering räknas inte.
 
-## 9. Access & least privilege
+## 9. Runtime-arkitektur (för drift-agenter)
 
-The tooling/permission layer is [agent-access-policy.md](agent-access-policy.md):
-read-first, layered (diagnose → bindings → write), scoped tokens, and
-write/deploy kept in the controlled pipeline (`deploy.yml` + `ops-cli`), never on
-an always-on agent MCP.
-
-## 10. Observability & escalation
-
-Agents and humans watch the same read-only signals (KYA Layer 1: Pages Functions
-logs, build/deploy status). Automated escalation thresholds are in
-[`ops-contract.yaml` → `escalation`](../../ops/ops-contract.yaml) (e.g. 5xx > 5%
-for 5 min → notify + consider rollback in dev only).
-
-## 11. How it all connects
+Ingen tung orkestrering i steg 1 (doc 28 §5). Mönstret är pipelines:
 
 ```
-                    Agent Operating Model  (this doc — the umbrella)
-                               │
-   ┌───────────┬──────────────┼───────────────┬─────────────────┐
- CLAUDE.md   ops-contract   agent-access     flag governance   CI gates
- (rules)     (ops domain)   (KYA access)     (release safety)  (enforcement)
- RULE 1-4    approval/       MCP register     docs/27 +         commit-hygiene,
-             forbidden/      + layers         flags hygiene/    repo-guard,
-             escalation                       advisor           e2e, terraform
+Cloud Scheduler → Pub/Sub → små Python-workers (hexagonala)
+   → Anthropic API bakom LLMPort → pending-kö i admin-web → mänskligt godkännande
 ```
 
-The AOM is the policy; the CI gates are the mechanism; the humans are the
-accountable owners. New capabilities (a new MCP server, a new agent role, a write
-permission) are added by amending this model and its referenced docs — in a PR,
-reviewed by a human — never ad hoc.
+Omprövningspunkt: >3 agentflöden i drift + dokumenterat orkestreringsbehov. För
+kodunderhåll: Claude Code i GitHub Actions (befintligt).
+
+## 10. Förutsättningar — skuld som blockerar säker agentdrift
+
+Agentdrift förutsätter att de "blockerar agenter"-poster i doc 28 §1 är lösta —
+särskilt kanoniskt kyrk-id (skuld 1–3, delvis löst via `libs/shared-auth/` +
+sync-vakten), kö/scheduler (skuld 5, största blockeraren), ärlig täckning (skuld
+6) och leveransgaranti i notifier-adaptrar (skuld 8). Färdplan: doc 28 §6.
+
+## 11. Hur allt hänger ihop
+
+```
+            Agent Operating Model  (detta dokument — master)
+                          │
+   ┌──────────┬───────────┼───────────┬────────────┬───────────┐
+ CLAUDE.md   .claude/    doc 28      ops-contract  KYA-access  CI-gates +
+ RULE 1-4    agents/     (runtime-   (approval/    (.mcp.json) settings-hooks
+ + §4 modell (dev-roller catalog +   forbidden/    least priv  (enforcement)
+  -policy)   utforskare/ roadmap +   escalation)
+             implement./ skuld)
+             granskare
+```
+
+Master:n är policyn; CI-gates + hooks är mekanismen; människan är den ansvariga
+ägaren. Nya förmågor (ny MCP-server, ny agent-roll, write-behörighet) läggs till
+genom att ändra master:n + berörda referensdokument i en PR granskad av en
+människa — aldrig ad hoc.
