@@ -45,3 +45,30 @@ Always read [ops-contract.yaml](ops/ops-contract.yaml) and [well-architected-gui
    - `python ops/ops-cli.py drift check`
    - `python ops/ops-cli.py incident create "<title>"`
 2. **Forbidden Actions**: Do not delete Firestore data, alter IAM policies, force push to main, or deploy to production without manual approvals.
+
+---
+
+## 4. Modellpolicy (AI-sessioner)
+
+Repo-default är **Sonnet** (satt i `.claude/settings.json`) — rätt för
+välspecificerad implementation, vilket är majoriteten av arbetet. Tre
+subagenter med låsta modeller finns i `.claude/agents/` och väljs
+automatiskt vid delegering: `utforskare` (Haiku — kodsökning),
+`implementerare` (Sonnet — exekvering mot spec), `granskare` (Opus —
+PII-/korrekthetsgranskning före merge).
+
+**Eskalera manuellt till Fable/Opus** (`/model`) när uppgiften är öppen
+eller felkostnaden hög: arkitekturbeslut, säkerhets-/PII-design,
+felsökning som spänner över flera system. Prisrelationer att väga mot:
+Fable ≈ 2× Opus ≈ 3× Sonnet ≈ 10× Haiku.
+
+Arbetsregler som håller nere tokenkostnaden oavsett modell:
+- **En session = en issue = en branch.** Kolla `gh issue list` innan du
+  börjar — pågår arbetet redan någonstans är svaret där, inte i en ny
+  utredning.
+- **Skriv ner dyra svar.** Kostade en fråga en lång utredning ska svaret
+  in i `docs/`, en issue-kommentar eller denna fil innan sessionen stängs.
+- **Starta sessioner i repo-roten** (inte hemkatalogen) så att denna fil,
+  settings och git-kontexten laddas automatiskt.
+- Modellval i **produktkod** hårdkodas aldrig i anropet — modell-id per
+  användningsfall ligger i konfig/env så att byten är en konfigändring.
