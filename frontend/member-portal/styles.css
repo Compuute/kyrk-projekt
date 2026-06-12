@@ -787,3 +787,7 @@ body[data-lang="am"] {
 .ethcal-fast::after { content:"◆"; position:absolute; bottom:3px; right:6px; font-size:9px; color:var(--accent-light); }
 .ethcal-holiday { border-color: var(--accent-light); }
 .ethcal-legend { font-size:12px; margin-top:10px; }
+
+.ethcal-worldtable { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.ethcal-worldtable td { padding:5px 8px; border-bottom:1px solid var(--border); }
+.ethcal-worldtable td:last-child { text-align:right; color:var(--fg); }

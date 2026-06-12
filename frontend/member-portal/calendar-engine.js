@@ -255,6 +255,51 @@
     };
   }
 
+  // ----------------------------------- världens kalendrar (via Intl/ICU) --
+  // Live-tabell: samma ögonblick i tio kalendersystem. Räknas av webbläsarens
+  // egen ICU-data (CLDR) — ingen egen aritmetik, ingen lista att underhålla.
+  var WORLD_CALENDARS = [
+    { ca: 'gregory',          sv: 'Gregorianska (Sverige)',      am: 'ግሪጎሪያን (ስዊድን)' },
+    { ca: 'ethiopic',         sv: 'Etiopiska — Amete Mihret',    am: 'የኢትዮጵያ — ዓመተ ምሕረት' },
+    { ca: 'ethioaa',          sv: 'Etiopiska — Amete Alem',      am: 'የኢትዮጵያ — ዓመተ ዓለም' },
+    { ca: 'coptic',           sv: 'Koptiska (Egypten)',          am: 'ኮፕቲክ (ግብፅ)' },
+    { ca: 'islamic-umalqura', sv: 'Islamska (Hijri)',            am: 'የእስልምና (ሂጅራ)' },
+    { ca: 'hebrew',           sv: 'Hebreiska',                   am: 'የዕብራይስጥ' },
+    { ca: 'persian',          sv: 'Persiska (Iran)',             am: 'የፋርስ (ኢራን)' },
+    { ca: 'buddhist',         sv: 'Buddhistiska (Thailand)',     am: 'የቡድሂስት (ታይላንድ)' },
+    { ca: 'japanese',         sv: 'Japanska (eror)',             am: 'የጃፓን' },
+    { ca: 'chinese',          sv: 'Kinesiska (månkalender)',     am: 'የቻይና (የጨረቃ)' }
+  ];
+
+  function worldCalendarsToday(date, lang) {
+    var locale = (lang === 'am' ? 'am' : 'sv');
+    var out = [];
+    WORLD_CALENDARS.forEach(function (c) {
+      try {
+        var f = new Intl.DateTimeFormat(locale + '-u-ca-' + c.ca,
+          { year: 'numeric', month: 'long', day: 'numeric' });
+        out.push({ ca: c.ca, label: c[lang === 'am' ? 'am' : 'sv'], formatted: f.format(date) });
+      } catch (e) { /* kalendern saknas i denna miljö — hoppa över raden */ }
+    });
+    return out;
+  }
+
+  function renderWorldCalendars() {
+    var el = document.getElementById('world-calendars');
+    if (!el) return;
+    var lang = currentLang();
+    var today = api.localCivilDate ? api.localCivilDate() : new Date();
+    var rows = worldCalendarsToday(today, lang);
+    if (rows.length < 3) { el.style.display = 'none'; return; }
+    var html = '<table class="ethcal-worldtable"><tbody>';
+    rows.forEach(function (r) {
+      var mark = (r.ca === 'ethiopic' || r.ca === 'ethioaa') ? ' style="font-weight:600"' : '';
+      html += '<tr' + mark + '><td>' + r.label + '</td><td>' + r.formatted + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  }
+
   // -------------------------------------------------- webbläsar-UI -------
   function currentLang() {
     try { return (document.documentElement.lang || 'sv').indexOf('am') === 0 ? 'am' : 'sv'; }
@@ -306,6 +351,7 @@
   }
 
   function initCalendarPage() {
+    renderWorldCalendars();
     var root = document.getElementById('eth-calendar');
     if (!root) return;
     var e = toEthiopian(new Date());
@@ -320,6 +366,7 @@
   }
 
   var api = {
+    worldCalendarsToday: worldCalendarsToday,
     toEthiopian: toEthiopian,
     ethToGregorian: ethToGregorian,
     isEthLeap: isEthLeap,

@@ -145,5 +145,19 @@ check('buildMonthGrid: Sene 2018 har 30 celler + rätt idag-flagga', function ()
   assert.ok(grid.headerGreg.indexOf('jun') !== -1 || grid.headerGreg.indexOf('Jun') !== -1, 'gregoriansk period i header');
 });
 
+// --- Världskalender-tabellen (data via ICU) -------------------------------
+check('worldCalendarsToday: minst 8 system, rätt år för fast datum', function () {
+  var d = new Date(Date.UTC(2026, 5, 12));
+  var rows = cal.worldCalendarsToday(d, 'sv');
+  assert.ok(rows.length >= 8, 'minst 8 kalendrar, fick ' + rows.length);
+  function row(ca) { return rows.filter(function (r) { return r.ca === ca; })[0]; }
+  assert.ok(/2026/.test(row('gregory').formatted), 'gregorianska 2026');
+  assert.ok(/2018/.test(row('ethiopic').formatted), 'etiopiska 2018');
+  assert.ok(/7518/.test(row('ethioaa').formatted), 'Amete Alem 7518');
+  var am = cal.worldCalendarsToday(d, 'am');
+  assert.ok(/[\u1200-\u137F]/.test(am.filter(function (r) { return r.ca === 'ethiopic'; })[0].formatted),
+    'amharisk variant formateras med etiopisk skrift');
+});
+
 console.log(failures === 0 ? '\nAlla kalendertester gröna.' : '\n' + failures + ' test FAILADE.');
 process.exit(failures === 0 ? 0 : 1);
