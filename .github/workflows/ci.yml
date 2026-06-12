@@ -83,6 +83,9 @@ jobs:
       - name: Run app tests
         run: node tests/test_app.js
 
+      - name: Run calendar engine tests
+        run: node tests/test_calendar_engine.js
+
       # The Cloudflare-ready test asserts against the eleventy build output
       # (dist/), which is what Cloudflare Pages serves. Build it first, from
       # the repo root where .eleventy.js and package.json live.

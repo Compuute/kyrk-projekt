@@ -682,3 +682,53 @@ Anta en [Agent Operating Model](governance/agent-operating-model.md) som paraply
 När en ny agent-roll eller en write-/deploy-förmåga övervägs, eller när human-approval-grindarna behöver justeras (t.ex. vid produktionssättning av backend). Uppdatera modellen + berörda referensdokument i en PR.
 
 ---
+
+## ADR-022: Kalendermotor — plattformens ICU som korrekthetsorakel, egen aritmetik som körtid
+
+**Date:** 2026-06-12
+**Status:** accepted
+
+**Context:**
+Den etiopiska kalendern med högtider (issue #35, f.d. gamla repots #39) byggdes
+ursprungligen som en lös fil som aldrig committades och gick förlorad vid
+repo-flytten. Inför återuppbyggnaden utvärderades arkitekturen datadrivet:
+hur skulle en aktör som Google bygga tjänsten?
+
+**Alternativ som utvärderades:**
+
+| Ansats | Korrekthetsrisk | Payload | Beroenden | Kommentar |
+|---|---|---|---|---|
+| A. Egen JDN-aritmetik (ursprungsspecen) | Medel — handrullad kalendermatte är klassisk felkälla | ~12 kB | 0 | Fungerar överallt |
+| B. Enbart `Intl` (ICU/CLDR) | Låg — Googles/Unicodes egen motor, samma som Chrome/Android | 0 kB (inbyggd) | 0 | Saknar invers (etiopisk→gregoriansk) och grid-logik |
+| C. Kalenderbibliotek (npm) | Låg–medel | 30–200 kB | 1+ | Bryter mot portalens noll-beroende-linje (ADR-013) |
+| D. Build-time-precompute (11ty-data) | Låg | 0 kB JS | 0 | Kräver deploy varje månad för att "innevarande månad" ska stämma — passar inte en sajt utan schemalagda byggen |
+
+**Empiri (Node/V8 = Chromes motor, 2026-06-12):** `Intl.DateTimeFormat` med
+`u-ca-ethiopic` ger korrekt Sene 5 2018 för dagens datum, Meskerem 1 2018 för
+nyåret, Pagumen 6 2015 för skottdagen och Ter 11 2018 för Timkat, inklusive
+amhariska månadsnamn. Svaret på "hur skulle Google byggt det": med exakt den
+motorn — etiopisk kalender i Chrome/Android *är* ICU.
+
+**Decision:**
+Hybrid av A och B: egen minimal JDN-aritmetik som körtidsmotor (krävs ändå för
+inversen och månadsgriden, fungerar oavsett webbläsarens ICU-data), men med
+**ICU som korrekthetsorakel i testsviten** — motorn korsvalideras mot
+`Intl`-konverteringen för 7 800+ datum 1950–2100 plus roundtrip för varje dag
+2020–2030 och handverifierade golden-datum. Egen matte tillåts aldrig avvika
+från ICU. Högtidsdata (24 fasta högtider, 11 månatliga helgondagar, svenska
+röda dagar enligt lag 1989:253 med computus för rörliga) ligger som data i
+motorn, GREEN-klassad, och ska innehållsgranskas av församlingen. Rörliga
+etiopiska högtider (Fasika m.fl., Bahire Hasab-computus) är medvetet utanför
+scope i v1.
+
+**Consequence:**
+- Korrektheten är bevisad mot referensimplementationen, inte antagen — testet
+  går i CI vid varje ändring.
+- Noll beroenden, ~12 kB, CSP-vänlig vanilla JS — i linje med ADR-002/013.
+- Lärdomen från förlusten är kodifierad: motorn ligger i git med tester och
+  deployas enbart via Pages git-bygget (ADR-018) — en lös fil på disk kan
+  aldrig mer vara enda exemplaret.
+
+**When to revisit:**
+När rörliga högtider (Fasika/stora fastan) ska in — då behövs Bahire
+Hasab-computus med egen golden-testsvit mot EOTC:s publicerade kalendrar.
