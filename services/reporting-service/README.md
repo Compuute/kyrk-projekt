@@ -15,7 +15,7 @@ defense-in-depth layer behind the OpenClaw sanitizer.
 ## Defense layers (5 independent)
 
 1. Cloud Run auth (service-to-service identity)
-2. PropelAuth RBAC (user-level roles)
+2. Zitadel RBAC (user-level roles)
 3. Pydantic validation (request shape)
 4. pii_guard (recursive PII scan on report payloads)
 5. Firestore collection separation (`activities` vs `reports`)

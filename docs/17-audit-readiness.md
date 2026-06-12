@@ -32,7 +32,7 @@ efter dessa dokument:
 | 6 | **Radering-process** (Art. 17) | 📄 DOC | `docs/governance/policies.md` → "Deletion requests" |
 | 7 | **Underbiträdesregister** (Art. 28) | 📄 DOC | `docs/governance/gdpr-register.md` → "Underbiträden" |
 | 8 | **DPA med Google Cloud** | ✋ MANUAL | Signeras i GCP Console → Compliance → DPA |
-| 9 | **DPA med PropelAuth** | ✋ MANUAL | Begärs via PropelAuth support |
+| 9 | **DPA med Zitadel** | ✋ MANUAL | Begärs via Zitadel support |
 | 10 | **DPIA** (Art. 35, om tillämpligt) | 📄 DOC | `docs/governance/gdpr-register.md` → "Konsekvensbedömning" |
 | 11 | **Audit trail** — bevis på åtkomstkontroll | ✅ AUTO | Firestore `audit_events` collection |
 | 12 | **Bevis att AI inte ser PII** | ✅ AUTO + 📄 DOC | `automation/openclaw/sanitizer/profiles.json` + `reporting-service/app/domain/pii_guard.py` + nightly CI-test |
@@ -201,7 +201,7 @@ Gör dessa en gång per år (lämpligen i januari):
 - [ ] Granska integritetspolicyn (`privacy.html`) — stämmer texten fortfarande?
 - [ ] Granska underbiträdesregistret — har vi lagt till nya tjänster?
 - [ ] Kör åtkomstgranskning — har alla admins/pastorer fortfarande rätt roller?
-- [ ] Verifiera att DPA:er med GCP och PropelAuth är aktiva
+- [ ] Verifiera att DPA:er med GCP och Zitadel är aktiva
 - [ ] Kör `./scripts/local-ci.sh` → verifiera att pii_guard + sanitizer fortfarande avvisar PII
 - [ ] Granska `incidents/` — finns det olösta follow-ups?
 - [ ] Uppdatera DPIA om nya behandlingar tillkommit
