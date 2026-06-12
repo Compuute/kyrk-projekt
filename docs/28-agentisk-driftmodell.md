@@ -1,5 +1,10 @@
 # 28 — Agentisk driftmodell: teknisk skuld, agentkatalog och färdplan
 
+> Detta är **runtime-katalogen, skuldinventeringen och färdplanen** under
+> [Agent Operating Model (master)](governance/agent-operating-model.md). Master:n
+> styr *hur* agenter får agera (räcken, grindar, attribution); detta dokument
+> beskriver *vilka* drift-agenter vi bygger och i vilken ordning.
+
 Datadriven inventering (2026-06-12) av teknisk skuld plus en realistisk plan
 för att låta AI-agenter ta över det tunga dagliga arbetet — medlemshantering,
 söndagsskoleadministration, fondansökningar och drift — så att föräldrar och
