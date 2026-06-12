@@ -59,7 +59,7 @@ PROFESSIONELLT SPRÅK (svenska):
 │   SPÅR B: HEMTRANSPORT                                  │
 │                                                         │
 │   Förberedelse i Sverige + komplett transport           │
-│   till Etiopien eller Eritrea för begravning            │
+│   till Etiopien för begravning                          │
 │   i hemlandet.                                          │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
@@ -204,7 +204,6 @@ Kroppen förberedds, dokumenteras och skickas hem.
 | — | Dödsbevis | Hämta från läkare | FAMILJEN |
 | — | Pass/ID | Den avlidnes, till ambassaden | FAMILJEN |
 | — | Mottagare i hemland | Namn, telefon, adress | FAMILJEN |
-| — | Eritrea: 2%-skattestatus | Kontrollera med ambassad | FAMILJEN |
 | — | Betalning | Före flygfrakt | FAMILJEN |
 
 **Itemiserad kostnad:**
@@ -218,7 +217,7 @@ Kroppen förberedds, dokumenteras och skickas hem.
 | Ambassad-dokumentation | 2 000 kr |
 | Passersedel + intyg | 1 000 kr |
 | Transport (sjukhus → Evigo → Arlanda) | 5 000 kr |
-| Mottagning i Addis/Asmara (partner) | 5 000 kr |
+| Mottagning i Addis Abeba (partner) | 5 000 kr |
 | Koordination + administration | 4 000 kr |
 | **Totalt** | **70 000 kr** |
 
@@ -306,7 +305,7 @@ Det mest heltäckande paketet.
 | Arvsdelning (juridisk partner) | 5 000–20 000 kr | PARTNER |
 | Videoinspelning + livestream | 5 000 kr | KYRKAN |
 | Extra kylförvaring (per dygn utöver inkluderade) | 500 kr/dygn | PARTNER |
-| Hemtransport till annat land (ej ETH/ERI) | Offert | KYRKAN |
+| Hemtransport till annat land (ej Etiopien) | Offert | KYRKAN |
 | Förhandsplaneringsavtal | 500 kr engång | KYRKAN |
 | Hemtransportgaranti (garanterat pris) | 1 000 kr/år | KYRKAN |
 

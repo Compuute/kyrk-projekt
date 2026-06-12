@@ -5,12 +5,12 @@ ADAPTER_MODE=memory (default):
   FakeAuthAdapter, FakeMembershipClient.
 
 ADAPTER_MODE=production:
-  FirestoreSubmissionRepository, HttpNotifier, InMemoryRateLimiter
-  (see note), ZitadelAuthAdapter, HttpxMembershipClient.
+  FirestoreSubmissionRepository, HttpNotifier, FirestoreRateLimiter,
+  ZitadelAuthAdapter, HttpxMembershipClient.
 
-Note on rate limiting: MVP production uses the in-memory limiter per
-Cloud Run instance. When scaling out, swap this for a Redis-backed
-limiter — currently not provisioned to keep MVP cost low.
+Note on rate limiting: the production limiter shares one fixed window per
+key across all Cloud Run instances via the `rate_limit_windows` Firestore
+collection (the in-memory limiter is per instance and only for dev/test).
 
 Required env vars in production mode:
 - ZITADEL_ISSUER_URL
@@ -62,6 +62,10 @@ def make_notifier() -> NotifierPort:
 
 
 def make_rate_limiter() -> RateLimiterPort:
+    if _mode() == "production":
+        from app.adapters.firestore_rate_limiter import FirestoreRateLimiter
+
+        return FirestoreRateLimiter(max_hits=5, window_seconds=60)
     from app.adapters.in_memory_rate_limiter import InMemoryRateLimiter
 
     return InMemoryRateLimiter(max_hits=5, window_seconds=60)

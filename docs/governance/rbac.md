@@ -1,6 +1,9 @@
 # RBAC
 
-Roles are modeled via PropelAuth, scoped per `church_id` (PropelAuth organization).
+Roles are modeled via Zitadel project roles, scoped per organization. In
+production tokens the `urn:zitadel:iam:org:id` claim carries the Zitadel
+organization id, which services map to the portal church slug via the
+church registry (`resolve_church_id`).
 
 | Role | RED read | RED write | Certificate issue | YELLOW read | Approve AI output |
 |---|---|---|---|---|---|

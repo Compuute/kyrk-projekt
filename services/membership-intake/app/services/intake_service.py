@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from app.domain.churches import resolve_church_id
 from app.domain.errors import (
     ConsentMissing,
     DuplicateSubmission,
@@ -120,7 +121,7 @@ class IntakeService:
 
     def list_pending(self, actor: Actor) -> list[IntakeSubmission]:
         self._require_admin(actor)
-        return self._repo.list_pending(actor.church_id)
+        return self._repo.list_pending(resolve_church_id(actor.church_id))
 
     def approve(
         self,
@@ -168,7 +169,7 @@ class IntakeService:
 
     def _load_scoped_pending(self, actor: Actor, submission_id: str) -> IntakeSubmission:
         submission = self._repo.get(submission_id)
-        if submission is None or submission.church_id != actor.church_id:
+        if submission is None or submission.church_id != resolve_church_id(actor.church_id):
             raise SubmissionNotFound(submission_id)
         if submission.status is not SubmissionStatus.PENDING:
             raise SubmissionAlreadyProcessed(submission_id)

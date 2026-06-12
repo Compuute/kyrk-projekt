@@ -79,7 +79,7 @@ class FuneralCase:
     # Service options
     package: str = "standard"  # enkel | standard | komplett
     repatriation: bool = False
-    repatriation_destination: str = ""  # "ethiopia" | "eritrea" | other
+    repatriation_destination: str = ""  # "ethiopia" | other
     ceremony_date: str = ""
     ceremony_time: str = ""
     burial_location: str = ""

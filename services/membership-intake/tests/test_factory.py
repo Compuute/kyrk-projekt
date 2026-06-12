@@ -4,11 +4,13 @@ from app.adapters.factory import (
     make_auth,
     make_membership_client,
     make_notifier,
+    make_rate_limiter,
     make_submission_repository,
 )
 from app.adapters.fake_auth import FakeAuthAdapter
 from app.adapters.fake_membership_client import FakeMembershipClient
 from app.adapters.in_memory_notifier import InMemoryNotifier
+from app.adapters.in_memory_rate_limiter import InMemoryRateLimiter
 from app.adapters.in_memory_submission_repository import InMemorySubmissionRepository
 
 
@@ -29,6 +31,13 @@ def test_default_mode_is_memory():
     assert isinstance(make_notifier(), InMemoryNotifier)
     assert isinstance(make_auth(), FakeAuthAdapter)
     assert isinstance(make_membership_client(), FakeMembershipClient)
+    assert isinstance(make_rate_limiter(), InMemoryRateLimiter)
+
+
+def test_production_rate_limiter_is_firestore(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    limiter = make_rate_limiter()
+    assert type(limiter).__name__ == "FirestoreRateLimiter"
 
 
 def test_production_repository_picks_firestore(monkeypatch):
