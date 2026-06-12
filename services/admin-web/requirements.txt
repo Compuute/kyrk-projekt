@@ -10,3 +10,4 @@ pyjwt>=2.8.0
 cryptography>=42.0.0
 
 
+pytest-cov>=5.0
