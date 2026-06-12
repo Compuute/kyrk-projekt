@@ -22,7 +22,8 @@ on:
 #   GCP_DEPLOYER_SA           sa-deployer@<project>.iam.gserviceaccount.com
 #   PROPELAUTH_URL            https://auth.<tenant>.propelauthtest.com
 #   ADMIN_NOTIFY_WEBHOOK      https://<n8n>/webhook/...
-#   AGENT_REPORTING_TOKEN     Zitadel machine-user token for the report agent
+#   AGENT_CLIENT_ID           Zitadel machine-user client id for the report agent
+#   AGENT_CLIENT_SECRET       Zitadel machine-user client secret (client_credentials)
 #
 # Built artifacts: pushed to Artifact Registry
 #   <region>-docker.pkg.dev/<project>/kyrk/<service>:<sha>
@@ -256,7 +257,9 @@ jobs:
           env_vars: |
             ADAPTER_MODE=production
             REPORTING_SERVICE_URL=${{ steps.reporting.outputs.url }}
-            AGENT_REPORTING_TOKEN=${{ secrets.AGENT_REPORTING_TOKEN }}
+            ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
+            AGENT_CLIENT_ID=${{ secrets.AGENT_CLIENT_ID }}
+            AGENT_CLIENT_SECRET=${{ secrets.AGENT_CLIENT_SECRET }}
 
   # admin-web depends on intake + certificate + membership (sunday school,
   # funerals) + reporting (activity logging, KPI).

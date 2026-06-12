@@ -7,7 +7,14 @@ from app.adapters.in_memory_audit_log import InMemoryAuditLog
 
 @pytest.fixture(autouse=True)
 def _clear_env(monkeypatch):
-    for key in ("ADAPTER_MODE", "REPORTING_SERVICE_URL", "AGENT_REPORTING_TOKEN"):
+    for key in (
+        "ADAPTER_MODE",
+        "REPORTING_SERVICE_URL",
+        "ZITADEL_ISSUER_URL",
+        "AGENT_CLIENT_ID",
+        "AGENT_CLIENT_SECRET",
+        "AGENT_TOKEN_SCOPE",
+    ):
         monkeypatch.delenv(key, raising=False)
 
 
@@ -21,9 +28,15 @@ def test_production_reporting_client_requires_env(monkeypatch):
     with pytest.raises(RuntimeError, match="REPORTING_SERVICE_URL"):
         make_reporting_client()
     monkeypatch.setenv("REPORTING_SERVICE_URL", "https://reporting.example")
-    with pytest.raises(RuntimeError, match="AGENT_REPORTING_TOKEN"):
+    with pytest.raises(RuntimeError, match="ZITADEL_ISSUER_URL"):
         make_reporting_client()
-    monkeypatch.setenv("AGENT_REPORTING_TOKEN", "tok")
+    monkeypatch.setenv("ZITADEL_ISSUER_URL", "https://auth.example")
+    with pytest.raises(RuntimeError, match="AGENT_CLIENT_ID"):
+        make_reporting_client()
+    monkeypatch.setenv("AGENT_CLIENT_ID", "cid")
+    with pytest.raises(RuntimeError, match="AGENT_CLIENT_SECRET"):
+        make_reporting_client()
+    monkeypatch.setenv("AGENT_CLIENT_SECRET", "hemlis")
     client = make_reporting_client()
     assert type(client).__name__ == "HttpxReportingClient"
 
