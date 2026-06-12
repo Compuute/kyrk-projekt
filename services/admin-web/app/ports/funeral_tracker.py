@@ -46,12 +46,12 @@ CHECKLIST_ITEMS_REPATRIATION = [
     ("rep_zinc_coffin", "Zinkkista (IATA) svetsad/lödd"),
     ("rep_funeral_director_cert", "Begravningsentreprenörens intyg (kistinnehåll)"),
     ("rep_passersedel", "Passersedel utfärdad (Skatteverket)"),
-    ("rep_embassy_permit", "Ambassad-tillstånd (Etiopien/Eritrea)"),
+    ("rep_embassy_permit", "Ambassad-tillstånd (Etiopien)"),
     ("rep_flight_booked", "Flygfrakt bokad (Ethiopian Airlines HUM, min 3 dagar)"),
     ("rep_air_waybill", "Air Waybill ifylld"),
     ("rep_receiver_confirmed", "Mottagare i hemland bekräftad"),
     ("rep_cargo_delivered", "Levererad till Arlanda Cargo Terminal"),
-    ("rep_arrival_confirmed", "Ankomst bekräftad i Addis/Asmara"),
+    ("rep_arrival_confirmed", "Ankomst bekräftad i Addis"),
     ("rep_passersedel_returned", "Passersedel-kopia returnerad till Skatteverket (inom 2v)"),
 ]
 
@@ -83,7 +83,7 @@ class FuneralCase:
     # Service options
     package: str = "standard"  # enkel | standard | komplett
     repatriation: bool = False
-    repatriation_destination: str = ""  # "ethiopia" | "eritrea" | other
+    repatriation_destination: str = ""  # "ethiopia" | other
     ceremony_date: str = ""
     ceremony_time: str = ""
     burial_location: str = ""
