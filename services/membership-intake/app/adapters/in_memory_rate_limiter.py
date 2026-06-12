@@ -1,7 +1,7 @@
-"""Simple fixed-window in-memory rate limiter.
+"""Simple fixed-window in-memory rate limiter for dev/test.
 
-Production should swap this for a Redis-backed limiter so the window is
-shared across Cloud Run instances.
+Production uses FirestoreRateLimiter so the window is shared across
+Cloud Run instances.
 """
 from __future__ import annotations
 
