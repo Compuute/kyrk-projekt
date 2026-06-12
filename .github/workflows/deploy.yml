@@ -22,6 +22,7 @@ on:
 #   GCP_DEPLOYER_SA           sa-deployer@<project>.iam.gserviceaccount.com
 #   PROPELAUTH_URL            https://auth.<tenant>.propelauthtest.com
 #   ADMIN_NOTIFY_WEBHOOK      https://<n8n>/webhook/...
+#   AGENT_REPORTING_TOKEN     Zitadel machine-user token for the report agent
 #
 # Built artifacts: pushed to Artifact Registry
 #   <region>-docker.pkg.dev/<project>/kyrk/<service>:<sha>
@@ -57,6 +58,7 @@ jobs:
           - certificate-service
           - reporting-service
           - admin-web
+          - agent-worker
     steps:
       - uses: actions/checkout@v4
 
@@ -215,6 +217,46 @@ jobs:
             BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}
             RECEIPT_FROM_EMAIL=${{ secrets.RECEIPT_FROM_EMAIL }}
             RECEIPT_FROM_NAME=Abune Tekle Haymanot
+
+  # agent-worker consumes the agent-jobs Pub/Sub push and calls the
+  # private reporting-service, so it deploys after reporting. Private:
+  # only sa-agent-jobs-pusher holds run.invoker (terraform).
+  deploy-agent-worker:
+    name: deploy agent-worker
+    needs:
+      - deploy-reporting-service
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve reporting-service URL
+        id: reporting
+        run: |
+          URL=$(gcloud run services describe reporting-service \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: agent-worker
+          region: ${{ env.REGION }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/agent-worker:${{ env.TAG }}
+          flags: >-
+            --service-account=sa-agent-worker@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+            --no-allow-unauthenticated
+            --max-instances=1
+            --memory=512Mi
+          env_vars: |
+            ADAPTER_MODE=production
+            REPORTING_SERVICE_URL=${{ steps.reporting.outputs.url }}
+            AGENT_REPORTING_TOKEN=${{ secrets.AGENT_REPORTING_TOKEN }}
 
   # admin-web depends on intake + certificate + membership (sunday school,
   # funerals) + reporting (activity logging, KPI).

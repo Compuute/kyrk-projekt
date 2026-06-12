@@ -133,6 +133,43 @@ resource "google_cloud_run_v2_service_iam_member" "admin_web_invoke_reporting" {
 # }
 
 # ============================================================================
+# agent-worker — Firestore (audit_events) + run.invoker on reporting-service
+# ============================================================================
+# The report agent writes its audit trail to Firestore and calls the
+# private reporting-service carrying its identity in
+# X-Serverless-Authorization (same pattern as admin-web). It has no KMS,
+# no secrets beyond its own env, and never touches RED collections —
+# application-level RBAC in reporting-service is enforced by the agent's
+# Zitadel machine-user token.
+
+resource "google_project_iam_member" "agent_worker_firestore" {
+  project = var.project_id
+  role    = "roles/datastore.user"
+  member  = "serviceAccount:${local.service_account_emails["agent-worker"]}"
+}
+
+resource "google_cloud_run_v2_service_iam_member" "agent_worker_invoke_reporting" {
+  project  = var.project_id
+  location = var.region
+  name     = "reporting-service"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${local.service_account_emails["agent-worker"]}"
+
+  depends_on = [module.cloud_run]
+}
+
+# The Pub/Sub push identity may do exactly one thing: invoke the worker.
+resource "google_cloud_run_v2_service_iam_member" "pusher_invoke_agent_worker" {
+  project  = var.project_id
+  location = var.region
+  name     = "agent-worker"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.agent_jobs_pusher.email}"
+
+  depends_on = [module.cloud_run]
+}
+
+# ============================================================================
 # Deployer (CI/CD) — minimal roles to build, push, and deploy
 # ============================================================================
 # Granted ONLY what GitHub Actions needs to do its job:
