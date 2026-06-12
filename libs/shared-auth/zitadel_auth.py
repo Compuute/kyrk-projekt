@@ -63,7 +63,7 @@ class ZitadelAuthAdapter:
         # Fallback for church_id if missing from standard claim: extract it from roles_claim
         if not church_id and roles_claim:
             for role_name, val in roles_claim.items():
-                if role_name in {"admin", "pastor", "editor", "viewer"}:
+                if role_name in {"admin", "pastor", "editor", "viewer", "teacher"}:
                     if isinstance(val, dict):
                         for k, v in val.items():
                             if k.isdigit():
@@ -81,7 +81,7 @@ class ZitadelAuthAdapter:
 
         # Look for matching role scoped to the user's church organization
         for role_name, val in roles_claim.items():
-            if role_name in {"admin", "pastor", "editor", "viewer"}:
+            if role_name in {"admin", "pastor", "editor", "viewer", "teacher"}:
                 if isinstance(val, dict):
                     if church_id in val:
                         assigned_role = role_name
@@ -98,7 +98,7 @@ class ZitadelAuthAdapter:
 
         if not assigned_role:
             for role_name in roles_claim:
-                if role_name in {"admin", "pastor", "editor", "viewer"}:
+                if role_name in {"admin", "pastor", "editor", "viewer", "teacher"}:
                     assigned_role = role_name
                     break
 

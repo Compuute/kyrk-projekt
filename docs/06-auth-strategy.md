@@ -18,6 +18,12 @@ The system uses standard OpenID Connect (OIDC) and JSON Web Key Sets (JWKS) to a
   - `pastor` — RED read/write within their church, can issue certificates.
   - `editor` — RED write for intake/update, no certificate issuance.
   - `viewer` — YELLOW read only (statistics, financial reports).
+  - `teacher` — Sunday school only: for **own groups** (scoped by `teacher_user_ids`),
+    record attendance and enroll children (enrollment requires guardian consent).
+    **Cannot** create groups (staff only), and has **no** general RED member /
+    certificate / funeral read or write. Sunday-school endpoints are hosted on
+    `membership-service` (`routes_sunday_school.py`); all other RED endpoints
+    reject `teacher` by explicit role check.
 
 ### Architecture & Verification
 - **Frontend (`admin-web`)**: Handles standard OIDC authorization code flow. Directs unauthenticated users to Zitadel's login portal and exchanges the returned code for tokens via `/login/callback`. Token payload is stored in the secure HTTP-only `kyrk_session` cookie.
@@ -33,6 +39,8 @@ The system uses standard OpenID Connect (OIDC) and JSON Web Key Sets (JWKS) to a
 | RED write | `admin`, `pastor`, or `editor` (scoped by endpoint) | `admin`, `pastor`, `editor` |
 | RED read | `admin`, `pastor`, or `editor` | `admin`, `pastor`, `editor` |
 | Certificate issue | `admin` or `pastor` | `admin`, `pastor` |
+| Sunday school: attendance + enroll (own groups) | `teacher` or staff | `teacher`, `editor`, `pastor`, `admin` |
+| Sunday school: create group | staff only | `admin`, `pastor`, `editor` |
 | YELLOW read | `viewer` or higher | `admin`, `pastor`, `editor`, `viewer` |
 | YELLOW write (ingest) | Service account role (e.g. backend tasks) | N/A (Internal) |
 | GREEN public (wifi portal) | No auth | Public |
