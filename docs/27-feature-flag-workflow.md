@@ -1,4 +1,4 @@
-# 26 — Feature-Flag Workflow (how we ship safely at scale)
+# 27 — Feature-Flag Workflow (how we ship safely at scale)
 
 How we use feature flags so a change can reach 300k users **without** a bad
 release hitting everyone at once — and without slowing developers down. This is
