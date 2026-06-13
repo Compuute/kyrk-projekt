@@ -31,6 +31,8 @@ class IssueCertificateInput:
     issued_date: date
     member_id: str
     church_name: str
+    church_name_am: str = ""
+    language: str = "sv"
 
 
 @dataclass(frozen=True)
@@ -54,6 +56,8 @@ class CertificateService:
         cert = Certificate(
             church_id=actor.church_id,
             church_name=data.church_name,
+            church_name_am=data.church_name_am,
+            language=data.language,
             certificate_type=data.certificate_type,
             issued_date=data.issued_date,
             member_id=data.member_id,

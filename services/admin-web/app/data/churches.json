@@ -1,0 +1,76 @@
+{
+  "churches": [
+    {
+      "id": "nacka",
+      "name": {
+        "sv": "Abune Tekle Haymanot",
+        "am": "አቡነ ተክለ ሃይማኖት"
+      },
+      "city": "Nacka"
+    },
+    {
+      "id": "goteborg",
+      "name": {
+        "sv": "Kidist Selassie",
+        "am": "ቅድስት ሥላሴ"
+      },
+      "city": "Göteborg"
+    },
+    {
+      "id": "stockholm",
+      "name": {
+        "sv": "Medhane Alem",
+        "am": "መድኃኔ ዓለም"
+      },
+      "city": "Stockholm"
+    },
+    {
+      "id": "malmo",
+      "name": {
+        "sv": "Debre Mihret Kidist Mariam",
+        "am": "ደብረ ምሕረት ቅድስት ማርያም"
+      },
+      "city": "Malmö"
+    },
+    {
+      "id": "orebro",
+      "name": {
+        "sv": "Medhane Alem",
+        "am": "መድኃኔ ዓለም"
+      },
+      "city": "Örebro"
+    },
+    {
+      "id": "jonkoping",
+      "name": {
+        "sv": "Kidist Mariam",
+        "am": "ቅድስት ማርያም"
+      },
+      "city": "Jönköping"
+    },
+    {
+      "id": "linkoping",
+      "name": {
+        "sv": "Debre Genet Kidus Gebreal",
+        "am": "ደብረ ገነት ቅዱስ ገብርኤል"
+      },
+      "city": "Linköping"
+    },
+    {
+      "id": "vasteras",
+      "name": {
+        "sv": "Kidus Mikael",
+        "am": "ቅዱስ ሚካኤል"
+      },
+      "city": "Västerås"
+    },
+    {
+      "id": "sodertalje",
+      "name": {
+        "sv": "Abune Aregawi",
+        "am": "አቡነ አረጋዊ"
+      },
+      "city": "Södertälje"
+    }
+  ]
+}

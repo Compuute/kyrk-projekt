@@ -130,11 +130,13 @@ class FakeIntakeClient:
 class FakeCertificateClient:
     def __init__(self) -> None:
         self.issued: list[IssuedCertificate] = []
+        self.requests: list[IssueCertificateRequest] = []
         self.issue_error: ClientError | None = None
 
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate:  # noqa: ARG002
         if self.issue_error is not None:
             raise self.issue_error
+        self.requests.append(request)
         cert_id = str(uuid4())
         issued = IssuedCertificate(
             certificate_id=cert_id,

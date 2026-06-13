@@ -50,6 +50,8 @@ class Certificate:
     # Identity is referenced by member_id; never duplicated as plaintext here.
     member_id: str
     issued_by_user_id: str
+    church_name_am: str = ""  # Amharic name; empty falls back at render time
+    language: str = "sv"  # primary language on the document: "sv" | "am"
     status: CertificateStatus = CertificateStatus.VALID
     certificate_id: str = field(default_factory=_new_id)
     created_at: datetime = field(default_factory=_now)

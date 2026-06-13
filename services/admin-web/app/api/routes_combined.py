@@ -26,6 +26,7 @@ from app.api.deps import (
     get_sunday_school_client,
     get_translator,
 )
+from app.churches import get_church, list_churches
 from app.ports.session import SessionInfo, SessionPort
 from app.ports.sunday_school import SundaySchoolClientPort
 from app.config import Settings
@@ -363,6 +364,7 @@ def certificate_form(request: Request, flash: str | None = None, level: str = "s
         context={
             "session": session,
             "today": date.today().isoformat(),
+            "churches": list_churches(),
             "flash": flash,
             "level": level,
         },
@@ -375,12 +377,19 @@ def issue_certificate(
     certificate_type: str = Form(...),
     issued_date: str = Form(...),
     member_id: str = Form(...),
-    church_name: str = Form(...),
+    church_id: str = Form(...),
+    language: str = Form(default="sv"),
     certs: CertificateClientPort = Depends(get_certificate_client),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
         return session
+
+    church = get_church(church_id)
+    if church is None:
+        return _flash_redirect(
+            "/certificates/new", "Okänd kyrka vald", level="error"
+        )
 
     try:
         issued = certs.issue(
@@ -389,7 +398,9 @@ def issue_certificate(
                 certificate_type=certificate_type,
                 issued_date=issued_date,
                 member_id=member_id,
-                church_name=church_name,
+                church_name=church.name_sv,
+                church_name_am=church.name_am,
+                language=language if language in ("sv", "am") else "sv",
             ),
         )
     except ClientError as exc:

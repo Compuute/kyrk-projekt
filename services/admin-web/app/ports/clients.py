@@ -76,7 +76,9 @@ class IssueCertificateRequest:
     certificate_type: str
     issued_date: str  # ISO date
     member_id: str
-    church_name: str
+    church_name: str  # Swedish/Latin name
+    church_name_am: str = ""
+    language: str = "sv"  # primary language on the document: "sv" | "am"
 
 
 @dataclass(frozen=True)

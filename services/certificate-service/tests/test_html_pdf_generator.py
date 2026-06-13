@@ -7,16 +7,47 @@ from app.adapters.html_pdf_generator import HtmlPdfGenerator
 from app.domain.models import Certificate, CertificateType
 
 
-def _cert(cert_type: CertificateType = CertificateType.BAPTISM) -> Certificate:
+def _cert(
+    cert_type: CertificateType = CertificateType.BAPTISM,
+    church_name: str = "Abune Tekle Haymanot",
+    church_name_am: str = "አቡነ ተክለ ሃይማኖት",
+    language: str = "sv",
+) -> Certificate:
     return Certificate(
         church_id="c1",
-        church_name="Abune Tekle Haymanot",
+        church_name=church_name,
+        church_name_am=church_name_am,
+        language=language,
         certificate_type=cert_type,
         issued_date=date(2025, 6, 1),
         member_id="m-1",
         issued_by_user_id="u-admin",
         certificate_id="cert-abc-123",
     )
+
+
+def test_renders_selected_church_not_hardcoded(gen):
+    # The document must show the church chosen at issue time, not a
+    # hardcoded one. Regression: church name was previously fixed to
+    # Abune Tekle Haymanot regardless of input.
+    html = gen.render(
+        _cert(church_name="Kidist Selassie", church_name_am="ቅድስት ሥላሴ"),
+        "Abebe Bikila",
+    ).decode("utf-8")
+    assert "Kidist Selassie" in html
+    assert "ቅድስት ሥላሴ" in html
+    assert "Abune Tekle Haymanot" not in html
+
+
+def test_language_sv_puts_swedish_first(gen):
+    html = gen.render(_cert(language="sv"), "Abebe Bikila").decode("utf-8")
+    # Swedish church name appears before the Amharic one in the document.
+    assert html.index("Abune Tekle Haymanot") < html.index("አቡነ ተክለ ሃይማኖት")
+
+
+def test_language_am_puts_amharic_first(gen):
+    html = gen.render(_cert(language="am"), "Abebe Bikila").decode("utf-8")
+    assert html.index("አቡነ ተክለ ሃይማኖት") < html.index("Abune Tekle Haymanot")
 
 
 @pytest.fixture

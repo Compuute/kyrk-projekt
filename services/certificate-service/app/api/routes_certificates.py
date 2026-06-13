@@ -28,6 +28,8 @@ class IssueRequest(BaseModel):
     issued_date: date
     member_id: str = Field(min_length=1, max_length=64)
     church_name: str = Field(min_length=1, max_length=200)
+    church_name_am: str = Field(default="", max_length=200)
+    language: str = Field(default="sv", pattern="^(sv|am)$")
 
 
 class CertificateResponse(BaseModel):

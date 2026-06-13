@@ -171,6 +171,8 @@ class HttpxCertificateClient:
             "issued_date": request.issued_date,
             "member_id": request.member_id,
             "church_name": request.church_name,
+            "church_name_am": request.church_name_am,
+            "language": request.language,
         }
         try:
             r = httpx.post(

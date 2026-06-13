@@ -38,7 +38,7 @@ _HTML_TEMPLATE = """\
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{cert_type_am} — Abune Tekle Haymanot</title>
+<title>{cert_type_am} — {church_name_am}</title>
 <style>
 @page {{
   size: A4 landscape;
@@ -211,18 +211,28 @@ class HtmlPdfGenerator:
             f"https://kyrka.se/certificates/verify/{certificate.certificate_id}"
         )
 
-        church_name_am = (
-            "አቡነ ተክለ ሃይማኖት "
-            "ኢትዮጵያ ኦርቶዶክስ "
-            "ተዋሕዶ ቤተ ክርስቲያን"
+        # Use the church chosen at issue time. Fall back to the founding
+        # parish only for legacy records issued before these fields existed.
+        church_name_sv = certificate.church_name or (
+            "Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan"
         )
-        church_name_sv = "Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan"
+        church_name_am = certificate.church_name_am or (
+            "አቡነ ተክለ ሃይማኖት ኢትዮጵያ ኦርቶዶክስ ተዋሕዶ ቤተ ክርስቲያን"
+        )
+
+        # The chosen language is primary (top, large); the other is secondary.
+        if certificate.language == "am":
+            church_primary, church_secondary = church_name_am, church_name_sv
+            type_primary, type_secondary = cert_type_am, cert_type_sv
+        else:
+            church_primary, church_secondary = church_name_sv, church_name_am
+            type_primary, type_secondary = cert_type_sv, cert_type_am
 
         html = _HTML_TEMPLATE.format(
-            cert_type_am=cert_type_am,
-            cert_type_sv=cert_type_sv,
-            church_name_am=church_name_am,
-            church_name_sv=church_name_sv,
+            cert_type_am=type_primary,
+            cert_type_sv=type_secondary,
+            church_name_am=church_primary,
+            church_name_sv=church_secondary,
             icon_html=icon_html,
             member_name=member_full_name,
             issued_date=certificate.issued_date.isoformat(),

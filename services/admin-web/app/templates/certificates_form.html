@@ -36,8 +36,19 @@
       <input type="text" name="member_id" required placeholder="t.ex. f7a9…" />
     </label>
     <label>
-      Kyrkans namn
-      <input type="text" name="church_name" required placeholder="Sankt Johannes kyrka" />
+      Kyrka / ቤተ ክርስቲያን
+      <select name="church_id" required>
+        {% for c in churches %}
+        <option value="{{ c.id }}">{{ c.name_sv }} / {{ c.name_am }} — {{ c.city }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Språk på certifikatet / ቋንቋ
+      <select name="language" required>
+        <option value="sv">Svenska (primärt)</option>
+        <option value="am">አማርኛ (primärt)</option>
+      </select>
     </label>
     <button type="submit" class="primary">Utfärda</button>
   </form>
