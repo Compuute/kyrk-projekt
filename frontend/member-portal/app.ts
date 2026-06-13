@@ -358,6 +358,32 @@ function buildSwishLink(swishNumber: string, amount: number, message?: string): 
     '},"message":{"value":"' + (message ?? 'Betalning') + '","editable":false}}';
 }
 
+// Render a Swish QR code (desktop path — the swish:// deep link only works on a
+// phone). The QR is generated entirely client-side from the vendored encoder
+// (window.qrcode, qrcodegen.js) — nothing leaves the device, so the amount and
+// memorial name never reach a third party. Encodes the documented Swish QR
+// data format: C<payee>;<amount>;<message>;<editable bitmask> (0 = locked).
+function renderSwishQr(swishNumber: string, amount: number, message: string, container: HTMLElement | null): void {
+  if (!container) return;
+  const make = (window as any).qrcode;
+  if (typeof make !== 'function' || !swishNumber || !amount) { container.innerHTML = ''; return; }
+  const data = 'C' + swishNumber + ';' + amount + ';' + (message || 'Betalning') + ';0';
+  try {
+    const qr = make(0, 'M');
+    qr.addData(data);
+    qr.make();
+    const img = document.createElement('img');
+    img.src = qr.createDataURL(6, 8);
+    img.alt = 'Swish QR-kod — skanna med Swish-appen / Swish QR';
+    img.width = 168; img.height = 168;
+    img.style.display = 'block';
+    container.innerHTML = '';
+    container.appendChild(img);
+  } catch (_e) {
+    container.innerHTML = '';
+  }
+}
+
 function setupLangPills(): void {
   const pills = document.querySelectorAll<HTMLElement>('.lang-pill');
   pills.forEach(pill => {
@@ -622,6 +648,7 @@ if (typeof window !== 'undefined') {
   (window as any).validatePersonnummer  = validatePersonnummer;
   (window as any).toggleConsent         = toggleConsent;
   (window as any).buildSwishLink        = buildSwishLink;
+  (window as any).renderSwishQr         = renderSwishQr;
   (window as any).setupLangPills        = setupLangPills;
   (window as any).registerServiceWorker = registerServiceWorker;
   (window as any).initChurchSelector    = initChurchSelector;

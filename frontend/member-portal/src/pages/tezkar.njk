@@ -25,6 +25,123 @@ breadcrumb: "Minnesbon"
 
     <div class="card">
       <h2><span class="sv">Boka minnesbön</span><span class="am" style="display:none">ተዝካር ያስይዙ</span></h2>
-      <p>Kontakta prästen för att boka tezkar. Ange den bortgångnes kristna namn och önskat datum. Betalning sker via Swish.</p>
-      <a href="./contact" class="submit-btn" style="display:inline-block;width:auto;padding:14px 28px;margin-top:12px;text-decoration:none;text-align:center">Kontakta oss →</a>
+      <p><span class="sv">Kontakta prästen för att boka tezkar — ange den bortgångnes kristna namn och önskat datum. Offergåvan kan du ge direkt här nedan med Swish.</span><span class="am" style="display:none">ካህኑን ለማስያዝ ያግኙ — የሟቹን ክርስቲያናዊ ስም እና የተፈለገውን ቀን ይግለጹ። መባውን ከታች በSwish መስጠት ይችላሉ።</span></p>
+      <a href="./contact" class="submit-btn" style="display:inline-block;width:auto;padding:14px 28px;margin-top:12px;text-decoration:none;text-align:center"><span class="sv">Kontakta oss →</span><span class="am" style="display:none">ያግኙን →</span></a>
     </div>
+
+    <div class="donate-card" style="margin-top:16px">
+      <h2><span class="sv">Ge offergåva för minnesbönen</span><span class="am" style="display:none">ለተዝካር መባ ይስጡ</span></h2>
+      <p class="muted">
+        <span class="sv">Din offergåva bär minnesbönen för din anhörige. Välj belopp och betala direkt med Swish.</span>
+        <span class="am" style="display:none">መባዎ ለሟቹ የተዝካር ጸሎትን ይደግፋል። መጠን ይምረጡ እና በSwish ይክፈሉ።</span>
+      </p>
+
+      <label for="tezkar-name" class="tezkar-label">
+        <span class="sv">I minne av <span style="font-weight:400;opacity:.7">(valfritt)</span></span>
+        <span class="am" style="display:none">በመታሰቢያ <span style="font-weight:400;opacity:.7">(አማራጭ)</span></span>
+      </label>
+      <input type="text" id="tezkar-name" class="amount-custom" style="display:block;margin:6px 0 14px"
+             placeholder="Den bortgångnes namn / የሟቹ ስም" maxlength="40" autocomplete="off" />
+
+      <div class="amount-grid" id="amount-grid" role="group" aria-label="Välj belopp för offergåva">
+        <button type="button" class="amount-btn" data-amount="100">100 kr</button>
+        <button type="button" class="amount-btn selected" data-amount="200">200 kr</button>
+        <button type="button" class="amount-btn" data-amount="300">300 kr</button>
+        <button type="button" class="amount-btn" data-amount="500">500 kr</button>
+        <button type="button" class="amount-btn" data-amount="custom">
+          <span class="sv">Annat</span><span class="am" style="display:none">ሌላ</span>
+        </button>
+      </div>
+      <input type="number" id="custom-amount" class="amount-custom" min="1" step="1"
+             style="display:none" placeholder="Ange belopp (kr)" inputmode="numeric"
+             aria-label="Eget belopp i kronor" />
+
+      <a class="swish-btn" id="swish-btn" href="#" role="button">
+        <span class="sv">Swish — betala nu</span>
+        <span class="am" style="display:none">Swish — አሁን ይክፈሉ</span>
+      </a>
+
+      <div id="swish-qr-wrap" style="display:none;margin-top:14px;text-align:center">
+        <div id="swish-qr" style="display:inline-block;background:#fff;padding:10px;border-radius:12px"></div>
+        <p class="muted" style="font-size:13px;margin-top:8px">
+          <span class="sv">På dator: skanna QR-koden med Swish-appen.</span>
+          <span class="am" style="display:none">በኮምፒውተር ላይ፦ QR ኮዱን በSwish መተግበሪያ ይቃኙ።</span>
+        </p>
+      </div>
+
+      <p class="muted" style="font-size:13px;margin-top:10px">
+        <span class="sv">Betalningen går till församlingens Swish. Namnet följer med i Swish-meddelandet så församlingen vet vilken minnesbön gåvan gäller.</span>
+        <span class="am" style="display:none">ክፍያው ወደ ቤተ ክርስቲያኑ Swish ይሄዳል። ስሙ በSwish መልእክት ውስጥ ይላካል።</span>
+      </p>
+    </div>
+
+<script src="/qrcodegen.js"></script>
+<script>
+  (function () {
+    var SWISH_NUMBER = '';
+    var nameInput = document.getElementById('tezkar-name');
+    var customInput = document.getElementById('custom-amount');
+    var swishBtn = document.getElementById('swish-btn');
+    var qrWrap = document.getElementById('swish-qr-wrap');
+    var buttons = document.querySelectorAll('#amount-grid .amount-btn');
+    var selectedAmount = 200;
+
+    function message() {
+      var n = (nameInput.value || '').trim();
+      return n ? ('Tezkar — ' + n) : 'Tezkar minnesbon';
+    }
+    function isMobile() { return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); }
+
+    function updateSwishLink() {
+      if (selectedAmount > 0 && SWISH_NUMBER) {
+        if (isMobile()) {
+          // phone: open the Swish app via the swish://payment deep link (buildSwishLink)
+          swishBtn.style.display = '';
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, message());
+          qrWrap.style.display = 'none';
+        } else {
+          // desktop: the deep link can't open an app. Keep the button as the
+          // amount label (non-clickable) and show a scannable QR below it.
+          swishBtn.style.display = '';
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.href = '#';
+          swishBtn.onclick = function (e) { e.preventDefault(); };
+          if (window.renderSwishQr) {
+            renderSwishQr(SWISH_NUMBER, selectedAmount, message(), document.getElementById('swish-qr'));
+            qrWrap.style.display = 'block';
+          }
+        }
+      } else {
+        swishBtn.href = '#';
+        qrWrap.style.display = 'none';
+      }
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        buttons.forEach(function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        if (btn.dataset.amount === 'custom') {
+          customInput.style.display = 'block';
+          customInput.focus();
+          selectedAmount = parseInt(customInput.value) || 0;
+        } else {
+          customInput.style.display = 'none';
+          selectedAmount = parseInt(btn.dataset.amount);
+        }
+        updateSwishLink();
+      });
+    });
+    customInput.addEventListener('input', function () {
+      selectedAmount = parseInt(customInput.value) || 0;
+      updateSwishLink();
+    });
+    nameInput.addEventListener('input', updateSwishLink);
+
+    fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (data) { SWISH_NUMBER = ((data && data.church) || {}).swish_number || ''; updateSwishLink(); })
+      .catch(function () {});
+  })();
+</script>

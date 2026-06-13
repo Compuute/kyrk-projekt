@@ -523,6 +523,8 @@ body[data-lang="am"] {
   width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px;
   background: transparent; color: var(--fg); font-size: 18px; text-align: center; margin: 10px 0;
 }
+#tezkar-name { font-size: 16px; text-align: left; }
+.tezkar-label { display: block; font-weight: 600; font-size: 14px; color: var(--fg); }
 
 /* Privacy policy */
 .policy { max-width: 700px; margin: 0 auto; }
