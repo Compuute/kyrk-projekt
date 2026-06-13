@@ -9,6 +9,34 @@ def test_dashboard_shows_pending_count(client, intake, seeded_submission, auth_c
     assert "1" in r.text  # pending count
 
 
+def test_dashboard_unauthenticated_redirects_to_login(client):
+    # Landing on the root without a session must send the user into the
+    # login flow — not return a bare 401 JSON. A session-requiring
+    # dependency on the route would short-circuit the redirect.
+    r = client.get("/")
+    assert r.status_code == 302
+    assert r.headers["location"] == "/login"
+
+
+def test_dashboard_redirects_with_real_dependency_wiring():
+    # The shared `client` fixture overrides get_funeral_tracker with a
+    # session-free lambda, which hides the production bug where the route's
+    # Depends(get_funeral_tracker) -> Depends(current_session) raises 401
+    # before _require_session can redirect. Exercise the REAL deps so a
+    # regression in production wiring is caught here.
+    from fastapi.testclient import TestClient
+    from app.api import deps
+    from app.main import create_app
+    from app.adapters.fake_clients import FakeIntakeClient
+
+    app = create_app()
+    app.dependency_overrides[deps.get_intake_client] = lambda: FakeIntakeClient()
+    real_wiring = TestClient(app, follow_redirects=False)
+    r = real_wiring.get("/")
+    assert r.status_code == 302, f"expected redirect, got {r.status_code}: {r.text}"
+    assert r.headers["location"] == "/login"
+
+
 def test_dashboard_tolerates_downstream_error(client, intake, auth_cookies):
     intake.list_error = ClientError("boom", status_code=500)
     r = client.get("/", cookies=auth_cookies)
