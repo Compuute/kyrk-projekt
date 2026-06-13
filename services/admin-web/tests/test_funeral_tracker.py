@@ -257,6 +257,17 @@ class TestFuneralRoutes:
         assert resp.status_code == 200
         assert "Abebe Tadesse" in resp.text
 
+    def test_list_degrades_when_proxy_raises(self, authed_funeral_client, funeral_tracker):
+        """The funeral store is a downstream RED proxy (ADR-020); if it errors,
+        the page must show a banner, not 500."""
+        def boom(church_id):
+            raise RuntimeError("downstream proxy 502")
+
+        funeral_tracker.list_cases = boom
+        resp = authed_funeral_client.get("/funerals")
+        assert resp.status_code == 200
+        assert "Kunde inte läsa" in resp.text
+
     def test_new_form(self, authed_funeral_client):
         resp = authed_funeral_client.get("/funerals/new")
         assert resp.status_code == 200

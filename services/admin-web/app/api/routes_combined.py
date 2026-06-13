@@ -561,7 +561,17 @@ def grants_list(
         return session
 
     grants = _load_grant_database()
-    applications = {a.grant_id: a for a in tracker.list_applications(session.church_id)}
+    # Downstream (Firestore/proxy) can be unavailable or unauthorized — degrade
+    # to "no applications loaded" with a banner instead of a 500. The static
+    # grant catalog still renders so the page stays useful.
+    error_message: str | None = None
+    try:
+        applications = {
+            a.grant_id: a for a in tracker.list_applications(session.church_id)
+        }
+    except Exception as exc:
+        applications = {}
+        error_message = f"Kunde inte läsa ansökningsstatus: {exc}"
 
     enriched = []
     upcoming_deadlines = 0
@@ -589,6 +599,7 @@ def grants_list(
             "upcoming_deadlines": upcoming_deadlines,
             "flash": flash,
             "level": level,
+            "error_message": error_message,
         },
     )
 
@@ -1189,8 +1200,16 @@ def funerals_list(
     if isinstance(session, RedirectResponse):
         return session
 
-    cases = tracker.list_cases(session.church_id)
-    cases.sort(key=lambda c: c.created_at or datetime.min, reverse=True)
+    # The funeral store is a downstream RED proxy (ADR-020); if it is
+    # unavailable or unauthorized, show an empty list with a banner rather
+    # than crashing the page.
+    error_message: str | None = None
+    try:
+        cases = tracker.list_cases(session.church_id)
+        cases.sort(key=lambda c: c.created_at or datetime.min, reverse=True)
+    except Exception as exc:
+        cases = []
+        error_message = f"Kunde inte läsa begravningsärenden: {exc}"
 
     return TEMPLATES.TemplateResponse(
         request=request,
@@ -1200,6 +1219,7 @@ def funerals_list(
             "cases": cases,
             "flash": flash,
             "level": level,
+            "error_message": error_message,
         },
     )
 
