@@ -15,7 +15,7 @@
 - No secrets in code or env files in git. All secrets via GCP Secret Manager.
 - All API endpoints use Pydantic models for input validation.
 - All endpoints return typed errors with proper HTTP status codes (400/401/403/404/409/422/500).
-- All RED endpoints require PropelAuth authentication.
+- All RED endpoints require Zitadel authentication.
 - All write operations on RED data check RBAC role.
 - All access to identity fields emits an audit event (`who`, `when`, `what`, `why`).
 - No public search endpoints. Verification endpoints return only what is strictly necessary.

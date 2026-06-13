@@ -8,14 +8,14 @@ Lightweight STRIDE walkthrough for MVP. Revisit before Phase 2.
 2. Certificates and their verification chain (RED)
 3. Aggregated KPI / ROI data (YELLOW)
 4. OpenClaw outputs and Wi-Fi content (GREEN)
-5. Admin credentials (PropelAuth sessions)
+5. Admin credentials (Zitadel OIDC sessions)
 
 ## Trust boundaries
 
 - Public internet → membership-intake, wifi-intake-portal, certificate verification
-- Admin user → PropelAuth → RED services
-- n8n → reporting-service (service account)
-- n8n → Anthropic API (sanitizer enforced)
+- Admin user → Zitadel (OIDC) → RED services
+- Scheduled runtime agents (Cloud Scheduler) → reporting-service (service account)
+- Runtime agents → Anthropic API (sanitizer enforced)
 
 ## STRIDE per asset
 
@@ -23,7 +23,7 @@ Lightweight STRIDE walkthrough for MVP. Revisit before Phase 2.
 
 | Threat | Mitigation |
 |---|---|
-| **S**poofing | PropelAuth sessions + verified JWT |
+| **S**poofing | Zitadel OIDC sessions; downstream RS256 bearer JWT verified against Zitadel JWKS (TLS-verified fetch — the session trust anchor) |
 | **T**ampering | Pydantic validation, Firestore rules, audit events |
 | **R**epudiation | Audit log per write |
 | **I**nformation disclosure | Field-level encryption, no public search, least-privilege IAM |
@@ -55,6 +55,9 @@ Lightweight STRIDE walkthrough for MVP. Revisit before Phase 2.
 
 ## Residual risks (accepted for MVP)
 
-- Admin account compromise → mitigated by PropelAuth MFA (enforced) but not eliminated
-- n8n self-hosted availability → mitigated by Cloud Run + health checks, not by HA
-- Anthropic API outage → graceful n8n failure, no data loss (retry next cron)
+- Admin account compromise → mitigated by Zitadel MFA (enforced) but not eliminated
+- Zitadel (US-region, free tier) data residency → temporary deviation from EU/CH
+  sovereignty, tracked in ADR-017; only test data until the EU move
+- Scheduled runtime-agent availability → mitigated by Cloud Run + health checks +
+  notifier retries, not by HA
+- Anthropic API outage → graceful failure, no data loss (retry on next schedule)

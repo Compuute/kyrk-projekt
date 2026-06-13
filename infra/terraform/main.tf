@@ -30,6 +30,9 @@ locals {
     "certificate-service",
     "reporting-service",
     "admin-web",
+    # Pub/Sub-driven agent runtime (docs/28). Its trigger plumbing —
+    # topic, scheduler, push subscription — lives in agent_jobs.tf.
+    "agent-worker",
   ]
 
   # Buckets the platform needs. Names are project-prefixed for uniqueness.

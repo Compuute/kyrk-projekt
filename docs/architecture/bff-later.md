@@ -17,6 +17,6 @@ We explicitly defer a Backend-For-Frontend layer.
 ## If/when we build it
 
 - FastAPI service in `services/bff`.
-- Depends only on PropelAuth for auth; forwards tokens to downstream services.
+- Depends only on Zitadel for auth; forwards tokens to downstream services.
 - No business logic — shape and fan out only.
 - Must not bypass downstream RBAC.

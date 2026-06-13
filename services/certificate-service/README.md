@@ -36,7 +36,7 @@ uvicorn app.main:app --reload
 ## Ports
 
 - `CertificateRepository` — storage
-- `AuthPort` — PropelAuth
+- `AuthPort` — Zitadel
 - `PdfGenerator` — renders the PDF (stub in MVP)
 - `AuditPort` — audit log
 

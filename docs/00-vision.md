@@ -26,7 +26,7 @@ impact evidence for grants and boards.
 - A replacement for Kyrkans Bokföring or Fortnox
 - A public member search
 - Any AI that touches identity data
-- A custom auth system (we use PropelAuth)
+- A custom auth system (we use Zitadel)
 - A custom workflow engine (we use n8n)
 
 ## Success criteria for MVP

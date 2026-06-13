@@ -51,10 +51,10 @@ or *Settings → Environments → <env> → Add secret*.
 | `GCP_REGION` | `europe-north1` | repo |
 | `GCP_WIF_PROVIDER` | `projects/123/locations/global/workloadIdentityPools/github/providers/github` | per environment |
 | `GCP_DEPLOYER_SA` | `sa-deployer@<project>.iam.gserviceaccount.com` | per environment |
-| `PROPELAUTH_URL` | `https://auth.<tenant>.propelauthtest.com` | per environment |
+| `ZITADEL_ISSUER_URL` | `https://kyrk-auth-<id>.zitadel.cloud` | per environment |
 | `ADMIN_NOTIFY_WEBHOOK` | `https://n8n.example/webhook/...` | per environment |
 
-The PropelAuth API key, KMS key, and BigQuery dataset are **not**
+The Zitadel client secret, KMS key, and BigQuery dataset are **not**
 GitHub secrets — they live in GCP Secret Manager / Cloud KMS / BigQuery
 and are referenced by name in the workflow. The deploy SA needs
 `secretmanager.secretAccessor` on each secret (Terraform grants it).
@@ -85,7 +85,7 @@ gated by the prod required-reviewer rule.
 
 1. Open *Settings → Environments → New environment*. Type `dev`. Save.
 2. Set environment-scoped secrets: `GCP_PROJECT_ID`, `GCP_WIF_PROVIDER`,
-   `GCP_DEPLOYER_SA`, `PROPELAUTH_URL`, `ADMIN_NOTIFY_WEBHOOK`.
+   `GCP_DEPLOYER_SA`, `ZITADEL_ISSUER_URL`, `ADMIN_NOTIFY_WEBHOOK`.
 3. Repeat for `prod`. For prod, also enable:
    - **Required reviewers** → add the admin team / specific people.
    - **Deployment branches** → restrict to `main`.
@@ -224,11 +224,11 @@ If you prefer not to use Terraform, the same setup as a script:
 
    | Runtime SA | Roles |
    |---|---|
-   | `sa-membership-service` | `datastore.user`, `cloudkms.cryptoKeyEncrypterDecrypter` on the `member-pn` key, `secretmanager.secretAccessor` on `propelauth-api-key` |
-   | `sa-membership-intake` | `datastore.user`, `secretmanager.secretAccessor` on `propelauth-api-key` and `admin-notify-webhook` |
-   | `sa-certificate-service` | `datastore.user`, `secretmanager.secretAccessor` on `propelauth-api-key` |
-   | `sa-activity-service` | `datastore.user`, `secretmanager.secretAccessor` on `propelauth-api-key` |
-   | `sa-reporting-service` | `datastore.user`, `bigquery.dataEditor` on the `kyrk_analytics` dataset, `secretmanager.secretAccessor` on `propelauth-api-key` |
+   | `sa-membership-service` | `datastore.user`, `cloudkms.cryptoKeyEncrypterDecrypter` on the `member-pn` key, `secretmanager.secretAccessor` on `zitadel-client-secret` |
+   | `sa-membership-intake` | `datastore.user`, `secretmanager.secretAccessor` on `zitadel-client-secret` and `admin-notify-webhook` |
+   | `sa-certificate-service` | `datastore.user`, `secretmanager.secretAccessor` on `zitadel-client-secret` |
+   | `sa-activity-service` | `datastore.user`, `secretmanager.secretAccessor` on `zitadel-client-secret` |
+   | `sa-reporting-service` | `datastore.user`, `bigquery.dataEditor` on the `kyrk_analytics` dataset, `secretmanager.secretAccessor` on `zitadel-client-secret` |
    | `sa-admin-web` | `run.invoker` on `certificate-service` (and any other private downstream services) |
 
 ### Required GCP secrets (Secret Manager)
@@ -237,7 +237,7 @@ Terraform creates the secret resources but never holds the values.
 Populate them after `terraform apply`:
 
 ```bash
-printf 'YOUR-KEY' | gcloud secrets versions add propelauth-api-key --data-file=-
+printf 'YOUR-KEY' | gcloud secrets versions add zitadel-client-secret --data-file=-
 printf 'YOUR-KEY' | gcloud secrets versions add anthropic-api-key --data-file=-
 printf 'YOUR-KEY' | gcloud secrets versions add fortnox-client-id --data-file=-
 printf 'YOUR-KEY' | gcloud secrets versions add fortnox-client-secret --data-file=-
@@ -279,4 +279,4 @@ summary lists URLs; curl `<URL>/healthz` to confirm.
 
 For admin-web, open `<URL>/login` in a browser. The MVP login flow
 accepts any `user:church:role` token; production swaps in real
-PropelAuth login.
+Zitadel login.
