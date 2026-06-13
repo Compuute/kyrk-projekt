@@ -25,6 +25,23 @@ test('content.json has youtube_channel_id field', function () {
   assert.ok('youtube_channel_id' in (content.church || {}), 'church must have youtube_channel_id');
 });
 
+test('content.json has youtube_handle field', function () {
+  assert.ok('youtube_handle' in (content.church || {}), 'church must have youtube_handle');
+});
+
+test('live page falls back to handle-based live link when no channel id', function () {
+  assert.ok(html.includes('youtube_handle'), 'must read handle from config');
+  // Uses YouTube\'s always-current live URL for a handle (@name/live),
+  // not a hardcoded video id that would go stale after the stream ends.
+  assert.ok(html.includes('/live'), 'must link to the @handle/live URL');
+});
+
+test('live page does not hardcode a video id', function () {
+  // A specific /live/<id> or watch?v=<id> would show last week\'s stream.
+  assert.strictEqual(html.match(/youtube\.com\/live\/[A-Za-z0-9_-]{8,}/), null,
+    'no hardcoded video id — must resolve current stream via channel or handle');
+});
+
 test('live page has weekly schedule', function () {
   assert.ok(html.includes('schedule'), 'must show service schedule');
   assert.ok(html.includes('11:00') || html.includes('Söndag'), 'must show Sunday service');
