@@ -214,6 +214,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
+| [`governance/pre-production-audit-checklist.md`](docs/governance/pre-production-audit-checklist.md) | **Grindar före skarp lansering (DPIA, Art. 9, DPA, residens)** |
 | [`governance/rbac.md`](docs/governance/rbac.md) | Rollmatris |
 | [`governance/policies.md`](docs/governance/policies.md) | Retention, radering |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | PR-flöde, review-krav |

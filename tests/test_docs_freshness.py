@@ -145,6 +145,22 @@ class TestDocCodeDriftTripwires:
             f"code verifies TLS, but these docs still describe it as disabled: {offenders}"
         )
 
+    def test_decommissioned_auth_vendor_only_in_adr_history(self):
+        # PropelAuth was replaced by Zitadel (ADR-016). It may survive only as
+        # history in the ADR log; anywhere else it is stale current-state prose.
+        allowed = "14-architecture-decisions.md"
+        offenders = sorted(
+            md.relative_to(ROOT).as_posix()
+            for md in DOCS_DIR.rglob("*.md")
+            if md.name != allowed and "PropelAuth" in md.read_text(encoding="utf-8")
+        )
+        if "PropelAuth" in README:
+            offenders.append("README.md")
+        assert not offenders, (
+            "PropelAuth is decommissioned — it may only appear as history in "
+            f"{allowed}, but these still reference it: {offenders}"
+        )
+
     def test_privacy_policy_matches_metrics_code(self):
         import re
 

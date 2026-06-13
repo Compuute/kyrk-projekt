@@ -34,12 +34,12 @@
 - Terraform baseline (Cloud Run, Firestore, GCS, Secret Manager, IAM, BigQuery, n8n Cloud Run)
 
 ### Auth
-- PropelAuth FastAPI integration
+- Zitadel Cloud (OIDC) integration
 - BankID as interface/stub
 
 ## Out of scope (for MVP)
 
-- Custom auth implementation (PropelAuth handles it)
+- Custom auth implementation (Zitadel handles it)
 - Member-facing mobile app (native) — PWA covers this
 - Full Fortnox bi-directional sync
 - Native BankID integration (Bankgirot e-medgivande handles autogiro signing)
@@ -53,7 +53,7 @@
 ## Definition of done for MVP
 
 - All five services scaffolded with tests, Pydantic models, and in-memory adapters
-- PropelAuth integration on RED services
+- Zitadel (OIDC) integration on RED services
 - Terraform applies cleanly in GCP project `kyrk-projekt` (europe-north1)
 - Frontend live on Cloudflare Pages (kyrka-portal.pages.dev)
 - Registration form end-to-end: form → API → Swish payment → autogiro

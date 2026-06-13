@@ -17,7 +17,7 @@ n8n workflows, OpenClaw templates, or Terraform IAM.
 
 ## Auth
 
-- [ ] All new endpoints are protected by PropelAuth
+- [ ] All new endpoints are protected by Zitadel (OIDC) auth
 - [ ] Role checks use shared FastAPI dependency
 - [ ] No hard-coded secrets or tokens
 

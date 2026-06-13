@@ -77,7 +77,7 @@ Common root causes, in order of frequency:
 1. **Missing env var after deploy** (e.g. forgot to set `KMS_KEY_NAME`
    on membership-service → factory raises `RuntimeError` at startup).
    Fix: redeploy with the right env block.
-2. **Downstream unreachable** — Firestore, KMS, or PropelAuth is
+2. **Downstream unreachable** — Firestore, KMS, or Zitadel is
    throttling, down, or permission-denied.
    Fix: check the linked console, check IAM bindings.
 3. **Bad commit merged to main** — a logic bug surfaces once real
@@ -292,7 +292,7 @@ GDPR incident.
 - Audit events show `member.read` or `member.update` from an actor
   who should not have been in that church.
 - An admin reports seeing data they don't recognize.
-- A PropelAuth log shows a token minted at an unusual time or
+- A Zitadel log shows a token minted at an unusual time or
   location.
 
 ### Severity
@@ -303,18 +303,18 @@ worst-case scenario this platform is designed to prevent.
 ### Immediate action
 
 ```bash
-# 1. Revoke the suspicious user in PropelAuth immediately
-#    (PropelAuth UI → Users → Block user)
+# 1. Revoke/lock the suspicious user in Zitadel immediately
+#    (Zitadel Console → Users → Deactivate/Lock — verify exact path in console)
 #
-# 2. Rotate the PropelAuth API key
-gcloud secrets versions add propelauth-api-key \
-  --project=$PROJECT --data-file=<(printf 'NEW-KEY-FROM-PROPELAUTH')
+# 2. Rotate the Zitadel client secret
+gcloud secrets versions add zitadel-client-secret \
+  --project=$PROJECT --data-file=<(printf 'NEW-SECRET-FROM-ZITADEL')
 
 #    Then force all services to reload:
 for svc in membership-service membership-intake certificate-service \
            activity-service reporting-service; do
   gcloud run services update $svc --region=$REGION --project=$PROJECT \
-    --update-env-vars=PROPELAUTH_KEY_ROTATED_AT=$(date +%s)
+    --update-env-vars=ZITADEL_SECRET_ROTATED_AT=$(date +%s)
 done
 
 # 3. Capture the audit events for the suspect time window
@@ -325,7 +325,7 @@ gcloud firestore query --collection-group=audit_events \
 
 ### Diagnosis
 
-1. **Correlate audit events with PropelAuth access logs.** Does the
+1. **Correlate audit events with Zitadel access logs.** Does the
    actor's session make sense (time, IP, device)?
 2. **Check for privilege escalation.** Did a `secretary` suddenly
    perform `member.deactivate`? Check the role enforcement in
@@ -336,7 +336,7 @@ gcloud firestore query --collection-group=audit_events \
 
 ### Remediation
 
-1. **Revoke the user**, rotate PropelAuth key (already done above).
+1. **Revoke the user**, rotate the Zitadel client secret (already done above).
 2. **Export the suspect audit events to a secured incident folder**
    outside the production project.
 3. **Force a role review** across every church — every admin must

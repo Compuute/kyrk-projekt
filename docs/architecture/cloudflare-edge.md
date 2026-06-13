@@ -288,7 +288,7 @@ through Cloudflare. This means:
 1. Is it Cloudflare WAF blocking the request?
    - `curl -v https://api.kyrka.se/intake` — look for `cf-mitigated: challenge` header.
    - **Yes →** Cloudflare WAF false positive. Dashboard → Security → WAF → check the rule → add an exception for `/intake`.
-   - **No →** it's PropelAuth returning 403 (role check). Check the bearer token.
+   - **No →** it's Zitadel/RBAC returning 403 (role check). Check the bearer token.
 
 ### "Content is stale after update"
 

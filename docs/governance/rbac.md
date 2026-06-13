@@ -1,6 +1,6 @@
 # RBAC
 
-Roles are modeled via PropelAuth, scoped per `church_id` (PropelAuth organization).
+Roles are modeled via Zitadel, scoped per `church_id` (Zitadel organization).
 
 | Role | RED read | RED write | Certificate issue | YELLOW read | Approve AI output |
 |---|---|---|---|---|---|

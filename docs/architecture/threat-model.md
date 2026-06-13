@@ -8,12 +8,12 @@ Lightweight STRIDE walkthrough for MVP. Revisit before Phase 2.
 2. Certificates and their verification chain (RED)
 3. Aggregated KPI / ROI data (YELLOW)
 4. OpenClaw outputs and Wi-Fi content (GREEN)
-5. Admin credentials (PropelAuth sessions)
+5. Admin credentials (Zitadel sessions)
 
 ## Trust boundaries
 
 - Public internet → membership-intake, wifi-intake-portal, certificate verification
-- Admin user → PropelAuth → RED services
+- Admin user → Zitadel → RED services
 - n8n → reporting-service (service account)
 - n8n → Anthropic API (sanitizer enforced)
 
@@ -23,7 +23,7 @@ Lightweight STRIDE walkthrough for MVP. Revisit before Phase 2.
 
 | Threat | Mitigation |
 |---|---|
-| **S**poofing | PropelAuth sessions + verified JWT |
+| **S**poofing | Zitadel sessions + verified JWT |
 | **T**ampering | Pydantic validation, Firestore rules, audit events |
 | **R**epudiation | Audit log per write |
 | **I**nformation disclosure | Field-level encryption, no public search, least-privilege IAM |
@@ -55,6 +55,6 @@ Lightweight STRIDE walkthrough for MVP. Revisit before Phase 2.
 
 ## Residual risks (accepted for MVP)
 
-- Admin account compromise → mitigated by PropelAuth MFA (enforced) but not eliminated
+- Admin account compromise → mitigated by Zitadel MFA (available; enforce in console) but not eliminated
 - n8n self-hosted availability → mitigated by Cloud Run + health checks, not by HA
 - Anthropic API outage → graceful n8n failure, no data loss (retry next cron)
