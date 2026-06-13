@@ -7,6 +7,10 @@
   <a href="/funerals/new" class="btn btn-primary">+ Nytt ärende</a>
 </section>
 
+{% if error_message %}
+<div class="flash flash-error">{{ error_message }}</div>
+{% endif %}
+
 {% if cases %}
 <table class="table">
   <thead>

@@ -70,6 +70,20 @@ def test_grants_list_renders(authed_client):
     assert "SST Organisationsstöd" in r.text
 
 
+def test_grants_list_degrades_when_tracker_raises(authed_client, grant_tracker):
+    """A downstream failure (Firestore 403, proxy down) must not 500 the page —
+    the static grant catalog still renders with an error banner."""
+    def boom(church_id):
+        raise RuntimeError("403 Missing or insufficient permissions")
+
+    grant_tracker.list_applications = boom
+    r = authed_client.get("/grants")
+    assert r.status_code == 200
+    assert "Kunde inte läsa" in r.text
+    # Catalog still renders despite the tracker failure.
+    assert "SST Organisationsstöd" in r.text
+
+
 def test_grants_list_shows_deadline_coloring(authed_client):
     r = authed_client.get("/grants")
     assert r.status_code == 200
