@@ -226,6 +226,7 @@ resource "google_secret_manager_secret_iam_member" "admin_web_zitadel_secret" {
 locals {
   terraform_project_roles = [
     "roles/editor",
+    "roles/run.admin", # editor lacks run.services.setIamPolicy (invoker bindings)
     "roles/resourcemanager.projectIamAdmin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.workloadIdentityPoolAdmin",
