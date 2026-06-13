@@ -164,6 +164,8 @@ check('buildMonthGrid default markerar samma dag som localCivilDate', function (
   var today = g.cells.filter(function (c2) { return c2.isToday; });
   assert.strictEqual(today.length, 1, 'exakt en idag-cell');
   assert.strictEqual(today[0].eth.day, t.day, 'idag-cellen ska vara besökarens lokala dag');
+});
+
 // --- Världskalender-tabellen (data via ICU) -------------------------------
 check('worldCalendarsToday: minst 8 system, rätt år för fast datum', function () {
   var d = new Date(Date.UTC(2026, 5, 12));
@@ -176,6 +178,44 @@ check('worldCalendarsToday: minst 8 system, rätt år för fast datum', function
   var am = cal.worldCalendarsToday(d, 'am');
   assert.ok(/[\u1200-\u137F]/.test(am.filter(function (r) { return r.ca === 'ethiopic'; })[0].formatted),
     'amharisk variant formateras med etiopisk skrift');
+});
+
+// --- Fas 1: beskrivningar, fastenedräkning, kommande högtider --------------
+check('alla högtider, helgon, röda dagar och fastor har sv+am-beskrivning', function () {
+  cal.HOLIDAYS.ethiopianFixed.forEach(function (h) {
+    assert.ok(h.desc && h.desc.sv && h.desc.am, 'desc saknas: ' + h.name.sv);
+  });
+  cal.HOLIDAYS.monthlySaints.forEach(function (h) {
+    assert.ok(h.desc && h.desc.sv && h.desc.am, 'desc saknas: ' + h.name.sv);
+  });
+  cal.swedishRedDays(2026).forEach(function (h) {
+    assert.ok(h.desc && h.desc.sv && h.desc.am, 'desc saknas: ' + h.name.sv);
+  });
+  cal.HOLIDAYS.fasting.forEach(function (f) {
+    assert.ok(f.desc && f.desc.sv && f.desc.am, 'desc saknas: ' + f.name.sv);
+  });
+  assert.ok(cal.HOLIDAYS.weeklyFastNote.sv && cal.HOLIDAYS.weeklyFastNote.am, 'veckonot saknas');
+});
+check('currentOrNextFast: 2026-06-12 → Filseta börjar om 56 dagar, 16 dagar lång', function () {
+  var f = cal.currentOrNextFast(new Date(Date.UTC(2026, 5, 12)));
+  assert.strictEqual(f.status, 'upcoming');
+  assert.ok(/Filseta/.test(f.name.sv), 'nästa fasta ska vara Filseta, fick ' + f.name.sv);
+  assert.strictEqual(f.startsInDays, 56, 'Nehase 1 2018 = 7 aug 2026');
+  assert.strictEqual(f.lengthDays, 16);
+});
+check('currentOrNextFast: mitt i Filseta → pågår med rätt nedräkning', function () {
+  var f = cal.currentOrNextFast(new Date(Date.UTC(2026, 7, 10)));
+  assert.strictEqual(f.status, 'ongoing');
+  assert.ok(/Filseta/.test(f.name.sv));
+  assert.strictEqual(f.endsInDays, 12, 'slutar Nehase 16 = 22 aug 2026');
+});
+check('upcomingHolidays: 2026-06-12 → Sene Mikael om 7 dagar, midsommar med', function () {
+  var u = cal.upcomingHolidays(new Date(Date.UTC(2026, 5, 12)), 5);
+  assert.strictEqual(u.length, 5);
+  assert.ok(/Mikael/.test(u[0].name.sv), 'först: Sene Mikael, fick ' + u[0].name.sv);
+  assert.strictEqual(u[0].daysUntil, 7);
+  assert.ok(u.some(function (h) { return /Midsommardagen/.test(h.name.sv); }), 'midsommar ska vara med');
+  u.forEach(function (h) { assert.ok(h.desc && h.desc.sv, 'desc saknas i kommande: ' + h.name.sv); });
 });
 
 console.log(failures === 0 ? '\nAlla kalendertester gröna.' : '\n' + failures + ' test FAILADE.');
