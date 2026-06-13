@@ -11,7 +11,7 @@ vid en granskning; den här listar vad som måste vara *klart* först.
 
 | # | Grind | Krav | Ägare | Status |
 |---|-------|------|-------|--------|
-| 1 | **Dataresidens auth** | Migrera Zitadel från US- till EU/CH-region **innan** riktig persondata, ELLER genomför en Transfer Impact Assessment (Schrems II, GDPR kap. V). Idag: US, endast syntetisk data (ADR-017). | Ops + styrelse | 🔴 |
+| 1 | **Dataresidens auth** | **Beslut 2026-06-13: migrera Zitadel från US- till EU/CH-region.** Görs när lösningen är färdigutvecklad, **innan** den fylls med live-data. TIA-vägen är inte aktuell. Idag: US, endast syntetisk data (ADR-017). | Ops + styrelse | 🔴 ej påbörjat |
 | 2 | **DPIA (Art. 35)** | Genomför konsekvensbedömning för personnummer + barndata (söndagsskola). Mall nedan. | DPO/styrelse | 🔴 ✋ |
 | 3 | **Art. 9-bedömning** | Dokumentera laglig grund för religiös tillhörighet (föreningsundantaget 9(2)(d)) + `selected_church`-inferensen. Mall nedan. | DPO/styrelse | 🔴 ✋ |
 | 4 | **Underbiträdesavtal (Art. 28)** | Signera DPA med Google Cloud och Zitadel. | Ops/styrelse | 🔴 |
