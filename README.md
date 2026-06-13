@@ -30,10 +30,10 @@ make test      # 350+ tests across all services + frontends
 | **Automation** | FastAPI BackgroundTasks | Asynkrona bakgrundsjobb, webhook-notifieringar |
 | **CDN/WAF** | Cloudflare (free tier) | DDoS, WAF, global edge, auto-SSL |
 | **Infra** | Terraform | Ett `apply` skapar hela GCP-miljön |
-| **CI/CD** | GitHub Actions (4 workflows) | Tests, deploy, e2e healthz, nightly drift check |
+| **CI/CD** | GitHub Actions (10 workflows) | Tests, deploy (Pages-sites + Cloud Run), e2e healthz, frontend E2E, nightly drift, terraform plan/apply, flag-advisor |
 | **Hosting** | GCP Cloud Run (backend) + Cloudflare Pages (frontend) | Scale-to-zero, ~€20/mån |
 | **Notifications** | Telegram Bot API | Gratis, amharic-stöd, bot som admin-gränssnitt |
-| **Donations** | Swish deep link | 0 kr/transaktion, öppnar appen direkt |
+| **Donations** | Swish deep link (mobil) + klient-genererad Swish-QR (desktop) | 0 kr/transaktion, öppnar appen direkt; QR genereras self-hostat i webbläsaren (inget belopp/namn lämnar enheten) |
 | **App** | PWA (Progressive Web App) | Installerbar på Android + iOS utan app store |
 
 ## Funktioner — vad som finns
@@ -44,7 +44,7 @@ make test      # 350+ tests across all services + frontends
 |---|---|---|
 | Startsida | [kyrka-portal.pages.dev](https://kyrka-portal.pages.dev) | Kyrkans info, aktiviteter, meddelanden (sv + am) |
 | Bli medlem | [/intake.html](https://kyrka-portal.pages.dev/intake.html) | Registreringsformulär med GDPR-consent + source-tracking |
-| Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare + bankgiro + org.nr |
+| Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare; deep link på mobil, skannbar QR på desktop |
 | Livestream | [/live.html](https://kyrka-portal.pages.dev/live.html) | YouTube-embed (modulärt per kyrka via content.json) |
 | Integritetspolicy | [/privacy.html](https://kyrka-portal.pages.dev/privacy.html) | GDPR-policy på svenska + amharic |
 | Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, Fonus-jämförelse |
@@ -55,7 +55,7 @@ make test      # 350+ tests across all services + frontends
 | Vanliga frågor | [/faq.html](https://kyrka-portal.pages.dev/faq.html) | Vanliga frågor om tro, medlemskap och avgifter |
 | Bibliotek | [/library.html](https://kyrka-portal.pages.dev/library.html) | Digitalt bibliotek med böcker och texter |
 | Support | [/support.html](https://kyrka-portal.pages.dev/support.html) | Teknisk support för medlemmar |
-| Memorial / Tezkar | [/tezkar.html](https://kyrka-portal.pages.dev/tezkar.html) | Information och regler kring Tezkar |
+| Memorial / Tezkar | [/tezkar.html](https://kyrka-portal.pages.dev/tezkar.html) | Info + minnesdagar + offergåva på sidan via Swish ("i minne av"-namn följer med i meddelandet) |
 | Lokaler | [/venue.html](https://kyrka-portal.pages.dev/venue.html) | Hitta till våra lokaler och kyrkor |
 
 Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga spårningskakor (endast två funktionella kakor: språkval och vald församling).

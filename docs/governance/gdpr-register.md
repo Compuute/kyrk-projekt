@@ -68,14 +68,15 @@ Adress: Saltsjö-Boo, Nacka kommun
 | **Tredjelandsöverföring** | Cloudflare CDN (EU edge). Ingen persondata cachas. |
 | **System** | frontend/member-portal (GREEN), frontend/wifi-intake-portal (GREEN) |
 
-### 6. Donationshantering (donate.html)
+### 6. Donationer & offergåvor (donate + tezkar)
 
 | Fält | Värde |
 |---|---|
-| **Ändamål** | Ta emot gåvor via Swish |
-| **Kategorier av personuppgifter** | Inga — Swish-betalningen hanteras av Swish/banken, inte av vår plattform |
-| **Rättslig grund** | Ej tillämpligt — vi lagrar inga betalningsuppgifter |
-| **System** | frontend/member-portal/donate.html (GREEN) |
+| **Ändamål** | Ta emot gåvor och offergåvor (inkl. tezkar/minnesbön) via Swish |
+| **Kategorier av personuppgifter** | Inga lagras. Swish-betalningen hanteras av Swish/banken, inte av vår plattform. För tezkar kan givaren skriva ett "i minne av"-namn — det går endast med i Swish-meddelandet (giver→församling), passerar aldrig vår plattform och lagras inte. |
+| **Tredjelands-/tredjepartsöverföring** | Nej. Swish-QR:en på desktop genereras **klient-sida** (self-hostad encoder) — belopp och meddelande når aldrig något externt QR-API. |
+| **Rättslig grund** | Ej tillämpligt — vi lagrar inga betalnings- eller minnesuppgifter |
+| **System** | frontend/member-portal: donate + tezkar (GREEN) |
 
 ## Underbiträden (databehandlare)
 
