@@ -101,8 +101,12 @@ breadcrumb: "Minnesbon"
           swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, message());
           qrWrap.style.display = 'none';
         } else {
-          // desktop: the deep link can't open an app — show a scannable QR
-          swishBtn.style.display = 'none';
+          // desktop: the deep link can't open an app. Keep the button as the
+          // amount label (non-clickable) and show a scannable QR below it.
+          swishBtn.style.display = '';
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
+          swishBtn.href = '#';
+          swishBtn.onclick = function (e) { e.preventDefault(); };
           if (window.renderSwishQr) {
             renderSwishQr(SWISH_NUMBER, selectedAmount, message(), document.getElementById('swish-qr'));
             qrWrap.style.display = 'block';
