@@ -61,18 +61,28 @@ breadcrumb: "Minnesbon"
         <span class="am" style="display:none">Swish — አሁን ይክፈሉ</span>
       </a>
 
+      <div id="swish-qr-wrap" style="display:none;margin-top:14px;text-align:center">
+        <div id="swish-qr" style="display:inline-block;background:#fff;padding:10px;border-radius:12px"></div>
+        <p class="muted" style="font-size:13px;margin-top:8px">
+          <span class="sv">På dator: skanna QR-koden med Swish-appen.</span>
+          <span class="am" style="display:none">በኮምፒውተር ላይ፦ QR ኮዱን በSwish መተግበሪያ ይቃኙ።</span>
+        </p>
+      </div>
+
       <p class="muted" style="font-size:13px;margin-top:10px">
         <span class="sv">Betalningen går till församlingens Swish. Namnet följer med i Swish-meddelandet så församlingen vet vilken minnesbön gåvan gäller.</span>
         <span class="am" style="display:none">ክፍያው ወደ ቤተ ክርስቲያኑ Swish ይሄዳል። ስሙ በSwish መልእክት ውስጥ ይላካል።</span>
       </p>
     </div>
 
+<script src="/qrcodegen.js"></script>
 <script>
   (function () {
     var SWISH_NUMBER = '';
     var nameInput = document.getElementById('tezkar-name');
     var customInput = document.getElementById('custom-amount');
     var swishBtn = document.getElementById('swish-btn');
+    var qrWrap = document.getElementById('swish-qr-wrap');
     var buttons = document.querySelectorAll('#amount-grid .amount-btn');
     var selectedAmount = 200;
 
@@ -84,20 +94,23 @@ breadcrumb: "Minnesbon"
 
     function updateSwishLink() {
       if (selectedAmount > 0 && SWISH_NUMBER) {
-        swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
         if (isMobile()) {
+          // phone: open the Swish app directly via the deep link
+          swishBtn.style.display = '';
+          swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
           swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, message());
-          swishBtn.onclick = null;
+          qrWrap.style.display = 'none';
         } else {
-          swishBtn.href = '#';
-          swishBtn.onclick = function (e) {
-            e.preventDefault();
-            alert('Öppna Swish-appen på din telefon och swisha ' + selectedAmount +
-                  ' kr till ' + SWISH_NUMBER + '\nMeddelande: ' + message());
-          };
+          // desktop: the deep link can't open an app — show a scannable QR
+          swishBtn.style.display = 'none';
+          if (window.renderSwishQr) {
+            renderSwishQr(SWISH_NUMBER, selectedAmount, message(), document.getElementById('swish-qr'));
+            qrWrap.style.display = 'block';
+          }
         }
       } else {
         swishBtn.href = '#';
+        qrWrap.style.display = 'none';
       }
     }
 
