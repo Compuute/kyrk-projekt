@@ -732,3 +732,39 @@ scope i v1.
 **When to revisit:**
 När rörliga högtider (Fasika/stora fastan) ska in — då behövs Bahire
 Hasab-computus med egen golden-testsvit mot EOTC:s publicerade kalendrar.
+
+## ADR-023: Dokumentation och felsökning som räcke, inte god vilja
+
+**Date:** 2026-06-13
+**Status:** accepted
+
+**Context:**
+Funktioner kunde mergas helt utan dokumentation — det fanns konventioner
+(ADR:er, CONTRIBUTING-checklista) men inget som kontrollerade dem. Det var en
+av orsakerna till att kalendern kunde "försvinna" obemärkt. Samtidigt växer
+teamet mot agentiska supportflöden (ADR om Agent Operating Model) som behöver
+maskinläsbara felsökningssteg, inte prosa, för att lösa ops-tasks säkert.
+
+**Decision:**
+1. **Docs-freshness-check i CI** (advisory) — en PR som rör funktions-/tjänstekod
+   (`frontend/member-portal/src|app|calendar`, `services/`) utan att röra någon
+   `docs/`, `ops/runbooks/` eller `.md` får en GitHub-warning + step-summary.
+   Advisory, inte blockerande, för att inte stoppa rena refaktorer — men synlig
+   i varje PR (deterministiskt räcke i linje med Agent Operating Model).
+2. **PR-mall** med explicit doc-val: ADR / feature-doc / runbook / motiverat
+   undantag. Tvingar ett aktivt beslut.
+3. **Funktionsrunbooks** (`ops/runbooks/*.yaml`) i samma maskinläsbara format
+   som drift-/incident-runbooksen, så supportagenter kan felsöka funktioner
+   (inte bara infra). Första: `ops/runbooks/calendar.yaml`.
+
+**Consequence:**
+- Varje framtida funktion möter en synlig fråga "var dokumenteras detta?".
+- Supportagenter får exakta steg per funktion, inkl. att skilja missläsning
+  från äkta bugg (t.ex. "Sene 6 ≠ 6 juni") och att klassa högtidsdata som
+  innehåll → församlingsgranskning, inte kodbugg.
+- Advisory-valet kan skärpas till blockerande check vid betalversion, samma
+  spår som övriga härdningsbeslut.
+
+**When to revisit:**
+Om warnings ignoreras systematiskt → gör checken blockerande. När fler
+funktioner finns → en runbook per större funktionsområde.

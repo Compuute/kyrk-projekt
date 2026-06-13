@@ -514,12 +514,20 @@
     renderCalendar(root, { year: e.year, month: e.month });
   }
 
+  // Kort gregorianskt datum, t.ex. "13 juni 2026". Förankrar det etiopiska
+  // datumet så "Sene 6" inte missläses som "6 juni".
+  function formatGregorianShort(date) {
+    var SV_FULL = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+    return date.getUTCDate() + ' ' + SV_FULL[date.getUTCMonth()] + ' ' + date.getUTCFullYear();
+  }
+
   function initEthDate() {
     var el = document.getElementById('eth-date');
     if (!el) return;
     var lang = currentLang();
     var now = localCivilDate();
-    el.textContent = formatEthiopianDate(now, 'am') + (lang === 'am' ? '' : ' · ' + formatEthiopianDate(now, 'sv'));
+    // Visa ALLTID båda kalendrarna så datumet är entydigt: etiopiskt · gregorianskt.
+    el.textContent = formatEthiopianDate(now, lang) + ' · ' + formatGregorianShort(now);
   }
 
   var api = {
@@ -532,6 +540,7 @@
     isEthLeap: isEthLeap,
     daysInEthMonth: daysInEthMonth,
     formatEthiopianDate: formatEthiopianDate,
+    formatGregorianShort: formatGregorianShort,
     computeEaster: computeEaster,
     swedishRedDays: swedishRedDays,
     holidaysForEthMonth: holidaysForEthMonth,

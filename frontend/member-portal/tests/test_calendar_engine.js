@@ -234,5 +234,15 @@ check('upcomingHolidays: 2026-06-12 → Sene Mikael om 7 dagar, midsommar med', 
   u.forEach(function (h) { assert.ok(h.desc && h.desc.sv, 'desc saknas i kommande: ' + h.name.sv); });
 });
 
+check('formatGregorianShort: entydigt svenskt datum (anti-missläsning)', function () {
+  assert.strictEqual(cal.formatGregorianShort(new Date(Date.UTC(2026, 5, 13))), '13 juni 2026');
+  assert.strictEqual(cal.formatGregorianShort(new Date(Date.UTC(2026, 0, 1))), '1 januari 2026');
+  // church-bar visar etiopiskt OCH gregorianskt: Sene 6 ska aldrig stå ensamt
+  var d = new Date(Date.UTC(2026, 5, 13));
+  var eth = cal.formatEthiopianDate(d, 'sv');
+  var combined = eth + ' · ' + cal.formatGregorianShort(d);
+  assert.ok(/Sene 6/.test(combined) && /13 juni 2026/.test(combined), 'båda kalendrarna ska visas tillsammans');
+});
+
 console.log(failures === 0 ? '\nAlla kalendertester gröna.' : '\n' + failures + ' test FAILADE.');
 process.exit(failures === 0 ? 0 : 1);
