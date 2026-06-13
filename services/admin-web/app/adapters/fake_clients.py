@@ -18,6 +18,7 @@ from app.ports.clients import (
     ActivityAggregate,
     ApprovalResult,
     DismissDonationResult,
+    CertificateSummary,
     IssueCertificateRequest,
     IssuedCertificate,
     MonthlyReport,
@@ -135,12 +136,26 @@ class FakeCertificateClient:
         self.rendered: bytes = b"<html>certificate</html>"
         self.downloaded: list[str] = []
         self.download_error: ClientError | None = None
+        self.list_error: ClientError | None = None
 
     def download(self, token: str, certificate_id: str) -> bytes:  # noqa: ARG002
         if self.download_error is not None:
             raise self.download_error
         self.downloaded.append(certificate_id)
         return self.rendered
+
+    def list(self, token: str) -> list[CertificateSummary]:  # noqa: ARG002
+        if self.list_error is not None:
+            raise self.list_error
+        return [
+            CertificateSummary(
+                certificate_id=c.certificate_id,
+                certificate_type=c.certificate_type,
+                issued_date=c.issued_date,
+                status=c.status,
+            )
+            for c in self.issued
+        ]
 
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate:  # noqa: ARG002
         if self.issue_error is not None:

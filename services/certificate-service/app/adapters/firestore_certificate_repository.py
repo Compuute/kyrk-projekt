@@ -73,3 +73,7 @@ class FirestoreCertificateRepository:
 
     def update(self, certificate: Certificate) -> None:
         self._coll().document(certificate.certificate_id).set(_cert_to_doc(certificate))
+
+    def list_by_church(self, church_id: str) -> list[Certificate]:
+        query = self._coll().where("church_id", "==", church_id)
+        return [_doc_to_cert(doc.to_dict()) for doc in query.stream()]

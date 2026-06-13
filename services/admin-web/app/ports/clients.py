@@ -90,11 +90,23 @@ class IssuedCertificate:
     verification_url: str
 
 
+@dataclass(frozen=True)
+class CertificateSummary:
+    certificate_id: str
+    certificate_type: str
+    issued_date: str
+    status: str
+
+
 class CertificateClientPort(Protocol):
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate: ...
 
     def download(self, token: str, certificate_id: str) -> bytes:
         """Fetch the rendered certificate document (HTML bytes)."""
+        ...
+
+    def list(self, token: str) -> list[CertificateSummary]:
+        """List certificates for the caller's own church (server-scoped)."""
         ...
 
 

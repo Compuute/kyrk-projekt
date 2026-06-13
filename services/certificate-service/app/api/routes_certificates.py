@@ -82,6 +82,19 @@ def issue_certificate(
     return _to_response(cert)
 
 
+@router.get("", response_model=list[CertificateResponse])
+def list_certificates(
+    actor: Actor = Depends(current_actor),
+    svc: CertificateService = Depends(get_service),
+) -> list[CertificateResponse]:
+    """List certificates for the caller's own church only."""
+    try:
+        certs = svc.list_for_church(actor)
+    except NotAuthorized as exc:
+        raise _translate(exc) from exc
+    return [_to_response(c) for c in certs]
+
+
 @router.post("/{certificate_id}/revoke", response_model=CertificateResponse)
 def revoke_certificate(
     certificate_id: str,

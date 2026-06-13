@@ -377,6 +377,35 @@ def certificate_form(
     )
 
 
+@router.get("/certificates", response_class=HTMLResponse)
+def certificates_list(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    certs: CertificateClientPort = Depends(get_certificate_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    error_message = None
+    try:
+        rows = certs.list(session.token)
+    except ClientError as exc:
+        rows = []
+        error_message = f"Kunde inte hämta certifikat: {exc}"
+    return TEMPLATES.TemplateResponse(
+        request=request,
+        name="certificates_list.html",
+        context={
+            "session": session,
+            "certificates": rows,
+            "error_message": error_message,
+            "flash": flash,
+            "level": level,
+        },
+    )
+
+
 @router.get("/certificates/{certificate_id}/download")
 def download_certificate(
     request: Request,

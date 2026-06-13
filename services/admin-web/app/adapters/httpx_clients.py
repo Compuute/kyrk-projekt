@@ -10,6 +10,7 @@ from app.ports.clients import (
     ActivityAggregate,
     ApprovalResult,
     DismissDonationResult,
+    CertificateSummary,
     IssueCertificateRequest,
     IssuedCertificate,
     MonthlyReport,
@@ -177,6 +178,30 @@ class HttpxCertificateClient:
         if r.status_code != 200:
             raise ClientError(r.text, status_code=r.status_code)
         return r.content
+
+    def list(self, token: str) -> list[CertificateSummary]:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.get(
+                f"{self._base_url}/certificates",
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        return [
+            CertificateSummary(
+                certificate_id=row["certificate_id"],
+                certificate_type=row["certificate_type"],
+                issued_date=row["issued_date"],
+                status=row["status"],
+            )
+            for row in r.json()
+        ]
 
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate:
         import httpx
