@@ -9,6 +9,15 @@ trigger:
   - calendar page renders empty or errors
   - request to add/correct a holiday
 
+# --- Top-level procedure (detailed per-problem steps under `problems`) -------
+steps:
+  - "Identifiera symptomet och slå upp matchande post under `problems` nedan."
+  - "Vid fel datum: korsvalidera mot ICU (facit) innan något ändras — oftast en missläsning av etiopisk månad, inte en bugg."
+  - "Klassificera: kodbugg vs innehåll. Saknad/felaktig högtid är INNEHÅLL och kräver församlingens granskning, inte en kodfix."
+  - "Kör node frontend/member-portal/tests/test_calendar_engine.js efter varje ändring (måste vara grön)."
+  - "Lägg aldrig in rörliga högtider med hårdkodade datum — se forbidden_actions och issue #93."
+  - "Eskalera amhariska/teologiska formuleringar till församlingens innehållsgranskare."
+
 # --- What the calendar is ---------------------------------------------------
 overview:
   what: >
