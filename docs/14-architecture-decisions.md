@@ -558,7 +558,7 @@ Ingen **RED-zon / skarp persondata** (riktiga medlemmar, personnummer, namn, e-p
 - Under uppbyggnadsfasen är dataresidensen **US, inte EU/CH**. ADR-016:s suveränitetsmål är därmed **inte uppfyllt i nuläget** och får inte påstås vara det i någon dokumentation (RULE 2 — dokument och verklighet ska säga samma sak). Berörda docs (`06-auth-strategy.md`, ADR-016, backlog-issuen) bär nu denna caveat.
 - Eftersom endast test-/syntetisk data används medför US-residensen i denna fas **ingen behandling av riktiga personuppgifter** — GDPR-/FISA-risken materialiseras först om grinden ovan bryts.
 - **Migrationsväg vid EU-flytt** (ren adapter-/config-ändring, ingen kodändring tack vare `AuthPort`/`SessionPort`): skapa ny instans i EU/CH-region → ny `ZITADEL_ISSUER_URL` + nytt client-id/secret → uppdatera `deploy.yml` och Secret Manager (`zitadel-client-secret`) → återskapa organizations/projekt/roller → verifiera mot full testsvit.
-- Separat men relaterat: `JWTSessionAdapter` hämtar i nuläget JWKS med TLS-certverifiering avstängd (`ssl.CERT_NONE`) — ska åtgärdas före *varje* deploy, oberoende av region (egen issue/PR).
+- Separat men relaterat (**åtgärdat**): `JWTSessionAdapter` och `ZitadelAuthAdapter` hämtar JWKS via `PyJWKClient` med systemets trust store — TLS-certifikat verifieras. Den tidigare avstängda verifieringen är borttagen ur koden.
 
 **When to revisit:**
 Vid den punkt där grinden ovan triggar (all funktion verifierad och redo för produktion, eller innan skarp data). Då: utför EU-region-migrationen, uppdatera ADR-016:s status till uppfylld och sätt denna ADR-017 till **superseded/closed**.

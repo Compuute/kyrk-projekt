@@ -25,7 +25,7 @@ make test      # 350+ tests across all services + frontends
 | **Frontend (admin)** | FastAPI + Jinja2 (server-rendered) | Ingen build-pipeline, ingen npm |
 | **Database** | Firestore (EU, CMEK) | Schemaless, EU multi-region, customer-managed encryption |
 | **Encryption** | Cloud KMS | Field-level encryption av personnummer |
-| **Auth** | PropelAuth (RBAC) | Multi-tenant, free tier, no custom auth code |
+| **Auth** | Zitadel Cloud (OIDC/RBAC) | Multi-tenant per församling; standard OIDC, no custom auth code |
 | **AI** | Claude (Anthropic API) via OpenClaw | Bidragsansökningar, översättning sv↔am, KPI-analys |
 | **Automation** | FastAPI BackgroundTasks | Asynkrona bakgrundsjobb, webhook-notifieringar |
 | **CDN/WAF** | Cloudflare (free tier) | DDoS, WAF, global edge, auto-SSL |
@@ -137,7 +137,7 @@ alla med back-link till index.html, alla cachade av service worker.
 ```
 Layer 1:  Cloudflare DDoS + WAF + bot detection         [EDGE]
 Layer 2:  Cloud Run --no-allow-unauthenticated           [NETWORK]
-Layer 3:  PropelAuth RBAC middleware                      [APPLICATION]
+Layer 3:  Zitadel RBAC middleware                         [APPLICATION]
 Layer 4:  Pydantic input validation                      [APPLICATION]
 Layer 5:  pii_guard recursive PII rejection (422)        [DATA]
 Layer 6:  Firestore collection + doc-id scoping          [DATA]
@@ -192,7 +192,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`03-mvp-scope.md`](docs/03-mvp-scope.md) | Scope (in/out) |
 | [`04-ai-boundaries.md`](docs/04-ai-boundaries.md) | Vad AI får/inte får se |
 | [`05-security-principles.md`](docs/05-security-principles.md) | Säkerhetsregler |
-| [`06-auth-strategy.md`](docs/06-auth-strategy.md) | PropelAuth + BankID roadmap |
+| [`06-auth-strategy.md`](docs/06-auth-strategy.md) | Zitadel (OIDC) + BankID roadmap |
 | [`07-openclaw-production-flow.md`](docs/07-openclaw-production-flow.md) | Pipeline → sanitizer → Anthropic → review |
 | [`10-getting-started.md`](docs/10-getting-started.md) | **15 min onboarding** |
 | [`11-development-guide.md`](docs/11-development-guide.md) | **Adapter-mönster, TDD, lägga till features** |

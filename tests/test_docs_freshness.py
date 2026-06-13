@@ -94,3 +94,69 @@ class TestDocIndexComplete:
                 assert md.name in README, (
                     f"'{md.name}' exists in docs/ but is not in README index"
                 )
+
+
+class TestDocCodeDriftTripwires:
+    """Tie authoritative doc claims to code facts.
+
+    Structural freshness (above) catches "file missing / not mentioned". It is
+    blind to prose that contradicts reality — the drift we actually hit: a stale
+    auth vendor, a security issue described as open after the code fixed it, and
+    a privacy claim contradicted by newly added code. Each test below anchors a
+    doc statement to something true in the code, so the prose rots loudly.
+    """
+
+    def _auth_adapter_names(self):
+        return {p.name for p in (ROOT / "services").glob("*/app/adapters/*.py")}
+
+    def test_auth_vendor_in_authoritative_docs_matches_code(self):
+        names = self._auth_adapter_names()
+        assert "zitadel_auth.py" in names, "expected a Zitadel auth adapter in code"
+        assert "propelauth_auth.py" not in names, (
+            "PropelAuth adapter is gone from code — authoritative docs must not "
+            "present PropelAuth as the current auth vendor"
+        )
+        sovereignty = (DOCS_DIR / "02-sovereignty.md").read_text(encoding="utf-8")
+        assert "Zitadel" in sovereignty, (
+            "sovereignty vendor list must name the real auth vendor (Zitadel)"
+        )
+        for line in README.splitlines():
+            if line.startswith("| **Auth**"):
+                assert "Zitadel" in line, (
+                    "README stack 'Auth' row must say Zitadel, not a removed vendor"
+                )
+                break
+        else:
+            pytest.fail("README stack table has no '| **Auth**' row to check")
+
+    def test_no_doc_claims_tls_disabled_when_code_verifies_it(self):
+        auth_src = "".join(
+            p.read_text(encoding="utf-8")
+            for p in (ROOT / "services").glob("*/app/adapters/*.py")
+        )
+        if "CERT_NONE" in auth_src or "_create_unverified" in auth_src:
+            pytest.skip("code still disables TLS verification; the doc claim is valid")
+        offenders = [
+            md.name for md in DOCS_DIR.rglob("*.md")
+            if "TLS-certverifiering avstängd" in md.read_text(encoding="utf-8")
+            or "CERT_NONE" in md.read_text(encoding="utf-8")
+        ]
+        assert not offenders, (
+            f"code verifies TLS, but these docs still describe it as disabled: {offenders}"
+        )
+
+    def test_privacy_policy_matches_metrics_code(self):
+        app_ts = (ROOT / "frontend" / "member-portal" / "app.ts").read_text(encoding="utf-8")
+        if "trackEvent" not in app_ts:
+            pytest.skip("no metrics in code; nothing to disclose")
+        privacy = (
+            ROOT / "frontend" / "member-portal" / "src" / "pages" / "privacy.njk"
+        ).read_text(encoding="utf-8")
+        assert "inga analysverktyg" not in privacy, (
+            "app.ts ships anonymous aggregate metrics — the privacy policy must not "
+            "claim 'inga analysverktyg'"
+        )
+        low = privacy.lower()
+        assert "anonym" in low or "aggregat" in low or "aggregerad" in low, (
+            "privacy policy must disclose the anonymous aggregate measurement"
+        )

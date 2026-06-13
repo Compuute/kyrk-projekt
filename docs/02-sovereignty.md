@@ -18,8 +18,15 @@ operational control. No third-country data flows. No hidden dependencies.
 |---|---|---|
 | Google Cloud | Hosting | EU regions only; DPA signed |
 | Anthropic API | LLM calls (via n8n) | Aggregated data only; no PII; zero-retention where possible |
-| PropelAuth | RBAC / sessions | EU data region where supported; no PII beyond email in PropelAuth |
+| Zitadel Cloud | RBAC / sessions (OIDC) | EU/CH region where supported; no PII beyond email. ⚠️ Currently on the US region (free tier) with synthetic data only — migrates to EU/CH before production (see ADR-017). |
 | Fortnox | Accounting integration | Aggregates only; no member linkage |
+
+> ⚠️ **Current-state deviation:** the authentication service (Zitadel) runs
+> temporarily on the US region during the build-out phase, with test/synthetic
+> data only. This is a deliberate, time-boxed deviation — see ADR-017. No real
+> personal data enters the US instance, and it is migrated to an EU/CH region
+> before production. The data plane (Firestore, GCS, BigQuery) stays in
+> `europe-north1` as stated above.
 
 ## Risk rules
 
