@@ -199,7 +199,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`11-development-guide.md`](docs/11-development-guide.md) | **Adapter-mönster, TDD, lägga till features** |
 | [`12-operations.md`](docs/12-operations.md) | **Deploy, rollback, monitoring** |
 | [`13-runbook.md`](docs/13-runbook.md) | 5 incident-playbooks |
-| [`14-architecture-decisions.md`](docs/14-architecture-decisions.md) | **12 ADRs** |
+| [`14-architecture-decisions.md`](docs/14-architecture-decisions.md) | **24 ADRs** |
 | [`15-ab-testing-strategy.md`](docs/15-ab-testing-strategy.md) | Phase 3 |
 | [`16-defense-in-depth.md`](docs/16-defense-in-depth.md) | **Service merge/split policy** |
 | [`17-audit-readiness.md`](docs/17-audit-readiness.md) | **Granskningsberedskap (IMY/SST/kommun)** |

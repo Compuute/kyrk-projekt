@@ -768,3 +768,60 @@ maskinläsbara felsökningssteg, inte prosa, för att lösa ops-tasks säkert.
 **When to revisit:**
 Om warnings ignoreras systematiskt → gör checken blockerande. När fler
 funktioner finns → en runbook per större funktionsområde.
+
+---
+
+## ADR-024: Publika sajtens backend-bindning — dev-som-MVP, prod-cutover vid go-live
+
+**Date:** 2026-06-12
+**Status:** accepted
+
+**Context:**
+Deploy-maskineriet är redan beslutat: backend deployas dev-först-sedan-prod
+med approval-gate (`deploy.yml`, miljö via `inputs.environment`), och
+Firestore-platspolicyn skiljer miljöerna (ADR-019). Men *vilken* backend den
+publika sajten faktiskt anropar var aldrig ett medvetet beslut — det följde
+av en hårdkodning. Verifierat 2026-06-12:
+
+- `donate.njk`/`intake.njk` har dev-projektets Cloud Run-URL inbakad
+  (`membership-intake-479770870521…`). Prod-projektnumret (`481734975638`)
+  finns inte i någon konfig.
+- Prod får deployer (13 st via GitHub-deployments) men prod-tjänsterna
+  svarar 403 (ingen publik åtkomst) och dagens secrets (Brevo,
+  org-mappning, KV-seed) sattes via dev-deployen.
+- Slutsats: **dev är i praktiken produktion.** Riktiga besökare på
+  kyrka-portal.pages.dev träffar dev-backenden.
+
+Kostnad är inte ett argument åt något håll — Cloud Run skalar till noll, så
+en oanvänd prod-miljö kostar nära inget. Beslutet står på risk och
+trovärdighet.
+
+**Decision:**
+1. **Under MVP (2 testförsamlingar, före styrelsegodkännande): dev är den
+   publika backenden, medvetet.** Att riva OIDC/secret-plumbingen till prod
+   nu — samma redirect-URI/secret-arbete som dev krävde, gånger två — köper
+   inget när enda användarna är teamet självt.
+2. **Prod-cutover är en grind före kyrka #3**, paketerad med
+   styrelsemötet som ändå beslutar domän + Swish Handel. Vid skala och
+   riktiga gåvor/personnummer blir dev-som-prod ohållbart — både för att
+   det saknas en säker testmiljö och för att "dev" framför pengar/PII
+   underminerar spårbarhets-pitchen.
+3. **De-hårdkoda backend-URL:en nu, oavsett cutover-timing.** Flytta den ur
+   `.njk`-sidorna till en custom-domän (`api.<domän>`, peka per miljö i
+   Cloudflare DNS) eller injicerad konfig. Då blir "byt dev→prod" en
+   konfigändring, inte en kodändring — och det är samma domänarbete
+   styrelsemötet auktoriserar. Detta är det enda som driftar åt fel håll
+   medan vi väntar (varje ny secret sätts bara i dev), så vägen till prod
+   ska vara skriptad, inte manuellt återupptäckt.
+
+**Consequence:**
+- Tills cutovern: behandla dev som produktion i drift (rollback, övervakning,
+  incidenthantering gäller dev-miljön för publika flöden).
+- Cutover-checklistan (öppna prod-endpoints, prod-secrets via ägare-lokal
+  apply enligt ADR-019, custom-domän, peka frontend) spåras som issue med DoD.
+- Prod-deployerna fortsätter (de håller prod-imagen färsk och testar
+  pipelinen) men prod är inte live-trafikmål förrän grinden passeras.
+
+**When to revisit:**
+Vid styrelsegodkännandet / före onboarding av kyrka #3 — då genomförs
+cutovern och denna ADR uppdateras till att prod är den publika backenden.
