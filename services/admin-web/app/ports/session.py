@@ -19,6 +19,14 @@ class SessionInfo:
     user_id: str
     church_id: str
     role: str
+    # Human-readable name for greetings. Falls back to user_id when the
+    # token carries no name claim, so the UI never shows worse than today.
+    display_name: str = ""
+
+    @property
+    def display(self) -> str:
+        """Name to show in the UI — name claim if present, else the id."""
+        return self.display_name or self.user_id
 
 
 class SessionPort(Protocol):

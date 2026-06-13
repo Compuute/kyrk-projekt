@@ -2,7 +2,7 @@
 {% block title %}Dashboard — kyrk-projekt admin{% endblock %}
 {% block content %}
 <section class="hero">
-  <h1>Hej {{ session.user_id }}</h1>
+  <h1>Hej {{ session.display }}</h1>
   <p class="muted">Roll: <strong>{{ session.role }}</strong> · Kyrka: <strong>{{ session.church_id }}</strong></p>
 </section>
 

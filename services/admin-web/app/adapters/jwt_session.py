@@ -102,11 +102,22 @@ class JWTSessionAdapter:
         if not user_id or not church_id or not assigned_role:
             return None
 
+        # Human-readable name from standard OIDC profile claims (the login
+        # scope requests `profile email`). Fall back through the chain to the
+        # raw sub so the greeting degrades gracefully, never worse than today.
+        display_name = (
+            payload.get("name")
+            or payload.get("preferred_username")
+            or payload.get("email")
+            or user_id
+        )
+
         return SessionInfo(
             token=cookie_value,
             user_id=user_id,
             church_id=church_id,
             role=assigned_role,
+            display_name=display_name,
         )
 
     def exchange_code(self, code: str) -> str:
