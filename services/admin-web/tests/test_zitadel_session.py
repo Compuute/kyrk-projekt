@@ -58,6 +58,42 @@ def test_validate_valid_cookie(mock_decode, mock_jwk_client_cls):
     assert session.user_id == "u-admin"
     assert session.church_id == "c-1"
     assert session.role == "admin"
+    # No name claim in this token → display falls back to the sub.
+    assert session.display == "u-admin"
+
+
+@patch("jwt.PyJWKClient")
+@patch("jwt.decode")
+def test_validate_extracts_display_name(mock_decode, mock_jwk_client_cls):
+    """The greeting must show the human name, not the raw Zitadel sub."""
+    mock_jwk_client = MagicMock()
+    mock_jwk_client_cls.return_value = mock_jwk_client
+    mock_signing_key = MagicMock()
+    mock_signing_key.key = "public_key"
+    mock_jwk_client.get_signing_key_from_jwt.return_value = mock_signing_key
+
+    base = {
+        "sub": "376713621675772982",
+        "urn:zitadel:iam:org:id": "c-1",
+        "urn:zitadel:iam:org:project:roles": {"admin": {"proj-1": ["c-1"]}},
+    }
+    adapter = JWTSessionAdapter("https://auth.example", "client")
+
+    # 1. `name` claim wins
+    mock_decode.return_value = {**base, "name": "Daniel Abbay", "email": "d@x.se"}
+    assert adapter.validate("c").display == "Daniel Abbay"
+
+    # 2. falls back to preferred_username
+    mock_decode.return_value = {**base, "preferred_username": "daniel", "email": "d@x.se"}
+    assert adapter.validate("c").display == "daniel"
+
+    # 3. then email
+    mock_decode.return_value = {**base, "email": "d@x.se"}
+    assert adapter.validate("c").display == "d@x.se"
+
+    # 4. finally the sub — never the raw id when a name exists, but graceful
+    mock_decode.return_value = base
+    assert adapter.validate("c").display == "376713621675772982"
 
 
 @patch("jwt.PyJWKClient")

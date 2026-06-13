@@ -10,9 +10,9 @@ architecture review that touches service boundaries or IAM.
 > Multiple independent barriers, each sufficient alone, so that
 > breaching one does not compromise the asset.
 
-"Independent" is the key word. Two instances of the same PropelAuth
+"Independent" is the key word. Two instances of the same Zitadel
 middleware are not independent — they fail from the same cause (a
-PropelAuth bug). A PropelAuth check + a Cloud Run
+Zitadel bug). A Zitadel check + a Cloud Run
 `--no-allow-unauthenticated` gate ARE independent — they use
 different code, different infrastructure, different credentials.
 
@@ -57,7 +57,7 @@ data access still passes through at least **five independent barriers**:
 ```
 Layer 1: Cloud Run --no-allow-unauthenticated        [NETWORK]
   ↓ only authenticated requests reach the container
-Layer 2: PropelAuth RBAC middleware                    [APPLICATION]
+Layer 2: Zitadel RBAC middleware                       [APPLICATION]
   ↓ only users with the right role proceed
 Layer 3: Pydantic input validation                     [APPLICATION]
   ↓ only well-formed payloads are accepted
@@ -120,7 +120,7 @@ the attack surface without adding security.
 The two services handled data in the same zone (YELLOW), at the same
 trust level (both authenticated, both aggregate), with the same Cloud
 Run config (`--no-allow-unauthenticated`), the same auth middleware
-(PropelAuth), and the same Pydantic validation pattern.
+(Zitadel), and the same Pydantic validation pattern.
 
 The only IAM difference was that reporting had `bigquery.dataEditor`
 and activity did not. This prevented a theoretical attack path:
@@ -140,7 +140,7 @@ imports).
 - 350+ lines of infrastructure boilerplate
 - 1 extra deploy job, SA, IAM binding, healthz monitor
 - HTTP hop in admin-web's KPI dashboard
-- Duplicated PropelAuth + FakeAuth adapters
+- Duplicated Zitadel + FakeAuth adapters
 - 30% infra-overhead ratio in the smallest service
 
 **Decision:** merge. The five remaining independent layers provide

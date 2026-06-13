@@ -31,7 +31,12 @@ en audit-post i Firestore-kollektionen `audit_events`.
 |---|---|
 | `ADAPTER_MODE` | `production` i molnet, `memory` lokalt/test |
 | `REPORTING_SERVICE_URL` | Bas-URL till reporting-service |
-| `AGENT_REPORTING_TOKEN` | Zitadel-maskinanvändartoken; dess org-claim avgör vilken kyrka rapporterna genereras för |
+| `ZITADEL_ISSUER_URL` | Issuer; token-endpoint blir `<issuer>/oauth/v2/token` |
+| `AGENT_CLIENT_ID` / `AGENT_CLIENT_SECRET` | Maskinanvändarens client credentials — workern hämtar färsk token per körning (statiska tokens hade löpt ut långt före månadsschemat) |
+| `AGENT_TOKEN_SCOPE` | Valfri. Default `openid urn:zitadel:iam:org:projects:roles`. Justera om reporting-service:s audience-kontroll kräver projekt-aud-scope (`urn:zitadel:iam:org:project:id:<id>:aud`) — verifieras vid första riktiga körningen |
+
+Maskinanvändarens org avgör vilken kyrka rapporterna genereras för:
+en maskinanvändare = ett kyrkscope.
 
 ## Tester
 

@@ -523,6 +523,8 @@ body[data-lang="am"] {
   width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px;
   background: transparent; color: var(--fg); font-size: 18px; text-align: center; margin: 10px 0;
 }
+#tezkar-name { font-size: 16px; text-align: left; }
+.tezkar-label { display: block; font-weight: 600; font-size: 14px; color: var(--fg); }
 
 /* Privacy policy */
 .policy { max-width: 700px; margin: 0 auto; }
@@ -787,3 +789,12 @@ body[data-lang="am"] {
 .ethcal-fast::after { content:"◆"; position:absolute; bottom:3px; right:6px; font-size:9px; color:var(--accent-light); }
 .ethcal-holiday { border-color: var(--accent-light); }
 .ethcal-legend { font-size:12px; margin-top:10px; }
+
+.ethcal-worldtable { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
+.ethcal-worldtable td { padding:5px 8px; border-bottom:1px solid var(--border); }
+.ethcal-worldtable td:last-child { text-align:right; color:var(--fg); }
+
+.ethcal-cell[role=gridcell] { cursor:pointer; }
+#ethcal-detail { margin-top:12px; padding:12px; border:1px solid var(--accent-light); border-radius:8px; background:var(--bg); }
+#ethcal-detail h3 { margin:0 0 8px; font-size:15px; color:var(--fg); }
+#ethcal-now p { margin:4px 0 10px; }

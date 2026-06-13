@@ -15,7 +15,7 @@ place.
 
 - FastAPI + Jinja2 templates
 - Plain HTML forms, no JavaScript frameworks, no CDN scripts
-- Cookie-based session (fake token in MVP; replaced by PropelAuth in production)
+- Cookie-based session (fake token in MVP; replaced by Zitadel in production)
 - HTTP clients are behind a port so tests use fake in-memory clients
 
 ## Why no React / HTMX / framework?
@@ -56,10 +56,10 @@ uvicorn app.main:app --reload --port 8080
 
 - No direct DB access — every action goes through a downstream service.
 - The cookie holds an opaque session token. The FakeAuth adapter treats
-  it as `user_id:church_id:role` for MVP. Production wires in PropelAuth.
+  it as `user_id:church_id:role` for MVP. Production wires in Zitadel.
 - Cookie is `HttpOnly`, `Secure` (in production), `SameSite=Lax`.
 - CSRF is avoided in MVP because the fake login accepts any shape; real
-  PropelAuth login will add a proper anti-CSRF flow.
+  Zitadel login will add a proper anti-CSRF flow.
 
 ## What is explicitly out of scope
 

@@ -8,6 +8,11 @@ name: flag-advisor
 on:
   pull_request:
 
+# Rapid pushes to a PR collapse to the latest; no point re-advising on stale diffs.
+concurrency:
+  group: flag-advisor-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write

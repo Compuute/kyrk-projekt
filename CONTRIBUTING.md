@@ -94,7 +94,7 @@ One logical change per commit. Use imperative mood in the subject line:
 feat(membership-service): add activate endpoint
 fix(reporting-service): reject FirstName in pii_guard
 docs: add runbook for unauthorized RED access
-chore(deps): bump propelauth-fastapi to 4.1
+chore(deps): bump pyjwt to 2.9
 ```
 
 Allowed prefixes: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`,
@@ -117,7 +117,7 @@ The PR template asks you to fill in:
 
 - **Summary** — 1–3 bullets on what changed and why.
 - **Zone(s) touched** — RED / YELLOW / GREEN / Infra / Docs.
-- **Checklist** — TDD, Pydantic models, PropelAuth, audit events,
+- **Checklist** — TDD, Pydantic models, Zitadel, audit events,
   no secrets, docs updated.
 - **How to test** — exact commands a reviewer can run.
 - **Related** — issue, thread, or doc.

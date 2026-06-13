@@ -222,6 +222,30 @@ function buildSwishLink(swishNumber, amount, message) {
   if (!swishNumber || !amount) return "#";
   return 'swish://payment?data={"version":1,"payee":{"value":"' + swishNumber + '"},"amount":{"value":' + amount + '},"message":{"value":"' + (message ?? "Betalning") + '","editable":false}}';
 }
+function renderSwishQr(swishNumber, amount, message, container) {
+  if (!container) return;
+  const make = window.qrcode;
+  if (typeof make !== "function" || !swishNumber || !amount) {
+    container.innerHTML = "";
+    return;
+  }
+  const data = "C" + swishNumber + ";" + amount + ";" + (message || "Betalning") + ";0";
+  try {
+    const qr = make(0, "M");
+    qr.addData(data);
+    qr.make();
+    const img = document.createElement("img");
+    img.src = qr.createDataURL(6, 8);
+    img.alt = "Swish QR-kod \u2014 skanna med Swish-appen / Swish QR";
+    img.width = 168;
+    img.height = 168;
+    img.style.display = "block";
+    container.innerHTML = "";
+    container.appendChild(img);
+  } catch (_e) {
+    container.innerHTML = "";
+  }
+}
 function setupLangPills() {
   const pills = document.querySelectorAll(".lang-pill");
   pills.forEach((pill) => {
@@ -423,6 +447,7 @@ if (typeof window !== "undefined") {
   window.validatePersonnummer = validatePersonnummer;
   window.toggleConsent = toggleConsent;
   window.buildSwishLink = buildSwishLink;
+  window.renderSwishQr = renderSwishQr;
   window.setupLangPills = setupLangPills;
   window.registerServiceWorker = registerServiceWorker;
   window.initChurchSelector = initChurchSelector;

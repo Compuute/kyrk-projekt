@@ -25,15 +25,15 @@ make test      # 350+ tests across all services + frontends
 | **Frontend (admin)** | FastAPI + Jinja2 (server-rendered) | Ingen build-pipeline, ingen npm |
 | **Database** | Firestore (EU, CMEK) | Schemaless, EU multi-region, customer-managed encryption |
 | **Encryption** | Cloud KMS | Field-level encryption av personnummer |
-| **Auth** | PropelAuth (RBAC) | Multi-tenant, free tier, no custom auth code |
+| **Auth** | Zitadel Cloud (RBAC) | Multi-tenant, free tier, no custom auth code |
 | **AI** | Claude (Anthropic API) via OpenClaw | Bidragsansökningar, översättning sv↔am, KPI-analys |
 | **Automation** | FastAPI BackgroundTasks | Asynkrona bakgrundsjobb, webhook-notifieringar |
 | **CDN/WAF** | Cloudflare (free tier) | DDoS, WAF, global edge, auto-SSL |
 | **Infra** | Terraform | Ett `apply` skapar hela GCP-miljön |
-| **CI/CD** | GitHub Actions (4 workflows) | Tests, deploy, e2e healthz, nightly drift check |
+| **CI/CD** | GitHub Actions (10 workflows) | Tests, deploy (Pages-sites + Cloud Run), e2e healthz, frontend E2E, nightly drift, terraform plan/apply, flag-advisor |
 | **Hosting** | GCP Cloud Run (backend) + Cloudflare Pages (frontend) | Scale-to-zero, ~€20/mån |
 | **Notifications** | Telegram Bot API | Gratis, amharic-stöd, bot som admin-gränssnitt |
-| **Donations** | Swish deep link | 0 kr/transaktion, öppnar appen direkt |
+| **Donations** | Swish deep link (mobil) + klient-genererad Swish-QR (desktop) | 0 kr/transaktion, öppnar appen direkt; QR genereras self-hostat i webbläsaren (inget belopp/namn lämnar enheten) |
 | **App** | PWA (Progressive Web App) | Installerbar på Android + iOS utan app store |
 
 ## Funktioner — vad som finns
@@ -44,7 +44,7 @@ make test      # 350+ tests across all services + frontends
 |---|---|---|
 | Startsida | [kyrka-portal.pages.dev](https://kyrka-portal.pages.dev) | Kyrkans info, aktiviteter, meddelanden (sv + am) |
 | Bli medlem | [/intake.html](https://kyrka-portal.pages.dev/intake.html) | Registreringsformulär med GDPR-consent + source-tracking |
-| Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare + bankgiro + org.nr |
+| Ge en gåva | [/donate.html](https://kyrka-portal.pages.dev/donate.html) | Swish med beloppsväljare; deep link på mobil, skannbar QR på desktop |
 | Livestream | [/live.html](https://kyrka-portal.pages.dev/live.html) | YouTube-embed (modulärt per kyrka via content.json) |
 | Integritetspolicy | [/privacy.html](https://kyrka-portal.pages.dev/privacy.html) | GDPR-policy på svenska + amharic |
 | Begravningstjänster | [/funeral.html](https://kyrka-portal.pages.dev/funeral.html) | Paket, priser, hemtransport, Fonus-jämförelse |
@@ -55,7 +55,7 @@ make test      # 350+ tests across all services + frontends
 | Vanliga frågor | [/faq.html](https://kyrka-portal.pages.dev/faq.html) | Vanliga frågor om tro, medlemskap och avgifter |
 | Bibliotek | [/library.html](https://kyrka-portal.pages.dev/library.html) | Digitalt bibliotek med böcker och texter |
 | Support | [/support.html](https://kyrka-portal.pages.dev/support.html) | Teknisk support för medlemmar |
-| Memorial / Tezkar | [/tezkar.html](https://kyrka-portal.pages.dev/tezkar.html) | Information och regler kring Tezkar |
+| Memorial / Tezkar | [/tezkar.html](https://kyrka-portal.pages.dev/tezkar.html) | Info + minnesdagar + offergåva på sidan via Swish ("i minne av"-namn följer med i meddelandet) |
 | Lokaler | [/venue.html](https://kyrka-portal.pages.dev/venue.html) | Hitta till våra lokaler och kyrkor |
 
 Alla sidor: tvåspråkiga (🇸🇪/🇪🇹), PWA-installerbara, offline-stöd, inga spårningskakor (endast två funktionella kakor: språkval och vald församling).
@@ -138,7 +138,7 @@ alla med back-link till index.html, alla cachade av service worker.
 ```
 Layer 1:  Cloudflare DDoS + WAF + bot detection         [EDGE]
 Layer 2:  Cloud Run --no-allow-unauthenticated           [NETWORK]
-Layer 3:  PropelAuth RBAC middleware                      [APPLICATION]
+Layer 3:  Zitadel RBAC middleware                         [APPLICATION]
 Layer 4:  Pydantic input validation                      [APPLICATION]
 Layer 5:  pii_guard recursive PII rejection (422)        [DATA]
 Layer 6:  Firestore collection + doc-id scoping          [DATA]
@@ -193,13 +193,13 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`03-mvp-scope.md`](docs/03-mvp-scope.md) | Scope (in/out) |
 | [`04-ai-boundaries.md`](docs/04-ai-boundaries.md) | Vad AI får/inte får se |
 | [`05-security-principles.md`](docs/05-security-principles.md) | Säkerhetsregler |
-| [`06-auth-strategy.md`](docs/06-auth-strategy.md) | PropelAuth + BankID roadmap |
+| [`06-auth-strategy.md`](docs/06-auth-strategy.md) | Zitadel + BankID roadmap |
 | [`07-openclaw-production-flow.md`](docs/07-openclaw-production-flow.md) | Pipeline → sanitizer → Anthropic → review |
 | [`10-getting-started.md`](docs/10-getting-started.md) | **15 min onboarding** |
 | [`11-development-guide.md`](docs/11-development-guide.md) | **Adapter-mönster, TDD, lägga till features** |
 | [`12-operations.md`](docs/12-operations.md) | **Deploy, rollback, monitoring** |
 | [`13-runbook.md`](docs/13-runbook.md) | 5 incident-playbooks |
-| [`14-architecture-decisions.md`](docs/14-architecture-decisions.md) | **12 ADRs** |
+| [`14-architecture-decisions.md`](docs/14-architecture-decisions.md) | **24 ADRs** |
 | [`15-ab-testing-strategy.md`](docs/15-ab-testing-strategy.md) | Phase 3 |
 | [`16-defense-in-depth.md`](docs/16-defense-in-depth.md) | **Service merge/split policy** |
 | [`17-audit-readiness.md`](docs/17-audit-readiness.md) | **Granskningsberedskap (IMY/SST/kommun)** |
