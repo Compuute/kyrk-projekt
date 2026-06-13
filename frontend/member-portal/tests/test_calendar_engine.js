@@ -164,6 +164,8 @@ check('buildMonthGrid default markerar samma dag som localCivilDate', function (
   var today = g.cells.filter(function (c2) { return c2.isToday; });
   assert.strictEqual(today.length, 1, 'exakt en idag-cell');
   assert.strictEqual(today[0].eth.day, t.day, 'idag-cellen ska vara besökarens lokala dag');
+});
+
 // --- Världskalender-tabellen (data via ICU) -------------------------------
 check('worldCalendarsToday: minst 8 system, rätt år för fast datum', function () {
   var d = new Date(Date.UTC(2026, 5, 12));
