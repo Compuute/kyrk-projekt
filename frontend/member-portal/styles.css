@@ -793,3 +793,8 @@ body[data-lang="am"] {
 .ethcal-worldtable { width:100%; border-collapse:collapse; margin:8px 0; font-size:13px; }
 .ethcal-worldtable td { padding:5px 8px; border-bottom:1px solid var(--border); }
 .ethcal-worldtable td:last-child { text-align:right; color:var(--fg); }
+
+.ethcal-cell[role=gridcell] { cursor:pointer; }
+#ethcal-detail { margin-top:12px; padding:12px; border:1px solid var(--accent-light); border-radius:8px; background:var(--bg); }
+#ethcal-detail h3 { margin:0 0 8px; font-size:15px; color:var(--fg); }
+#ethcal-now p { margin:4px 0 10px; }

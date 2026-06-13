@@ -16,6 +16,7 @@ from app.api.deps import (
     get_certificate_client,
     get_content_store,
     get_funeral_tracker,
+    funeral_tracker_for,
     get_grant_tracker,
     get_intake_client,
     get_notification,
@@ -152,11 +153,15 @@ def dashboard(
     flash: str | None = None,
     level: str = "success",
     intake: IntakeClientPort = Depends(get_intake_client),
-    funerals: FuneralTrackerPort = Depends(get_funeral_tracker),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
         return session
+
+    # Built after the session is validated — NOT as a Depends, since
+    # get_funeral_tracker requires current_session and would 401 before
+    # _require_session can redirect an anonymous visitor to /login.
+    funerals = funeral_tracker_for(session.token)
 
     try:
         pending = intake.list_pending(session.token)

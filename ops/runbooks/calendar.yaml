@@ -1,0 +1,108 @@
+# Calendar Runbook — Machine-readable troubleshooting for AI/support agents
+# Scope: the member-portal Ethiopian calendar (calendar-engine.js).
+# Follows the same format as the other ops/runbooks/*.yaml.
+
+name: calendar
+description: "Felsök och underhåll den etiopiska kalendern på medlemsportalen"
+trigger:
+  - user reports wrong date, missing holiday, or wrong fast
+  - calendar page renders empty or errors
+  - request to add/correct a holiday
+
+# --- Entry point: triage routes the symptom to a problems[] entry below -----
+# Unlike the env-driven runbooks (health-check, rollback), the calendar is
+# pure client-side data+logic, so triage is "verify against ICU, then read the
+# matching problem". The detailed, per-symptom steps live under problems[].
+steps:
+  - id: verify_against_icu
+    action: shell
+    command: "node -e \"console.log(new Intl.DateTimeFormat('sv-u-ca-ethiopic',{day:'numeric',month:'long',year:'numeric'}).format(new Date()))\""
+    note: "ICU (u-ca-ethiopic) is the source of truth. Compare with the engine before changing anything — most 'wrong date' reports are misreadings, not bugs (see problems[].wrong_date_shown)."
+  - id: run_engine_tests
+    action: shell
+    command: "node frontend/member-portal/tests/test_calendar_engine.js"
+    note: "Must be green before and after any change. Cross-validates the engine against ICU over 7800+ dates."
+  - id: follow_matching_problem
+    action: goto
+    note: "Match the report to a problems[] entry by symptom and execute that entry's steps in order. Respect forbidden_actions and verification_after_change."
+
+# --- What the calendar is ---------------------------------------------------
+overview:
+  what: >
+    En etiopisk kalender med ortodoxa högtider, helgondagar, svenska röda
+    dagar och fasteperioder. Visas på /sv/calendar/ och /am/calendar/, plus
+    dagens etiopiska datum i church-bar på alla sidor.
+  decision_record: docs/14-architecture-decisions.md  # ADR-021 (motor), ADR-022 (rörliga = framtid)
+  correctness: >
+    All datumkonvertering korsvalideras i CI mot webbläsarens ICU/Intl
+    (u-ca-ethiopic) över 7800+ datum. Egen aritmetik får aldrig avvika.
+
+source_of_truth:
+  engine: frontend/member-portal/calendar-engine.js  # all logik + högtidsdata
+  page: frontend/member-portal/src/pages/calendar.njk
+  styles: frontend/member-portal/styles.css           # .ethcal-*
+  tests: frontend/member-portal/tests/test_calendar_engine.js
+  passthrough: .eleventy.js                           # kopierar calendar-engine.js till dist/
+  holiday_data:
+    fixed_feasts: "HOLIDAYS.ethiopianFixed (month/day i E.C. + desc sv/am)"
+    monthly_saints: "HOLIDAYS.monthlySaints (day 1-30, återkommer varje månad)"
+    fasts: "HOLIDAYS.fasting (fasta perioder) + weeklyFastNote"
+    swedish_red_days: "swedishRedDays(year) — computus för rörliga"
+
+deploy:
+  how: "Merge till main → Pages git-bygge (make build-js && npx @11ty/eleventy). Se ADR-018."
+  verify_live: "curl -s https://kyrka-portal.pages.dev/calendar-engine.js | grep <symbol>"
+
+# --- Common problems -> exact steps ----------------------------------------
+problems:
+  - id: wrong_date_shown
+    symptom: "Användare säger fel dag, t.ex. 'det står 6 juni men det är 13 juni'"
+    diagnosis: >
+      Oftast INTE en bugg: 'Sene 6' är sjätte dagen i månaden Sene, inte 6 juni.
+      13 juni 2026 = Sene 6, 2018 är korrekt. Verifiera innan du ändrar något.
+    steps:
+      - "Verifiera mot ICU (facit): node -e \"console.log(new Intl.DateTimeFormat('sv-u-ca-ethiopic',{day:'numeric',month:'long',year:'numeric'}).format(new Date()))\""
+      - "Jämför med motorn: node -e \"var c=require('./frontend/member-portal/calendar-engine.js'); console.log(c.toEthiopian(c.localCivilDate()))\""
+      - "Stämmer de → det är en missläsning, inte ett fel. Church-bar visar både etiopiskt och gregorianskt datum just för att undvika detta."
+      - "Avviker de → äkta bugg, kör hela test_calendar_engine.js och felsök toEthiopian/ethToGregorian."
+    real_bug_signature: "ICU och motorn ger olika datum för samma dag"
+
+  - id: today_off_by_one
+    symptom: "Fel dag markerad strax efter midnatt"
+    diagnosis: "'Idag' måste följa besökarens lokala klocka, inte UTC (localCivilDate)."
+    steps:
+      - "Kontrollera att initEthDate/buildMonthGrid/initCalendarPage använder localCivilDate(), inte new Date() rått i UTC"
+
+  - id: missing_or_wrong_holiday
+    symptom: "En högtid saknas, har fel datum, eller fel/saknad beskrivning"
+    classification: "INNEHÅLL — inte en kodbugg. Kräver församlingens/prästens granskning."
+    steps:
+      - "Lokalisera i HOLIDAYS.ethiopianFixed (fast högtid) eller monthlySaints (månatlig)"
+      - "Varje post: { month, day, icon, name:{sv,am}, desc:{sv,am} }. month/day i etiopisk räkning."
+      - "Lägg till/ändra, kör node tests/test_calendar_engine.js (strukturtestet kräver sv+am på allt)"
+      - "Beskrivning saknas i detaljpanelen men finns i datat? Kontrollera att desc bärs genom holidaysForEthMonth OCH buildMonthGrid (känd tidigare regression)."
+    escalate_to: "församlingens innehållsgranskare för amhariska/teologiska formuleringar"
+
+  - id: movable_feast_missing
+    symptom: "Fasika, stora fastan eller andra rörliga högtider saknas"
+    diagnosis: "Avsiktligt utanför scope i v1 — kräver Bahire Hasab-computus."
+    steps:
+      - "Hänvisa till issue #93 (fas 3) och ADR-022 'When to revisit'. Lägg INTE in gissade fasta datum."
+
+  - id: calendar_empty_or_js_error
+    symptom: "Kalendersidan är tom eller konsolen visar fel"
+    steps:
+      - "Verifiera att calendar-engine.js deployats: curl -sI https://kyrka-portal.pages.dev/calendar-engine.js (200?)"
+      - "Kontrollera passthrough-raden i .eleventy.js (calendar-engine.js → dist/)"
+      - "Kontrollera att base.njk laddar <script src=/calendar-engine.js defer>"
+      - "Saknas världskalender-tabellen: ICU i besökarens miljö saknar kalendern → den döljs avsiktligt (degraderar tyst)"
+
+forbidden_actions:
+  - "Ändra datumaritmetik utan att köra korsvalideringstestet mot ICU"
+  - "Lägga in rörliga högtider med hårdkodade datum (de driftar bort)"
+  - "Pusha högtidsdata-ändringar som inte innehållsgranskats av församlingen"
+
+verification_after_change:
+  - "node frontend/member-portal/tests/test_calendar_engine.js  (måste vara grön)"
+  - "npx @11ty/eleventy  (bygget måste skriva calendar-engine.js till dist/)"
+  - "Efter merge: öppna preview/prod och klicka en högtidsdag — namn OCH beskrivning ska visas"

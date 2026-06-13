@@ -147,3 +147,14 @@ def redirect_if_unauthenticated(
 
 def get_funeral_tracker(session: SessionInfo = Depends(current_session)) -> FuneralTrackerPort:
     return make_funeral_tracker(token=session.token)
+
+
+def funeral_tracker_for(token: str) -> FuneralTrackerPort:
+    """Build a funeral tracker without requiring a session dependency.
+
+    Routes that redirect-on-no-session (rather than 401) must NOT take
+    get_funeral_tracker as a Depends — current_session would raise 401
+    before the route body can redirect. They call this with the token from
+    an already-validated session instead.
+    """
+    return make_funeral_tracker(token=token)
