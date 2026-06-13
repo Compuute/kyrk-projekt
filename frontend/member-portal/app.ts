@@ -432,6 +432,114 @@ function setupErrorMonitoring(): void {
   });
 }
 
+// ───────────────────────────────────────── privacy-preserving metrics (YELLOW)
+//
+// Anonymous aggregate counters only. No identifier is ever transmitted, so the
+// edge cannot correlate two beacons to the same device. localStorage is used
+// solely to de-duplicate (a milestone counts once per device). Honors
+// Do-Not-Track and a local opt-out. See docs/26-pwa-metrics-and-mobile-decision.md
+// and the GDPR register §5. Mirrors the allowlist in functions/m.ts.
+
+const METRIC_EVENTS = [
+  'app_open', 'pwa_install', 'push_prompt', 'push_grant', 'push_deny',
+  'retain_w1', 'retain_w2', 'retain_w4', 'retain_w12',
+] as const;
+type MetricEvent = typeof METRIC_EVENTS[number];
+
+/** Pure: should metrics be emitted at all? Disabled under DNT or local opt-out. */
+function metricsEnabled(opts: { dnt?: string | null; optOut?: string | null }): boolean {
+  if (opts.dnt === '1' || opts.dnt === 'yes') return false;
+  if (opts.optOut === 'true') return false;
+  return true;
+}
+
+/** Pure: which retention milestones are newly due, given first-open time, now,
+ *  and the set already reported? Buckets: 7/14/28/84 days → w1/w2/w4/w12. */
+function retentionDue(
+  firstSeenMs: number, nowMs: number, reported: Record<string, boolean>
+): MetricEvent[] {
+  const buckets: Array<[number, MetricEvent]> = [
+    [7, 'retain_w1'], [14, 'retain_w2'], [28, 'retain_w4'], [84, 'retain_w12'],
+  ];
+  const days = (nowMs - firstSeenMs) / (1000 * 60 * 60 * 24);
+  const due: MetricEvent[] = [];
+  for (const [threshold, ev] of buckets) {
+    if (days >= threshold && !reported[ev]) due.push(ev);
+  }
+  return due;
+}
+
+function _lsGet(key: string): string | null {
+  if (typeof localStorage === 'undefined' || typeof localStorage.getItem !== 'function') return null;
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function _lsSet(key: string, val: string): void {
+  if (typeof localStorage === 'undefined' || typeof localStorage.setItem !== 'function') return;
+  try { localStorage.setItem(key, val); } catch { /* private mode — ignore */ }
+}
+
+function trackEvent(event: MetricEvent): void {
+  if (typeof window === 'undefined') return;
+  if ((METRIC_EVENTS as readonly string[]).indexOf(event) === -1) return;
+  const dnt = typeof navigator !== 'undefined'
+    ? (navigator.doNotTrack ?? (window as any).doNotTrack ?? null)
+    : null;
+  if (!metricsEnabled({ dnt, optOut: _lsGet('metricsOptOut') })) return;
+  try {
+    fetch('/m', {
+      method: 'POST',
+      credentials: 'omit',
+      cache: 'no-store',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ e: event }),
+    }).catch(() => {});
+  } catch { /* never let metrics break the page */ }
+}
+
+function trackOncePerDay(event: MetricEvent): void {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = 'm_seen:' + event + ':' + today;
+  if (_lsGet(key)) return;
+  _lsSet(key, '1');
+  trackEvent(event);
+}
+
+function trackRetention(): void {
+  const now = Date.now();
+  let firstSeen = parseInt(_lsGet('m_firstSeen') || '0', 10);
+  if (!firstSeen) { firstSeen = now; _lsSet('m_firstSeen', String(now)); }
+  const reported: Record<string, boolean> = {};
+  (['retain_w1', 'retain_w2', 'retain_w4', 'retain_w12'] as const).forEach(ev => {
+    if (_lsGet('m_' + ev)) reported[ev] = true;
+  });
+  retentionDue(firstSeen, now, reported).forEach(ev => {
+    _lsSet('m_' + ev, '1');
+    trackEvent(ev);
+  });
+}
+
+/** Request notification permission and record the (anonymous) opt-in decision.
+ *  Wire this to an "Aktivera notiser" button — it is never auto-called, so the
+ *  user is not hit with a hostile prompt on load. */
+function requestPushPermission(): Promise<string> {
+  if (typeof window === 'undefined' || typeof Notification === 'undefined') {
+    return Promise.resolve('unsupported');
+  }
+  trackEvent('push_prompt');
+  return Notification.requestPermission().then(result => {
+    trackEvent(result === 'granted' ? 'push_grant' : 'push_deny');
+    return result;
+  });
+}
+
+function initMetrics(): void {
+  if (typeof window === 'undefined') return;
+  trackOncePerDay('app_open');
+  trackRetention();
+  window.addEventListener('appinstalled', () => trackEvent('pwa_install'));
+}
+
 // ──────────────────────────────────────────────────────── church selector
 
 function getSelectedChurch(): string {
@@ -630,7 +738,11 @@ if (typeof window !== 'undefined') {
   (window as any).getSelectedChurch     = getSelectedChurch;
   (window as any).getContentUrl         = getContentUrl;
   (window as any).loadChurchContent     = loadChurchContent;
+  (window as any).trackEvent            = trackEvent;
+  (window as any).requestPushPermission = requestPushPermission;
+  (window as any).initMetrics           = initMetrics;
   setupErrorMonitoring();
+  initMetrics();
 }
 
 // Node exposure (for tests — they import the compiled app.js, not app.ts)
@@ -646,5 +758,8 @@ if (typeof module !== 'undefined' && (module as any).exports) {
     validatePersonnummer,
     buildSwishLink,
     getContentUrl,
+    METRIC_EVENTS,
+    metricsEnabled,
+    retentionDue,
   };
 }

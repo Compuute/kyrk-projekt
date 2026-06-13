@@ -289,6 +289,108 @@ function setupErrorMonitoring() {
     navigator.sendBeacon?.("https://membership-intake-479770870521.europe-north1.run.app/healthz", "");
   });
 }
+const METRIC_EVENTS = [
+  "app_open",
+  "pwa_install",
+  "push_prompt",
+  "push_grant",
+  "push_deny",
+  "retain_w1",
+  "retain_w2",
+  "retain_w4",
+  "retain_w12"
+];
+function metricsEnabled(opts) {
+  if (opts.dnt === "1" || opts.dnt === "yes") return false;
+  if (opts.optOut === "true") return false;
+  return true;
+}
+function retentionDue(firstSeenMs, nowMs, reported) {
+  const buckets = [
+    [7, "retain_w1"],
+    [14, "retain_w2"],
+    [28, "retain_w4"],
+    [84, "retain_w12"]
+  ];
+  const days = (nowMs - firstSeenMs) / (1e3 * 60 * 60 * 24);
+  const due = [];
+  for (const [threshold, ev] of buckets) {
+    if (days >= threshold && !reported[ev]) due.push(ev);
+  }
+  return due;
+}
+function _lsGet(key) {
+  if (typeof localStorage === "undefined" || typeof localStorage.getItem !== "function") return null;
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function _lsSet(key, val) {
+  if (typeof localStorage === "undefined" || typeof localStorage.setItem !== "function") return;
+  try {
+    localStorage.setItem(key, val);
+  } catch {
+  }
+}
+function trackEvent(event) {
+  if (typeof window === "undefined") return;
+  if (METRIC_EVENTS.indexOf(event) === -1) return;
+  const dnt = typeof navigator !== "undefined" ? navigator.doNotTrack ?? window.doNotTrack ?? null : null;
+  if (!metricsEnabled({ dnt, optOut: _lsGet("metricsOptOut") })) return;
+  try {
+    fetch("/m", {
+      method: "POST",
+      credentials: "omit",
+      cache: "no-store",
+      keepalive: true,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ e: event })
+    }).catch(() => {
+    });
+  } catch {
+  }
+}
+function trackOncePerDay(event) {
+  const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const key = "m_seen:" + event + ":" + today;
+  if (_lsGet(key)) return;
+  _lsSet(key, "1");
+  trackEvent(event);
+}
+function trackRetention() {
+  const now = Date.now();
+  let firstSeen = parseInt(_lsGet("m_firstSeen") || "0", 10);
+  if (!firstSeen) {
+    firstSeen = now;
+    _lsSet("m_firstSeen", String(now));
+  }
+  const reported = {};
+  ["retain_w1", "retain_w2", "retain_w4", "retain_w12"].forEach((ev) => {
+    if (_lsGet("m_" + ev)) reported[ev] = true;
+  });
+  retentionDue(firstSeen, now, reported).forEach((ev) => {
+    _lsSet("m_" + ev, "1");
+    trackEvent(ev);
+  });
+}
+function requestPushPermission() {
+  if (typeof window === "undefined" || typeof Notification === "undefined") {
+    return Promise.resolve("unsupported");
+  }
+  trackEvent("push_prompt");
+  return Notification.requestPermission().then((result) => {
+    trackEvent(result === "granted" ? "push_grant" : "push_deny");
+    return result;
+  });
+}
+function initMetrics() {
+  if (typeof window === "undefined") return;
+  trackOncePerDay("app_open");
+  trackRetention();
+  window.addEventListener("appinstalled", () => trackEvent("pwa_install"));
+}
 function getSelectedChurch() {
   if (typeof localStorage === "undefined" || typeof localStorage.getItem !== "function") return "nacka";
   return localStorage.getItem("selectedChurch") ?? "nacka";
@@ -431,7 +533,11 @@ if (typeof window !== "undefined") {
   window.getSelectedChurch = getSelectedChurch;
   window.getContentUrl = getContentUrl;
   window.loadChurchContent = loadChurchContent;
+  window.trackEvent = trackEvent;
+  window.requestPushPermission = requestPushPermission;
+  window.initMetrics = initMetrics;
   setupErrorMonitoring();
+  initMetrics();
 }
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
@@ -444,6 +550,9 @@ if (typeof module !== "undefined" && module.exports) {
     validatePhone,
     validatePersonnummer,
     buildSwishLink,
-    getContentUrl
+    getContentUrl,
+    METRIC_EVENTS,
+    metricsEnabled,
+    retentionDue
   };
 }

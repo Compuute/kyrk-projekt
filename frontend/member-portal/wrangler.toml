@@ -5,6 +5,13 @@ compatibility_date = "2025-06-01"
 binding = "kyrka_content"
 id = "f40a72c8fa544cf6ba3ab9daeb8bb8fc"
 
+# Anonymous aggregate metrics counters (YELLOW). No PII, no identifiers.
+# Create with: wrangler kv:namespace create kyrka_metrics
+# then paste the returned id below. Counters self-expire after 90 days.
+[[kv_namespaces]]
+binding = "kyrka_metrics"
+id = "REPLACE_WITH_kyrka_metrics_NAMESPACE_ID"
+
 # Cloudflare Pages project. Built with Eleventy from the repo root:
 #   npx @11ty/eleventy
 #   wrangler pages deploy frontend/member-portal/dist --project-name=kyrka-portal

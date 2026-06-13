@@ -29,6 +29,7 @@ The platform uses three data zones with strict flow rules.
 - Activity counts, attendance totals, age-band breakdowns
 - Finance aggregates (revenue, cost buckets)
 - KPI and ROI metrics
+- Anonymous PWA usage counters (installs, push opt-in rate, retention)
 
 **Rules**
 - No personal identifiers ever (validated on ingress)
@@ -38,6 +39,8 @@ The platform uses three data zones with strict flow rules.
 **Services**
 - `activity-service`
 - `reporting-service`
+- member-portal metrics beacon (`functions/m.ts` → `kyrka_metrics` KV;
+  allowlist-validated, no identifiers — see `docs/26`)
 
 ## GREEN — strategy, content, public
 

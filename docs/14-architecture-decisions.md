@@ -566,3 +566,34 @@ Vid den punkt där grinden ovan triggar (all funktion verifierad och redo för p
 
 
 
+
+---
+
+## ADR-018: Privacy-preserving aggregate PWA metrics (to decide the mobile-app path)
+
+**Date:** 2026-06
+**Status:** accepted
+**Context:** We need to decide *when* to move the member portal from a pure
+installable PWA (path A) to a store-packaged app (path B, Capacitor) — see
+`docs/26-pwa-metrics-and-mobile-decision.md`. That decision must be data-driven,
+but the portal is built *zero tracking, zero cookies*, so we had **no signal at
+all** to base it on. Native (path C) stays out of scope at this volume.
+**Decision:** add a minimal, anonymous, aggregate-only metrics layer:
+- An edge beacon `functions/m.ts` (`POST /m`) increments daily counters in a
+  dedicated KV namespace `kyrka_metrics` (zone: YELLOW). The event name is
+  validated against a fixed allowlist on ingress.
+- The frontend sender `trackEvent()` in `app.ts` emits only an allowlisted
+  event word, with `credentials: 'omit'`, honoring Do-Not-Track and a local
+  opt-out. Retention is counted locally and reported anonymously (cohort
+  counting without a cohort id) — no identifier is ever transmitted.
+- The A→B thresholds and the metric definitions live in `docs/26`.
+**Consequence:** we can now measure install adoption, push opt-in rate, and a
+retention curve without processing any personal data or adding third-party
+analytics. One honest caveat is documented: writing to `localStorage` for
+de-duplication is device storage under ePrivacy art. 5.3 and may warrant a
+lightweight consent/notice — flagged for the data controller in the GDPR
+register §5, mitigated by DNT-respect + opt-out. Counters self-expire after
+90 days (transient, decision-grade only).
+**When to revisit:** after 1–2 quarters of data, read against the §4 thresholds
+in `docs/26`. If a threshold is crossed, wrap the PWA with Capacitor (path B)
+and open a follow-up ADR; otherwise stay on path A and re-evaluate next quarter.
