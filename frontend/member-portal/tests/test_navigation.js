@@ -107,7 +107,7 @@ churches.churches.forEach(function (c) {
 // --- Swish desktop fallback ---
 var donateHtml = fs.readFileSync(path.join(ROOT, 'donate', 'index.html'), 'utf8');
 ok(donateHtml.indexOf('isMobile') > 0, 'donate.html has mobile detection');
-ok(donateHtml.indexOf('alert(') > 0, 'donate.html shows alert on desktop');
+ok(donateHtml.indexOf('renderSwishQr') > 0, 'donate.html renders a Swish QR on desktop');
 
 // --- No deprecated meta tags ---
 pages.forEach(function (page) {

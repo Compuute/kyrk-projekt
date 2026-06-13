@@ -119,7 +119,7 @@ breadcrumb: "Ge en gava"
     function updateSwishLink() {
       if (selectedAmount > 0 && SWISH_NUMBER) {
         if (isMobile()) {
-          // phone: open the Swish app directly via the deep link
+          // phone: open the Swish app via the swish://payment deep link (buildSwishLink)
           swishBtn.style.display = '';
           swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, 'Gåva till kyrkan');
           swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';

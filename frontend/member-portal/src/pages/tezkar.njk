@@ -95,7 +95,7 @@ breadcrumb: "Minnesbon"
     function updateSwishLink() {
       if (selectedAmount > 0 && SWISH_NUMBER) {
         if (isMobile()) {
-          // phone: open the Swish app directly via the deep link
+          // phone: open the Swish app via the swish://payment deep link (buildSwishLink)
           swishBtn.style.display = '';
           swishBtn.textContent = 'Swish — ' + selectedAmount + ' kr';
           swishBtn.href = buildSwishLink(SWISH_NUMBER, selectedAmount, message());
