@@ -13,6 +13,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  docs-freshness:
+    name: docs freshness (advisory)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Warn if code changed without docs/runbooks
+        run: |
+          BASE="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=1 -q
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          CODE=$(echo "$CHANGED" | grep -E '^(frontend/member-portal/(src|app|calendar)|services/)' || true)
+          DOCS=$(echo "$CHANGED" | grep -E '^(docs/|ops/runbooks/|.*\.md$)' || true)
+          if [ -n "$CODE" ] && [ -z "$DOCS" ]; then
+            echo "::warning::Den här PR:en ändrar funktions-/tjänstekod men rör ingen doc, runbook eller .md. Uppdatera docs/, ops/runbooks/ eller en ADR — eller bocka i 'ingen doc behövs' i PR-mallen med motivering."
+            echo "## Docs-freshness: kod utan doc" >> "$GITHUB_STEP_SUMMARY"
+            echo "Ändrad kod utan motsvarande doc/runbook. Se PR-mallens checklista." >> "$GITHUB_STEP_SUMMARY"
+            echo "$CODE" | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Docs-freshness OK."
+          fi
+
   python-tests:
     name: pytest (${{ matrix.service }})
     runs-on: ubuntu-latest

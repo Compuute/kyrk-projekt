@@ -32,6 +32,12 @@ gcloud run services update-traffic <service> \
 wrangler pages deployment rollback --project-name=kyrka-portal
 ```
 
+> **Felsökning för agenter:** maskinläsbara runbooks i `ops/runbooks/` —
+> `health-check`, `incident-triage`, `rollback`, `backup-verify`,
+> `deploy-preflight` (infra/drift) och `calendar` (portalfunktion). Nya
+> driftbara funktioner ska få en egen runbook (ADR-023, docs-freshness-check
+> i CI påminner i varje PR).
+
 ## Architecture overview
 
 ```
