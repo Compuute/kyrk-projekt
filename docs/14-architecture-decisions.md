@@ -572,7 +572,7 @@ Vid den punkt där grinden ovan triggar (all funktion verifierad och redo för p
 ## ADR-018: Privacy-preserving aggregate PWA metrics (to decide the mobile-app path)
 
 **Date:** 2026-06
-**Status:** accepted
+**Status:** accepted but DORMANT (deferred 2026-06-13 — `METRICS_ENABLED = false`, not deployed; see docs/26 §Status)
 **Context:** We need to decide *when* to move the member portal from a pure
 installable PWA (path A) to a store-packaged app (path B, Capacitor) — see
 `docs/26-pwa-metrics-and-mobile-decision.md`. That decision must be data-driven,

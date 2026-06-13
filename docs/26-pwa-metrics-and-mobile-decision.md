@@ -113,3 +113,22 @@ kvartal. Beslutet loggas som ADR-018 i `docs/14-architecture-decisions.md`.
    `window.requestPushPermission()` (mäter opt-in-rate). Knappen är medvetet
    *inte* auto-triggad — ingen påträngande prompt vid laddning.
 4. Efter 1–2 kvartal: läs av mot trösklarna i §4.
+
+---
+
+## Status (beslut 2026-06-13): UPPSKJUTET — vilande
+
+Mobilapp (A→B) och PWA-mätning **skjuts upp tills vidare**. Vi går framåt utan
+app.
+
+- **Mätningen är vilande:** `METRICS_ENABLED = false` i `app.ts`, ingen deploy,
+  inget `kyrka_metrics`-KV skapat. Den samlar **ingenting**. Integritetspolicyn
+  och GDPR-registret §5 säger därför (korrekt) att ingen mätning sker.
+- **Koden är byggd och deploy-redo** — återaktivering är billig.
+- **Trigger för att återuppta:** *kvalitativ* efterfrågan, inte ett datum —
+  medlemmar som frågar efter en app, eller pastor/admin som ser
+  installationsfriktion. (Medan mätningen är av kan efterfrågan inte ses
+  kvantitativt, och det är ett medvetet val.)
+- **När triggern slår in:** sätt `METRICS_ENABLED = true` (CI-tripwiren tvingar
+  då fram uppdatering av integritetspolicyn + GDPR §5 + ePrivacy-beslut),
+  aktivera enligt §5, kör 1–2 kvartal, fatta A→B mot §4-trösklarna.

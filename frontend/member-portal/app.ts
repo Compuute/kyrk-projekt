@@ -446,6 +446,12 @@ const METRIC_EVENTS = [
 ] as const;
 type MetricEvent = typeof METRIC_EVENTS[number];
 
+// Master switch. Dormant by default: the metrics layer is built and deploy-ready
+// but collects nothing until the A→B mobile-app decision is reopened. Flipping
+// this to true REQUIRES updating the privacy policy + GDPR register §5 (a CI
+// tripwire enforces this). See docs/26 "Status".
+const METRICS_ENABLED = false;
+
 /** Pure: should metrics be emitted at all? Disabled under DNT or local opt-out. */
 function metricsEnabled(opts: { dnt?: string | null; optOut?: string | null }): boolean {
   if (opts.dnt === '1' || opts.dnt === 'yes') return false;
@@ -480,6 +486,7 @@ function _lsSet(key: string, val: string): void {
 
 function trackEvent(event: MetricEvent): void {
   if (typeof window === 'undefined') return;
+  if (!METRICS_ENABLED) return;
   if ((METRIC_EVENTS as readonly string[]).indexOf(event) === -1) return;
   const dnt = typeof navigator !== 'undefined'
     ? (navigator.doNotTrack ?? (window as any).doNotTrack ?? null)
@@ -535,6 +542,7 @@ function requestPushPermission(): Promise<string> {
 
 function initMetrics(): void {
   if (typeof window === 'undefined') return;
+  if (!METRICS_ENABLED) return;
   trackOncePerDay('app_open');
   trackRetention();
   window.addEventListener('appinstalled', () => trackEvent('pwa_install'));

@@ -146,17 +146,32 @@ class TestDocCodeDriftTripwires:
         )
 
     def test_privacy_policy_matches_metrics_code(self):
+        import re
+
         app_ts = (ROOT / "frontend" / "member-portal" / "app.ts").read_text(encoding="utf-8")
         if "trackEvent" not in app_ts:
-            pytest.skip("no metrics in code; nothing to disclose")
+            pytest.skip("no metrics in code; nothing to keep in sync")
+        flag = re.search(r"METRICS_ENABLED\s*=\s*(true|false)", app_ts)
+        assert flag, "metrics code must carry an explicit METRICS_ENABLED master switch"
+        enabled = flag.group(1) == "true"
         privacy = (
             ROOT / "frontend" / "member-portal" / "src" / "pages" / "privacy.njk"
         ).read_text(encoding="utf-8")
-        assert "inga analysverktyg" not in privacy, (
-            "app.ts ships anonymous aggregate metrics — the privacy policy must not "
-            "claim 'inga analysverktyg'"
-        )
         low = privacy.lower()
-        assert "anonym" in low or "aggregat" in low or "aggregerad" in low, (
-            "privacy policy must disclose the anonymous aggregate measurement"
-        )
+        if enabled:
+            # Metrics are live → the policy must disclose them honestly.
+            assert "inga analysverktyg" not in privacy, (
+                "METRICS_ENABLED is true — the privacy policy must not claim "
+                "'inga analysverktyg'"
+            )
+            assert "anonym" in low or "aggregat" in low or "aggregerad" in low, (
+                "METRICS_ENABLED is true — the privacy policy must disclose the "
+                "anonymous aggregate measurement"
+            )
+        else:
+            # Metrics are dormant → the policy must state none runs, and must not
+            # claim active measurement that does not happen.
+            assert "inga analysverktyg" in privacy, (
+                "METRICS_ENABLED is false — the privacy policy should state there "
+                "are no analytics tools"
+            )

@@ -300,6 +300,7 @@ const METRIC_EVENTS = [
   "retain_w4",
   "retain_w12"
 ];
+const METRICS_ENABLED = false;
 function metricsEnabled(opts) {
   if (opts.dnt === "1" || opts.dnt === "yes") return false;
   if (opts.optOut === "true") return false;
@@ -336,6 +337,7 @@ function _lsSet(key, val) {
 }
 function trackEvent(event) {
   if (typeof window === "undefined") return;
+  if (!METRICS_ENABLED) return;
   if (METRIC_EVENTS.indexOf(event) === -1) return;
   const dnt = typeof navigator !== "undefined" ? navigator.doNotTrack ?? window.doNotTrack ?? null : null;
   if (!metricsEnabled({ dnt, optOut: _lsGet("metricsOptOut") })) return;
@@ -387,6 +389,7 @@ function requestPushPermission() {
 }
 function initMetrics() {
   if (typeof window === "undefined") return;
+  if (!METRICS_ENABLED) return;
   trackOncePerDay("app_open");
   trackRetention();
   window.addEventListener("appinstalled", () => trackEvent("pwa_install"));
