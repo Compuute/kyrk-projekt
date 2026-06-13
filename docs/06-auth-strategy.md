@@ -1,5 +1,8 @@
 # 06 — Auth Strategy
 
+> Hur kyrkorna hålls åtskilda (church_id = Zitadel-org) och hur en ny kyrka
+> onboardas: [35-kyrko-multitenancy-och-onboarding.md](35-kyrko-multitenancy-och-onboarding.md).
+
 Authentication and multi-tenant Role-Based Access Control (RBAC) are powered by **Zitadel Cloud (SaaS)**. Zitadel was chosen *to enable* 100% EU/Swiss data sovereignty and eliminate GDPR/FISA sovereignty risks (per [ADR-016](14-architecture-decisions.md)).
 
 > ⚠️ **Current state — temporary deviation (see [ADR-017](14-architecture-decisions.md)).** The active instance runs on Zitadel's **free tier in the US region** (`kyrk-auth-oqvxjf.us1.zitadel.cloud`) while all auth functionality is being built and verified. **Data residency is therefore US, not EU/Swiss, right now — the sovereignty goal above is not yet met.** Hard gate: only test/synthetic data in this instance; the service must be moved to an EU/CH-region instance before any real personal data is entered or before public production. Nothing is deployed to production yet.
