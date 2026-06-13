@@ -218,11 +218,11 @@
   function holidaysForEthMonth(ey, em) {
     var out = [];
     HOLIDAYS.ethiopianFixed.forEach(function (h) {
-      if (h.month === em) out.push({ day: h.day, icon: h.icon, name: h.name, type: 'feast' });
+      if (h.month === em) out.push({ day: h.day, icon: h.icon, name: h.name, desc: h.desc, type: 'feast' });
     });
     HOLIDAYS.monthlySaints.forEach(function (s) {
       if (s.day <= daysInEthMonth(ey, em) && !out.some(function (o) { return o.day === s.day; })) {
-        out.push({ day: s.day, icon: '✦', name: s.name, type: 'saint' });
+        out.push({ day: s.day, icon: '✦', name: s.name, desc: s.desc, type: 'saint' });
       }
     });
     return out.sort(function (a, b) { return a.day - b.day; });
@@ -306,7 +306,7 @@
       var g = ethToGregorian(ey, em, day);
       var gIso = iso(g);
       var hol = monthHolidays.filter(function (h) { return h.day === day; });
-      if (redByDate[gIso]) hol.push({ day: day, icon: '🇸🇪', name: redByDate[gIso].name, type: 'swedish' });
+      if (redByDate[gIso]) hol.push({ day: day, icon: '🇸🇪', name: redByDate[gIso].name, desc: redByDate[gIso].desc, type: 'swedish' });
       cells.push({
         eth: { year: ey, month: em, day: day },
         greg: g, gregIso: gIso, weekday: g.getUTCDay(),

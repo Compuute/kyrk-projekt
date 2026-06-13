@@ -196,6 +196,22 @@ check('alla högtider, helgon, röda dagar och fastor har sv+am-beskrivning', fu
   });
   assert.ok(cal.HOLIDAYS.weeklyFastNote.sv && cal.HOLIDAYS.weeklyFastNote.am, 'veckonot saknas');
 });
+check('detaljpanelens data: griden bär högtidens beskrivning till cellen', function () {
+  // Sene (månad 10) dag 12 = Sene Mikael (fast högtid med desc)
+  var hols = cal.holidaysForEthMonth(2018, 10);
+  var mikael = hols.filter(function (h) { return h.day === 12; })[0];
+  assert.ok(mikael, 'Sene Mikael ska finnas dag 12');
+  assert.ok(mikael.desc && mikael.desc.sv, 'feast-desc ska bäras genom griden, inte tappas');
+  // helgondag (dag 24, Tekle Haymanot) ska också bära desc
+  var saint = hols.filter(function (h) { return h.day === 24; })[0];
+  assert.ok(saint.desc && saint.desc.sv, 'saint-desc ska bäras genom griden');
+  // svensk röd dag via buildMonthGrid — midsommar i Sene 2018
+  var grid = cal.buildMonthGrid(2018, 10, new Date(Date.UTC(2026, 5, 12)));
+  var redCells = [];
+  grid.cells.forEach(function (c) { c.holidays.forEach(function (h) { if (h.type === 'swedish') redCells.push(h); }); });
+  assert.ok(redCells.length > 0, 'minst en svensk röd dag i Sene');
+  assert.ok(redCells[0].desc && redCells[0].desc.sv, 'swedish-desc ska bäras genom griden');
+});
 check('currentOrNextFast: 2026-06-12 → Filseta börjar om 56 dagar, 16 dagar lång', function () {
   var f = cal.currentOrNextFast(new Date(Date.UTC(2026, 5, 12)));
   assert.strictEqual(f.status, 'upcoming');
