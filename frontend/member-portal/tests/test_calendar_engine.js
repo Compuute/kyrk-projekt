@@ -145,5 +145,26 @@ check('buildMonthGrid: Sene 2018 har 30 celler + rätt idag-flagga', function ()
   assert.ok(grid.headerGreg.indexOf('jun') !== -1 || grid.headerGreg.indexOf('Jun') !== -1, 'gregoriansk period i header');
 });
 
+// --- "Idag" följer besökarens lokala klocka, inte UTC --------------------
+check('localCivilDate: lokala datumet vinner över UTC-datumet', function () {
+  var cp = require('child_process');
+  // 22:30 UTC den 12 juni = 13 juni lokalt i UTC+14, fortfarande 12 juni i UTC-10
+  var script = "var c=require('./calendar-engine.js');" +
+    "process.stdout.write(c.localCivilDate(new Date(Date.UTC(2026,5,12,22,30))).toISOString().slice(0,10));";
+  var ahead = cp.execSync(process.execPath + " -e \"" + script + "\"",
+    { cwd: __dirname + '/..', env: Object.assign({}, process.env, { TZ: 'Etc/GMT-14' }) }).toString();
+  var behind = cp.execSync(process.execPath + " -e \"" + script + "\"",
+    { cwd: __dirname + '/..', env: Object.assign({}, process.env, { TZ: 'Etc/GMT+10' }) }).toString();
+  assert.strictEqual(ahead, '2026-06-13', 'UTC+14 ska se den 13:e');
+  assert.strictEqual(behind, '2026-06-12', 'UTC-10 ska se den 12:e');
+});
+check('buildMonthGrid default markerar samma dag som localCivilDate', function () {
+  var t = cal.toEthiopian(cal.localCivilDate());
+  var g = cal.buildMonthGrid(t.year, t.month);
+  var today = g.cells.filter(function (c2) { return c2.isToday; });
+  assert.strictEqual(today.length, 1, 'exakt en idag-cell');
+  assert.strictEqual(today[0].eth.day, t.day, 'idag-cellen ska vara besökarens lokala dag');
+});
+
 console.log(failures === 0 ? '\nAlla kalendertester gröna.' : '\n' + failures + ' test FAILADE.');
 process.exit(failures === 0 ? 0 : 1);

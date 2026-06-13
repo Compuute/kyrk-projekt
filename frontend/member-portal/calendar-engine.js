@@ -58,6 +58,14 @@
     return { year: ey, month: Math.floor(doy / 30) + 1, day: (doy % 30) + 1 };
   }
 
+  // Besökarens civila datum (lokala klockan), UTC-förankrat så att all
+  // vidare aritmetik blir tidszonsoberoende. "Idag" ska följa besökarens
+  // klocka — UTC-datumet är fel i Sverige timmarna efter midnatt.
+  function localCivilDate(d) {
+    d = d || new Date();
+    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  }
+
   // ------------------------------------------------------- publikt API ---
   function toEthiopian(date) {
     return jdnToEth(gregorianToJdn(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()));
@@ -219,8 +227,8 @@
   var SV_MONTHS = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
 
   function buildMonthGrid(ey, em, today) {
-    today = today || new Date();
-    var todayIso = iso(new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())));
+    today = today || localCivilDate();
+    var todayIso = iso(today);
     var n = daysInEthMonth(ey, em);
     var monthHolidays = holidaysForEthMonth(ey, em);
     var redByDate = {};
@@ -269,7 +277,8 @@
       '<div class="ethcal-titles"><div class="ethcal-title">' +
       (lang === 'am' ? grid.headerEth.am : grid.headerEth.sv + ' <span class="ethcal-am">' + grid.headerEth.am + '</span>') +
       '</div><div class="ethcal-sub">' + grid.headerGreg + '</div></div>' +
-      '<button type="button" class="ethcal-nav" data-nav="1" aria-label="Nästa månad">▶</button></div>';
+      '<button type="button" class="ethcal-nav" data-nav="1" aria-label="Nästa månad">▶</button>' +
+      '<button type="button" class="ethcal-nav ethcal-todaybtn" data-today="1">' + (lang === 'am' ? 'ዛሬ' : 'Idag') + '</button></div>';
     html += '<div class="ethcal-grid" role="grid">';
     WEEKDAYS.forEach(function (w) {
       html += '<div class="ethcal-wd" role="columnheader">' + w.am + '<br>' + w.sv + '</div>';
@@ -295,11 +304,16 @@
     var navs = root.querySelectorAll('.ethcal-nav');
     for (var i = 0; i < navs.length; i++) {
       navs[i].addEventListener('click', function (ev) {
-        var dir = parseInt(ev.currentTarget.getAttribute('data-nav'), 10);
-        var m = state.month + dir, y = state.year;
-        if (m < 1) { m = 13; y--; }
-        if (m > 13) { m = 1; y++; }
-        state.month = m; state.year = y;
+        if (ev.currentTarget.getAttribute('data-today')) {
+          var t = toEthiopian(localCivilDate());
+          state.year = t.year; state.month = t.month;
+        } else {
+          var dir = parseInt(ev.currentTarget.getAttribute('data-nav'), 10);
+          var m = state.month + dir, y = state.year;
+          if (m < 1) { m = 13; y--; }
+          if (m > 13) { m = 1; y++; }
+          state.month = m; state.year = y;
+        }
         renderCalendar(root, state);
       });
     }
@@ -308,7 +322,7 @@
   function initCalendarPage() {
     var root = document.getElementById('eth-calendar');
     if (!root) return;
-    var e = toEthiopian(new Date());
+    var e = toEthiopian(localCivilDate());
     renderCalendar(root, { year: e.year, month: e.month });
   }
 
@@ -316,10 +330,12 @@
     var el = document.getElementById('eth-date');
     if (!el) return;
     var lang = currentLang();
-    el.textContent = formatEthiopianDate(new Date(), 'am') + (lang === 'am' ? '' : ' · ' + formatEthiopianDate(new Date(), 'sv'));
+    var now = localCivilDate();
+    el.textContent = formatEthiopianDate(now, 'am') + (lang === 'am' ? '' : ' · ' + formatEthiopianDate(now, 'sv'));
   }
 
   var api = {
+    localCivilDate: localCivilDate,
     toEthiopian: toEthiopian,
     ethToGregorian: ethToGregorian,
     isEthLeap: isEthLeap,
