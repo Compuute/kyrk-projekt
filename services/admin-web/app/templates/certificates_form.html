@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Utfärda certifikat — kyrk-projekt admin{% endblock %}
 {% block content %}
+{% if download %}
+<section class="card">
+  <p><a class="primary" href="{{ download }}" target="_blank">Förhandsgranska / ladda ner certifikatet ↗</a></p>
+</section>
+{% endif %}
 <section class="card">
   <h1>Utfärda certifikat</h1>
   <p class="muted small">

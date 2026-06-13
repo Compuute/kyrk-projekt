@@ -353,7 +353,12 @@ def dismiss_donation(
 
 
 @router.get("/certificates/new", response_class=HTMLResponse)
-def certificate_form(request: Request, flash: str | None = None, level: str = "success"):
+def certificate_form(
+    request: Request,
+    flash: str | None = None,
+    level: str = "success",
+    download: str | None = None,
+):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
         return session
@@ -365,10 +370,29 @@ def certificate_form(request: Request, flash: str | None = None, level: str = "s
             "session": session,
             "today": date.today().isoformat(),
             "churches": list_churches(),
+            "download": download,
             "flash": flash,
             "level": level,
         },
     )
+
+
+@router.get("/certificates/{certificate_id}/download")
+def download_certificate(
+    request: Request,
+    certificate_id: str,
+    certs: CertificateClientPort = Depends(get_certificate_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    try:
+        content = certs.download(session.token, certificate_id)
+    except ClientError as exc:
+        return _flash_redirect(
+            "/certificates/new", f"Kunde inte hämta certifikatet: {exc}", level="error"
+        )
+    return HTMLResponse(content=content)
 
 
 @router.post("/certificates/new")
@@ -410,11 +434,15 @@ def issue_certificate(
             level="error",
         )
 
-    return _flash_redirect(
-        "/certificates/new",
-        f"Utfärdat. Verifieringslänk: {issued.verification_url}",
-        level="success",
+    from urllib.parse import quote
+
+    dl = f"/certificates/{issued.certificate_id}/download"
+    msg = "Utfärdat — certifikatet är klart att förhandsgranska."
+    url = (
+        f"/certificates/new?flash={quote(msg)}&level=success"
+        f"&download={quote(dl, safe='/')}"
     )
+    return RedirectResponse(url=url, status_code=status.HTTP_303_SEE_OTHER)
 
 
 # ------------------------------------------------------------------- KPI dash

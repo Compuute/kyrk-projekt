@@ -59,6 +59,37 @@ def test_issue_unknown_church_shows_error(client, certificates, auth_cookies):
     assert certificates.requests == []
 
 
+def test_issue_flash_links_to_preview(client, certificates, auth_cookies):
+    r = client.post(
+        "/certificates/new",
+        data={
+            "certificate_type": "baptism",
+            "issued_date": "2025-06-01",
+            "member_id": "m-1",
+            "church_id": "stockholm",
+            "language": "sv",
+        },
+        cookies=auth_cookies,
+    )
+    assert r.status_code == 303
+    issued_id = certificates.issued[0].certificate_id
+    assert f"/certificates/{issued_id}/download" in r.headers["location"]
+
+
+def test_download_proxies_rendered_certificate(client, certificates, auth_cookies):
+    certificates.rendered = b"<html>cert</html>"
+    r = client.get("/certificates/cert-xyz/download", cookies=auth_cookies)
+    assert r.status_code == 200
+    assert "text/html" in r.headers["content-type"]
+    assert r.content == b"<html>cert</html>"
+    assert certificates.downloaded == ["cert-xyz"]
+
+
+def test_download_redirects_when_anonymous(client):
+    r = client.get("/certificates/cert-xyz/download")
+    assert r.status_code == 302
+
+
 def test_issue_error_shows_flash(client, certificates, auth_cookies):
     certificates.issue_error = ClientError("forbidden", status_code=403)
     r = client.post(

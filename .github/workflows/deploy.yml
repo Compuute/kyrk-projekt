@@ -144,6 +144,7 @@ jobs:
             ADAPTER_MODE=production
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
             ZITADEL_CLIENT_ID=376717918169271350
+            CERT_VERIFY_BASE_URL=${{ vars.CERT_VERIFY_BASE_URL }}
 
 
   deploy-reporting-service:

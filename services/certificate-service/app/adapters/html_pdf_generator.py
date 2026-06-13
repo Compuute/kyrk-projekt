@@ -194,8 +194,9 @@ body {{
 
 
 class HtmlPdfGenerator:
-    def __init__(self) -> None:
+    def __init__(self, verify_base_url: str = "https://kyrka.se/certificates/verify") -> None:
         self._cert_types = _load_certificate_types()
+        self._verify_base_url = verify_base_url.rstrip("/")
 
     def render(self, certificate: Certificate, member_full_name: str) -> bytes:
         cert_type_key = certificate.certificate_type.value
@@ -207,9 +208,7 @@ class HtmlPdfGenerator:
         icon = _SUNDAY_SCHOOL_ICONS.get(cert_type_key, "")
         icon_html = f'<div class="cert-icon">{icon}</div>' if icon else ""
 
-        verification_url = (
-            f"https://kyrka.se/certificates/verify/{certificate.certificate_id}"
-        )
+        verification_url = f"{self._verify_base_url}/{certificate.certificate_id}"
 
         # Use the church chosen at issue time. Fall back to the founding
         # parish only for legacy records issued before these fields existed.

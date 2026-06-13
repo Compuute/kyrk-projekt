@@ -51,9 +51,14 @@ def make_audit() -> AuditPort:
 
 def make_pdf_generator() -> PdfGeneratorPort:
     if _mode() == "production":
+        import os
+
         from app.adapters.html_pdf_generator import HtmlPdfGenerator
 
-        return HtmlPdfGenerator()
+        verify_base = (
+            os.getenv("CERT_VERIFY_BASE_URL") or "https://kyrka.se/certificates/verify"
+        )
+        return HtmlPdfGenerator(verify_base_url=verify_base)
     from app.adapters.stub_pdf_generator import StubPdfGenerator
 
     return StubPdfGenerator()

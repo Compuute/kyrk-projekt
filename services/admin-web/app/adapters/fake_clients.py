@@ -132,6 +132,15 @@ class FakeCertificateClient:
         self.issued: list[IssuedCertificate] = []
         self.requests: list[IssueCertificateRequest] = []
         self.issue_error: ClientError | None = None
+        self.rendered: bytes = b"<html>certificate</html>"
+        self.downloaded: list[str] = []
+        self.download_error: ClientError | None = None
+
+    def download(self, token: str, certificate_id: str) -> bytes:  # noqa: ARG002
+        if self.download_error is not None:
+            raise self.download_error
+        self.downloaded.append(certificate_id)
+        return self.rendered
 
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate:  # noqa: ARG002
         if self.issue_error is not None:

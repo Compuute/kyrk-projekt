@@ -93,6 +93,10 @@ class IssuedCertificate:
 class CertificateClientPort(Protocol):
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate: ...
 
+    def download(self, token: str, certificate_id: str) -> bytes:
+        """Fetch the rendered certificate document (HTML bytes)."""
+        ...
+
 
 # -------------------------------------------------------------------- activity
 

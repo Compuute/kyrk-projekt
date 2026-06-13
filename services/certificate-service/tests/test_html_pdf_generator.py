@@ -50,6 +50,13 @@ def test_language_am_puts_amharic_first(gen):
     assert html.index("አቡነ ተክለ ሃይማኖት") < html.index("Abune Tekle Haymanot")
 
 
+def test_verification_url_uses_configured_base():
+    gen = HtmlPdfGenerator(verify_base_url="https://verify.example/c")
+    html = gen.render(_cert(), "Abebe Bikila").decode("utf-8")
+    assert "https://verify.example/c/cert-abc-123" in html
+    assert "kyrka.se" not in html
+
+
 @pytest.fixture
 def gen() -> HtmlPdfGenerator:
     return HtmlPdfGenerator()

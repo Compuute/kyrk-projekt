@@ -162,6 +162,22 @@ class HttpxCertificateClient:
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout_seconds
 
+    def download(self, token: str, certificate_id: str) -> bytes:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.get(
+                f"{self._base_url}/certificates/{certificate_id}/download",
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        return r.content
+
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate:
         import httpx
 
