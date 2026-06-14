@@ -18,7 +18,18 @@ test('live page has video area', function () {
 
 test('live page reads YouTube channel from content.json', function () {
   assert.ok(html.includes('youtube_channel_id'), 'must read channel ID from config');
-  assert.ok(html.includes('youtube.com/embed'), 'must embed YouTube');
+  assert.ok(html.includes('/embed/live_stream?channel='), 'must embed the channel live stream');
+});
+
+test('live page embeds via privacy-friendly nocookie domain', function () {
+  // No YouTube tracking cookies; matches the site's no-tracking promise.
+  assert.ok(html.includes('youtube-nocookie.com'), 'must use youtube-nocookie.com');
+});
+
+test('live page time-gates the embed by schedule (no error box off-hours)', function () {
+  assert.ok(html.includes('live_schedule'), 'must read live_schedule from config');
+  assert.ok(html.includes('Europe/Stockholm'), 'must evaluate the window in church-local time');
+  assert.ok(html.includes('isLiveNow'), 'must gate the embed behind a live-window check');
 });
 
 test('content.json has youtube_channel_id field', function () {
