@@ -100,7 +100,8 @@ def test_approve_twice_409(client):
 
 # In production, Zitadel sets actor.church_id to the organization id —
 # the registry maps it back to the portal church slug.
-ZITADEL_ORG_ADMIN = {"Authorization": "Bearer u4:376713621675248694:admin"}
+ZITADEL_ORG_ADMIN = {"Authorization": "Bearer u4:376720665740439161:admin"}   # Nacka-kyrkan
+STOCKHOLM_ORG_ADMIN = {"Authorization": "Bearer u6:376720690671258678:admin"} # Hagsätra-kyrkan
 UNKNOWN_ORG_ADMIN = {"Authorization": "Bearer u5:999999999999:admin"}
 
 
@@ -123,6 +124,20 @@ def test_zitadel_org_admin_can_reject(client):
     r = client.post(f"/submissions/{sid}/reject", headers=ZITADEL_ORG_ADMIN)
     assert r.status_code == 200
     assert r.json()["status"] == "rejected"
+
+
+def test_per_church_orgs_are_isolated(client):
+    # Each church has its own Zitadel org. An admin in the Hagsätra org
+    # (Medhane Alem/stockholm) sees only stockholm's submissions, never nacka's.
+    nacka_sid = _submit(client, church_id="nacka")
+    sthlm_sid = _submit(client, church_id="stockholm")
+
+    sthlm = client.get("/submissions", headers=STOCKHOLM_ORG_ADMIN)
+    assert sthlm.status_code == 200
+    assert [item["submission_id"] for item in sthlm.json()] == [sthlm_sid]
+
+    nacka = client.get("/submissions", headers=ZITADEL_ORG_ADMIN)
+    assert [item["submission_id"] for item in nacka.json()] == [nacka_sid]
 
 
 def test_unknown_org_id_sees_nothing(client):
