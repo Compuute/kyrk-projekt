@@ -10,6 +10,7 @@ from fastapi import FastAPI
 
 from app.api.routes_members import router as members_router
 from app.api.routes_funerals import router as funerals_router
+from app.api.routes_grants import router as grants_router
 from app.api.routes_sunday_school import router as sunday_school_router
 
 
@@ -17,6 +18,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="membership-service", version="0.1.0")
     app.include_router(members_router)
     app.include_router(funerals_router)
+    app.include_router(grants_router)
     app.include_router(sunday_school_router)
 
     @app.get("/healthz", tags=["infra"])

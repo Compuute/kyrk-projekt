@@ -172,3 +172,25 @@ class FuneralCase:
 
     notes: str = ""
 
+
+
+@dataclass
+class GrantApplication:
+    """A church's application to a specific grant (YELLOW zone — board input
+    and aggregate amounts, no RED personal data)."""
+
+    grant_id: str
+    church_id: str
+    status: str = "not_started"  # not_started | in_progress | submitted | approved | rejected
+    started_at: datetime | None = None
+    submitted_at: datetime | None = None
+    amount_requested: float | None = None
+    amount_granted: float | None = None
+    notes: str = ""
+    generated_draft_url: str | None = None
+    # Board-supplied fields for draft generation
+    project_name: str = ""
+    project_description: str = ""
+    target_group: str = ""
+    budget_amount: float | None = None
+    own_contribution: float | None = None
