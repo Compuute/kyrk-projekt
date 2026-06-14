@@ -70,7 +70,9 @@ resource "google_pubsub_subscription" "agent_jobs_push" {
 resource "google_cloud_scheduler_job" "agent_report_monthly" {
   name    = "agent-report-monthly"
   project = var.project_id
-  region  = var.region
+  # Cloud Scheduler is not available in europe-north1 (var.region); use a
+  # supported region. The job only publishes to the (global) Pub/Sub topic.
+  region = var.scheduler_region
 
   description = "Trigger för rapportagenten: månadsrapport (YELLOW-aggregat) till styrelsen."
   schedule    = "0 6 1 * *" # 06:00 den 1:a varje månad
