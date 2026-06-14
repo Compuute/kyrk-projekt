@@ -1,0 +1,26 @@
+{
+  "church": "stockholm",
+  "categories": {
+    "forsamlingen": {
+      "sv": "Församlingen",
+      "am": "ስለ ቤተ ክርስቲያኒቱ"
+    },
+    "tro": {
+      "sv": "Tro & lära",
+      "am": "ሃይማኖትና ትምህርት"
+    },
+    "fasta": {
+      "sv": "Fastan & Stilla veckan",
+      "am": "ዐቢይ ጾም እና ሰሙነ ሕማማት"
+    },
+    "pask": {
+      "sv": "Påsk",
+      "am": "ትንሣኤ"
+    },
+    "hogtider": {
+      "sv": "Högtider",
+      "am": "በዓላት"
+    }
+  },
+  "teachings": []
+}
