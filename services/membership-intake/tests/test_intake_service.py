@@ -53,6 +53,25 @@ def test_notifier_failure_does_not_break_submission(repo, limiter):
     assert repo.get(submission.submission_id) is not None
 
 
+def test_action_and_tax_consent_are_stored(service, repo):
+    # "Redan medlem — vill bara byta kyrkoskatt": the church-fee switch is a
+    # revenue lever, so the intent (action) and the Skatteverket consent must
+    # be persisted on the submission for admins to act on.
+    submission = service.submit(
+        _payload(action="already_member", tax_consent=True, monthly_fee_sek=0),
+        client_ip="1.2.3.4",
+    )
+    stored = repo.get(submission.submission_id)
+    assert stored.action == "already_member"
+    assert stored.tax_consent is True
+
+
+def test_action_defaults_when_not_provided(service):
+    submission = service.submit(_payload(), client_ip="1.2.3.4")
+    assert submission.action == "register_only"
+    assert submission.tax_consent is False
+
+
 def test_missing_consent_rejected(service):
     with pytest.raises(ConsentMissing):
         service.submit(_payload(gdpr_consent=False), client_ip="1.2.3.4")

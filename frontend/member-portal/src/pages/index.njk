@@ -214,12 +214,13 @@ activePage: "home"
         errorEl.style.display = 'block';
         return false;
       }
-      if (action === 'register_and_switch' && !pnr) {
+      var wantsSwitch = action === 'register_and_switch' || action === 'already_member';
+      if (wantsSwitch && !pnr) {
         errorEl.textContent = 'Personnummer krävs för att byta kyrkoskatt. / ለቤተ ክርስቲያን ግብር ለመቀየር የግል ቁጥር ያስፈልጋል።';
         errorEl.style.display = 'block';
         return false;
       }
-      if (action === 'register_and_switch' && taxConsent !== 'true') {
+      if (wantsSwitch && taxConsent !== 'true') {
         errorEl.textContent = 'Du måste samtycka till att kyrkoavgiften uppbärs via Skatteverket. / በግብር ስርዓት ለመሰብሰብ መስማማት አለብዎት።';
         errorEl.style.display = 'block';
         return false;
@@ -239,7 +240,11 @@ activePage: "home"
         source: 'quick_register',
         church_id: churchId,
         membership_type: 'individual',
-        monthly_fee_sek: 200,
+        // Existing members who only switch their church tax pay no new
+        // membership fee — the contribution comes via Skatteverket.
+        monthly_fee_sek: action === 'already_member' ? 0 : 200,
+        action: action,
+        tax_consent: taxConsent === 'true',
         family_members: []
       };
 
@@ -262,7 +267,10 @@ activePage: "home"
           var detailEl = document.getElementById('qr-success-detail');
           var detailAmEl = document.getElementById('qr-success-detail-am');
           
-          if (action === 'register_and_switch') {
+          if (action === 'already_member') {
+            detailEl.textContent = 'Tack! Vi har påbörjat bytet av din kyrkoskatt till vår församling. Vi kontaktar dig inom kort.';
+            detailAmEl.textContent = 'አመሰግናለሁ! የቤተ ክርስቲያን ግብርዎን ወደ ቤተ ክርስቲያናችን መቀየር ጀምረናል። በቅርቡ እናገኝዎታለን።';
+          } else if (action === 'register_and_switch') {
             detailEl.textContent = 'Vi har tagit emot din medlemsansökan och påbörjat bytet av kyrkoskatt. Vi kontaktar dig inom kort.';
             detailAmEl.textContent = 'የአባልነት ማመልከቻዎን ተቀብለን የቤተ ክርስቲያን ግብር መቀየር ጀምረናል። በቅርቡ እናገኝዎታለን።';
           } else {

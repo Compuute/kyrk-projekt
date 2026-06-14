@@ -23,8 +23,20 @@ breadcrumb: "Bli medlem"
         <input type="hidden" name="church_id" id="field-church-id" value="nacka" />
         <input type="hidden" id="field-membership-type" value="individual" />
         <input type="hidden" id="field-monthly-fee" value="200" />
+        <input type="hidden" name="action" id="field-action" value="register_and_switch" />
 
-        <div class="membership-type">
+        <div class="form-group">
+          <label for="action-select">
+            Jag vill <span class="label-am">/ እፈልጋለሁ</span>
+          </label>
+          <select id="action-select" onchange="onActionChange()" style="width:100%;padding:12px;border:1px solid var(--border,#ccc);border-radius:8px;font-size:16px;">
+            <option value="register_and_switch">Bli medlem + byta kyrkoskatt fr&#xE5;n Svenska kyrkan</option>
+            <option value="register_only">Bara bli medlem (byt inte kyrkoskatt)</option>
+            <option value="already_member">Redan medlem &#x2014; vill bara byta kyrkoskatt</option>
+          </select>
+        </div>
+
+        <div class="membership-type" id="membership-section">
           <button type="button" class="type-btn selected" id="type-individual" onclick="selectType('individual')">
             <span class="price">200 kr</span>
             <span class="label">Enskild / ግለሰብ</span>
@@ -88,6 +100,24 @@ breadcrumb: "Bli medlem"
           <div style="font-size:12px;color:var(--muted,#666);margin-top:4px">
             Dras via autogiro efter första betalningen / ከመጀመሪያው ክፍያ በኋላ በautogiro ይቀነሳል
           </div>
+        </div>
+
+        <div class="gdpr-box" id="tax-consent-section" style="display:none;">
+          <div class="gdpr-sv">
+            <strong>Kyrkoavgift via Skatteverket:</strong> Jag samtycker till att min
+            kyrkoavgift uppb&#xE4;rs av Skatteverket och tillfaller f&#xF6;rsamlingen
+            (Lag 1999:291). Kr&#xE4;vs f&#xF6;r att kyrkoskatten ska g&#xE5; till v&#xE5;r
+            kyrka i st&#xE4;llet f&#xF6;r Svenska kyrkan.
+          </div>
+          <div class="gdpr-am">
+            <strong>የቤተ ክርስቲያን ክፍያ በ Skatteverket:</strong> የቤተ ክርስቲያን ክፍያዬ
+            በግብር ስርዓት በኩል ተሰብስቦ ለቤተ ክርስቲያን እንዲሰጥ እስማማለሁ።
+          </div>
+          <input type="hidden" id="field-tax-consent" name="tax_consent" value="" />
+          <button type="button" class="consent-btn" id="tax-consent-btn" onclick="toggleConsent('field-tax-consent','tax-consent-btn','tax-consent-box')">
+            <span class="consent-box" id="tax-consent-box"></span>
+            <span>Jag samtycker till kyrkoavgift via Skatteverket / እስማማለሁ</span>
+          </button>
         </div>
 
         <div class="gdpr-box">
@@ -208,6 +238,40 @@ breadcrumb: "Bli medlem"
     }
     return members;
   }
+
+  function onActionChange() {
+    var action = document.getElementById('action-select').value;
+    document.getElementById('field-action').value = action;
+
+    var membershipSection = document.getElementById('membership-section');
+    var feeSummary = document.getElementById('fee-summary');
+    var familySection = document.getElementById('family-section');
+    var taxSection = document.getElementById('tax-consent-section');
+
+    var alreadyMember = action === 'already_member';
+    var wantsSwitch = action === 'already_member' || action === 'register_and_switch';
+
+    // Existing members switching tax pay no new membership fee — hide the
+    // fee/family selection entirely and zero the fee.
+    membershipSection.style.display = alreadyMember ? 'none' : 'flex';
+    feeSummary.style.display = alreadyMember ? 'none' : 'block';
+    if (alreadyMember) {
+      familySection.classList.remove('visible');
+      document.getElementById('field-membership-type').value = 'individual';
+      document.getElementById('field-monthly-fee').value = '0';
+    } else {
+      // Restore the currently-selected membership type's fee.
+      selectType(document.getElementById('field-membership-type').value || 'individual');
+    }
+
+    // Church-tax consent only makes sense (and is required) when switching.
+    taxSection.style.display = wantsSwitch ? 'block' : 'none';
+    if (!wantsSwitch) {
+      document.getElementById('field-tax-consent').value = '';
+      document.getElementById('tax-consent-btn').classList.remove('checked');
+      document.getElementById('tax-consent-box').textContent = '';
+    }
+  }
   </script>
 
   <script>
@@ -247,6 +311,10 @@ breadcrumb: "Bli medlem"
       var errorMsg = document.getElementById('error-msg');
       var submitBtn = document.getElementById('submit-btn');
 
+      // Apply the default action's visibility (default = register_and_switch,
+      // so the church-tax consent section is shown on load).
+      onActionChange();
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         errorMsg.style.display = 'none';
@@ -282,6 +350,23 @@ breadcrumb: "Bli medlem"
           return;
         }
 
+        var action = document.getElementById('field-action').value;
+        var taxConsent = document.getElementById('field-tax-consent').value === 'true';
+        var wantsSwitch = action === 'already_member' || action === 'register_and_switch';
+
+        // Church-tax switch requires a personnummer (för Skatteverket) and the
+        // explicit avgiftshjälp-consent (Lag 1999:291).
+        if (wantsSwitch && !pnr) {
+          errorMsg.textContent = 'Personnummer krävs för att byta kyrkoskatt. / ለቤተ ክርስቲያን ግብር ለመቀየር የግል ቁጥር ያስፈልጋል።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+        if (wantsSwitch && !taxConsent) {
+          errorMsg.textContent = 'Du måste samtycka till att kyrkoavgiften uppbärs via Skatteverket. / በግብር ስርዓት ለመሰብሰብ መስማማት አለብዎት።';
+          errorMsg.style.display = 'block';
+          return;
+        }
+
         submitBtn.disabled = true;
         submitBtn.textContent = 'Skickar... / በመላክ ላይ...';
 
@@ -308,6 +393,8 @@ breadcrumb: "Bli medlem"
           church_id: document.getElementById('field-church-id').value,
           membership_type: membershipType,
           monthly_fee_sek: parseInt(document.getElementById('field-monthly-fee').value),
+          action: action,
+          tax_consent: taxConsent,
           family_members: familyMembers
         };
 
@@ -321,6 +408,12 @@ breadcrumb: "Bli medlem"
             if (r.status === 202 || r.status === 201) {
               formCard.style.display = 'none';
               successMsg.style.display = 'block';
+              // "Redan medlem — byt bara kyrkoskatt": no new membership fee or
+              // Swish/autogiro step — the church files the Skatteverket consent.
+              if (action === 'already_member') {
+                document.getElementById('payment-next-step').style.display = 'none';
+                return;
+              }
               var fee = parseInt(document.getElementById('field-monthly-fee').value);
               document.getElementById('success-fee').textContent = fee + ' kr';
               var swishLink = document.getElementById('success-swish-link');

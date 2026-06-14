@@ -47,6 +47,8 @@ class HttpxIntakeClient:
                 last_name=item["last_name"],
                 received_at=item["received_at"],
                 status=item["status"],
+                action=item.get("action", "register_only"),
+                tax_consent=item.get("tax_consent", False),
             )
             for item in r.json()
         ]

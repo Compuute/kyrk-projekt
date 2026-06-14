@@ -52,6 +52,14 @@ class IntakeSubmission:
     source: str = ""  # wifi, telegram, donate, event, referral, direct
     membership_type: str = "individual"  # individual | family
     monthly_fee_sek: int = 200
+    # What the applicant wants. The church-fee switch (kyrkoskatt) is a key
+    # revenue lever, so the intent is captured explicitly:
+    #   register_and_switch — bli medlem + byta kyrkoskatt
+    #   register_only       — bara bli medlem
+    #   already_member      — redan medlem, vill bara byta kyrkoskatt
+    action: str = "register_only"
+    # Consent to have the church fee collected via Skatteverket (Lag 1999:291).
+    tax_consent: bool = False
     family_members: list[FamilyMemberRecord] = field(default_factory=list)
     status: SubmissionStatus = SubmissionStatus.PENDING
     submission_id: str = field(default_factory=_new_id)

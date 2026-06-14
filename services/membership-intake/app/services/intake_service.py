@@ -47,6 +47,8 @@ class IntakePayload:
     source: str = "direct"
     membership_type: str = "individual"  # individual | family
     monthly_fee_sek: int = 200
+    action: str = "register_only"  # register_and_switch | register_only | already_member
+    tax_consent: bool = False
     family_members: tuple[FamilyMember, ...] = ()
 
 
@@ -103,6 +105,8 @@ class IntakeService:
             source=payload.source,
             membership_type=payload.membership_type,
             monthly_fee_sek=payload.monthly_fee_sek,
+            action=payload.action,
+            tax_consent=payload.tax_consent,
             family_members=[
                 FamilyMemberRecord(
                     first_name=fm.first_name,
