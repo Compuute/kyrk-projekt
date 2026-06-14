@@ -123,11 +123,17 @@ def make_sunday_school_client() -> SundaySchoolClientPort:
     return FakeSundaySchoolClient()
 
 
-def make_grant_tracker() -> GrantTrackerPort:
+def make_grant_tracker(token: str | None = None) -> GrantTrackerPort:
+    """Grant applications are stored behind membership-service (YELLOW zone),
+    so admin-web proxies over HTTP with the admin's token — it holds no
+    Firestore credentials itself (same pattern as the funeral tracker)."""
     if _mode() == "production":
-        from app.adapters.firestore_grant_tracker import FirestoreGrantTracker
+        from app.adapters.httpx_grant_tracker import HttpxGrantTracker
 
-        return FirestoreGrantTracker()
+        return HttpxGrantTracker(
+            base_url=_require_env("MEMBERSHIP_BASE_URL"),
+            token=token or "",
+        )
     from app.adapters.fake_grant_tracker import FakeGrantTracker
 
     return FakeGrantTracker()

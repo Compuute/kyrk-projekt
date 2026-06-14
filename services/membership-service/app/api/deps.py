@@ -15,6 +15,7 @@ from app.adapters.factory import (
     make_encryption,
     make_member_repository,
     make_funeral_tracker,
+    make_grant_tracker,
     make_sunday_school_tracker,
 )
 from app.domain.errors import NotAuthorized
@@ -24,6 +25,7 @@ from app.ports.auth import AuthPort
 from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
 from app.ports.funeral_tracker import FuneralTrackerPort
+from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.sunday_school import SundaySchoolPort
 from app.services.membership_service import MembershipService
 
@@ -35,6 +37,7 @@ _AUTH: AuthPort | None = None
 _ENCRYPTION: EncryptionPort | None = None
 _AUDIT: AuditPort | None = None
 _FUNERAL_TRACKER: FuneralTrackerPort | None = None
+_GRANT_TRACKER: GrantTrackerPort | None = None
 
 
 def get_repo() -> MemberRepository:
@@ -70,6 +73,13 @@ def get_funeral_tracker() -> FuneralTrackerPort:
     if _FUNERAL_TRACKER is None:
         _FUNERAL_TRACKER = make_funeral_tracker()
     return _FUNERAL_TRACKER
+
+
+def get_grant_tracker() -> GrantTrackerPort:
+    global _GRANT_TRACKER
+    if _GRANT_TRACKER is None:
+        _GRANT_TRACKER = make_grant_tracker()
+    return _GRANT_TRACKER
 
 
 _SUNDAY_SCHOOL: SundaySchoolPort | None = None

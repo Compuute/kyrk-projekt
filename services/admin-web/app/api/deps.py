@@ -40,7 +40,6 @@ _ACTIVITY: ActivityClientPort | None = None
 _REPORTING: ReportingClientPort | None = None
 _NOTIFICATION: NotificationPort | None = None
 _FUNERAL_TRACKER: FuneralTrackerPort | None = None
-_GRANT_TRACKER: GrantTrackerPort | None = None
 _GRANT_DRAFT_GENERATOR: GrantDraftGeneratorPort | None = None
 _CONTENT_STORE: ContentStorePort | None = None
 _TRANSLATOR: TranslationPort | None = None
@@ -87,13 +86,6 @@ def get_notification() -> NotificationPort:
         _NOTIFICATION = make_notification()
     return _NOTIFICATION
 
-
-
-def get_grant_tracker() -> GrantTrackerPort:
-    global _GRANT_TRACKER
-    if _GRANT_TRACKER is None:
-        _GRANT_TRACKER = make_grant_tracker()
-    return _GRANT_TRACKER
 
 
 def get_content_store() -> ContentStorePort:
@@ -157,6 +149,11 @@ def redirect_if_unauthenticated(
 
 def get_funeral_tracker(session: SessionInfo = Depends(current_session)) -> FuneralTrackerPort:
     return make_funeral_tracker(token=session.token)
+
+
+def get_grant_tracker(session: SessionInfo = Depends(current_session)) -> GrantTrackerPort:
+    # Built per-request with the admin's token (forwarded to membership-service).
+    return make_grant_tracker(token=session.token)
 
 
 def funeral_tracker_for(token: str) -> FuneralTrackerPort:

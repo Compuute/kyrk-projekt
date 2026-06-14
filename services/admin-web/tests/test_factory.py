@@ -99,10 +99,15 @@ def test_production_funeral_tracker_requires_base_url(monkeypatch):
     assert type(tracker).__name__ == "HttpxFuneralTracker"
 
 
-def test_production_grant_tracker_picks_firestore(monkeypatch):
+def test_production_grant_tracker_proxies_membership(monkeypatch):
+    # Grant storage moved behind membership-service; admin-web proxies over
+    # HTTP (no Firestore credentials in the public tier).
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    tracker = make_grant_tracker()
-    assert type(tracker).__name__ == "FirestoreGrantTracker"
+    with pytest.raises(RuntimeError, match="MEMBERSHIP_BASE_URL"):
+        make_grant_tracker()
+    monkeypatch.setenv("MEMBERSHIP_BASE_URL", "https://membership.example")
+    tracker = make_grant_tracker(token="t")
+    assert type(tracker).__name__ == "HttpxGrantTracker"
 
 
 def test_production_session_requires_env(monkeypatch):

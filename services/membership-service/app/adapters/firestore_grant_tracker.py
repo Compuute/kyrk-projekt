@@ -1,10 +1,15 @@
-"""Firestore-backed grant tracker (YELLOW-zone data)."""
+"""Firestore-backed grant tracker (YELLOW-zone data).
+
+Moved here from admin-web: the public-facing admin tier must not hold
+Firestore credentials, so grant-application storage lives behind this
+service (same pattern as funerals). Collection: `grants`.
+"""
 from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from app.ports.grant_tracker import GrantApplication
+from app.domain.models import GrantApplication
 
 if TYPE_CHECKING:
     from google.cloud.firestore import Client  # pragma: no cover
@@ -15,6 +20,14 @@ _COLLECTION = "grants"
 
 def _doc_id(church_id: str, grant_id: str) -> str:
     return f"{church_id}__{grant_id}"
+
+
+def _parse_dt(value):
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        return value
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
 def _app_to_doc(a: GrantApplication) -> dict:
@@ -37,28 +50,12 @@ def _app_to_doc(a: GrantApplication) -> dict:
 
 
 def _doc_to_app(data: dict) -> GrantApplication:
-    started_at_val = data.get("started_at")
-    started_at = None
-    if started_at_val:
-        if isinstance(started_at_val, datetime):
-            started_at = started_at_val
-        else:
-            started_at = datetime.fromisoformat(started_at_val.replace("Z", "+00:00")).astimezone(timezone.utc)
-
-    submitted_at_val = data.get("submitted_at")
-    submitted_at = None
-    if submitted_at_val:
-        if isinstance(submitted_at_val, datetime):
-            submitted_at = submitted_at_val
-        else:
-            submitted_at = datetime.fromisoformat(submitted_at_val.replace("Z", "+00:00")).astimezone(timezone.utc)
-
     return GrantApplication(
         grant_id=data["grant_id"],
         church_id=data["church_id"],
         status=data.get("status", "not_started"),
-        started_at=started_at,
-        submitted_at=submitted_at,
+        started_at=_parse_dt(data.get("started_at")),
+        submitted_at=_parse_dt(data.get("submitted_at")),
         amount_requested=data.get("amount_requested"),
         amount_granted=data.get("amount_granted"),
         notes=data.get("notes", ""),

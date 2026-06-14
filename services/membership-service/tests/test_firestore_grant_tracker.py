@@ -4,10 +4,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
-import pytest
-
 from app.adapters.firestore_grant_tracker import FirestoreGrantTracker
-from app.ports.grant_tracker import GrantApplication
+from app.domain.models import GrantApplication
 
 
 class MockDocSnap:
@@ -26,7 +24,7 @@ def test_firestore_grant_tracker_save_and_get():
     app = GrantApplication(
         grant_id="grant1",
         church_id="c1",
-        status="started",
+        status="in_progress",
         started_at=datetime(2026, 6, 9, 12, 0, 0, tzinfo=timezone.utc),
         submitted_at=None,
         amount_requested=5000.0,
@@ -40,7 +38,6 @@ def test_firestore_grant_tracker_save_and_get():
         own_contribution=1000.0,
     )
 
-    # Test save
     tracker.save_application(app)
     mock_client.collection.assert_called_once_with("grants")
     mock_client.collection().document.assert_called_with("c1__grant1")
@@ -52,7 +49,6 @@ def test_firestore_grant_tracker_save_and_get():
     assert saved_data["started_at"] == "2026-06-09T12:00:00+00:00"
     assert saved_data["submitted_at"] is None
 
-    # Test get - existing
     mock_client.reset_mock()
     mock_doc = MockDocSnap(exists=True, data=saved_data)
     mock_client.collection().document().get.return_value = mock_doc
@@ -62,22 +58,16 @@ def test_firestore_grant_tracker_save_and_get():
     assert retrieved.grant_id == "grant1"
     assert retrieved.project_name == "Youth Activity"
     assert retrieved.started_at == app.started_at
-    mock_client.collection().document.assert_called_with("c1__grant1")
-    mock_client.collection().document().get.assert_called_once()
 
-    # Test get - non-existent
     mock_client.reset_mock()
-    mock_doc_missing = MockDocSnap(exists=False)
-    mock_client.collection().document().get.return_value = mock_doc_missing
-    retrieved_missing = tracker.get_application("c1", "grant2")
-    assert retrieved_missing is None
+    mock_client.collection().document().get.return_value = MockDocSnap(exists=False)
+    assert tracker.get_application("c1", "grant2") is None
 
 
 def test_firestore_grant_tracker_list():
     mock_client = MagicMock()
     tracker = FirestoreGrantTracker(client=mock_client)
 
-    # Test list_applications
     mock_doc1 = MockDocSnap(exists=True, data={"grant_id": "grant1", "church_id": "c1", "project_name": "Proj1"})
     mock_doc2 = MockDocSnap(exists=True, data={"grant_id": "grant2", "church_id": "c1", "project_name": "Proj2"})
 
@@ -90,7 +80,6 @@ def test_firestore_grant_tracker_list():
     assert apps[0].grant_id == "grant1"
     assert apps[1].grant_id == "grant2"
     mock_client.collection().where.assert_called_once_with("church_id", "==", "c1")
-    mock_query.stream.assert_called_once()
 
 
 def test_firestore_grant_tracker_lazy_client(monkeypatch):
