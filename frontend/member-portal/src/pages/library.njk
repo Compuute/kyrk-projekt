@@ -17,7 +17,74 @@ breadcrumb: "Bibliotek"
       <div class="activity-item"><div class="activity-title">Böneböcker</div><div class="activity-desc">Samling av dagliga och söndagliga böner</div></div>
     </div>
 
+    <div class="card" id="teachings-card" style="display:none;">
+      <h2><span class="sv">Undervisning &amp; artiklar</span><span class="am" style="display:none">ትምህርትና ጽሑፎች</span></h2>
+      <p class="muted small">
+        <span class="sv">Församlingens egna texter om tro, fastan och högtider. Originaltexten är på amhariska; svensk översättning publiceras efter granskning.</span>
+        <span class="am" style="display:none">የቤተ ክርስቲያኒቱ የራሷ ጽሑፎች ስለ እምነት፣ ጾም እና በዓላት። ዋናው ጽሑፍ በአማርኛ ነው።</span>
+      </p>
+      <div id="teachings-root"></div>
+    </div>
+
     <div class="card">
       <h2><span class="sv">Låna böcker</span><span class="am" style="display:none">መጽሐፍት ይውሰዱ</span></h2>
       <p><span class="sv">Kontakta kyrkan för att låna fysiska böcker. Digitala texter kommer att publiceras här framöver.</span><span class="am" style="display:none">መጽሐፍትን ለመውሰድ ቤተ ክርስቲያንን ያግኙ። ዲጂታል ጽሑፎች በቅርቡ ይለቀቃሉ።</span></p>
     </div>
+
+  <script>
+    // Per-church teaching library, loaded from the same content model as the
+    // rest of the portal (/churches/<slug>/teachings.json). Native <details>
+    // for keyboard/screen-reader accessibility; no external scripts; the
+    // Amharic original is always shown (primary audience), Swedish when ready.
+    (function () {
+      var church = (window.getSelectedChurch && getSelectedChurch()) || 'nacka';
+      fetch('/churches/' + church + '/teachings.json', { credentials: 'omit', cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.teachings || !data.teachings.length) return;
+          var root = document.getElementById('teachings-root');
+          var cats = data.categories || {};
+          var byCat = {};
+          data.teachings.forEach(function (t) { (byCat[t.category] = byCat[t.category] || []).push(t); });
+
+          function bilingual(tag, sv, am, cls) {
+            var el = document.createElement(tag); if (cls) el.className = cls;
+            var s = document.createElement('span'); s.className = 'sv'; s.textContent = sv || '';
+            var a = document.createElement('span'); a.className = 'am'; a.style.display = 'none'; a.textContent = am || '';
+            el.appendChild(s); el.appendChild(a); return el;
+          }
+
+          Object.keys(cats).forEach(function (ck) {
+            var items = byCat[ck]; if (!items) return;
+            root.appendChild(bilingual('h3', cats[ck].sv, cats[ck].am, 'teaching-cat'));
+            items.forEach(function (t) {
+              var d = document.createElement('details'); d.className = 'teaching';
+              var sum = document.createElement('summary');
+              sum.appendChild(bilingual('span', (t.title || {}).sv, (t.title || {}).am));
+              d.appendChild(sum);
+              var body = document.createElement('div'); body.className = 'teaching-body';
+              var svBody = (t.body || {}).sv || '';
+              if (svBody) {
+                var p = document.createElement('div'); p.className = 'teaching-sv'; p.textContent = svBody; body.appendChild(p);
+                body.appendChild(bilingual('div', 'Originaltext (amhariska)', 'ዋናው ጽሑፍ', 'teaching-label'));
+              } else {
+                body.appendChild(bilingual('div',
+                  'Svensk översättning publiceras efter granskning.',
+                  'የስዊድንኛ ትርጉም በግምገማ ላይ ነው።', 'teaching-note'));
+              }
+              var amb = document.createElement('div'); amb.className = 'teaching-am';
+              amb.setAttribute('lang', 'am'); amb.textContent = (t.body || {}).am || '';
+              body.appendChild(amb);
+              if (t.note) {
+                var ed = document.createElement('div'); ed.className = 'teaching-edit'; ed.textContent = '⚠ ' + t.note;
+                body.appendChild(ed);
+              }
+              d.appendChild(body); root.appendChild(d);
+            });
+          });
+          document.getElementById('teachings-card').style.display = '';
+          if (window.applyLanguage && window.detectLanguage) { try { applyLanguage(detectLanguage()); } catch (e) {} }
+        })
+        .catch(function () {});
+    })();
+  </script>

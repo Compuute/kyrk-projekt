@@ -74,3 +74,27 @@ en flytt.
 Bearbeta `teklehaymanot-posts.json` → producera (a) kurerad lista, (b) am→sv-
 översättningar, (c) KV-/sid-innehåll, (d) redirect-karta. Därefter människo-
 granskning och cutover.
+
+## 7. Genomförd skörd — Nacka (status)
+
+Den repeterbara skörden är körd för **Nacka** (Abune Tekle Haymanot =
+teklehaymanot.se). Den gamla WordPress-databasen (49 inlägg) kemtvättades:
+dubbletter, nästan tomma poster, daterade event och interna konfliktinlägg
+ filtrerades bort → **21 bestående artiklar** (mest kateketiskt material:
+ዐቢይ ጾም-serien, ሰሙነ ሕማማት, ትንሣኤ, kristen etik, högtider, historik, ungdom).
+
+- Innehållet ligger i **`frontend/member-portal/churches/nacka/teachings.json`**
+  (samma per-kyrka-modell som `content.json`), kategoriserat och tvåspråkigt
+  förberett: **fullständig amharisk originaltext** (omedelbart värde för
+  medlemmarna) + **svenska titlar**; historiken är **helt översatt** (märkt som
+  redaktionellt utkast pga tidigare namn/plats). Övriga svenska översättningar
+  är flaggade *"under granskning"* och fylls på efter teologisk granskning.
+- Renderas i **Bibliotek** via en tillgänglig, tvåspråkig sektion
+  (`<details>` — tangentbord/skärmläsare, läsbar radlängd, inga externa
+  skript), som visar amhariskan alltid och svenskan när den är klar.
+- `churches/stockholm/teachings.json` finns som **tom struktur** — redo för
+  Hagsätras skörd med samma metod när den kyrkans sajt finns.
+
+**Playbook-bekräftelse:** detta *är* metoden för att ta in övriga kyrkor —
+peka skörden mot kyrkans gamla sajt, skriv till `churches/<slug>/teachings.json`,
+samma Bibliotek-renderare visar den. Inget per-kyrka-specialfall i koden.
