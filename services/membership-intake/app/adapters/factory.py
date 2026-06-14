@@ -16,9 +16,13 @@ Required env vars in production mode:
 - ZITADEL_ISSUER_URL
 - ZITADEL_CLIENT_ID
 - MEMBERSHIP_SERVICE_URL
-- ADMIN_NOTIFY_WEBHOOK
 - BREVO_API_KEY (donation receipts)
 - RECEIPT_FROM_EMAIL (donation receipts)
+
+Optional env vars:
+- ADMIN_NOTIFY_WEBHOOK — admin push notification. If unset, notifications
+  are disabled (no-op); intake submissions still work and are visible in
+  admin-web. Never required for the public intake flow to succeed.
 """
 from __future__ import annotations
 
@@ -52,10 +56,17 @@ def make_submission_repository() -> SubmissionRepository:
 
 def make_notifier() -> NotifierPort:
     if _mode() == "production":
-        from app.adapters.http_notifier import HttpNotifier
+        # ADMIN_NOTIFY_WEBHOOK is OPTIONAL. It is a non-critical push channel —
+        # a missing/empty webhook must never block a member's intake submission
+        # (admins still see pending intake in admin-web). If unset, no-op.
+        url = os.getenv("ADMIN_NOTIFY_WEBHOOK", "")
+        if url:
+            from app.adapters.http_notifier import HttpNotifier
 
-        url = _require_env("ADMIN_NOTIFY_WEBHOOK")
-        return HttpNotifier(webhook_url=url)
+            return HttpNotifier(webhook_url=url)
+        from app.adapters.noop_notifier import NoopNotifier
+
+        return NoopNotifier()
     from app.adapters.in_memory_notifier import InMemoryNotifier
 
     return InMemoryNotifier()
