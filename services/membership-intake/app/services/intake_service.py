@@ -114,7 +114,12 @@ class IntakeService:
             ],
         )
         self._repo.add(submission)
-        self._notifier.notify_new_pending(submission)
+        # Notification is a non-critical side effect — it must never break a
+        # member's submission. The submission is already stored above.
+        try:
+            self._notifier.notify_new_pending(submission)
+        except Exception:  # noqa: BLE001 — any notifier failure is non-fatal
+            pass
         return submission
 
     # -------------------------------------------------------------------- admin
