@@ -14,8 +14,8 @@
     "live_schedule": [
       {
         "day": "sun",
-        "start": "11:00",
-        "duration_min": 150
+        "start": "07:00",
+        "duration_min": 240
       }
     ],
     "address": "Saltsjö-Boo, Nacka",
