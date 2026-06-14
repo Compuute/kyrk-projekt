@@ -7,6 +7,10 @@ on:
   pull_request:
     paths:
       - 'infra/terraform/**'
+  # On-demand plan for both environments without an infra PR — e.g. to inspect
+  # what an env (prod) is missing before a first apply. Read-only via WIF, so it
+  # works without local gcloud credentials.
+  workflow_dispatch:
 
 # Collapse rapid pushes on the same PR to the latest plan.
 concurrency:
