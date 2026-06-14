@@ -26,6 +26,7 @@ from app.ports.clients import (
 )
 from app.ports.content_store import ContentStorePort
 from app.ports.funeral_tracker import FuneralTrackerPort
+from app.ports.grant_draft_generator import GrantDraftGeneratorPort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.notification import NotificationPort
 from app.ports.session import SessionPort
@@ -150,6 +151,27 @@ def make_translator() -> TranslationPort:
     from app.adapters.fake_translator import FakeTranslator
 
     return FakeTranslator()
+
+
+def make_grant_draft_generator() -> GrantDraftGeneratorPort:
+    """Claude-backed in production (when ANTHROPIC_API_KEY is set), otherwise
+    the deterministic template. Model id comes from config/env (never
+    hardcoded in the call) per CLAUDE.md; the Claude adapter falls back to the
+    template on any failure, so calling this is always safe."""
+    if _mode() == "production" and os.getenv("ANTHROPIC_API_KEY"):
+        from app.adapters.anthropic_grant_draft_generator import (
+            AnthropicGrantDraftGenerator,
+        )
+
+        return AnthropicGrantDraftGenerator(
+            api_key=os.environ["ANTHROPIC_API_KEY"],
+            model=os.getenv("GRANT_DRAFT_MODEL", "claude-sonnet-4-20250514"),
+        )
+    from app.adapters.template_grant_draft_generator import (
+        TemplateGrantDraftGenerator,
+    )
+
+    return TemplateGrantDraftGenerator()
 
 
 def make_session_adapter() -> SessionPort:

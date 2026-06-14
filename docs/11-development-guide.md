@@ -28,7 +28,7 @@ Every service reads one env var at startup:
 
 ```
 ADAPTER_MODE=memory     # default — in-memory adapters, no external deps
-ADAPTER_MODE=production # real Firestore / KMS / PropelAuth / BigQuery
+ADAPTER_MODE=production # real Firestore / KMS / Zitadel / BigQuery
 ```
 
 The selection happens in `app/adapters/factory.py`. Tests never set

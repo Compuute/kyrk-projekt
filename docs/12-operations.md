@@ -32,6 +32,12 @@ gcloud run services update-traffic <service> \
 wrangler pages deployment rollback --project-name=kyrka-portal
 ```
 
+> **Felsökning för agenter:** maskinläsbara runbooks i `ops/runbooks/` —
+> `health-check`, `incident-triage`, `rollback`, `backup-verify`,
+> `deploy-preflight` (infra/drift) och `calendar` (portalfunktion). Nya
+> driftbara funktioner ska få en egen runbook (ADR-023, docs-freshness-check
+> i CI påminner i varje PR).
+
 ## Architecture overview
 
 ```
@@ -70,6 +76,33 @@ It will:
    - Cloud KMS keyring `kyrk` + key `member-pn` (annual rotation)
    - Workload Identity Pool `github` + provider (restricted to one repo)
    - Deployer service account `sa-deployer` with 4 minimum roles
+     (app pipeline: build, push, deploy Cloud Run, read secrets)
+   - Infra service account `sa-terraform` used only by terraform-apply.yml
+     (editor + IAM/WIF/secret/KMS/storage admin — an IaC identity must be
+     able to administer what the IaC owns). NOTE: this account is a
+     bootstrap chicken-and-egg — it cannot create itself. On a brand-new
+     project a project owner creates it by hand before the first CI apply:
+
+     ```bash
+     gcloud iam service-accounts create sa-terraform \
+       --project=<PROJECT_ID> --display-name="Terraform infra deployer (CI)"
+     for role in roles/editor roles/resourcemanager.projectIamAdmin \
+       roles/iam.serviceAccountAdmin roles/iam.workloadIdentityPoolAdmin \
+       roles/secretmanager.admin roles/cloudkms.admin roles/storage.admin; do
+       gcloud projects add-iam-policy-binding <PROJECT_ID> \
+         --member="serviceAccount:sa-terraform@<PROJECT_ID>.iam.gserviceaccount.com" \
+         --role="$role" --quiet
+     done
+     gcloud iam service-accounts add-iam-policy-binding \
+       sa-terraform@<PROJECT_ID>.iam.gserviceaccount.com --project=<PROJECT_ID> \
+       --role="roles/iam.workloadIdentityUser" \
+       --member="principalSet://iam.googleapis.com/projects/<PROJECT_NUMBER>/locations/global/workloadIdentityPools/github/attribute.repository/<OWNER/REPO>"
+     ```
+
+     The import block in `infra/terraform/imports.tf` adopts the
+     hand-created account into state on the first CI apply. The full
+     identity model and the rules for humans and AI agents operating the
+     environment live in `docs/29-identitets-och-iam-principer.md`.
    - All 6 runtime service accounts with per-service IAM bindings
    - Firestore database (dev: regional `europe-north1`; prod: EU multi-region `eur3` — ADR-019)
    - BigQuery dataset `kyrk_analytics`
@@ -204,7 +237,7 @@ If the input sanitizer detects a validation failure before a request is processe
    look for the exception.
 2. If it's a config error (missing env var), check the deploy workflow
    ran with the right environment secrets.
-3. If it's a downstream error (Firestore / KMS / PropelAuth), check
+3. If it's a downstream error (Firestore / KMS / Zitadel), check
    each of those consoles for quota, outage, or permission issues.
 4. If it's not obvious in 5 minutes: **roll back** to the previous
    revision (see above) and investigate on a branch.

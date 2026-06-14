@@ -1,6 +1,6 @@
 {
   "name": "kyrk-projekt",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "AI-native kyrkplattform för Etiopisk-Ortodoxa Tewahedo-kyrkan i Sverige. Byggd med security-by-design, flerspråksstöd (svenska + amharic), och en Telegram-bot som admin-gränssnitt.",
   "main": "index.js",
   "directories": {

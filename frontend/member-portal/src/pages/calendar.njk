@@ -10,7 +10,14 @@ breadcrumb: "Kalender"
 
     <div class="card" style="margin-top:16px">
       <h2><span class="sv">Etiopisk kalender &amp; högtider</span><span class="am" style="display:none">የኢትዮጵያ ቀን መቁጠሪያ እና በዓላት</span></h2>
+      <div id="ethcal-now"></div>
       <div id="eth-calendar" aria-live="polite"></div>
+      <p class="muted" style="font-size:12px"><span class="sv">Klicka på en dag för att läsa om dess högtider.</span><span class="am" style="display:none">ስለ በዓላቱ ለማንበብ ቀኑን ይጫኑ።</span></p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2><span class="sv">Kommande högtider</span><span class="am" style="display:none">የሚመጡ በዓላት</span></h2>
+      <div id="ethcal-upcoming"></div>
     </div>
 
     <div class="card" style="margin-top:16px">
@@ -26,6 +33,25 @@ breadcrumb: "Kalender"
       <details>
         <summary><span class="sv">Etiopisk tid</span><span class="am" style="display:none">የኢትዮጵያ ሰዓት</span></summary>
         <p class="muted"><span class="sv">Dygnet räknas från soluppgången: klockan 12:00 svensk stil motsvarar 6:00 etiopisk tid. När församlingen anger tider används svensk tideräkning.</span><span class="am" style="display:none">ቀኑ ከፀሐይ መውጫ ይቆጠራል፤ በአውሮፓ አቆጣጠር 12:00 በኢትዮጵያ ሰዓት 6:00 ነው።</span></p>
+      </details>
+      <details>
+        <summary><span class="sv">Berättelsen om två kalendrar</span><span class="am" style="display:none">የሁለቱ ቀን መቁጠሪያዎች ታሪክ</span></summary>
+        <p class="muted"><span class="sv">År 46 f.Kr. bestämde Julius Caesar att året är 365 dagar och en kvart — den julianska kalendern. Men kvarten var 11 minuter för lång, och på tusen år gled påsken över en vecka fel. År 1582 rättade påven Gregorius XIII felet med en ny regel — den gregorianska kalendern som Sverige använder. Sverige bytte först 1753, så klantigt att februari 1712 fick 30 dagar — Sverige är enda landet i världen som haft ett 30 februari!</span><span class="am" style="display:none">በ46 ዓ.ዓ. ዩልዮስ ቄሳር የጁሊያን ቀን መቁጠሪያን አወጣ። በ1582 ጳጳስ ግሪጎሪዮስ 13ኛ አዲስ ሥርዓት አስተካከለ — ስዊድን የምትጠቀመው ይህንን ነው። ስዊድን እስከ 1753 አልቀየረችም ነበር።</span></p>
+        <p class="muted"><span class="sv">Vår kyrkas kalender kom inte från Rom utan från kyrkofäderna i Alexandria, som räknade ut tideräkningen redan på 200–400-talen. Systemet heter Bahire Hasab — "beräkningarnas hav" — och prästerna har använt det i obruten följd sedan dess. Skillnaden på 7–8 år beror på att de lärda i Alexandria och Rom räknade ut Jesu födelseår på olika sätt. Ingen har fel — vårt svar är det äldre.</span><span class="am" style="display:none">የቤተ ክርስቲያናችን ቀን መቁጠሪያ ከሮም ሳይሆን ከእስክንድርያ አበው መጣ። ሥርዓቱ ባሕረ ሐሳብ ይባላል፤ ካህናት ሳይቋረጥ እስከ ዛሬ ይጠቀሙበታል። የ7–8 ዓመታት ልዩነት የክርስቶስን ልደት በተለያየ መንገድ ከመቁጠር ነው — ማንም አልተሳሳተም፤ የእኛ ቀደምት ነው።</span></p>
+      </details>
+      <details>
+        <summary><span class="sv">Våra siffror — Ge'ez-talen</span><span class="am" style="display:none">የግእዝ ቁጥሮች</span></summary>
+        <p class="muted"><span class="sv">Siffrorna i svensk skola (1, 2, 3…) är inte svenska — de är indisk-arabiska, uppfunna i Indien och spridda av arabiska matematiker. Våra tecken — ፩ ፪ ፫ ፬ ፭ — är Ge'ez-tal som kom från de grekiska bokstäverna via kyrkan i Egypten. ፩=1, ፲=10, ፻=100, och det finns ingen nolla, precis som hos romarna. Prästerna och diakonerna läser dem i varje liturgi, kyrkböckerna och högtidskalendern skrivs med dem. Träna i trappa: lär dig ፩–፱ först, sedan ፲, och skriv ditt födelsedatum med Ge'ez-tal!</span><span class="am" style="display:none">በስዊድን ትምህርት ቤት ያሉ ቁጥሮች ህንዳዊ-ዓረብኛ ናቸው። የእኛ ፩ ፪ ፫ የግእዝ ቁጥሮች ከግሪክ ፊደላት በግብፅ ቤተ ክርስቲያን በኩል መጡ። ፩=1፣ ፲=10፣ ፻=100። ካህናትና ዲያቆናት በቅዳሴ ያነብቧቸዋል። ፩–፱ መጀመሪያ ተማር፣ ቀጥሎ ፲!</span></p>
+      </details>
+      <details>
+        <summary><span class="sv">Hela världen räknar olika — just nu</span><span class="am" style="display:none">ዓለም ሁሉ በተለያየ መንገድ ይቆጥራል — አሁን</span></summary>
+        <p class="muted"><span class="sv">Världens datorstandard (Unicode/CLDR — den alla mobiler och webbläsare bygger på) innehåller 18 kalendersystem. Tabellen nedan räknas ut live av din webbläsare: samma ögonblick, många olika svar — och alla är rätt. Etiopien har till och med två årtal: Amete Mihret räknar från Kristus och Amete Alem från världens skapelse.</span><span class="am" style="display:none">የዓለም የኮምፒውተር መስፈርት (Unicode/CLDR) 18 የቀን መቁጠሪያ ሥርዓቶችን ይዟል። ከታች ያለው ሰንጠረዥ በአሳሽህ በቀጥታ ይሰላል፤ አንድ ቅጽበት፣ ብዙ መልሶች — ሁሉም ትክክል ናቸው።</span></p>
+        <div id="world-calendars"></div>
+        <p class="muted"><span class="sv">Egen kalender i vardagen har också Eritrea, Iran, Afghanistan, Nepal, Saudiarabien, Israel, Thailand, Japan, Taiwan, Indien och Bangladesh — och hela den ortodoxa världen räknar påsk och jul efter den gamla räkningen (därför firas Gena 7 januari). Den gregorianska kalendern är världens gemensamma civilkalender, men en majoritet av mänskligheten lever med minst två kalendrar samtidigt: omkring 2 miljarder muslimer följer också Hijri, över 1 miljard hinduer sina månkalendrar, 1,4 miljarder firar kinesiska nyåret (siffror: Pew Research, ungefärliga). Det ovanliga är att bara kunna en kalender. Du som kan två är världens normalfall — och ett steg före.</span><span class="am" style="display:none">ኤርትራ፣ ኢራን፣ ኔፓል፣ እስራኤል፣ ታይላንድ፣ ጃፓንና ሌሎችም የራሳቸው ቀን መቁጠሪያ አላቸው። አብዛኛው የዓለም ሕዝብ ቢያንስ በሁለት ቀን መቁጠሪያ ይኖራል። ሁለት የምታውቅ አንተ የዓለም መደበኛ ነህ!</span></p>
+      </details>
+      <details>
+        <summary><span class="sv">Att vara stolt över</span><span class="am" style="display:none">የምንኮራበት</span></summary>
+        <p class="muted"><span class="sv">Kristendomen kom till Axum omkring år 330 — vår kyrka är en av världens äldsta. Bibeln översattes till Ge'ez på 400–600-talen, och Garima-evangelierna är troligen världens äldsta bevarade illustrerade evangeliebok (kol-14-daterad till 390–660 e.Kr.). Timkat finns sedan 2019 på UNESCO:s lista över mänsklighetens kulturarv. Eget alfabet, egna siffror, egen kalender, egen klocka — i obruten användning i 1 700 år. Och matematiken håller: den här sidans kalender kontrolleras automatiskt mot det system världens webbläsare använder, för tiotusentals datum — utan ett enda fel.</span><span class="am" style="display:none">ክርስትና ወደ አክሱም በ330 ዓ.ም. ገደማ መጣ — ቤተ ክርስቲያናችን ከዓለም ጥንታዊያን አንዷ ናት። መጽሐፍ ቅዱስ በ400–600ዎቹ ወደ ግእዝ ተተረጎመ፤ የገሪማ ወንጌላት ምናልባት የዓለም ጥንታዊ የተሣለ ወንጌል ናቸው። ጥምቀት ከ2019 ጀምሮ በዩኔስኮ ቅርስ ዝርዝር ላይ ነው። የራስ ፊደል፣ ቁጥር፣ ቀን መቁጠሪያና ሰዓት — ለ1700 ዓመታት ሳይቋረጥ።</span></p>
       </details>
     </div>
 

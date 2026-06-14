@@ -16,6 +16,8 @@ from app.api.deps import (
     get_certificate_client,
     get_content_store,
     get_funeral_tracker,
+    funeral_tracker_for,
+    get_grant_draft_generator,
     get_grant_tracker,
     get_intake_client,
     get_notification,
@@ -49,6 +51,7 @@ from app.ports.funeral_tracker import (
     calculate_price,
     checklist_progress,
 )
+from app.ports.grant_draft_generator import GrantDraftGeneratorPort
 from app.ports.grant_tracker import GrantApplication, GrantTrackerPort
 from app.ports.translation import TranslationPort
 
@@ -152,11 +155,15 @@ def dashboard(
     flash: str | None = None,
     level: str = "success",
     intake: IntakeClientPort = Depends(get_intake_client),
-    funerals: FuneralTrackerPort = Depends(get_funeral_tracker),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
         return session
+
+    # Built after the session is validated — NOT as a Depends, since
+    # get_funeral_tracker requires current_session and would 401 before
+    # _require_session can redirect an anonymous visitor to /login.
+    funerals = funeral_tracker_for(session.token)
 
     try:
         pending = intake.list_pending(session.token)
@@ -502,8 +509,13 @@ def kpi_dashboard_generate(
 
 
 def _load_grant_database() -> list[dict]:
-    """Load the grant catalog from automation/grants/database.json."""
-    db_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "automation" / "grants" / "database.json"
+    """Load the grant catalog bundled with the service (app/data/grants.json).
+
+    The catalog ships inside the package so it is present in the Cloud Run
+    image (the Docker build context is services/admin-web, so a repo-root
+    path would resolve to nothing in production — that previously left the
+    /grants page empty)."""
+    db_path = Path(__file__).resolve().parent.parent / "data" / "grants.json"
     if not db_path.exists():
         return []
     with open(db_path, "r", encoding="utf-8") as f:
@@ -556,7 +568,17 @@ def grants_list(
         return session
 
     grants = _load_grant_database()
-    applications = {a.grant_id: a for a in tracker.list_applications(session.church_id)}
+    # Downstream (Firestore/proxy) can be unavailable or unauthorized — degrade
+    # to "no applications loaded" with a banner instead of a 500. The static
+    # grant catalog still renders so the page stays useful.
+    error_message: str | None = None
+    try:
+        applications = {
+            a.grant_id: a for a in tracker.list_applications(session.church_id)
+        }
+    except Exception as exc:
+        applications = {}
+        error_message = f"Kunde inte läsa ansökningsstatus: {exc}"
 
     enriched = []
     upcoming_deadlines = 0
@@ -584,6 +606,7 @@ def grants_list(
             "upcoming_deadlines": upcoming_deadlines,
             "flash": flash,
             "level": level,
+            "error_message": error_message,
         },
     )
 
@@ -716,6 +739,7 @@ def grant_generate_draft(
     tracker: GrantTrackerPort = Depends(get_grant_tracker),
     activity: ActivityClientPort = Depends(get_activity_client),
     reporting: ReportingClientPort = Depends(get_reporting_client),
+    generator: GrantDraftGeneratorPort = Depends(get_grant_draft_generator),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
@@ -752,8 +776,9 @@ def grant_generate_draft(
     except ClientError as exc:
         error_message = f"Kunde inte hämta KPI-data: {exc}"
 
-    # Build the draft sections from board input + KPI data
-    draft = _build_grant_draft(grant, app, kpi_data, error_message)
+    # Generate the draft (Claude in prod, deterministic template otherwise;
+    # the generator always falls back to the template, so this never raises).
+    draft = generator.generate(grant, app, kpi_data, grant.get("language", "sv"))
 
     return TEMPLATES.TemplateResponse(
         request=request,
@@ -768,54 +793,6 @@ def grant_generate_draft(
     )
 
 
-def _build_grant_draft(
-    grant: dict,
-    app: GrantApplication | None,
-    kpi_data: dict | None,
-    error_message: str | None,
-) -> dict:
-    """Build a structured grant draft from board input and KPI data."""
-    lang = grant.get("language", "sv")
-    project_name = app.project_name if app else ""
-    project_desc = app.project_description if app else ""
-    target_group = app.target_group if app else ""
-    budget = app.budget_amount if app else None
-    own = app.own_contribution if app else None
-
-    kpi_summary = ""
-    if kpi_data:
-        kpi_summary = (
-            f"Under de senaste 12 månaderna har organisationen genomfört "
-            f"{kpi_data['activities_count']} aktiviteter med totalt "
-            f"{kpi_data['participants_total']} deltagare."
-        )
-        if kpi_data.get("age_band_counts"):
-            age_parts = [f"{band}: {n}" for band, n in kpi_data["age_band_counts"].items() if n > 0]
-            if age_parts:
-                kpi_summary += f" Åldersfördelning: {', '.join(age_parts)}."
-
-    if lang == "en":
-        return {
-            "summary": f"Application for {grant.get('name_en', grant['name'])} — {project_name}" if project_name else f"Application for {grant.get('name_en', grant['name'])}",
-            "project_description": project_desc or "[Fill in project description]",
-            "target_group": target_group or "[Fill in target group]",
-            "method": "[Describe the method and approach]",
-            "expected_results": "[Describe the expected results and impact]",
-            "budget_justification": f"Requested amount: {budget:,.0f} {grant.get('amount_range', {}).get('currency', 'SEK')}" if budget else "[Fill in budget]",
-            "kpi_evidence": kpi_summary.replace("månaderna", "months").replace("aktiviteter", "activities").replace("deltagare", "participants").replace("organisationen genomfört", "the organization conducted").replace("Under de senaste 12", "Over the past 12").replace("med totalt", "with a total of") if kpi_summary else "[No KPI data available]",
-            "sustainability": "[Describe how the project results will be sustained after funding ends]",
-        }
-
-    return {
-        "sammanfattning": f"Ansökan om {grant['name']} — {project_name}" if project_name else f"Ansökan om {grant['name']}",
-        "projektbeskrivning": project_desc or "[Fyll i projektbeskrivning]",
-        "målgrupp": target_group or "[Fyll i målgrupp]",
-        "metod": "[Beskriv metod och tillvägagångssätt]",
-        "förväntade_resultat": "[Beskriv förväntade resultat och påverkan]",
-        "budget_motivering": f"Sökt belopp: {budget:,.0f} {grant.get('amount_range', {}).get('currency', 'SEK')}. Egen insats: {own:,.0f} {grant.get('amount_range', {}).get('currency', 'SEK')}." if budget and own else "[Fyll i budget]",
-        "kpi_underlag": kpi_summary or "[Ingen KPI-data tillgänglig]",
-        "hållbarhet": "[Beskriv hur projektets resultat fortsätter efter bidragsperioden]",
-    }
 
 
 @router.get("/grants/{grant_id}/status", response_class=HTMLResponse)
@@ -1184,8 +1161,16 @@ def funerals_list(
     if isinstance(session, RedirectResponse):
         return session
 
-    cases = tracker.list_cases(session.church_id)
-    cases.sort(key=lambda c: c.created_at or datetime.min, reverse=True)
+    # The funeral store is a downstream RED proxy (ADR-020); if it is
+    # unavailable or unauthorized, show an empty list with a banner rather
+    # than crashing the page.
+    error_message: str | None = None
+    try:
+        cases = tracker.list_cases(session.church_id)
+        cases.sort(key=lambda c: c.created_at or datetime.min, reverse=True)
+    except Exception as exc:
+        cases = []
+        error_message = f"Kunde inte läsa begravningsärenden: {exc}"
 
     return TEMPLATES.TemplateResponse(
         request=request,
@@ -1195,6 +1180,7 @@ def funerals_list(
             "cases": cases,
             "flash": flash,
             "level": level,
+            "error_message": error_message,
         },
     )
 
@@ -1271,7 +1257,24 @@ def funeral_create(
         checklist=build_checklist(is_repatriation),
     )
 
-    tracker.save_case(case)
+    # The funeral store is a downstream RED proxy (membership-service, ADR-020).
+    # A downstream failure (auth, network, Firestore) must never surface as a
+    # raw 500 to the registrar — show a clear error and keep their input by
+    # returning to the form instead.
+    try:
+        tracker.save_case(case)
+    except ClientError as exc:
+        return _flash_redirect(
+            "/funerals/new",
+            f"Kunde inte spara ärendet ({exc}). Försök igen.",
+            level="error",
+        )
+    except Exception:  # noqa: BLE001 — any downstream fault must not 500 the form
+        return _flash_redirect(
+            "/funerals/new",
+            "Kunde inte spara ärendet just nu. Försök igen eller kontakta support.",
+            level="error",
+        )
 
     payload = {
         "case_id": case.case_id,

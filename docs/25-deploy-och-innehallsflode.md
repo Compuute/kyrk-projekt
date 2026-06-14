@@ -150,6 +150,34 @@ värdet är samma JSON-format som [churches/](../frontend/member-portal/churches
 
 ---
 
+## Flöde 2b: Strukturell config synkas automatiskt till KV
+
+Två källor skriver till samma KV-dokument, med **olika ägarskap**:
+
+| Källa | Äger | Exempel |
+|---|---|---|
+| **admin-web content editor** | redaktionellt innehåll | namn, tagline, meddelanden, kommande händelser |
+| **repot** (`churches/<id>/content.json`) | strukturella fält | `youtube_channel_id`, `youtube_handle`, `live_schedule` |
+
+Cloudflare Pages-bygget rör **inte** KV, så strukturella fält som lades
+till i repot nådde tidigare aldrig produktion utan en manuell
+`wrangler kv put` — vilket dessutom riskerade att skriva över admins
+redaktionella ändringar. Workflowen
+[sync-content-kv.yml](../.github/workflows/sync-content-kv.yml) stänger
+gapet **säkert**: vid varje push till `main` som rör en kyrkas
+`content.json` kör [scripts/sync-church-kv.mjs](../scripts/sync-church-kv.mjs)
+som **per kyrka** hämtar det levande KV-dokumentet, lägger på *enbart* de
+strukturella fälten (allowlist) och skriver tillbaka. Allt redaktionellt
+admin-web skrivit bevaras orört. Saknas KV-nyckeln (ny kyrka) seedas hela
+repo-dokumentet; vid annat fel än 404 avbryts körningen så ett tillfälligt
+fel aldrig kan nolla en kyrka.
+
+> Token: `CLOUDFLARE_API_TOKEN` måste ha **Workers KV Storage: Edit**
+> (Pages-only-token räcker inte). Merge-logiken verifieras av ett test
+> innan KV rörs.
+
+---
+
 ## Flöde 3: Vad händer när en besökare öppnar sajten
 
 Det är här de två flödena möts. Edge-middlewaren
@@ -207,8 +235,10 @@ Tre steg per kyrka — inget av dem kräver mer än några minuter:
    `churches/<id>/content.json` med kyrkans innehåll → PR → merge
    (deployar automatiskt). Detta gör kyrkan valbar i kyrkväljaren och
    ger den statisk fallback.
-2. **Seeda KV-nyckeln:**
-   `npx wrangler kv key put <id> --path frontend/member-portal/churches/<id>/content.json --namespace-id=f40a72c8fa544cf6ba3ab9daeb8bb8fc --remote`
+2. **KV seedas automatiskt** vid merge av PR:en i steg 1 — workflowen
+   `sync-content-kv.yml` ser att kyrkans KV-nyckel saknas och skriver hela
+   repo-dokumentet. (Akut/manuellt fallback:
+   `npx wrangler kv key put <id> --path frontend/member-portal/churches/<id>/content.json --namespace-id=f40a72c8fa544cf6ba3ab9daeb8bb8fc --remote`)
 3. **Ge kyrkans admin behörighet i admin-web** — därefter sköter de sitt
    innehåll själva via flöde 2.
 

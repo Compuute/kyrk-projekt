@@ -4,6 +4,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     [portal + "/app.js"]: "app.js",
     [portal + "/calendar-engine.js"]: "calendar-engine.js",
+    [portal + "/qrcodegen.js"]: "qrcodegen.js",
     [portal + "/styles.css"]: "styles.css",
     [portal + "/sw.js"]: "sw.js",
     [portal + "/_headers"]: "_headers",

@@ -14,7 +14,7 @@ VIEWER_TOKEN = "Bearer u2:nacka:viewer"
 OTHER_CHURCH_ADMIN_TOKEN = "Bearer u3:stockholm:admin"
 # In production, Zitadel sets actor.church_id to the organization id —
 # the registry maps it back to the portal church slug.
-ZITADEL_ORG_ADMIN_TOKEN = "Bearer u4:376713621675248694:admin"
+ZITADEL_ORG_ADMIN_TOKEN = "Bearer u4:376720665740439161:admin"  # Nacka-kyrkan org
 
 
 def _body(**overrides) -> dict:

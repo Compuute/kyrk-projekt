@@ -27,8 +27,8 @@ from app.ports.clients import ActivityAggregate
 from app.ports.grant_tracker import GrantApplication
 
 
-# Navigate: tests/ → admin-web/ → services/ → kyrk-projekt/ → automation/grants/
-GRANTS_DB_PATH = Path(__file__).resolve().parent.parent.parent.parent / "automation" / "grants" / "database.json"
+# The catalog ships inside the service package (tests/ → admin-web/ → app/data/).
+GRANTS_DB_PATH = Path(__file__).resolve().parent.parent / "app" / "data" / "grants.json"
 
 
 @pytest.fixture

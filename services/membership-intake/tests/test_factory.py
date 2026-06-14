@@ -46,10 +46,14 @@ def test_production_repository_picks_firestore(monkeypatch):
     assert type(repo).__name__ == "FirestoreSubmissionRepository"
 
 
-def test_production_notifier_requires_webhook(monkeypatch):
+def test_production_notifier_webhook_is_optional(monkeypatch):
+    # Missing ADMIN_NOTIFY_WEBHOOK must NOT raise — notifications are a
+    # non-critical channel, and a missing webhook previously 500'd every
+    # public /intake POST (masked as a CORS error in the browser).
     monkeypatch.setenv("ADAPTER_MODE", "production")
-    with pytest.raises(RuntimeError, match="ADMIN_NOTIFY_WEBHOOK"):
-        make_notifier()
+    monkeypatch.delenv("ADMIN_NOTIFY_WEBHOOK", raising=False)
+    notifier = make_notifier()
+    assert type(notifier).__name__ == "NoopNotifier"
 
     monkeypatch.setenv("ADMIN_NOTIFY_WEBHOOK", "https://webhook.example/notify")
     notifier = make_notifier()

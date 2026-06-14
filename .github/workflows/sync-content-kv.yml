@@ -1,0 +1,47 @@
+# Sync the repo's structural church config to Cloudflare KV (kyrka_content).
+#
+# The Cloudflare Pages git build deploys static assets but does NOT touch KV,
+# so structural fields added in the repo (youtube_channel_id, youtube_handle,
+# live_schedule) never reached production without a manual `wrangler kv put`.
+# This closes that gap automatically — and SAFELY: it merges only the
+# structural fields into each church's live KV doc, preserving everything the
+# admin-web content editor wrote (names, announcements, upcoming). See
+# scripts/sync-church-kv.mjs and docs/25-deploy-och-innehallsflode.md.
+#
+# Token: CLOUDFLARE_API_TOKEN must include "Workers KV Storage: Edit"
+# (the Pages-only token used by deploy-sites.yml is not enough).
+name: sync-content-kv
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/member-portal/churches/**/content.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: 53f6d13a77d3c24c92eb47758a70a296
+  KV_NAMESPACE_ID: f40a72c8fa544cf6ba3ab9daeb8bb8fc
+
+jobs:
+  sync:
+    name: structural church config → KV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      # Verify the merge logic before touching production KV.
+      - name: Test merge logic
+        run: node --test scripts/sync-church-kv.test.mjs
+
+      - name: Sync structural church config to KV
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node scripts/sync-church-kv.mjs

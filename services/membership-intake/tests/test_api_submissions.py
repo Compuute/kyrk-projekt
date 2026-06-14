@@ -58,6 +58,38 @@ def test_list_pending_scoped_per_church(client):
     assert all(item["church_id"] == "c1" for item in r.json())
 
 
+# ------------------------------------------------- church-tax (kyrkoskatt)
+
+
+def test_already_member_tax_switch_is_captured(client):
+    # "Redan medlem — vill bara byta kyrkoskatt": no new membership fee, but
+    # the tax-switch intent + Skatteverket consent must reach the admin list.
+    sid = _submit(
+        client,
+        action="already_member",
+        tax_consent=True,
+        monthly_fee_sek=0,
+    )
+    r = client.get("/submissions", headers=_headers("admin"))
+    assert r.status_code == 200
+    item = next(i for i in r.json() if i["submission_id"] == sid)
+    assert item["action"] == "already_member"
+    assert item["tax_consent"] is True
+
+
+def test_submission_action_defaults_to_register_only(client):
+    sid = _submit(client)
+    r = client.get("/submissions", headers=_headers("admin"))
+    item = next(i for i in r.json() if i["submission_id"] == sid)
+    assert item["action"] == "register_only"
+    assert item["tax_consent"] is False
+
+
+def test_invalid_action_rejected(client):
+    r = client.post("/intake", json=_body(action="not-a-real-action"))
+    assert r.status_code == 422
+
+
 # ------------------------------------------------------------- approve API
 
 
@@ -100,7 +132,8 @@ def test_approve_twice_409(client):
 
 # In production, Zitadel sets actor.church_id to the organization id —
 # the registry maps it back to the portal church slug.
-ZITADEL_ORG_ADMIN = {"Authorization": "Bearer u4:376713621675248694:admin"}
+ZITADEL_ORG_ADMIN = {"Authorization": "Bearer u4:376720665740439161:admin"}   # Nacka-kyrkan
+STOCKHOLM_ORG_ADMIN = {"Authorization": "Bearer u6:376720690671258678:admin"} # Hagsätra-kyrkan
 UNKNOWN_ORG_ADMIN = {"Authorization": "Bearer u5:999999999999:admin"}
 
 
@@ -123,6 +156,20 @@ def test_zitadel_org_admin_can_reject(client):
     r = client.post(f"/submissions/{sid}/reject", headers=ZITADEL_ORG_ADMIN)
     assert r.status_code == 200
     assert r.json()["status"] == "rejected"
+
+
+def test_per_church_orgs_are_isolated(client):
+    # Each church has its own Zitadel org. An admin in the Hagsätra org
+    # (Medhane Alem/stockholm) sees only stockholm's submissions, never nacka's.
+    nacka_sid = _submit(client, church_id="nacka")
+    sthlm_sid = _submit(client, church_id="stockholm")
+
+    sthlm = client.get("/submissions", headers=STOCKHOLM_ORG_ADMIN)
+    assert sthlm.status_code == 200
+    assert [item["submission_id"] for item in sthlm.json()] == [sthlm_sid]
+
+    nacka = client.get("/submissions", headers=ZITADEL_ORG_ADMIN)
+    assert [item["submission_id"] for item in nacka.json()] == [nacka_sid]
 
 
 def test_unknown_org_id_sees_nothing(client):

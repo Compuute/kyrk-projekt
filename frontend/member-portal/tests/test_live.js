@@ -18,11 +18,47 @@ test('live page has video area', function () {
 
 test('live page reads YouTube channel from content.json', function () {
   assert.ok(html.includes('youtube_channel_id'), 'must read channel ID from config');
-  assert.ok(html.includes('youtube.com/embed'), 'must embed YouTube');
+  assert.ok(html.includes('/embed/live_stream?channel='), 'must embed the channel live stream');
+});
+
+test('live page embeds via privacy-friendly nocookie domain', function () {
+  // No YouTube tracking cookies; matches the site's no-tracking promise.
+  assert.ok(html.includes('youtube-nocookie.com'), 'must use youtube-nocookie.com');
+});
+
+test('live page time-gates the embed by schedule (no error box off-hours)', function () {
+  assert.ok(html.includes('live_schedule'), 'must read live_schedule from config');
+  assert.ok(html.includes('Europe/Stockholm'), 'must evaluate the window in church-local time');
+  assert.ok(html.includes('isLiveNow'), 'must gate the embed behind a live-window check');
+});
+
+test('live page honours live_embed=false (button instead of unembeddable iframe)', function () {
+  // Some channels disable embedding → an iframe shows "This video is
+  // unavailable". Those churches set live_embed:false and get a watch button.
+  assert.ok(html.includes('live_embed'), 'must read the live_embed flag');
+  assert.ok(html.includes('canEmbed'), 'must branch on embeddability');
+  assert.ok(html.includes('Se gudstjänsten live'), 'must offer a watch button');
 });
 
 test('content.json has youtube_channel_id field', function () {
   assert.ok('youtube_channel_id' in (content.church || {}), 'church must have youtube_channel_id');
+});
+
+test('content.json has youtube_handle field', function () {
+  assert.ok('youtube_handle' in (content.church || {}), 'church must have youtube_handle');
+});
+
+test('live page falls back to handle-based live link when no channel id', function () {
+  assert.ok(html.includes('youtube_handle'), 'must read handle from config');
+  // Uses YouTube\'s always-current live URL for a handle (@name/live),
+  // not a hardcoded video id that would go stale after the stream ends.
+  assert.ok(html.includes('/live'), 'must link to the @handle/live URL');
+});
+
+test('live page does not hardcode a video id', function () {
+  // A specific /live/<id> or watch?v=<id> would show last week\'s stream.
+  assert.strictEqual(html.match(/youtube\.com\/live\/[A-Za-z0-9_-]{8,}/), null,
+    'no hardcoded video id — must resolve current stream via channel or handle');
 });
 
 test('live page has weekly schedule', function () {

@@ -7,6 +7,10 @@
     Här hittar du alla bidrag som kyrkan kan söka. Klicka på ett bidrag för att se detaljer och starta en ansökan.
   </p>
 
+  {% if error_message %}
+  <div class="flash flash-error">{{ error_message }}</div>
+  {% endif %}
+
   {% if upcoming_deadlines > 0 %}
   <div class="flash flash-error">
     {{ upcoming_deadlines }} bidrag har deadline inom 60 dagar!
