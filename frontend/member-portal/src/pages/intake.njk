@@ -23,7 +23,7 @@ breadcrumb: "Bli medlem"
         <input type="hidden" name="church_id" id="field-church-id" value="nacka" />
         <input type="hidden" id="field-membership-type" value="individual" />
         <input type="hidden" id="field-monthly-fee" value="200" />
-        <input type="hidden" name="action" id="field-action" value="register_and_switch" />
+        <input type="hidden" name="action" id="field-action" value="register_only" />
 
         <div class="form-group">
           <label for="action-select">
@@ -31,7 +31,7 @@ breadcrumb: "Bli medlem"
           </label>
           <select id="action-select" onchange="onActionChange()" style="width:100%;padding:12px;border:1px solid var(--border,#ccc);border-radius:8px;font-size:16px;">
             <option value="register_and_switch">Bli medlem + byta kyrkoskatt fr&#xE5;n Svenska kyrkan</option>
-            <option value="register_only">Bara bli medlem (byt inte kyrkoskatt)</option>
+            <option value="register_only" selected>Bara bli medlem (byt inte kyrkoskatt)</option>
             <option value="already_member">Redan medlem &#x2014; vill bara byta kyrkoskatt</option>
           </select>
         </div>
@@ -102,7 +102,7 @@ breadcrumb: "Bli medlem"
           </div>
         </div>
 
-        <div class="gdpr-box" id="tax-consent-section" style="display:none;">
+        <div class="tax-consent-card" id="tax-consent-section" style="display:none;">
           <div class="gdpr-sv">
             <strong>Kyrkoavgift via Skatteverket:</strong> Jag samtycker till att min
             kyrkoavgift uppb&#xE4;rs av Skatteverket och tillfaller f&#xF6;rsamlingen
@@ -311,8 +311,8 @@ breadcrumb: "Bli medlem"
       var errorMsg = document.getElementById('error-msg');
       var submitBtn = document.getElementById('submit-btn');
 
-      // Apply the default action's visibility (default = register_and_switch,
-      // so the church-tax consent section is shown on load).
+      // Apply the default action's visibility (default = register_only, the
+      // low-friction membership path; the tax-switch is an explicit opt-in).
       onActionChange();
 
       form.addEventListener('submit', function (e) {
