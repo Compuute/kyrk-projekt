@@ -20,14 +20,21 @@ får flyttas; släppta semver-taggar får inte.)
 
 ## Skär en release
 
+Bumpen går **via en PR** (aldrig direkt-push till main) så den körs genom CI och
+blir granskningsbar som allt annat. Taggen sätts **efter** squash-merge och pekar
+på den resulterande main-commiten.
+
 ```bash
-scripts/release.sh 0.2.0          # bumpar package.json + skapar annoterad tagg v0.2.0
-git show v0.2.0                   # granska
-git push origin main v0.2.0       # pusha commit + tagg
+scripts/release.sh 0.2.0          # release/v0.2.0-gren: bumpar package.json + öppnar PR
+# … squash-merga PR:en när CI är grön, sen:
+git fetch origin main
+git tag -a v0.2.0 origin/main -m v0.2.0
+git push origin v0.2.0
 ```
 
 Committer/tagger måste vara människan (Compuute), aldrig ett AI-verktyg
-(AI-RULES.md RULE 4) — verifieras av `commit-hygiene`-gaten.
+(AI-RULES.md RULE 4) — verifieras av `commit-hygiene`-gaten. Repot tillåter bara
+squash/rebase-merge (inga merge-commits) så grennamn inte läcker in i historiken.
 
 ## Deploya en version (deploy-from-tag)
 
