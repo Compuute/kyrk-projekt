@@ -9,8 +9,9 @@ Datadriven inventering (2026-06-12) av teknisk skuld plus en realistisk plan
 för att låta AI-agenter ta över det tunga dagliga arbetet — medlemshantering,
 söndagsskoleadministration, fondansökningar och drift — så att föräldrar och
 medlemmar kan fokusera på församlingen. Allt inom ramarna i
-[AI-RULES.md](../AI-RULES.md), [ops-contract.yaml](../ops/ops-contract.yaml)
-och zonmodellen i [01-architecture-red-yellow-green.md](01-architecture-red-yellow-green.md).
+[AI-RULES.md](../AI-RULES.md), [ops-contract.yaml](../ops/ops-contract.yaml),
+zonmodellen i [01-architecture-red-yellow-green.md](01-architecture-red-yellow-green.md)
+och identitets-/IAM-principerna i [29-identitets-och-iam-principer.md](29-identitets-och-iam-principer.md).
 
 ---
 

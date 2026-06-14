@@ -25,7 +25,7 @@
         <a href="/data-quality">Datakvalitet</a>
         <a href="/tax-consent">Kyrkoskatt</a>
         <form method="post" action="/logout" class="inline-form">
-          <button type="submit" class="linkish">Logga ut ({{ session.user_id }})</button>
+          <button type="submit" class="linkish">Logga ut ({{ session.display }})</button>
         </form>
       </nav>
       {% endif %}

@@ -9,6 +9,23 @@ trigger:
   - calendar page renders empty or errors
   - request to add/correct a holiday
 
+# --- Entry point: triage routes the symptom to a problems[] entry below -----
+# Unlike the env-driven runbooks (health-check, rollback), the calendar is
+# pure client-side data+logic, so triage is "verify against ICU, then read the
+# matching problem". The detailed, per-symptom steps live under problems[].
+steps:
+  - id: verify_against_icu
+    action: shell
+    command: "node -e \"console.log(new Intl.DateTimeFormat('sv-u-ca-ethiopic',{day:'numeric',month:'long',year:'numeric'}).format(new Date()))\""
+    note: "ICU (u-ca-ethiopic) is the source of truth. Compare with the engine before changing anything — most 'wrong date' reports are misreadings, not bugs (see problems[].wrong_date_shown)."
+  - id: run_engine_tests
+    action: shell
+    command: "node frontend/member-portal/tests/test_calendar_engine.js"
+    note: "Must be green before and after any change. Cross-validates the engine against ICU over 7800+ dates."
+  - id: follow_matching_problem
+    action: goto
+    note: "Match the report to a problems[] entry by symptom and execute that entry's steps in order. Respect forbidden_actions and verification_after_change."
+
 # --- What the calendar is ---------------------------------------------------
 overview:
   what: >

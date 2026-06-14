@@ -8,6 +8,11 @@ on:
     paths:
       - 'infra/terraform/**'
 
+# Collapse rapid pushes on the same PR to the latest plan.
+concurrency:
+  group: terraform-plan-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   id-token: write
