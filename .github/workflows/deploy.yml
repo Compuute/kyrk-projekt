@@ -43,11 +43,33 @@ env:
   TAG: ${{ github.sha }}
 
 jobs:
+  # --------------------------------------------------------------- version
+  # Resolves the immutable release identity for this deploy. Dispatch the
+  # workflow on a release tag (e.g. v0.1.0) and `git describe` returns that
+  # tag; every image and running service is then stamped with it, so "what
+  # is in prod" reads back to exactly one git ref (GitOps provenance). See
+  # docs/31-versionering-och-releaser.md.
+  version:
+    name: resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: v
+        run: |
+          V=$(git describe --tags --always)
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "## Deploy version: \`$V\` → ${{ inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
+
   # ------------------------------------------------------------------ build
   # Builds and pushes images for all services in parallel. Each service is
   # an independent matrix slot — failures don't block the others.
   build-and-push:
     name: build ${{ matrix.service }}
+    needs: version
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     strategy:
@@ -86,6 +108,7 @@ jobs:
           push: true
           tags: |
             ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ matrix.service }}:${{ env.TAG }}
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ matrix.service }}:${{ needs.version.outputs.version }}
             ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ matrix.service }}:latest
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
@@ -94,7 +117,7 @@ jobs:
   # Deploy services with no in-cluster dependencies first.
   deploy-membership-service:
     name: deploy membership-service
-    needs: build-and-push
+    needs: [build-and-push, version]
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -114,6 +137,7 @@ jobs:
             --max-instances=3
             --memory=512Mi
           env_vars: |
+            APP_VERSION=${{ needs.version.outputs.version }}
             ADAPTER_MODE=production
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
             ZITADEL_CLIENT_ID=376717918169271350
@@ -121,7 +145,7 @@ jobs:
 
   deploy-certificate-service:
     name: deploy certificate-service
-    needs: build-and-push
+    needs: [build-and-push, version]
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -141,6 +165,7 @@ jobs:
             --max-instances=3
             --memory=512Mi
           env_vars: |
+            APP_VERSION=${{ needs.version.outputs.version }}
             ADAPTER_MODE=production
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
             ZITADEL_CLIENT_ID=376717918169271350
@@ -148,7 +173,7 @@ jobs:
 
   deploy-reporting-service:
     name: deploy reporting-service
-    needs: build-and-push
+    needs: [build-and-push, version]
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -168,6 +193,7 @@ jobs:
             --max-instances=3
             --memory=512Mi
           env_vars: |
+            APP_VERSION=${{ needs.version.outputs.version }}
             ADAPTER_MODE=production
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
             ZITADEL_CLIENT_ID=376717918169271350
@@ -180,7 +206,7 @@ jobs:
   # tier-1 deploy output.
   deploy-membership-intake:
     name: deploy membership-intake
-    needs: deploy-membership-service
+    needs: [deploy-membership-service, version]
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -210,6 +236,7 @@ jobs:
             --max-instances=5
             --memory=512Mi
           env_vars: |
+            APP_VERSION=${{ needs.version.outputs.version }}
             ADAPTER_MODE=production
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
             ZITADEL_CLIENT_ID=376717918169271350
@@ -226,6 +253,7 @@ jobs:
     name: deploy agent-worker
     needs:
       - deploy-reporting-service
+      - version
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -255,6 +283,7 @@ jobs:
             --max-instances=1
             --memory=512Mi
           env_vars: |
+            APP_VERSION=${{ needs.version.outputs.version }}
             ADAPTER_MODE=production
             REPORTING_SERVICE_URL=${{ steps.reporting.outputs.url }}
             ZITADEL_ISSUER_URL=https://kyrk-auth-oqvxjf.us1.zitadel.cloud
@@ -270,6 +299,7 @@ jobs:
       - deploy-certificate-service
       - deploy-membership-service
       - deploy-reporting-service
+      - version
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -313,6 +343,7 @@ jobs:
             --max-instances=3
             --memory=512Mi
           env_vars: |
+            APP_VERSION=${{ needs.version.outputs.version }}
             ADAPTER_MODE=production
             INTAKE_BASE_URL=${{ steps.urls.outputs.intake }}
             CERTIFICATE_BASE_URL=${{ steps.urls.outputs.cert }}
@@ -329,6 +360,7 @@ jobs:
   summary:
     name: deploy summary
     needs:
+      - version
       - deploy-membership-service
       - deploy-membership-intake
       - deploy-certificate-service
@@ -344,7 +376,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - name: Print all service URLs
         run: |
-          echo "## Deploy summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Deploy summary — version \`${{ needs.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
