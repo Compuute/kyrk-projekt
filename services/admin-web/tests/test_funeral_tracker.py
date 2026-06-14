@@ -291,6 +291,44 @@ class TestFuneralRoutes:
         assert cases[0].deceased_name == "Test Person"
         assert cases[0].total_price == 28_000
 
+    def test_create_degrades_when_save_raises(self, authed_funeral_client, funeral_tracker):
+        """A downstream save failure (auth/network/Firestore) must flash an
+        error and return to the form — never a raw 500 (production incident)."""
+        from app.ports.client_errors import ClientError
+
+        def boom(case):
+            raise ClientError("invalid token", status_code=401)
+
+        funeral_tracker.save_case = boom
+        resp = authed_funeral_client.post(
+            "/funerals/new",
+            data={
+                "deceased_name": "Test Person",
+                "date_of_death": "2026-06-05",
+                "contact_person": "Contact",
+                "package": "ceremoni",
+            },
+        )
+        assert resp.status_code == 303
+        assert "/funerals/new" in resp.headers["location"]
+
+    def test_create_does_not_500_on_unexpected_error(self, authed_funeral_client, funeral_tracker):
+        def boom(case):
+            raise RuntimeError("firestore unavailable")
+
+        funeral_tracker.save_case = boom
+        resp = authed_funeral_client.post(
+            "/funerals/new",
+            data={
+                "deceased_name": "Test Person",
+                "date_of_death": "2026-06-05",
+                "contact_person": "Contact",
+                "package": "ceremoni",
+            },
+        )
+        assert resp.status_code == 303
+        assert "/funerals/new" in resp.headers["location"]
+
     def test_create_repatriation_case_komplett(self, authed_funeral_client, funeral_tracker):
         resp = authed_funeral_client.post(
             "/funerals/new",

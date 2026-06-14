@@ -1296,7 +1296,24 @@ def funeral_create(
         checklist=build_checklist(is_repatriation),
     )
 
-    tracker.save_case(case)
+    # The funeral store is a downstream RED proxy (membership-service, ADR-020).
+    # A downstream failure (auth, network, Firestore) must never surface as a
+    # raw 500 to the registrar — show a clear error and keep their input by
+    # returning to the form instead.
+    try:
+        tracker.save_case(case)
+    except ClientError as exc:
+        return _flash_redirect(
+            "/funerals/new",
+            f"Kunde inte spara ärendet ({exc}). Försök igen.",
+            level="error",
+        )
+    except Exception:  # noqa: BLE001 — any downstream fault must not 500 the form
+        return _flash_redirect(
+            "/funerals/new",
+            "Kunde inte spara ärendet just nu. Försök igen eller kontakta support.",
+            level="error",
+        )
 
     payload = {
         "case_id": case.case_id,
