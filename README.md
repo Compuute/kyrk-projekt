@@ -218,6 +218,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`30-bidragsstrategi-underlag.md`](docs/30-bidragsstrategi-underlag.md) | **Bidragsstrategi: data-drivet underlag — behörighetsscreening, data-readiness och deadlines för de 12 bidragen** |
 | [`31-versionering-och-releaser.md`](docs/31-versionering-och-releaser.md) | **Versionering & releaser: semver-taggar, deploy-from-tag, APP_VERSION-spårbarhet, rollback** |
 | [`32-driftoverlamning-och-portabilitet.md`](docs/32-driftoverlamning-och-portabilitet.md) | **Driftöverlämning & portabilitet: flytta till kyrkans egna konton/API-nycklar, ägarskapsmatris, agent-körbar runbook (ingen persondependens)** |
+| [`33-prod-bootstrap.md`](docs/33-prod-bootstrap.md) | **Prod-bootstrap: få `plan/apply (prod)` grön — sa-terraform, WIF, state-bucket-IAM, workspace, prod-environment-secrets** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |
