@@ -9,6 +9,17 @@ variable "region" {
   default     = "europe-north1"
 }
 
+variable "scheduler_region" {
+  description = <<-EOT
+    Region for Cloud Scheduler jobs. Kept separate from var.region because
+    Cloud Scheduler is not offered in every region (notably not europe-north1,
+    the primary region). Scheduler only publishes to a global Pub/Sub topic,
+    so this need not match where Cloud Run runs.
+  EOT
+  type        = string
+  default     = "europe-west1"
+}
+
 variable "environment" {
   description = "Deployment environment name (dev, staging, prod)"
   type        = string
