@@ -73,14 +73,23 @@
 
   <div class="card" style="margin-top: 24px;">
     <h2>Dokument som alltid är tillgängliga</h2>
+    {# Länkar pekar på det åtkomststyrda GitHub-repot (git = enda källan);
+       inget serveras från containern. Säkerhetsdocs (rekon-material) visas
+       bara för admin/pastor — se can_view_security_docs i routen. #}
+    {% set repo = "https://github.com/Compuute/kyrk-projekt/blob/main" %}
     <ul class="bars">
-      <li class="bar-row"><span class="bar-label">Integritetspolicy (sv + am)</span><span class="bar-value"><a href="https://kyrka-portal.pages.dev/privacy.html" target="_blank">→ Öppna</a></span></li>
-      <li class="bar-row"><span class="bar-label">Registerförteckning (Art. 30)</span><span class="bar-value">docs/governance/gdpr-register.md</span></li>
-      <li class="bar-row"><span class="bar-label">Defense-in-depth policy</span><span class="bar-value">docs/16-defense-in-depth.md</span></li>
-      <li class="bar-row"><span class="bar-label">Säkerhetsprinciper</span><span class="bar-value">docs/05-security-principles.md</span></li>
-      <li class="bar-row"><span class="bar-label">Incident-runbook</span><span class="bar-value">docs/13-runbook.md</span></li>
-      <li class="bar-row"><span class="bar-label">Retention policy</span><span class="bar-value">docs/governance/policies.md</span></li>
+      <li class="bar-row"><span class="bar-label">Integritetspolicy (sv + am)</span><span class="bar-value"><a href="https://kyrka-portal.pages.dev/privacy.html" target="_blank" rel="noopener">→ Öppna</a></span></li>
+      <li class="bar-row"><span class="bar-label">Registerförteckning (Art. 30)</span><span class="bar-value"><a href="{{ repo }}/docs/governance/gdpr-register.md" target="_blank" rel="noopener">→ Öppna i repo</a></span></li>
+      <li class="bar-row"><span class="bar-label">Retention policy</span><span class="bar-value"><a href="{{ repo }}/docs/governance/policies.md" target="_blank" rel="noopener">→ Öppna i repo</a></span></li>
+      {% if can_view_security_docs %}
+      <li class="bar-row"><span class="bar-label">Defense-in-depth policy</span><span class="bar-value"><a href="{{ repo }}/docs/16-defense-in-depth.md" target="_blank" rel="noopener">→ Öppna i repo</a></span></li>
+      <li class="bar-row"><span class="bar-label">Säkerhetsprinciper</span><span class="bar-value"><a href="{{ repo }}/docs/05-security-principles.md" target="_blank" rel="noopener">→ Öppna i repo</a></span></li>
+      <li class="bar-row"><span class="bar-label">Incident-runbook</span><span class="bar-value"><a href="{{ repo }}/docs/13-runbook.md" target="_blank" rel="noopener">→ Öppna i repo</a></span></li>
+      {% endif %}
     </ul>
+    {% if not can_view_security_docs %}
+    <p class="muted small">Säkerhetsdokumentation (defense-in-depth, säkerhetsprinciper, incident-runbook) visas endast för admin/pastor.</p>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
