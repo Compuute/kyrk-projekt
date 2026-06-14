@@ -20,12 +20,15 @@
     ],
     "live_embed": false,
     "address": "Saltsjö-Boo, Nacka",
-    "swish_number": "1234567890",
-    "bankgiro_number": "5123-4567",
+    "swish_number": "1232526721",
+    "bankgiro_number": "",
     "org_number": "802492-9237",
     "membership_fee_individual": 200,
     "membership_fee_family": 500,
-    "autogiro_form_url": ""
+    "autogiro_form_url": "",
+    "plusgiro_number": "74 35 26-6",
+    "iban": "SE62 9500 0099 6034 0743 5266",
+    "bic": "NDEASESS"
   },
   "upcoming": [
     {

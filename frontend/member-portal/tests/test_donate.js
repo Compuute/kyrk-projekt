@@ -118,4 +118,21 @@ test('receipt text does not overpromise tax reduction', function () {
     'must mention that personnummer is required for skattereduktion');
 });
 
+// --- Real giving info (no placeholders) + bank-transfer channels
+
+test('nacka swish_number is real, not the placeholder', function () {
+  const c = JSON.parse(fs.readFileSync(
+    path.join(__dirname, '..', 'churches', 'nacka', 'content.json'), 'utf-8'));
+  const swish = c.church.swish_number || '';
+  assert.notStrictEqual(swish, '1234567890', 'swish_number is still the dummy placeholder');
+  assert.ok(/^123\d{7}$/.test(swish), 'swish_number must be a 10-digit Swish-Handel number (123…)');
+});
+
+test('donate page renders bank-transfer channels from config', function () {
+  assert.ok(html.includes('id="bank-transfer"'), 'missing bank-transfer section');
+  assert.ok(html.includes('id="bt-plusgiro"') && html.includes('id="bt-iban"') && html.includes('id="bt-bic"'),
+    'missing PlusGiro/IBAN/BIC rows');
+  assert.ok(html.includes('setBankTransfer'), 'missing data-driven render of bank transfer');
+});
+
 console.log('member-portal donation tests done');

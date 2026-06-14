@@ -47,6 +47,13 @@ breadcrumb: "Ge en gava"
         </p>
       </div>
 
+      <div class="receipt-note" id="bank-transfer" style="display:none;">
+        <strong><span class="sv">Banköverföring</span><span class="am" style="display:none;">በባንክ ማስተላለፍ</span></strong>
+        <div id="bt-plusgiro" style="display:none;margin-top:6px;">PlusGiro: <strong id="bt-plusgiro-val"></strong></div>
+        <div id="bt-iban" style="display:none;margin-top:4px;">IBAN: <strong id="bt-iban-val"></strong></div>
+        <div id="bt-bic" style="display:none;margin-top:4px;">BIC/Swift: <strong id="bt-bic-val"></strong></div>
+      </div>
+
       <div class="receipt-note" id="receipt-note">
         <span class="sv"><strong>Gåvokvitto:</strong> Ange din e-post nedan så skickar vi ett gåvokvitto när församlingen bekräftat din gåva. Kyrkan är godkänd gåvomottagare hos Skatteverket — för skattereduktion krävs även personnummer, kontakta församlingen.</span>
         <span class="am" style="display:none;"><strong>የስጦታ ደረሰኝ:</strong> ኢሜልዎን ከታች ያስገቡ፣ ስጦታዎ ሲረጋገጥ ደረሰኝ እንልክልዎታለን።</span>
@@ -82,8 +89,24 @@ breadcrumb: "Ge en gava"
         var church = (data && data.church) || {};
         SWISH_NUMBER = church.swish_number || '';
         updateSwishLink();
+        setBankTransfer(church);
       })
       .catch(function () {});
+
+    // Render bank-transfer channels (PlusGiro / IBAN / BIC) when the church
+    // config provides them. Data-driven and per-church; hidden if unset.
+    function setBankTransfer(church) {
+      var rows = [['bt-plusgiro', church.plusgiro_number], ['bt-iban', church.iban], ['bt-bic', church.bic]];
+      var any = false;
+      rows.forEach(function (row) {
+        if (row[1]) {
+          document.getElementById(row[0] + '-val').textContent = row[1];
+          document.getElementById(row[0]).style.display = '';
+          any = true;
+        }
+      });
+      if (any) document.getElementById('bank-transfer').style.display = '';
+    }
 
     var selectedAmount = 200;
     var buttons = document.querySelectorAll('.amount-btn');
