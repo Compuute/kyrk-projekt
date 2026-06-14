@@ -146,6 +146,13 @@ module "secrets" {
         secret = "admin-notify-webhook"
         member = "serviceAccount:${local.service_account_emails["membership-intake"]}"
       },
+      # admin-web reads the Anthropic key at runtime for the translator and
+      # the grant-application generator (Claude). Without a key both fall back
+      # to non-LLM behaviour, so this binding is all that's needed to enable them.
+      {
+        secret = "anthropic-api-key"
+        member = "serviceAccount:${local.service_account_emails["admin-web"]}"
+      },
     ],
   )
 }
