@@ -17,6 +17,7 @@ from app.api.deps import (
     get_content_store,
     get_funeral_tracker,
     funeral_tracker_for,
+    get_grant_draft_generator,
     get_grant_tracker,
     get_intake_client,
     get_notification,
@@ -50,6 +51,7 @@ from app.ports.funeral_tracker import (
     calculate_price,
     checklist_progress,
 )
+from app.ports.grant_draft_generator import GrantDraftGeneratorPort
 from app.ports.grant_tracker import GrantApplication, GrantTrackerPort
 from app.ports.translation import TranslationPort
 
@@ -737,6 +739,7 @@ def grant_generate_draft(
     tracker: GrantTrackerPort = Depends(get_grant_tracker),
     activity: ActivityClientPort = Depends(get_activity_client),
     reporting: ReportingClientPort = Depends(get_reporting_client),
+    generator: GrantDraftGeneratorPort = Depends(get_grant_draft_generator),
 ):
     session = _require_session(request)
     if isinstance(session, RedirectResponse):
@@ -773,8 +776,9 @@ def grant_generate_draft(
     except ClientError as exc:
         error_message = f"Kunde inte hämta KPI-data: {exc}"
 
-    # Build the draft sections from board input + KPI data
-    draft = _build_grant_draft(grant, app, kpi_data, error_message)
+    # Generate the draft (Claude in prod, deterministic template otherwise;
+    # the generator always falls back to the template, so this never raises).
+    draft = generator.generate(grant, app, kpi_data, grant.get("language", "sv"))
 
     return TEMPLATES.TemplateResponse(
         request=request,
@@ -789,54 +793,6 @@ def grant_generate_draft(
     )
 
 
-def _build_grant_draft(
-    grant: dict,
-    app: GrantApplication | None,
-    kpi_data: dict | None,
-    error_message: str | None,
-) -> dict:
-    """Build a structured grant draft from board input and KPI data."""
-    lang = grant.get("language", "sv")
-    project_name = app.project_name if app else ""
-    project_desc = app.project_description if app else ""
-    target_group = app.target_group if app else ""
-    budget = app.budget_amount if app else None
-    own = app.own_contribution if app else None
-
-    kpi_summary = ""
-    if kpi_data:
-        kpi_summary = (
-            f"Under de senaste 12 månaderna har organisationen genomfört "
-            f"{kpi_data['activities_count']} aktiviteter med totalt "
-            f"{kpi_data['participants_total']} deltagare."
-        )
-        if kpi_data.get("age_band_counts"):
-            age_parts = [f"{band}: {n}" for band, n in kpi_data["age_band_counts"].items() if n > 0]
-            if age_parts:
-                kpi_summary += f" Åldersfördelning: {', '.join(age_parts)}."
-
-    if lang == "en":
-        return {
-            "summary": f"Application for {grant.get('name_en', grant['name'])} — {project_name}" if project_name else f"Application for {grant.get('name_en', grant['name'])}",
-            "project_description": project_desc or "[Fill in project description]",
-            "target_group": target_group or "[Fill in target group]",
-            "method": "[Describe the method and approach]",
-            "expected_results": "[Describe the expected results and impact]",
-            "budget_justification": f"Requested amount: {budget:,.0f} {grant.get('amount_range', {}).get('currency', 'SEK')}" if budget else "[Fill in budget]",
-            "kpi_evidence": kpi_summary.replace("månaderna", "months").replace("aktiviteter", "activities").replace("deltagare", "participants").replace("organisationen genomfört", "the organization conducted").replace("Under de senaste 12", "Over the past 12").replace("med totalt", "with a total of") if kpi_summary else "[No KPI data available]",
-            "sustainability": "[Describe how the project results will be sustained after funding ends]",
-        }
-
-    return {
-        "sammanfattning": f"Ansökan om {grant['name']} — {project_name}" if project_name else f"Ansökan om {grant['name']}",
-        "projektbeskrivning": project_desc or "[Fyll i projektbeskrivning]",
-        "målgrupp": target_group or "[Fyll i målgrupp]",
-        "metod": "[Beskriv metod och tillvägagångssätt]",
-        "förväntade_resultat": "[Beskriv förväntade resultat och påverkan]",
-        "budget_motivering": f"Sökt belopp: {budget:,.0f} {grant.get('amount_range', {}).get('currency', 'SEK')}. Egen insats: {own:,.0f} {grant.get('amount_range', {}).get('currency', 'SEK')}." if budget and own else "[Fyll i budget]",
-        "kpi_underlag": kpi_summary or "[Ingen KPI-data tillgänglig]",
-        "hållbarhet": "[Beskriv hur projektets resultat fortsätter efter bidragsperioden]",
-    }
 
 
 @router.get("/grants/{grant_id}/status", response_class=HTMLResponse)

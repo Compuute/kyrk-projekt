@@ -8,6 +8,7 @@ from app.adapters.factory import (
     make_certificate_client,
     make_content_store,
     make_funeral_tracker,
+    make_grant_draft_generator,
     make_grant_tracker,
     make_intake_client,
     make_notification,
@@ -25,6 +26,7 @@ from app.ports.clients import (
 )
 from app.ports.content_store import ContentStorePort
 from app.ports.funeral_tracker import FuneralTrackerPort
+from app.ports.grant_draft_generator import GrantDraftGeneratorPort
 from app.ports.grant_tracker import GrantTrackerPort
 from app.ports.notification import NotificationPort
 from app.ports.session import SessionInfo, SessionPort
@@ -39,6 +41,7 @@ _REPORTING: ReportingClientPort | None = None
 _NOTIFICATION: NotificationPort | None = None
 _FUNERAL_TRACKER: FuneralTrackerPort | None = None
 _GRANT_TRACKER: GrantTrackerPort | None = None
+_GRANT_DRAFT_GENERATOR: GrantDraftGeneratorPort | None = None
 _CONTENT_STORE: ContentStorePort | None = None
 _TRANSLATOR: TranslationPort | None = None
 _SESSION: SessionPort | None = None
@@ -98,6 +101,13 @@ def get_content_store() -> ContentStorePort:
     if _CONTENT_STORE is None:
         _CONTENT_STORE = make_content_store()
     return _CONTENT_STORE
+
+
+def get_grant_draft_generator() -> GrantDraftGeneratorPort:
+    global _GRANT_DRAFT_GENERATOR
+    if _GRANT_DRAFT_GENERATOR is None:
+        _GRANT_DRAFT_GENERATOR = make_grant_draft_generator()
+    return _GRANT_DRAFT_GENERATOR
 
 
 def get_translator() -> TranslationPort:

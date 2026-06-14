@@ -7,6 +7,7 @@ from app.adapters.factory import (
     make_reporting_client,
     make_translator,
     make_funeral_tracker,
+    make_grant_draft_generator,
     make_grant_tracker,
     make_session_adapter,
 )
@@ -119,3 +120,23 @@ def test_production_session_requires_env(monkeypatch):
         make_session_adapter()
     monkeypatch.setenv("ZITADEL_REDIRECT_URI", "https://redirect.example")
     assert type(make_session_adapter()).__name__ == "JWTSessionAdapter"
+
+
+def test_grant_draft_generator_default_is_template():
+    from app.adapters.template_grant_draft_generator import TemplateGrantDraftGenerator
+
+    assert isinstance(make_grant_draft_generator(), TemplateGrantDraftGenerator)
+
+
+def test_grant_draft_generator_production_with_key_is_claude(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    gen = make_grant_draft_generator()
+    assert type(gen).__name__ == "AnthropicGrantDraftGenerator"
+
+
+def test_grant_draft_generator_production_without_key_falls_back_to_template(monkeypatch):
+    monkeypatch.setenv("ADAPTER_MODE", "production")
+    # No ANTHROPIC_API_KEY → must not raise, returns the template generator.
+    gen = make_grant_draft_generator()
+    assert type(gen).__name__ == "TemplateGrantDraftGenerator"
