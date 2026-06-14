@@ -507,8 +507,13 @@ def kpi_dashboard_generate(
 
 
 def _load_grant_database() -> list[dict]:
-    """Load the grant catalog from automation/grants/database.json."""
-    db_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "automation" / "grants" / "database.json"
+    """Load the grant catalog bundled with the service (app/data/grants.json).
+
+    The catalog ships inside the package so it is present in the Cloud Run
+    image (the Docker build context is services/admin-web, so a repo-root
+    path would resolve to nothing in production — that previously left the
+    /grants page empty)."""
+    db_path = Path(__file__).resolve().parent.parent / "data" / "grants.json"
     if not db_path.exists():
         return []
     with open(db_path, "r", encoding="utf-8") as f:
