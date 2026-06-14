@@ -89,7 +89,7 @@ services/
   reporting-service/        ← KPI + PII-guard (FastAPI)
 automation/
   openclaw/                 ← 6 AI-promptmallar
-  grants/database.json      ← 12 bidragskällor
+services/admin-web/app/data/grants.json  ← 12 bidragskällor (bundlas i imagen)
 infra/terraform/            ← GCP-infrastruktur
 docs/                       ← 30+ docs
 tests/                      ← Projekt-övergripande tester
