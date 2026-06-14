@@ -1079,7 +1079,14 @@ def audit_dashboard(request: Request):
     return TEMPLATES.TemplateResponse(
         request=request,
         name="audit_dashboard.html",
-        context={"session": session},
+        context={
+            "session": session,
+            # Security docs (defense-in-depth, security principles, incident
+            # runbook) are recon material — least privilege limits them to
+            # admin/pastor. Compliance docs (GDPR register, retention) stay
+            # visible to all authenticated roles: that is the audit page's job.
+            "can_view_security_docs": session.role in {"admin", "pastor"},
+        },
     )
 
 
