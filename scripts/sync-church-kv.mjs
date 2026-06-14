@@ -20,6 +20,7 @@ export const STRUCTURAL_FIELDS = [
   'youtube_channel_id',
   'youtube_handle',
   'live_schedule',
+  'live_embed',
 ];
 
 // Overlay only STRUCTURAL_FIELDS from repoDoc onto the live kvDoc. Everything

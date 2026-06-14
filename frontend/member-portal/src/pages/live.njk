@@ -90,12 +90,20 @@ breadcrumb: "Gudstjanst"
           var videoArea = document.getElementById('video-area');
           var lang = (navigator.language || 'sv').slice(0, 2) === 'am' ? 'am' : 'sv';
 
+          // Some channels disable embedding on their live streams (YouTube then
+          // shows "This video is unavailable" in any iframe). Those churches set
+          // live_embed:false and we surface a clean "watch on YouTube" button
+          // instead — never a broken player. Default is true (embed).
+          var canEmbed = church.live_embed !== false && !!channelId;
+          var inWindow = isLiveNow(schedule);
+
           var watchUrl = channelId
             ? 'https://www.youtube.com/channel/' + channelId + '/live'
             : (handle ? 'https://www.youtube.com/@' + handle + '/live' : '');
 
-          if (channelId && isLiveNow(schedule)) {
-            // Within a service window → embed (privacy: nocookie domain).
+          if (canEmbed && inWindow) {
+            // Embeddable church, within a service window → inline player
+            // (privacy: nocookie domain, no iframe loaded off-hours).
             videoArea.innerHTML =
               '<div class="video-container">' +
               '<iframe src="https://www.youtube-nocookie.com/embed/live_stream?channel=' + channelId + '&autoplay=1" ' +
@@ -105,18 +113,28 @@ breadcrumb: "Gudstjanst"
               (lang === 'am' ? 'ካልታየ' : 'Om streamen inte visas') +
               ' — <a href="' + watchUrl + '" target="_blank" rel="noopener" ' +
               'style="color:var(--accent)">' + (lang === 'am' ? 'በYouTube ይክፈቱ' : 'öppna på YouTube') + '</a></p>';
-          } else if (channelId || handle) {
-            // Off-hours → clean card, no iframe, no YouTube connection.
+          } else if (!canEmbed && watchUrl) {
+            // Embedding disabled for this church → prominent watch button.
+            // No iframe (so never a "video unavailable" box); clicking opens the
+            // channel's current live on YouTube.
+            videoArea.innerHTML =
+              '<div class="no-stream"><div>' +
+              '<p style="font-size:16px;margin-bottom:12px;">' +
+              (lang === 'am' ? 'ቅዳሴያችንን በቀጥታ በYouTube ይከታተሉ' : 'Följ vår gudstjänst live på YouTube') + '</p>' +
+              '<a class="cta-btn cta-primary" href="' + watchUrl + '" target="_blank" rel="noopener" ' +
+              'style="display:inline-block">' +
+              (lang === 'am' ? '▶ በቀጥታ ይመልከቱ' : '▶ Se gudstjänsten live') + '</a>' +
+              '</div></div>';
+          } else if (watchUrl) {
+            // Embeddable church, off-hours → clean card, no iframe, no YouTube.
             videoArea.innerHTML =
               '<div class="no-stream"><div>' +
               '<p style="font-size:16px;">' +
               (lang === 'am' ? 'አሁን ቀጥታ ስርጭት የለም' : 'Ingen pågående sändning just nu') + '</p>' +
               '<p style="font-size:13px;margin-top:8px;">' +
               (lang === 'am' ? 'የሚቀጥሉ ቅዳሴዎችን ከታች ይመልከቱ' : 'Se schemat nedan för kommande gudstjänster') + '</p>' +
-              (watchUrl
-                ? '<p style="font-size:13px;margin-top:10px;"><a href="' + watchUrl + '" target="_blank" rel="noopener" ' +
-                  'style="color:var(--accent)">' + (lang === 'am' ? 'ቻናሉን በYouTube ይክፈቱ' : 'öppna kanalen på YouTube') + '</a></p>'
-                : '') +
+              '<p style="font-size:13px;margin-top:10px;"><a href="' + watchUrl + '" target="_blank" rel="noopener" ' +
+              'style="color:var(--accent)">' + (lang === 'am' ? 'ቻናሉን በYouTube ይክፈቱ' : 'öppna kanalen på YouTube') + '</a></p>' +
               '</div></div>';
           }
           // else: nothing configured → keep the static "Ingen livestream just nu"

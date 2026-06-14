@@ -61,6 +61,7 @@ test('only the allowlisted fields are treated as structural', () => {
     'youtube_channel_id',
     'youtube_handle',
     'live_schedule',
+    'live_embed',
   ]);
   // a non-structural repo field must NOT overwrite the admin value
   const kv = { church: { address: 'Admin address', youtube_channel_id: '' } };
