@@ -1,12 +1,29 @@
-"""Receipt issuer registry.
+"""Church registry: Zitadel-org → kyrka-scoping, plus kvittoutfärdare.
 
-Only churches with a complete legal identity (name + org number) may issue
-gåvokvitton. Onboarding a new church to the donation flow = add a row here
-(see docs/25-deploy-och-innehallsflode.md for the rest of the checklist).
+Två separata ansvar, medvetet åtskilda:
+
+1. ``_ORG_TO_CHURCH`` — varje kyrka vars admins loggar in måste ha sitt
+   Zitadel-organisations-id mappat till portal-slugen. Det driver
+   ``resolve_church_id`` (RED-zon-scoping: vilken kyrkas data en admin ser).
+   Varje kyrka har en egen Zitadel-org så admins är isolerade till sin egen
+   församlings data.
+
+2. ``_ISSUERS`` — endast kyrkor med komplett legal identitet (namn +
+   org-nummer) får utfärda gåvokvitton. En kyrka kan vara scope:ad (admins
+   fungerar) utan att ännu vara kvittoutfärdare.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+
+
+# Zitadel-org-id (claim urn:zitadel:iam:org:id) → portal-slug. I produktion
+# sätter auth-adaptern actor.church_id till org-id:t; här mappas det tillbaka
+# till slugen som domändatan nycklas på.
+_ORG_TO_CHURCH: dict[str, str] = {
+    "376720665740439161": "nacka",      # Nacka-kyrkan (Abune Tekle Haymanot)
+    "376720690671258678": "stockholm",  # Hagsätra-kyrkan (Medhane Alem)
+}
 
 
 @dataclass(frozen=True)
@@ -14,10 +31,6 @@ class ReceiptIssuer:
     church_id: str
     name: str
     org_number: str
-    # The Zitadel organization id whose admins act for this church. In
-    # production the auth adapter sets actor.church_id to this value
-    # (urn:zitadel:iam:org:id) — resolve_church_id maps it back to the slug.
-    zitadel_org_id: str = ""
 
 
 _ISSUERS: dict[str, ReceiptIssuer] = {
@@ -25,12 +38,10 @@ _ISSUERS: dict[str, ReceiptIssuer] = {
         church_id="nacka",
         name="Abune Tekle Haymanot Etiopiska Ortodoxa Tewahedo Kyrkan",
         org_number="802492-9237",
-        # "EOTK Sverige" — currently the single shared organization. When more
-        # churches get their own kassörer they need their own Zitadel orgs,
-        # otherwise their admins would act for nacka too.
-        zitadel_org_id="376713621675248694",
     ),
-    # "stockholm" is intentionally absent: org_number not yet on file.
+    # "stockholm" (Medhane Alem) är scope:ad för admin-inloggning via
+    # _ORG_TO_CHURCH men är ännu inte kvittoutfärdare — org-numret är inte
+    # bekräftat på fil. Lägg till en rad här när det är klart.
 }
 
 
@@ -42,10 +53,7 @@ def resolve_church_id(actor_church_id: str) -> str:
     """Map a Zitadel org id to its portal church slug.
 
     Tokens minted by the fake/test auth carry the slug directly — those pass
-    through unchanged, as does any unknown value (which then simply scopes to
-    nothing).
+    through unchanged (a slug is never a key here), as does any unknown value
+    (which then simply scopes to nothing).
     """
-    for issuer in _ISSUERS.values():
-        if issuer.zitadel_org_id and issuer.zitadel_org_id == actor_church_id:
-            return issuer.church_id
-    return actor_church_id
+    return _ORG_TO_CHURCH.get(actor_church_id, actor_church_id)
