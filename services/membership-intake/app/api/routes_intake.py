@@ -53,6 +53,11 @@ class IntakeRequest(BaseModel):
     source: str = Field(default="direct", max_length=32)
     membership_type: str = Field(default="individual", pattern="^(individual|family)$")
     monthly_fee_sek: int = Field(default=200, ge=0, le=1000)
+    action: str = Field(
+        default="register_only",
+        pattern="^(register_and_switch|register_only|already_member)$",
+    )
+    tax_consent: bool = False
     family_members: list[FamilyMemberInput] = Field(default_factory=list, max_length=5)
 
     @field_validator("first_name", "last_name")

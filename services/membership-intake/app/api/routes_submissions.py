@@ -32,6 +32,8 @@ class PendingSubmissionItem(BaseModel):
     last_name: str
     received_at: datetime
     status: str
+    action: str
+    tax_consent: bool
 
     @classmethod
     def from_domain(cls, s: IntakeSubmission) -> "PendingSubmissionItem":
@@ -42,6 +44,8 @@ class PendingSubmissionItem(BaseModel):
             last_name=s.last_name,
             received_at=s.received_at,
             status=s.status.value,
+            action=s.action,
+            tax_consent=s.tax_consent,
         )
 
 

@@ -58,6 +58,38 @@ def test_list_pending_scoped_per_church(client):
     assert all(item["church_id"] == "c1" for item in r.json())
 
 
+# ------------------------------------------------- church-tax (kyrkoskatt)
+
+
+def test_already_member_tax_switch_is_captured(client):
+    # "Redan medlem — vill bara byta kyrkoskatt": no new membership fee, but
+    # the tax-switch intent + Skatteverket consent must reach the admin list.
+    sid = _submit(
+        client,
+        action="already_member",
+        tax_consent=True,
+        monthly_fee_sek=0,
+    )
+    r = client.get("/submissions", headers=_headers("admin"))
+    assert r.status_code == 200
+    item = next(i for i in r.json() if i["submission_id"] == sid)
+    assert item["action"] == "already_member"
+    assert item["tax_consent"] is True
+
+
+def test_submission_action_defaults_to_register_only(client):
+    sid = _submit(client)
+    r = client.get("/submissions", headers=_headers("admin"))
+    item = next(i for i in r.json() if i["submission_id"] == sid)
+    assert item["action"] == "register_only"
+    assert item["tax_consent"] is False
+
+
+def test_invalid_action_rejected(client):
+    r = client.post("/intake", json=_body(action="not-a-real-action"))
+    assert r.status_code == 422
+
+
 # ------------------------------------------------------------- approve API
 
 

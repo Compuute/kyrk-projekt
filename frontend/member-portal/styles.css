@@ -466,12 +466,12 @@ body[data-lang="am"] {
 .fee-summary .fee-amount { font-size: 28px; font-weight: 700; color: #16a34a; }
 
 /* GDPR consent */
-.gdpr-box {
+.gdpr-box, .tax-consent-card {
   background: #f0f4ff; border: 1px solid #d0d8f0; border-radius: 10px;
   padding: 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.6;
 }
-.gdpr-box .gdpr-sv { margin-bottom: 12px; }
-.gdpr-box .gdpr-am { color: var(--muted); }
+.gdpr-box .gdpr-sv, .tax-consent-card .gdpr-sv { margin-bottom: 12px; }
+.gdpr-box .gdpr-am, .tax-consent-card .gdpr-am { color: var(--muted); }
 .consent-btn {
   display: flex; align-items: center; gap: 14px; margin-top: 16px;
   padding: 16px; border: 3px solid #ccc; border-radius: 12px; cursor: pointer;

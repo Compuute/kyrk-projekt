@@ -20,6 +20,8 @@ class PendingSubmission:
     last_name: str
     received_at: str
     status: str
+    action: str = "register_only"
+    tax_consent: bool = False
 
 
 @dataclass(frozen=True)
