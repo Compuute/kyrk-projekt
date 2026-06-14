@@ -525,6 +525,20 @@ Ingen **RED-zon / skarp persondata** (riktiga medlemmar, personnummer, namn, e-p
 1. Skarp/kritisk persondata matas in, eller
 2. Systemet tas i publik produktion (första skarpa `deploy.yml`-körningen mot riktiga användare).
 
+**Grindtolkning (förtydligat 2026-06-13):**
+"Skarp persondata" i trigger 1 avser **registrerade som plattformen
+behandlar** — församlingsmedlemmar, givare, och riktig personal vars
+identiteter administreras i systemet. Den omfattar **inte** utvecklings-
+teamets egna operatörskonton (t.ex. `daniel.abbay@compuute.net`) som
+används för att bygga och verifiera systemet under denna fas — de är
+operatörer, inte data subjects vars uppgifter tjänsten är till för att
+hantera. Att logga in med ett eget teamkonto i US-instansen under
+uppbyggnaden bryter alltså **inte** grinden. Hård regel ändå: håll
+teamets operatörskonton minimerade (inga onödiga identiteter), och
+trigger 2 (publik produktion) gäller oavsett — EU-flytten sker före
+första riktiga medlem/givare, hanterad som del av go-live-grinden
+(samma beslut som domän + prod-cutover, spårat i issue #118).
+
 **Consequence:**
 - Under uppbyggnadsfasen är dataresidensen **US, inte EU/CH**. ADR-016:s suveränitetsmål är därmed **inte uppfyllt i nuläget** och får inte påstås vara det i någon dokumentation (RULE 2 — dokument och verklighet ska säga samma sak). Berörda docs (`06-auth-strategy.md`, ADR-016, backlog-issuen) bär nu denna caveat.
 - Eftersom endast test-/syntetisk data används medför US-residensen i denna fas **ingen behandling av riktiga personuppgifter** — GDPR-/FISA-risken materialiseras först om grinden ovan bryts.
