@@ -215,6 +215,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`27-feature-flag-workflow.md`](docs/27-feature-flag-workflow.md) | **Feature flags: release-säkerhet, governance, automatisk risk-rådgivning** |
 | [`28-agentisk-driftmodell.md`](docs/28-agentisk-driftmodell.md) | **Agentisk driftmodell: teknisk skuld, agentkatalog, färdplan** |
 | [`29-identitets-och-iam-principer.md`](docs/29-identitets-och-iam-principer.md) | **Identitets- och IAM-principer: en identitet per pipeline (WIF, service accounts, bootstrap)** |
+| [`30-bidragsstrategi-underlag.md`](docs/30-bidragsstrategi-underlag.md) | **Bidragsstrategi: data-drivet underlag — behörighetsscreening, data-readiness och deadlines för de 12 bidragen** |
 | [`31-versionering-och-releaser.md`](docs/31-versionering-och-releaser.md) | **Versionering & releaser: semver-taggar, deploy-from-tag, APP_VERSION-spårbarhet, rollback** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
