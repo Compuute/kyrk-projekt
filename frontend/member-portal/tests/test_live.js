@@ -32,6 +32,14 @@ test('live page time-gates the embed by schedule (no error box off-hours)', func
   assert.ok(html.includes('isLiveNow'), 'must gate the embed behind a live-window check');
 });
 
+test('live page honours live_embed=false (button instead of unembeddable iframe)', function () {
+  // Some channels disable embedding → an iframe shows "This video is
+  // unavailable". Those churches set live_embed:false and get a watch button.
+  assert.ok(html.includes('live_embed'), 'must read the live_embed flag');
+  assert.ok(html.includes('canEmbed'), 'must branch on embeddability');
+  assert.ok(html.includes('Se gudstjänsten live'), 'must offer a watch button');
+});
+
 test('content.json has youtube_channel_id field', function () {
   assert.ok('youtube_channel_id' in (content.church || {}), 'church must have youtube_channel_id');
 });
