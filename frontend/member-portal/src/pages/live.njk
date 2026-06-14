@@ -47,10 +47,18 @@ breadcrumb: "Gudstjanst"
         loadChurchContent(function(config) {
           if (!config) return;
 
-          // If church has a YouTube channel, show the embed
-          var channelId = config.church && config.church.youtube_channel_id;
+          // Two ways to surface the livestream, in order of richness:
+          //  1. youtube_channel_id (UC…) → inline player that auto-shows the
+          //     current live stream.
+          //  2. youtube_handle (@name)  → "watch live" button to the channel's
+          //     always-current /live URL. No UC id needed; never goes stale.
+          // We deliberately never embed a single video id — it would show last
+          // week's recording once the stream ends.
+          var church = config.church || {};
+          var channelId = church.youtube_channel_id;
+          var handle = (church.youtube_handle || '').replace(/^@/, '');
+          var videoArea = document.getElementById('video-area');
           if (channelId) {
-            var videoArea = document.getElementById('video-area');
             videoArea.innerHTML =
               '<div class="video-container">' +
               '<iframe src="https://www.youtube.com/embed/live_stream?channel=' + channelId + '&autoplay=1" ' +
@@ -59,6 +67,17 @@ breadcrumb: "Gudstjanst"
               '<p style="font-size:12px;color:#888;text-align:center;">' +
               'Om streamen inte visas — <a href="https://www.youtube.com/channel/' + channelId + '/live" ' +
               'target="_blank" style="color:var(--accent)">öppna på YouTube</a></p>';
+          } else if (handle) {
+            var liveUrl = 'https://www.youtube.com/@' + handle + '/live';
+            var amLive = (navigator.language || 'sv').slice(0,2) === 'am';
+            videoArea.innerHTML =
+              '<div class="no-stream"><div>' +
+              '<p style="font-size:16px;margin-bottom:12px;">' +
+              (amLive ? 'ቅዳሴያችንን በቀጥታ በዩቱብ ይከታተሉ' : 'Följ vår gudstjänst live på YouTube') + '</p>' +
+              '<a class="cta-btn cta-primary" href="' + liveUrl + '" target="_blank" rel="noopener" ' +
+              'style="display:inline-block">' +
+              (amLive ? '▶ በቀጥታ ይመልከቱ' : '▶ Se gudstjänsten live') + '</a>' +
+              '</div></div>';
           }
 
           // Update church name in title if available
