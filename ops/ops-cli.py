@@ -104,6 +104,40 @@ def run_cmd(cmd: str, timeout: int = 30) -> tuple[int, str]:
         return 1, str(e)
 
 
+def run_cmd_unfiltered(cmd: str, timeout: int = 30) -> tuple[int, str]:
+    """Like run_cmd but WITHOUT the PII filter.
+
+    Only for output that is consumed internally and never printed. The PII
+    regexes match long digit runs, which also occur inside base64url-encoded
+    identity tokens — filtering would corrupt the credential.
+    """
+    try:
+        result = subprocess.run(
+            cmd, shell=True, capture_output=True, text=True, timeout=timeout
+        )
+        return result.returncode, result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        return 1, ""
+    except Exception:
+        return 1, ""
+
+
+def get_identity_token(audience: str) -> str:
+    """Fetch a GCP identity token for authenticated Cloud Run probes.
+
+    Service accounts (CI) require --audiences set to the service URL; user
+    credentials reject the flag but their plain identity token is accepted
+    by Cloud Run. Try the audience form first, then fall back.
+    Returns "" if no token could be obtained — never printed in output.
+    """
+    code, token = run_cmd_unfiltered(
+        f"gcloud auth print-identity-token --audiences='{audience}'"
+    )
+    if code != 0 or not token:
+        code, token = run_cmd_unfiltered("gcloud auth print-identity-token")
+    return token if code == 0 else ""
+
+
 def output_json(data: dict):
     """Print filtered JSON output and exit."""
     filtered = filter_pii_dict(data)
@@ -133,8 +167,12 @@ def cmd_health(env: str):
             all_healthy = False
             continue
 
+        # Services are not public: unauthenticated probes get 403 from
+        # Cloud Run IAM and would mark every healthy service unhealthy.
+        token = get_identity_token(url)
+        auth = f' -H "Authorization: Bearer {token}"' if token else ""
         _, http_code = run_cmd(
-            f"curl -s -o /dev/null -w '%{{http_code}}' '{url}/healthz' --max-time 10"
+            f"curl -s -o /dev/null -w '%{{http_code}}'{auth} '{url}/healthz' --max-time 10"
         )
         _, revision = run_cmd(
             f"gcloud run services describe {svc} --region={REGION} "
@@ -262,18 +300,26 @@ def cmd_backup_verify(env: str):
 def cmd_drift_check():
     """Run terraform plan and report drift."""
     tf_dir = Path(__file__).resolve().parent.parent / "infra" / "terraform"
+    # No pipe here: `| tail` would replace terraform's -detailed-exitcode
+    # status (0=no changes, 2=changes, 1=error) with tail's own exit code.
+    # Truncation happens in Python instead. Substring-matching the output
+    # is unreliable: "No changes." also contains the word "changes".
     code, output = run_cmd(
-        f"cd {tf_dir} && terraform plan -detailed-exitcode -no-color 2>&1 | tail -20",
+        f"cd {tf_dir} && terraform plan -detailed-exitcode -no-color 2>&1",
         timeout=120,
     )
-    # Exit codes: 0=no changes, 1=error, 2=changes detected
-    has_drift = "changes" in output.lower() or code == 2
+    has_drift = code == 2
+    error = code not in (0, 2)
+    tail = "\n".join(output.split("\n")[-20:]) if output else ""
     output_json({
         "command": "drift_check",
         "has_drift": has_drift,
+        "error": error,
         "exit_code": code,
-        "summary": output[-500:] if output else "no output",
+        "summary": tail[-500:] if tail else "no output",
     })
+    if error:
+        sys.exit(2)
     sys.exit(1 if has_drift else 0)
 
 
