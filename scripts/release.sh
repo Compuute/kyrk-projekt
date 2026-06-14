@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Cut a release: bump package.json and create an annotated semver tag.
-# Does NOT push — review first, then `git push origin main vX.Y.Z`.
-# Released tags are immutable (AI-RULES.md RULE 3); a correction ships as the
-# next version, never by moving a tag.
+# Cut a release THROUGH a PR (never a direct push to main): bump package.json
+# on a release branch and open the PR. After it is squash-merged, tag the
+# resulting main commit (the script prints the exact command).
+#
+# Why a PR: the version bump then runs through CI and is auditable, same as
+# every other change. Released tags are immutable (AI-RULES.md RULE 3); a
+# correction ships as the next version, never by moving a tag.
 #
 # Usage: scripts/release.sh 0.2.0
 set -euo pipefail
@@ -13,22 +16,20 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 2
 fi
 TAG="v$VERSION"
+BRANCH="release/$TAG"
 
 cd "$(git rev-parse --show-toplevel)"
 
-if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-  echo "tag $TAG already exists — releases are immutable, pick the next version" >&2
+if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+  echo "tag $TAG already exists on origin — releases are immutable, pick the next version" >&2
   exit 1
-fi
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo "working tree not clean — commit or stash first" >&2
-  exit 1
-fi
-if [[ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]]; then
-  echo "warning: not on main (on $(git rev-parse --abbrev-ref HEAD))" >&2
 fi
 
-# Bump package.json version (the only field touched).
+# Build the release commit on a fresh branch off the latest origin/main —
+# never on main directly.
+git fetch -q origin main
+git switch -c "$BRANCH" origin/main
+
 node -e '
   const fs=require("fs"), p="package.json";
   const j=JSON.parse(fs.readFileSync(p,"utf8"));
@@ -38,8 +39,20 @@ node -e '
 
 git add package.json
 git commit -q -m "chore(release): $TAG"
-git tag -a "$TAG" -m "$TAG"
+echo "committer: $(git log -1 --format='%cn <%ce>')"   # must be the human (RULE 4)
 
-echo "created commit + annotated tag $TAG"
-echo "tagger: $(git log -1 --format='%cn <%ce>')"
-echo "review, then: git push origin main $TAG"
+git push -u origin "$BRANCH"
+gh pr create --base main --head "$BRANCH" \
+  --title "chore(release): $TAG" \
+  --body "Version bump to \`$TAG\`. Squash-merge, then tag origin/main (see below)."
+
+cat <<EOF
+
+PR opened. After it is squash-merged and CI is green, tag the merged commit:
+
+  git fetch origin main
+  git tag -a $TAG origin/main -m "$TAG"
+  git push origin $TAG
+
+The tag then points at the exact main commit that carries the bump.
+EOF
