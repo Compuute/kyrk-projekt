@@ -58,4 +58,36 @@ test('Nacka has no education (per-church; nav stays hidden there)', function () 
   assert.ok(!cfg.education || cfg.education.length === 0, 'Nacka should not have Fredagsskola');
 });
 
+// --- Publik barnanmälan: gate:ad, minimal data (GDPR Art. 8)
+
+test('registration form is gated on registration_enabled + group_id', function () {
+  assert.ok(html.includes('a.registration_enabled === true && a.group_id'),
+    'form must only render when explicitly enabled AND linked to a group');
+});
+
+test('registration is OFF by default in Stockholm config (go-live gate)', function () {
+  const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'churches', 'stockholm', 'content.json'), 'utf-8'));
+  assert.strictEqual(cfg.education[0].registration_enabled, false,
+    'must stay disabled until go-live (#156/#118)');
+});
+
+test('registration collects minimal child data — NO personnummer/phone', function () {
+  assert.ok(html.includes('reg-child-first') && html.includes('reg-child-last'), 'child name fields');
+  assert.ok(html.includes('reg-birth-year'), 'birth year (for age band)');
+  assert.ok(html.includes('reg-guardian'), 'guardian name');
+  assert.ok(html.includes('reg-consent'), 'guardian consent checkbox');
+  // GDPR data minimization for minors — no INPUT field for these (a code
+  // comment documenting "INGET personnummer" is fine; an input is not).
+  assert.ok(!/placeholder="[^"]*ersonnummer/i.test(html), 'no personnummer input');
+  assert.ok(!html.includes('reg-pnr') && !html.includes('reg-personnummer'), 'no personnummer field');
+  assert.ok(!/placeholder="[^"]*elefon/i.test(html) && !html.includes('reg-phone'), 'no phone input');
+});
+
+test('registration captures guardian consent + timestamp and is a pending (202) flow', function () {
+  assert.ok(html.includes('guardian_consent') && html.includes('consent_timestamp'),
+    'must send consent + timestamp (audit trail)');
+  assert.ok(html.includes('r.status === 202'), 'pending → staff approves (mirrors intake)');
+  assert.ok(html.includes('granskas av församlingen'), 'must tell parent it is reviewed before enrollment');
+});
+
 console.log('member-portal education tests done');

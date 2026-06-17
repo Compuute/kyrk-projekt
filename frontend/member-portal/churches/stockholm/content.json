@@ -165,7 +165,9 @@
           "sv": "Betala helst senast den 28:e varje månad.",
           "am": "ክፍያውን ወር በገባ በ28 ብታደርጉት ጥሩ ነው።"
         }
-      }
+      },
+      "registration_enabled": false,
+      "group_id": ""
     }
   ]
 }
