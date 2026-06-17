@@ -166,8 +166,88 @@ breadcrumb: "Utbildning"
       info.innerHTML = rows;
       card.appendChild(info);
 
+      // Publik barnanmälan — gate:ad: visas bara när aktiviteten har
+      // registration_enabled=true OCH en group_id. Default av (go-live-grind,
+      // se issue #156). Dataminimering (GDPR Art. 8): barnets namn + födelseår
+      // + vårdnadshavarens namn + samtycke. INGET personnummer, ingen telefon.
+      if (a.registration_enabled === true && a.group_id) {
+        card.appendChild(buildRegistration(a));
+      }
+
       updateSwish();
       return card;
+    }
+
+    // Den publika anmälningsdelen. Skickar en PENDING-anmälan som personal
+    // godkänner (speglar medlemsansökan); återanvänder samma intake-mönster.
+    var REGISTRATION_URL = 'https://membership-intake-479770870521.europe-north1.run.app/education-registration';
+
+    function buildRegistration(a) {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'margin-top:16px;border-top:1px solid #2a2a3a;padding-top:14px;';
+      wrap.innerHTML =
+        '<h3 style="font-size:15px;margin:0 0 8px;">' +
+        '<span class="sv">Anmäl ditt barn</span>' +
+        '<span class="am" style="display:none;">ልጅዎን ያስመዝግቡ</span></h3>' +
+        '<p class="muted" style="font-size:12px;margin:0 0 10px;">' +
+        '<span class="sv">Anmälan granskas av församlingen innan barnet läggs till.</span>' +
+        '<span class="am" style="display:none;">ማመልከቻው በቤተ ክርስቲያኑ ይገመገማል።</span></p>';
+
+      var form = document.createElement('form');
+      form.className = 'edu-reg-form';
+      form.innerHTML =
+        '<input type="text" class="reg-child-first" required maxlength="100" placeholder="Barnets förnamn" autocomplete="off" />' +
+        '<input type="text" class="reg-child-last" required maxlength="100" placeholder="Barnets efternamn" autocomplete="off" />' +
+        '<input type="number" class="reg-birth-year" required min="2005" max="2026" placeholder="Födelseår (t.ex. 2017)" />' +
+        '<input type="text" class="reg-guardian" required maxlength="100" placeholder="Vårdnadshavarens namn" autocomplete="name" />' +
+        '<label style="display:block;font-size:13px;margin:8px 0;">' +
+        '<input type="checkbox" class="reg-consent" required /> ' +
+        '<span class="sv">Jag är vårdnadshavare och samtycker till att barnets namn och födelseår behandlas för deltagande (GDPR).</span>' +
+        '<span class="am" style="display:none;">እኔ ሞግዚት ነኝ፣ የልጁ ስም እና የትውልድ ዓመት ለተሳትፎ እንዲያዝ እስማማለሁ።</span></label>' +
+        '<button type="submit" class="method-btn"><span class="sv">Skicka anmälan</span><span class="am" style="display:none;">ማመልከቻ ላክ</span></button>' +
+        '<p class="reg-status" style="font-size:13px;margin-top:8px;" aria-live="polite"></p>';
+      wrap.appendChild(form);
+
+      var statusEl = form.querySelector('.reg-status');
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button');
+        btn.disabled = true;
+        statusEl.textContent = 'Skickar…';
+        fetch(REGISTRATION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'omit',
+          body: JSON.stringify({
+            church_id: getSelectedChurch(),
+            group_id: a.group_id,
+            activity_id: a.id,
+            child_first_name: form.querySelector('.reg-child-first').value.trim(),
+            child_last_name: form.querySelector('.reg-child-last').value.trim(),
+            birth_year: parseInt(form.querySelector('.reg-birth-year').value, 10),
+            guardian_name: form.querySelector('.reg-guardian').value.trim(),
+            guardian_consent: form.querySelector('.reg-consent').checked,
+            consent_timestamp: new Date().toISOString()
+          })
+        })
+          .then(function (r) {
+            if (r.status === 202) {
+              form.style.display = 'none';
+              statusEl.textContent = 'Tack! Anmälan har tagits emot och granskas av församlingen.';
+            } else if (r.status === 429) {
+              statusEl.textContent = 'För många försök — vänta en stund och försök igen.';
+              btn.disabled = false;
+            } else {
+              statusEl.textContent = 'Något gick fel — kontrollera uppgifterna och försök igen.';
+              btn.disabled = false;
+            }
+          })
+          .catch(function () {
+            statusEl.textContent = 'Kunde inte nå servern — försök igen senare.';
+            btn.disabled = false;
+          });
+      });
+      return wrap;
     }
 
     fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
