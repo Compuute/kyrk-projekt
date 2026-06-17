@@ -220,7 +220,13 @@ function toggleConsent(inputId, btnId, boxId) {
 }
 function buildSwishLink(swishNumber, amount, message) {
   if (!swishNumber || !amount) return "#";
-  return 'swish://payment?data={"version":1,"payee":{"value":"' + swishNumber + '"},"amount":{"value":' + amount + '},"message":{"value":"' + (message ?? "Betalning") + '","editable":false}}';
+  const data = JSON.stringify({
+    version: 1,
+    payee: { value: swishNumber },
+    amount: { value: amount },
+    message: { value: message ?? "Betalning", editable: false }
+  });
+  return "swish://payment?data=" + encodeURIComponent(data);
 }
 function renderSwishQr(swishNumber, amount, message, container) {
   if (!container) return;
