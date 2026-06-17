@@ -110,7 +110,11 @@ breadcrumb: "Utbildning"
       qrWrap.style.cssText = 'display:none;margin-top:12px;text-align:center;';
       card.appendChild(qrWrap);
 
-      var msg = (pay.message_instruction && (pay.message_instruction.sv || pay.message_instruction)) || 'Barnens namn';
+      // Förifyllt Swish-meddelande: kort betalreferens (≤50 tecken), INTE den
+      // långa "skriv barnens namn"-instruktionen (den visas på skärmen nedan).
+      // Föräldern fyller själv i barnens namn i Swish-appen.
+      var actTitle = (a.title && (a.title.sv || a.title)) || 'Avgift';
+      var msg = (pay.swish_message || actTitle).slice(0, 50);
 
       function updateSwish() {
         var amt = selected.amount;

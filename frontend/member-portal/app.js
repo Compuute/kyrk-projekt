@@ -220,11 +220,12 @@ function toggleConsent(inputId, btnId, boxId) {
 }
 function buildSwishLink(swishNumber, amount, message) {
   if (!swishNumber || !amount) return "#";
+  const msg = (message ?? "Betalning").slice(0, 50);
   const data = JSON.stringify({
     version: 1,
     payee: { value: swishNumber },
     amount: { value: amount },
-    message: { value: message ?? "Betalning", editable: false }
+    message: { value: msg, editable: false }
   });
   return "swish://payment?data=" + encodeURIComponent(data);
 }

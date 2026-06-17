@@ -58,6 +58,16 @@ test('Nacka has no education (per-church; nav stays hidden there)', function () 
   assert.ok(!cfg.education || cfg.education.length === 0, 'Nacka should not have Fredagsskola');
 });
 
+// --- Swish-meddelande: kort referens, inte den långa instruktionen
+
+test('swish message is a short reference, not the long instruction', function () {
+  assert.ok(html.includes('pay.swish_message || actTitle'),
+    'must use short swish_message/title, not message_instruction, for the prefilled message');
+  assert.ok(html.includes('.slice(0, 50)'), 'must cap the swish message length');
+  const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'churches', 'stockholm', 'content.json'), 'utf-8'));
+  assert.ok((cfg.education[0].payment.swish_message || '').length <= 50, 'config swish_message ≤ 50');
+});
+
 // --- Publik barnanmälan: gate:ad, minimal data (GDPR Art. 8)
 
 test('registration form is gated on registration_enabled + group_id', function () {

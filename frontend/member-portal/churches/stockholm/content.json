@@ -164,7 +164,8 @@
         "due_note": {
           "sv": "Betala helst senast den 28:e varje månad.",
           "am": "ክፍያውን ወር በገባ በ28 ብታደርጉት ጥሩ ነው።"
-        }
+        },
+        "swish_message": "Fredagsskola"
       },
       "registration_enabled": false,
       "group_id": ""
