@@ -39,15 +39,30 @@ ok(app.validatePersonnummer('000') === false, 'validatePersonnummer: too short')
 ok(app.validatePersonnummer('abcdefghij') === false, 'validatePersonnummer: letters rejected');
 
 // --- buildSwishLink ---
+// The data payload must be URL-encoded (raw JSON makes the Swish app reject
+// the link). Assert against the DECODED payload, and confirm it's encoded.
+function swishData(link) {
+  var q = link.split('data=')[1] || '';
+  return decodeURIComponent(q);
+}
 var link1 = app.buildSwishLink('1234567890', 200, 'Medlemsavgift');
-ok(link1.indexOf('swish://payment') === 0, 'buildSwishLink: starts with swish://payment');
-ok(link1.indexOf('"1234567890"') > 0, 'buildSwishLink: contains payee number');
-ok(link1.indexOf(':200') > 0 || link1.indexOf(':200,') > 0, 'buildSwishLink: contains amount 200');
-ok(link1.indexOf('Medlemsavgift') > 0, 'buildSwishLink: contains message');
+ok(link1.indexOf('swish://payment?data=') === 0, 'buildSwishLink: starts with swish://payment?data=');
+ok(link1.indexOf('{') === -1 && link1.indexOf('"') === -1, 'buildSwishLink: data is URL-encoded (no raw braces/quotes in the URL)');
+var d1 = JSON.parse(swishData(link1));
+ok(d1.payee.value === '1234567890', 'buildSwishLink: payee number');
+ok(d1.amount.value === 200, 'buildSwishLink: amount 200');
+ok(d1.message.value === 'Medlemsavgift', 'buildSwishLink: message');
+ok(d1.message.editable === false, 'buildSwishLink: amount/message locked');
+
+// A message with a slash + Swedish chars (the case that broke the Swish app)
+// must round-trip cleanly once encoded.
+var link3 = app.buildSwishLink('1234140950', 100, 'Barn / å ä ö');
+ok(link3.indexOf('{') === -1, 'buildSwishLink: slash+åäö message stays encoded');
+ok(JSON.parse(swishData(link3)).message.value === 'Barn / å ä ö', 'buildSwishLink: tricky message round-trips');
 
 var link2 = app.buildSwishLink('9876543210', 500, 'Familj');
-ok(link2.indexOf('9876543210') > 0, 'buildSwishLink: different number works');
-ok(link2.indexOf(':500') > 0 || link2.indexOf(':500,') > 0, 'buildSwishLink: 500 kr works');
+ok(JSON.parse(swishData(link2)).payee.value === '9876543210', 'buildSwishLink: different number works');
+ok(JSON.parse(swishData(link2)).amount.value === 500, 'buildSwishLink: 500 kr works');
 
 ok(app.buildSwishLink('', 200, 'test') === '#', 'buildSwishLink: no number returns #');
 ok(app.buildSwishLink('123', 0, 'test') === '#', 'buildSwishLink: zero amount returns #');

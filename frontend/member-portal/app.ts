@@ -353,9 +353,16 @@ function toggleConsent(inputId?: string, btnId?: string, boxId?: string): void {
 
 function buildSwishLink(swishNumber: string, amount: number, message?: string): string {
   if (!swishNumber || !amount) return '#';
-  return 'swish://payment?data={"version":1,"payee":{"value":"' +
-    swishNumber + '"},"amount":{"value":' + amount +
-    '},"message":{"value":"' + (message ?? 'Betalning') + '","editable":false}}';
+  // The `data` value is a JSON object that MUST be URL-encoded — raw JSON
+  // (braces, quotes, spaces, the slash in some messages) makes the Swish app
+  // reject the link as "incorrect format". encodeURIComponent handles all of it.
+  const data = JSON.stringify({
+    version: 1,
+    payee: { value: swishNumber },
+    amount: { value: amount },
+    message: { value: message ?? 'Betalning', editable: false },
+  });
+  return 'swish://payment?data=' + encodeURIComponent(data);
 }
 
 // Render a Swish QR code (desktop path — the swish:// deep link only works on a
