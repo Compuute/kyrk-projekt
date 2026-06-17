@@ -64,6 +64,12 @@ var link2 = app.buildSwishLink('9876543210', 500, 'Familj');
 ok(JSON.parse(swishData(link2)).payee.value === '9876543210', 'buildSwishLink: different number works');
 ok(JSON.parse(swishData(link2)).amount.value === 500, 'buildSwishLink: 500 kr works');
 
+// Swish caps messages at 50 chars — a longer one makes the app reject the
+// link ("incorrect format"). buildSwishLink must truncate defensively.
+var longMsg = 'Skriv barnens namn i Swish-/inbetalningsmeddelandet.'; // 52 chars
+var link4 = app.buildSwishLink('1234140950', 100, longMsg);
+ok(JSON.parse(swishData(link4)).message.value.length <= 50, 'buildSwishLink: message capped at 50 chars');
+
 ok(app.buildSwishLink('', 200, 'test') === '#', 'buildSwishLink: no number returns #');
 ok(app.buildSwishLink('123', 0, 'test') === '#', 'buildSwishLink: zero amount returns #');
 ok(app.buildSwishLink(null, 200, 'test') === '#', 'buildSwishLink: null number returns #');

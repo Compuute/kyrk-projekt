@@ -356,11 +356,14 @@ function buildSwishLink(swishNumber: string, amount: number, message?: string): 
   // The `data` value is a JSON object that MUST be URL-encoded — raw JSON
   // (braces, quotes, spaces, the slash in some messages) makes the Swish app
   // reject the link as "incorrect format". encodeURIComponent handles all of it.
+  // Swish caps the message at 50 chars — a longer one makes the app reject
+  // the link as "incorrect format". Truncate defensively.
+  const msg = (message ?? 'Betalning').slice(0, 50);
   const data = JSON.stringify({
     version: 1,
     payee: { value: swishNumber },
     amount: { value: amount },
-    message: { value: message ?? 'Betalning', editable: false },
+    message: { value: msg, editable: false },
   });
   return 'swish://payment?data=' + encodeURIComponent(data);
 }
