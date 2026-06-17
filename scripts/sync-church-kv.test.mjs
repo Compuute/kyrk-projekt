@@ -2,7 +2,7 @@
 // Run: node --test scripts/sync-church-kv.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeStructural, STRUCTURAL_FIELDS } from './sync-church-kv.mjs';
+import { mergeStructural, STRUCTURAL_FIELDS, STRUCTURAL_TOPLEVEL_FIELDS } from './sync-church-kv.mjs';
 
 const repoDoc = {
   church: {
@@ -54,6 +54,24 @@ test('does not delete a KV field the repo does not define', () => {
 test('seeds the full repo doc when KV has no prior value (null)', () => {
   const out = mergeStructural(null, repoDoc);
   assert.deepEqual(out, repoDoc);
+});
+
+test('overlays top-level structural collection (education) from repo', () => {
+  const edu = [{ id: 'fredagsskola', payment: { org_number: '802407-2673' } }];
+  const repo = { church: { name: { sv: 'X' } }, education: edu };
+  const kv = { church: { name: { sv: 'Admin Name' } }, announcements: [{ x: 1 }] };
+  const out = mergeStructural(kv, repo);
+  // education (structural, git-owned) is overlaid from repo …
+  assert.deepEqual(out.education, edu);
+  // … while editorial church/announcements stay admin-owned.
+  assert.deepEqual(out.church.name, { sv: 'Admin Name' });
+  assert.deepEqual(out.announcements, kv.announcements);
+});
+
+test('does not delete education the repo no longer defines', () => {
+  const kv = { church: {}, education: [{ id: 'keep' }] };
+  const out = mergeStructural(kv, { church: {} });
+  assert.deepEqual(out.education, [{ id: 'keep' }]); // untouched
 });
 
 test('only the allowlisted fields are treated as structural', () => {

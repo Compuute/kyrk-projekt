@@ -1,0 +1,178 @@
+---
+layout: base.njk
+title: "Utbildning"
+breadcrumb: "Utbildning"
+---
+
+<a href="/" class="back-link" id="back-link">
+  <span class="sv">← Tillbaka</span>
+  <span class="am" style="display:none;">← ተመለስ</span>
+</a>
+
+<div class="donate-card">
+  <h1>
+    <span class="sv">Utbildning för barn &amp; unga</span>
+    <span class="am" style="display:none;">ለልጆች ና ወጣቶች ትምህርት</span>
+  </h1>
+  <p class="muted" style="font-size:14px;">
+    <span class="sv">Församlingens utbildningsaktiviteter. Välj en aktivitet för information och avgift.</span>
+    <span class="am" style="display:none;">የቤተ ክርስቲያኑ የትምህርት እንቅስቃሴዎች። ለመረጃ እና ክፍያ አንዱን ይምረጡ።</span>
+  </p>
+
+  <!-- Aktiviteter renderas per kyrka ur config.education (data-driven). -->
+  <div id="edu-list"></div>
+
+  <div id="edu-empty" style="display:none;" class="muted">
+    <span class="sv">Inga utbildningsaktiviteter är upplagda för den här församlingen ännu.</span>
+    <span class="am" style="display:none;">ለዚህ ቤተ ክርስቲያን እስካሁን የተመዘገበ የትምህርት እንቅስቃሴ የለም።</span>
+  </div>
+</div>
+
+<script src="/qrcodegen.js"></script>
+<script>
+  (function () {
+    var listEl = document.getElementById('edu-list');
+    var emptyEl = document.getElementById('edu-empty');
+
+    function isMobile() { return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); }
+
+    function t(obj) {
+      // {sv, am} → returnerar båda språkspann så lang-pillsen funkar.
+      if (obj == null) return '';
+      if (typeof obj === 'string') return escapeHtml(obj);
+      var sv = escapeHtml(obj.sv || '');
+      var am = escapeHtml(obj.am || '');
+      return '<span class="sv">' + sv + '</span>' +
+             '<span class="am" style="display:none;">' + am + '</span>';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+
+    function render(activities) {
+      if (!Array.isArray(activities) || activities.length === 0) {
+        emptyEl.style.display = '';
+        return;
+      }
+      activities.forEach(function (a, i) { listEl.appendChild(buildCard(a, i)); });
+    }
+
+    function buildCard(a, idx) {
+      var pay = a.payment || {};
+      var tiers = pay.tiers || [];
+      var card = document.createElement('div');
+      card.className = 'edu-activity';
+      card.style.cssText = 'border:1px solid #2a2a3a;border-radius:12px;padding:16px;margin-top:16px;';
+
+      var h = document.createElement('h2');
+      h.style.cssText = 'font-size:18px;margin:0 0 8px;';
+      h.innerHTML = t(a.title);
+      card.appendChild(h);
+
+      if (a.description) {
+        var d = document.createElement('p');
+        d.style.cssText = 'font-size:14px;line-height:1.5;';
+        d.innerHTML = t(a.description);
+        card.appendChild(d);
+      }
+
+      // Avgiftsnivåer (1 barn / 2 barn / 3+ barn → belopp).
+      var grid = document.createElement('div');
+      grid.className = 'amount-grid';
+      var selected = { amount: tiers.length ? tiers[0].amount : 0 };
+      var btns = [];
+      tiers.forEach(function (tier, j) {
+        var b = document.createElement('button');
+        b.className = 'amount-btn' + (j === 0 ? ' selected' : '');
+        b.type = 'button';
+        b.innerHTML = t(tier.label) + ' · ' + tier.amount + ' kr';
+        b.addEventListener('click', function () {
+          btns.forEach(function (x) { x.classList.remove('selected'); });
+          b.classList.add('selected');
+          selected.amount = tier.amount;
+          updateSwish();
+        });
+        btns.push(b);
+        grid.appendChild(b);
+      });
+      if (tiers.length) card.appendChild(grid);
+
+      // Swish-knapp (deep link på mobil, instruktion/QR på desktop).
+      var swishBtn = document.createElement('a');
+      swishBtn.className = 'swish-btn';
+      swishBtn.href = '#';
+      card.appendChild(swishBtn);
+
+      var qrWrap = document.createElement('div');
+      qrWrap.style.cssText = 'display:none;margin-top:12px;text-align:center;';
+      card.appendChild(qrWrap);
+
+      var msg = (pay.message_instruction && (pay.message_instruction.sv || pay.message_instruction)) || 'Barnens namn';
+
+      function updateSwish() {
+        var amt = selected.amount;
+        var num = pay.swish || '';
+        if (amt > 0 && num) {
+          swishBtn.textContent = 'Swish — ' + amt + ' kr';
+          if (isMobile()) {
+            swishBtn.href = buildSwishLink(num, amt, msg);
+            swishBtn.onclick = null;
+          } else {
+            swishBtn.href = '#';
+            swishBtn.onclick = function (e) {
+              e.preventDefault();
+              alert('Öppna Swish och betala ' + amt + ' kr till ' + num + '\n\nSkriv barnens namn i meddelandet.');
+            };
+            renderQr(num, amt);
+          }
+        } else {
+          swishBtn.textContent = 'Swish';
+          swishBtn.href = '#';
+        }
+      }
+
+      function renderQr(num, amt) {
+        try {
+          qrWrap.innerHTML = '';
+          var uri = buildSwishLink(num, amt, msg);
+          var qr = qrcodegen.QrCode.encodeText(uri, qrcodegen.QrCode.Ecc.MEDIUM);
+          var size = qr.size, scale = 5, border = 2, dim = (size + border * 2) * scale;
+          var c = document.createElement('canvas');
+          c.width = c.height = dim;
+          var ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, dim, dim);
+          ctx.fillStyle = '#000';
+          for (var y = 0; y < size; y++) for (var x = 0; x < size; x++) {
+            if (qr.getModule(x, y)) ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+          }
+          qrWrap.appendChild(c);
+          qrWrap.style.display = '';
+        } catch (e) { qrWrap.style.display = 'none'; }
+      }
+
+      // Mottagare, org.nr, PlusGiro, meddelande-instruktion, förfallodag.
+      var info = document.createElement('div');
+      info.style.cssText = 'font-size:13px;line-height:1.6;margin-top:14px;border-top:1px solid #2a2a3a;padding-top:12px;';
+      var rows = '';
+      if (pay.recipient) rows += '<div><strong><span class="sv">Mottagare</span><span class="am" style="display:none;">ተቀባይ</span>:</strong> ' + escapeHtml(pay.recipient) + '</div>';
+      if (pay.org_number) rows += '<div><strong>Org.nr:</strong> ' + escapeHtml(pay.org_number) + '</div>';
+      if (pay.swish) rows += '<div><strong>Swish:</strong> ' + escapeHtml(pay.swish) + '</div>';
+      if (pay.plusgiro) rows += '<div><strong>PlusGiro:</strong> ' + escapeHtml(pay.plusgiro) + '</div>';
+      rows += '<div style="margin-top:8px;"><strong><span class="sv">Viktigt</span><span class="am" style="display:none;">አስፈላጊ</span>:</strong> ' + t(pay.message_instruction || { sv: 'Skriv barnens namn i meddelandet.', am: 'በመልዕክቱ ላይ የልጆችን ስም ይጻፉ።' }) + '</div>';
+      if (pay.due_note) rows += '<div>' + t(pay.due_note) + '</div>';
+      info.innerHTML = rows;
+      card.appendChild(info);
+
+      updateSwish();
+      return card;
+    }
+
+    fetch(getContentUrl(), { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (data) { render((data && data.education) || []); })
+      .catch(function () { emptyEl.style.display = ''; });
+  })();
+</script>

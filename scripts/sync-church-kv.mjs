@@ -23,6 +23,12 @@ export const STRUCTURAL_FIELDS = [
   'live_embed',
 ];
 
+// Top-level structural collections the repo owns (not under church.*).
+// `education` carries payment routing (org-nr, Swish, PlusGiro) — legal
+// identity that belongs in git, reviewed, never editable via the content
+// editor (same principle as donation receipts). Overlaid from repo each push.
+export const STRUCTURAL_TOPLEVEL_FIELDS = ['education'];
+
 // Overlay only STRUCTURAL_FIELDS from repoDoc onto the live kvDoc. Everything
 // else in kvDoc (admin-edited) is preserved untouched. If there is no kvDoc
 // yet, seed with the full repo document.
@@ -38,6 +44,12 @@ export function mergeStructural(kvDoc, repoDoc) {
       out.church[field] = repoChurch[field];
     }
     // If the repo doesn't define the field, leave KV as-is — never delete.
+  }
+  for (const field of STRUCTURAL_TOPLEVEL_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(repoDoc || {}, field)) {
+      out[field] = repoDoc[field];
+    }
+    // Repo doesn't define it → leave KV untouched (never delete).
   }
   return out;
 }

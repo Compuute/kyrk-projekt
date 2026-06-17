@@ -1,9 +1,10 @@
-const CACHE_NAME = 'kyrka-v8';
+const CACHE_NAME = 'kyrka-v9';
 const OFFLINE_URLS = [
   '/',
   '/index.html',
   '/donate/index.html',
   '/intake/index.html',
+  '/education/index.html',
   '/privacy/index.html',
   '/live/index.html',
   '/funeral/index.html',

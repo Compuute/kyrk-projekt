@@ -127,6 +127,9 @@ jobs:
       - name: Run Cloudflare-ready tests
         run: node tests/test_cloudflare_ready.js
 
+      - name: Run education hub tests (post-build — asserts against dist/)
+        run: node tests/test_education.js
+
   syntax-check:
     name: python syntax check
     runs-on: ubuntu-latest
