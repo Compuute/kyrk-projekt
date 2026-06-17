@@ -117,5 +117,55 @@
       "am": "ይህ ገጽ አይከታተልዎትም። የክትትል ኩኪዎች የሉም — ሁለት ተግባራዊ ኩኪዎች ምርጫዎችዎን (ቋንቋ እና ቤተ ክርስቲያን) ያስቀምጣሉ። የግላዊነት ፖሊሲያችንን ያንብቡ።"
     },
     "privacy_url": "./privacy"
-  }
+  },
+  "education": [
+    {
+      "id": "fredagsskola",
+      "title": {
+        "sv": "Fredagsskola för barn",
+        "am": "የልጆች ዓርብ ትምህርት ቤት"
+      },
+      "description": {
+        "sv": "Varje fredag, när barnen slutat sin undervisning, samlar vi in till deras mellanmål. Bidra gärna till barn- och ungdomsverksamheten. För smidig administration: betala helst senast den 28:e varje månad.",
+        "am": "እንዴት አረፈዳችሁ የእግዚአብሔር ቤተሰቦች፤ ለማስታወስ ያህል ዘወትር ዓርብ ለልጆች ተምረው ሲወጡ መክሰስ እንዲሆናቸው የምናዋጣውን ብር እንድታደርጉ እያልን፣ በመልዕክቱ ላይ የልጆቻችሁን ስም መጻፍ እንዳትረሱ። ለአሰራር እንዲመች ክፍያውን ወር በገባ በ28 ብታደርጉት ጥሩ ነው። እናመሰግናለን!"
+      },
+      "payment": {
+        "recipient": "Etiopiska Barn och ungdomsverksamhet i Stockholm",
+        "org_number": "802407-2673",
+        "swish": "1234140950",
+        "plusgiro": "851832-6",
+        "tiers": [
+          {
+            "label": {
+              "sv": "1 barn",
+              "am": "1 ልጅ"
+            },
+            "amount": 100
+          },
+          {
+            "label": {
+              "sv": "2 barn",
+              "am": "2 ልጆች"
+            },
+            "amount": 200
+          },
+          {
+            "label": {
+              "sv": "3+ barn",
+              "am": "3 ና ከዚያ በላይ"
+            },
+            "amount": 300
+          }
+        ],
+        "message_instruction": {
+          "sv": "Skriv barnens namn i Swish-/inbetalningsmeddelandet.",
+          "am": "በመልዕክቱ ላይ የልጆቻችሁን ስም መጻፍ እንዳትረሱ።"
+        },
+        "due_note": {
+          "sv": "Betala helst senast den 28:e varje månad.",
+          "am": "ክፍያውን ወር በገባ በ28 ብታደርጉት ጥሩ ነው።"
+        }
+      }
+    }
+  ]
 }

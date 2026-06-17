@@ -47,6 +47,7 @@
   <nav class="site-nav" id="site-nav">
     <a href="./"><span class="sv">Hem</span><span class="am" style="display:none">መነሻ</span></a>
     <a href="./intake"><span class="sv">Bli medlem</span><span class="am" style="display:none">አባል ይሁኑ</span></a>
+    <a href="./education" id="nav-utbildning" style="display:none"><span class="sv">Utbildning</span><span class="am" style="display:none">ትምህርት</span></a>
     <div class="nav-dropdown">
       <button class="nav-dropdown-toggle" onclick="this.parentElement.classList.toggle('open')">
         <span class="sv">Fler tjänster &#x25BE;</span>
@@ -104,5 +105,18 @@
     <div class="footer-bottom"><span class="sv">Ingen spårning. Endast funktionella kakor (språk &amp; församling).</span><span class="am" style="display:none">ክትትል የለም። ተግባራዊ ኩኪዎች ብቻ (ቋንቋ እና ቤተ ክርስቲያን)።</span></div>
   </footer>
   <script>registerServiceWorker(); setupLangPills(); initChurchSelector(); initChurchData();</script>
+  <script>
+    // Visa "Utbildning"-fliken bara för kyrkor som har minst en
+    // utbildningsaktivitet i sin config (multi-tenant; ingen död länk).
+    fetch(getContentUrl(), { credentials: 'omit' })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (d) {
+        if (d && Array.isArray(d.education) && d.education.length) {
+          var el = document.getElementById('nav-utbildning');
+          if (el) el.style.display = '';
+        }
+      })
+      .catch(function () {});
+  </script>
 </body>
 </html>
