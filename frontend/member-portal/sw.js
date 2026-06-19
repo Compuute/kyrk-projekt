@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kyrka-v11';
+const CACHE_NAME = 'kyrka-v12';
 const OFFLINE_URLS = [
   '/',
   '/index.html',

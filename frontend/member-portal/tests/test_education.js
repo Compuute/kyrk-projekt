@@ -32,12 +32,17 @@ test('education page is bilingual (sv + am spans)', function () {
   assert.ok(html.includes('ለልጆች') || html.includes('ትምህርት'), 'missing Amharic');
 });
 
-// --- Nav-länken visas bara för kyrkor med utbildning (multi-tenant)
+// --- Nav-länken visas på SAMTLIGA kyrkor (utbildning är nu standard)
 
-test('nav link starts hidden and is config-gated', function () {
+test('nav link is always visible (not config-gated)', function () {
   const home = fs.readFileSync(path.join(ROOT, 'dist', 'index.html'), 'utf-8');
   assert.ok(home.includes('id="nav-utbildning"'), 'missing nav link');
-  assert.ok(home.includes('display:none'), 'nav link must start hidden until config confirms');
+  // Granska bara <a ...>-öppningstaggen — inte den amhariska span:en som
+  // legitimt bär display:none på samma rad.
+  const anchor = home.match(/<a[^>]*id="nav-utbildning"[^>]*>/);
+  assert.ok(anchor, 'nav anchor not found');
+  assert.ok(anchor[0].indexOf('display:none') === -1,
+    'nav link must NOT be hidden — education is available on every church');
 });
 
 // --- Stockholm-config: Fredagsskola till SEPARAT org, inte kyrkan
@@ -53,9 +58,36 @@ test('Stockholm config has Fredagsskola paying the separate org', function () {
   assert.deepEqual(amounts, [100, 200, 300], 'tiers 1/2/3+ children = 100/200/300');
 });
 
-test('Nacka has no education (per-church; nav stays hidden there)', function () {
+test('every church ships starter education packages', function () {
+  ['stockholm', 'nacka'].forEach(function (id) {
+    const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'churches', id, 'content.json'), 'utf-8'));
+    assert.ok(Array.isArray(cfg.education) && cfg.education.length, id + ' missing education array');
+    cfg.education.forEach(function (e) {
+      assert.ok(e.type, id + ': each package must declare a type');
+    });
+  });
+});
+
+test('Stockholm Fredagsskola declares type + leads to certificate', function () {
+  const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'churches', 'stockholm', 'content.json'), 'utf-8'));
+  const f = cfg.education.find(function (e) { return e.type === 'fredagsskola'; });
+  assert.ok(f, 'Stockholm must keep Fredagsskola');
+  assert.ok(f.leads_to_certificate, 'Fredagsskola is grund till certifikat');
+});
+
+test('free packages (söndagsskola/bön/bibel) carry no payment block', function () {
   const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'churches', 'nacka', 'content.json'), 'utf-8'));
-  assert.ok(!cfg.education || cfg.education.length === 0, 'Nacka should not have Fredagsskola');
+  cfg.education.forEach(function (e) {
+    if (['sondagsskola', 'bon', 'bibel'].indexOf(e.type) !== -1) {
+      assert.ok(!e.payment, e.type + ' must be free (no payment routing)');
+    }
+  });
+});
+
+test('education page renders payment block conditionally + type badge', function () {
+  assert.ok(html.includes('if (a.payment)'), 'payment block must be optional');
+  assert.ok(html.includes('TYPE_LABELS'), 'must label package type');
+  assert.ok(html.includes('leads_to_certificate'), 'must render certificate note');
 });
 
 // --- Swish-meddelande: kort referens, inte den långa instruktionen
