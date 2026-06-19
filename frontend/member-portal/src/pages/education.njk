@@ -34,6 +34,15 @@ breadcrumb: "Utbildning"
     var listEl = document.getElementById('edu-list');
     var emptyEl = document.getElementById('edu-empty');
 
+    // Programtyper (data-driven; kyrkan väljer per paket i sin config).
+    var TYPE_LABELS = {
+      fredagsskola: 'Fredagsskola',
+      sondagsskola: 'Söndagsskola',
+      bon: 'Bön',
+      bibel: 'Bibellära',
+      annat: 'Övrigt'
+    };
+
     function isMobile() { return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); }
 
     function t(obj) {
@@ -79,6 +88,25 @@ breadcrumb: "Utbildning"
         card.appendChild(d);
       }
 
+      // Typ-etikett (fredagsskola/söndagsskola/bön/bibel) + ev. certifikat-notis.
+      if (a.type) {
+        var badge = document.createElement('span');
+        badge.style.cssText = 'display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#2a2a3a;margin-bottom:6px;';
+        badge.textContent = TYPE_LABELS[a.type] || a.type;
+        card.appendChild(badge);
+      }
+      if (a.leads_to_certificate) {
+        var cert = document.createElement('p');
+        cert.style.cssText = 'font-size:13px;margin:6px 0;';
+        cert.innerHTML = '🎓 ' + t(typeof a.leads_to_certificate === 'object'
+          ? a.leads_to_certificate
+          : { sv: 'Leder till certifikat.', am: 'ወደ ሰርተፊኬት ይመራል።' });
+        card.appendChild(cert);
+      }
+
+      // Betalning är VALFRI — avgiftsfria program (söndagsskola, bön, bibel)
+      // har inget payment-block; bara info + ev. anmälan.
+      if (a.payment) {
       // Avgiftsnivåer (1 barn / 2 barn / 3+ barn → belopp).
       var grid = document.createElement('div');
       grid.className = 'amount-grid';
@@ -169,6 +197,8 @@ breadcrumb: "Utbildning"
       if (pay.due_note) rows += '<div>' + t(pay.due_note) + '</div>';
       info.innerHTML = rows;
       card.appendChild(info);
+      updateSwish();
+      } // slut betalningsblock (a.payment)
 
       // Publik barnanmälan — gate:ad: visas bara när aktiviteten har
       // registration_enabled=true OCH en group_id. Default av (go-live-grind,
@@ -178,7 +208,6 @@ breadcrumb: "Utbildning"
         card.appendChild(buildRegistration(a));
       }
 
-      updateSwish();
       return card;
     }
 

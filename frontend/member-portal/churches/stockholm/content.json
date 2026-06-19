@@ -168,7 +168,52 @@
         "swish_message": "Fredagsskola"
       },
       "registration_enabled": false,
-      "group_id": ""
+      "group_id": "",
+      "type": "fredagsskola",
+      "leads_to_certificate": {
+        "sv": "Grund till certifikat — för samtliga grupper.",
+        "am": "ለሁሉም ቡድኖች የሰርተፊኬት መሠረት።"
+      }
+    },
+    {
+      "id": "sondagsskola",
+      "type": "sondagsskola",
+      "title": {
+        "sv": "Söndagsskola",
+        "am": "የእሁድ ትምህርት ቤት"
+      },
+      "description": {
+        "sv": "Undervisning för barn och unga efter söndagsgudstjänsten — tro, tradition och språk i åldersanpassade grupper.",
+        "am": "ከእሁድ ቅዳሴ በኋላ ለልጆች እና ወጣቶች ትምህርት — እምነት፣ ባህል እና ቋንቋ በእድሜ ቡድኖች።"
+      },
+      "leads_to_certificate": {
+        "sv": "Nivåer från Fröet till Ambassadören — med certifikat.",
+        "am": "ከዘር እስከ አምባሳደር ደረጃዎች — ከሰርተፊኬት ጋር።"
+      }
+    },
+    {
+      "id": "bon",
+      "type": "bon",
+      "title": {
+        "sv": "Böneundervisning",
+        "am": "የጸሎት ትምህርት"
+      },
+      "description": {
+        "sv": "Lär dig kyrkans böner — Fader vår, trosbekännelsen och de dagliga bönerna, på ge'ez och svenska.",
+        "am": "የቤተ ክርስቲያኑን ጸሎቶች ይማሩ — አባታችን ሆይ፣ የሃይማኖት መግለጫ እና የዕለት ጸሎቶች በግዕዝ እና በስዊድንኛ።"
+      }
+    },
+    {
+      "id": "bibel",
+      "type": "bibel",
+      "title": {
+        "sv": "Bibellära",
+        "am": "የመጽሐፍ ቅዱስ ትምህርት"
+      },
+      "description": {
+        "sv": "Studier i Bibeln och kyrkans lära — öppet för alla åldrar.",
+        "am": "በመጽሐፍ ቅዱስ እና በቤተ ክርስቲያኑ ትምህርት ጥናት — ለሁሉም እድሜ ክፍት።"
+      }
     }
   ]
 }
