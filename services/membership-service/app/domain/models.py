@@ -106,6 +106,11 @@ class SundaySchoolEnrollment:
     guardian_consent: bool = False
     member_id: str = ""  # optional link to a Member/family record
     active: bool = True
+    # A public application starts pending (pending=True, active=False) until
+    # staff approve it; approval flips to (pending=False, active=True). A
+    # rejected/withdrawn one is (pending=False, active=False).
+    pending: bool = False
+    consent_timestamp: str = ""  # ISO-8601; when the guardian gave consent (audit)
     enrollment_id: str = field(default_factory=_new_id)
     created_at: datetime = field(default_factory=_now)
 

@@ -309,3 +309,153 @@ def test_create_group_generates_id_and_church(client):
     body = r.json()
     assert body["group_id"]
     assert body["church_id"] == "c1"
+
+
+# -------------------------------------- public application + staff approval
+#
+# Increment 2 of #156: a guardian enrolls a child from the public site into a
+# pending state; staff approve before the child appears in any roster.
+# Data minimization (GDPR Art. 8): name + birth_year + guardian_name +
+# consent only — NO personnummer, NO phone.
+
+
+def _public_enroll(client, group_id="g-grunderna", church="c1", consent=True, phone=None):
+    body = {
+        "church_id": church,
+        "group_id": group_id,
+        "child_first_name": "Naomi",
+        "child_last_name": "Abebe",
+        "birth_year": 2016,
+        "guardian_name": "Lidya Abebe",
+        "guardian_consent": consent,
+    }
+    if phone is not None:
+        body["guardian_phone"] = phone  # should be ignored by the public schema
+    return client.post("/sunday-school/public/enrollments", json=body)
+
+
+def test_public_enroll_creates_pending(client):
+    _create_group(client)
+    r = _public_enroll(client)
+    assert r.status_code == 202, r.text
+    body = r.json()
+    assert body["pending"] is True
+    assert body["active"] is False
+    assert body["consent_timestamp"]  # server-stamped
+
+
+def test_public_enroll_requires_consent(client):
+    _create_group(client)
+    r = _public_enroll(client, consent=False)
+    assert r.status_code == 422
+
+
+def test_public_enroll_unknown_group_404(client):
+    r = _public_enroll(client, group_id="g-does-not-exist")
+    assert r.status_code == 404
+
+
+def test_public_enroll_never_stores_phone(client):
+    # Data minimization: even if a phone is posted, it must not be stored.
+    _create_group(client)
+    r = _public_enroll(client, phone="+46700000009")
+    assert r.status_code == 202, r.text
+    assert r.json()["guardian_phone"] == ""
+
+
+def test_pending_enrollment_absent_from_roster_until_approved(client):
+    _create_group(client)
+    _public_enroll(client)
+    # The teacher roster lists only active enrollments.
+    r = client.get(
+        "/sunday-school/groups/g-grunderna/enrollments", headers=_headers("admin")
+    )
+    assert r.status_code == 200
+    assert r.json() == []
+
+
+def test_pending_list_requires_auth_and_role(client):
+    assert client.get("/sunday-school/pending").status_code == 401
+    assert client.get("/sunday-school/pending", headers=_headers("viewer")).status_code == 403
+
+
+def test_staff_sees_and_approves_pending(client):
+    _create_group(client)
+    _public_enroll(client)
+    pending = client.get("/sunday-school/pending", headers=_headers("admin")).json()
+    assert len(pending) == 1
+    eid = pending[0]["enrollment_id"]
+
+    approved = client.post(
+        f"/sunday-school/enrollments/{eid}/approve", headers=_headers("admin")
+    )
+    assert approved.status_code == 200, approved.text
+    assert approved.json()["active"] is True
+    assert approved.json()["pending"] is False
+
+    # Now it is in the roster and gone from the pending queue.
+    roster = client.get(
+        "/sunday-school/groups/g-grunderna/enrollments", headers=_headers("admin")
+    ).json()
+    assert len(roster) == 1
+    assert client.get("/sunday-school/pending", headers=_headers("admin")).json() == []
+
+
+def test_teacher_can_approve_own_group_pending(client):
+    _create_group(client)
+    _public_enroll(client)
+    eid = client.get("/sunday-school/pending", headers=_headers("teacher", user="t1")).json()[0][
+        "enrollment_id"
+    ]
+    r = client.post(
+        f"/sunday-school/enrollments/{eid}/approve", headers=_headers("teacher", user="t1")
+    )
+    assert r.status_code == 200, r.text
+
+
+def test_reject_drops_pending_without_activating(client):
+    _create_group(client)
+    _public_enroll(client)
+    eid = client.get("/sunday-school/pending", headers=_headers("admin")).json()[0][
+        "enrollment_id"
+    ]
+    r = client.post(
+        f"/sunday-school/enrollments/{eid}/reject", headers=_headers("admin")
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["active"] is False
+    assert r.json()["pending"] is False
+    # Gone from both the pending queue and the active roster.
+    assert client.get("/sunday-school/pending", headers=_headers("admin")).json() == []
+    roster = client.get(
+        "/sunday-school/groups/g-grunderna/enrollments", headers=_headers("admin")
+    ).json()
+    assert roster == []
+
+
+def test_pending_queue_is_church_scoped(client):
+    _create_group(client)  # c1
+    _public_enroll(client)  # into c1
+    # A c2 admin must not see c1's pending applications.
+    assert client.get("/sunday-school/pending", headers=_headers("admin", church="c2")).json() == []
+
+
+def test_approve_is_church_scoped(client):
+    _create_group(client)
+    _public_enroll(client)
+    eid = client.get("/sunday-school/pending", headers=_headers("admin")).json()[0][
+        "enrollment_id"
+    ]
+    # Another church cannot approve it.
+    r = client.post(
+        f"/sunday-school/enrollments/{eid}/approve", headers=_headers("admin", church="c2")
+    )
+    assert r.status_code == 404
+
+
+def test_public_enroll_is_rate_limited(client):
+    _create_group(client)
+    # The app's limiter allows 5 per window; the 6th from the same caller is 429.
+    for _ in range(5):
+        assert _public_enroll(client).status_code == 202
+    assert _public_enroll(client).status_code == 429

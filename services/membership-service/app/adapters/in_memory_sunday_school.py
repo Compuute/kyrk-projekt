@@ -33,6 +33,17 @@ class InMemorySundaySchoolTracker:
             if e.church_id == church_id and e.group_id == group_id
         ]
 
+    def list_pending_enrollments(self, church_id: str) -> list[SundaySchoolEnrollment]:
+        return [
+            e for e in self._enrollments.values()
+            if e.church_id == church_id and e.pending
+        ]
+
+    def get_enrollment(
+        self, church_id: str, enrollment_id: str
+    ) -> SundaySchoolEnrollment | None:
+        return self._enrollments.get(self._key(church_id, enrollment_id))
+
     def save_enrollment(self, enrollment: SundaySchoolEnrollment) -> None:
         key = self._key(enrollment.church_id, enrollment.enrollment_id)
         self._enrollments[key] = enrollment

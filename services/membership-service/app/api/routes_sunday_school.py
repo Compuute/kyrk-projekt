@@ -8,10 +8,12 @@ responses include the derived YELLOW-zone aggregate (participants_total
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
-from app.api.deps import current_actor, get_sunday_school_tracker
+from app.api.deps import current_actor, get_rate_limiter, get_sunday_school_tracker
 from app.domain.models import (
     AGE_BANDS,
     Actor,
@@ -21,6 +23,7 @@ from app.domain.models import (
     SundaySchoolGroup,
     age_band_for,
 )
+from app.domain.rate_limit import InMemoryRateLimiter
 from app.ports.sunday_school import SundaySchoolPort
 
 router = APIRouter(prefix="/sunday-school", tags=["sunday-school"])
@@ -84,6 +87,8 @@ class EnrollmentModel(BaseModel):
     guardian_consent: bool
     member_id: str
     active: bool
+    pending: bool = False
+    consent_timestamp: str = ""
 
     @classmethod
     def from_domain(cls, e: SundaySchoolEnrollment) -> "EnrollmentModel":
@@ -99,6 +104,8 @@ class EnrollmentModel(BaseModel):
             guardian_consent=e.guardian_consent,
             member_id=e.member_id,
             active=e.active,
+            pending=e.pending,
+            consent_timestamp=e.consent_timestamp,
         )
 
 
@@ -248,6 +255,120 @@ def create_enrollment(
         guardian_consent=body.guardian_consent,
         member_id=body.member_id,
     )
+    tracker.save_enrollment(enrollment)
+    return EnrollmentModel.from_domain(enrollment)
+
+
+# ------------------------------------------------ public application + approval
+#
+# Guardians enroll a Fredagsskola/Sunday-school child from the public site.
+# This is the ONE unauthenticated door, so it is rate-limited and creates a
+# PENDING enrollment (pending=True, active=False) that does not appear in any
+# roster until staff approve it. Data minimization (GDPR Art. 8): child name +
+# birth year + guardian name + consent only — NO personnummer, NO phone.
+
+
+class PublicEnrollmentRequest(BaseModel):
+    # The public form knows its church + the activity's group_id. No actor.
+    church_id: str = Field(min_length=1, max_length=64)
+    group_id: str = Field(min_length=1, max_length=64)
+    child_first_name: str = Field(min_length=1, max_length=100)
+    child_last_name: str = Field(min_length=1, max_length=100)
+    birth_year: int = Field(ge=1900, le=2100)
+    guardian_name: str = Field(min_length=1, max_length=100)
+    guardian_consent: bool = False
+    # Optional client-supplied consent time; the server stamps one if absent.
+    consent_timestamp: str = ""
+
+
+@router.post(
+    "/public/enrollments",
+    response_model=EnrollmentModel,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def public_enroll(
+    body: PublicEnrollmentRequest,
+    request: Request,
+    tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
+    limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
+) -> EnrollmentModel:
+    client_ip = request.client.host if request.client else "unknown"
+    if not limiter.allow(client_ip):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="too many requests — try again later",
+        )
+    if not body.guardian_consent:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="guardian consent is required to enroll a child",
+        )
+    # The activity must map to a real group in this church.
+    _get_group_or_404(tracker, body.church_id, body.group_id)
+    enrollment = SundaySchoolEnrollment(
+        church_id=body.church_id,
+        group_id=body.group_id,
+        child_first_name=body.child_first_name,
+        child_last_name=body.child_last_name,
+        birth_year=body.birth_year,
+        guardian_name=body.guardian_name,
+        guardian_consent=body.guardian_consent,
+        # Data minimization: never store a phone from the public funnel.
+        guardian_phone="",
+        active=False,
+        pending=True,
+        consent_timestamp=body.consent_timestamp or datetime.now(timezone.utc).isoformat(),
+    )
+    tracker.save_enrollment(enrollment)
+    return EnrollmentModel.from_domain(enrollment)
+
+
+@router.get("/pending", response_model=list[EnrollmentModel])
+def list_pending(
+    actor: Actor = Depends(current_actor),
+    tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
+) -> list[EnrollmentModel]:
+    # Staff/teachers review the queue of public applications, church-scoped.
+    _require_role(actor)
+    pending = tracker.list_pending_enrollments(actor.church_id)
+    return [EnrollmentModel.from_domain(e) for e in pending]
+
+
+def _get_pending_or_404(
+    tracker: SundaySchoolPort, church_id: str, enrollment_id: str
+) -> SundaySchoolEnrollment:
+    enrollment = tracker.get_enrollment(church_id, enrollment_id)
+    if not enrollment or not enrollment.pending:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="pending enrollment not found"
+        )
+    return enrollment
+
+
+@router.post("/enrollments/{enrollment_id}/approve", response_model=EnrollmentModel)
+def approve_enrollment(
+    enrollment_id: str,
+    actor: Actor = Depends(current_actor),
+    tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
+) -> EnrollmentModel:
+    _require_role(actor)
+    enrollment = _get_pending_or_404(tracker, actor.church_id, enrollment_id)
+    enrollment.pending = False
+    enrollment.active = True
+    tracker.save_enrollment(enrollment)
+    return EnrollmentModel.from_domain(enrollment)
+
+
+@router.post("/enrollments/{enrollment_id}/reject", response_model=EnrollmentModel)
+def reject_enrollment(
+    enrollment_id: str,
+    actor: Actor = Depends(current_actor),
+    tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
+) -> EnrollmentModel:
+    _require_role(actor)
+    enrollment = _get_pending_or_404(tracker, actor.church_id, enrollment_id)
+    enrollment.pending = False
+    enrollment.active = False
     tracker.save_enrollment(enrollment)
     return EnrollmentModel.from_domain(enrollment)
 

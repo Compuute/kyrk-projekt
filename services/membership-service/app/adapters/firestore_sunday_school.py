@@ -64,6 +64,8 @@ def _enrollment_to_doc(e: SundaySchoolEnrollment) -> dict:
         "guardian_consent": e.guardian_consent,
         "member_id": e.member_id,
         "active": e.active,
+        "pending": e.pending,
+        "consent_timestamp": e.consent_timestamp,
         "created_at": e.created_at.isoformat(),
     }
 
@@ -80,6 +82,8 @@ def _doc_to_enrollment(data: dict) -> SundaySchoolEnrollment:
         guardian_consent=data.get("guardian_consent", False),
         member_id=data.get("member_id", ""),
         active=data.get("active", True),
+        pending=data.get("pending", False),
+        consent_timestamp=data.get("consent_timestamp", ""),
         enrollment_id=data["enrollment_id"],
         created_at=_parse_created_at(data.get("created_at")),
     )
@@ -142,6 +146,22 @@ class FirestoreSundaySchoolTracker:
             .where("group_id", "==", group_id)
         )
         return [_doc_to_enrollment(doc.to_dict()) for doc in query.stream()]
+
+    def list_pending_enrollments(self, church_id: str) -> list[SundaySchoolEnrollment]:
+        query = (
+            self._coll(_ENROLLMENTS)
+            .where("church_id", "==", church_id)
+            .where("pending", "==", True)
+        )
+        return [_doc_to_enrollment(doc.to_dict()) for doc in query.stream()]
+
+    def get_enrollment(
+        self, church_id: str, enrollment_id: str
+    ) -> SundaySchoolEnrollment | None:
+        snap = self._coll(_ENROLLMENTS).document(f"{church_id}__{enrollment_id}").get()
+        if not snap.exists:
+            return None
+        return _doc_to_enrollment(snap.to_dict())
 
     def save_enrollment(self, enrollment: SundaySchoolEnrollment) -> None:
         doc_id = f"{enrollment.church_id}__{enrollment.enrollment_id}"
