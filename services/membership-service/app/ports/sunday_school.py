@@ -27,6 +27,17 @@ class SundaySchoolPort(Protocol):
         """List enrollments for a group."""
         ...
 
+    def list_pending_enrollments(self, church_id: str) -> list[SundaySchoolEnrollment]:
+        """List pending (public, not-yet-approved) enrollments for a church,
+        across all groups."""
+        ...
+
+    def get_enrollment(
+        self, church_id: str, enrollment_id: str
+    ) -> SundaySchoolEnrollment | None:
+        """Get a single enrollment by ID (any state), if any."""
+        ...
+
     def save_enrollment(self, enrollment: SundaySchoolEnrollment) -> None:
         """Save/update an enrollment."""
         ...

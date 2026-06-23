@@ -12,10 +12,15 @@ from app.api.routes_members import router as members_router
 from app.api.routes_funerals import router as funerals_router
 from app.api.routes_grants import router as grants_router
 from app.api.routes_sunday_school import router as sunday_school_router
+from app.domain.rate_limit import InMemoryRateLimiter
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title="membership-service", version="0.1.0")
+    # Abuse brake for the one public (unauthenticated) endpoint — public
+    # Fredagsskola/Sunday-school enrollment. Per-app instance so test apps
+    # never share rate-limit state.
+    app.state.enroll_rate_limiter = InMemoryRateLimiter(max_per_window=5, window_seconds=60)
     app.include_router(members_router)
     app.include_router(funerals_router)
     app.include_router(grants_router)

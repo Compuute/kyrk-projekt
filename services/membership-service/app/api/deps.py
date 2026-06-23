@@ -7,7 +7,7 @@ the ADAPTER_MODE env var is never read in the test suite.
 """
 from __future__ import annotations
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, Request, status
 
 from app.adapters.factory import (
     make_audit,
@@ -20,6 +20,7 @@ from app.adapters.factory import (
 )
 from app.domain.errors import NotAuthorized
 from app.domain.models import Actor
+from app.domain.rate_limit import InMemoryRateLimiter
 from app.ports.audit import AuditPort
 from app.ports.auth import AuthPort
 from app.ports.encryption import EncryptionPort
@@ -90,6 +91,12 @@ def get_sunday_school_tracker() -> SundaySchoolPort:
     if _SUNDAY_SCHOOL is None:
         _SUNDAY_SCHOOL = make_sunday_school_tracker()
     return _SUNDAY_SCHOOL
+
+
+def get_rate_limiter(request: Request) -> "InMemoryRateLimiter":
+    # One limiter per app instance (set in create_app). Tests build a fresh
+    # app per case, so the public-enroll limiter never leaks between tests.
+    return request.app.state.enroll_rate_limiter
 
 
 def get_service(
