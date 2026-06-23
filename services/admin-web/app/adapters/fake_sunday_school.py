@@ -12,6 +12,7 @@ from app.ports.client_errors import ClientError
 from app.ports.sunday_school import (
     AttendanceRecord,
     AttendanceResult,
+    PendingEnrollment,
     SchoolEnrollment,
     SchoolGroup,
 )
@@ -40,9 +41,13 @@ class FakeSundaySchoolClient:
         self.recorded: list[dict] = []
         self.enrolled: list[dict] = []
         self.created_groups: list[dict] = []
+        self.pending: list[PendingEnrollment] = []
+        self.approved: list[str] = []
+        self.rejected: list[str] = []
         self.list_error: ClientError | None = None
         self.record_error: ClientError | None = None
         self.enroll_error: ClientError | None = None
+        self.pending_error: ClientError | None = None
 
     def seed_group(self, group: SchoolGroup) -> None:
         self.groups[group.group_id] = group
@@ -52,6 +57,37 @@ class FakeSundaySchoolClient:
 
     def seed_attendance(self, group_id: str, record: AttendanceRecord) -> None:
         self.attendance.setdefault(group_id, []).append(record)
+
+    def seed_pending(self, enrollment: PendingEnrollment) -> None:
+        self.pending.append(enrollment)
+
+    def list_pending(self, token: str) -> list[PendingEnrollment]:
+        if self.pending_error is not None:
+            raise self.pending_error
+        return list(self.pending)
+
+    def approve(self, token: str, enrollment_id: str) -> None:
+        match = next((p for p in self.pending if p.enrollment_id == enrollment_id), None)
+        if match is None:
+            raise ClientError("pending enrollment not found", status_code=404)
+        self.pending = [p for p in self.pending if p.enrollment_id != enrollment_id]
+        self.approved.append(enrollment_id)
+        self.seed_enrollment(
+            match.group_id,
+            SchoolEnrollment(
+                enrollment_id=match.enrollment_id,
+                child_first_name=match.child_first_name,
+                child_last_name=match.child_last_name,
+                birth_year=match.birth_year,
+            ),
+        )
+
+    def reject(self, token: str, enrollment_id: str) -> None:
+        match = next((p for p in self.pending if p.enrollment_id == enrollment_id), None)
+        if match is None:
+            raise ClientError("pending enrollment not found", status_code=404)
+        self.pending = [p for p in self.pending if p.enrollment_id != enrollment_id]
+        self.rejected.append(enrollment_id)
 
     @staticmethod
     def _token_parts(token: str) -> tuple[str, str]:

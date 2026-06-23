@@ -168,7 +168,7 @@
         "swish_message": "Fredagsskola"
       },
       "registration_enabled": false,
-      "group_id": "",
+      "group_id": "fredagsskola",
       "type": "fredagsskola",
       "leads_to_certificate": {
         "sv": "Grund till certifikat — för samtliga grupper.",

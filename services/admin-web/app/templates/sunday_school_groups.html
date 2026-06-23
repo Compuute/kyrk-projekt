@@ -39,6 +39,50 @@
   {% endif %}
 </section>
 
+{% if session.role in ("admin", "pastor", "teacher") %}
+<section class="card">
+  <h2>Väntande anmälningar / በመጠባበቅ ላይ ያሉ ምዝገባዎች</h2>
+  <p class="muted small">
+    Föräldrar har anmält dessa barn via webbplatsen. Godkänn för att lägga
+    barnet i gruppens roster, eller avslå. / ወላጆች እነዚህን ልጆች በድረ-ገጹ
+    በኩል መዝግበዋል። ወደ ቡድኑ ለመጨመር ያጽድቁ።
+  </p>
+  {% if pending %}
+  <table>
+    <thead>
+      <tr>
+        <th>Barn / ልጅ</th>
+        <th>Födelseår / የትውልድ ዓመት</th>
+        <th>Vårdnadshavare / ሞግዚት</th>
+        <th>Samtycke / ፈቃድ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in pending %}
+      <tr>
+        <td><strong>{{ p.child_first_name }} {{ p.child_last_name }}</strong></td>
+        <td>{{ p.birth_year }}</td>
+        <td class="muted">{{ p.guardian_name }}</td>
+        <td class="muted small">{{ p.consent_timestamp }}</td>
+        <td class="actions">
+          <form method="post" action="/sunday-school/enrollments/{{ p.enrollment_id }}/approve" class="inline-form">
+            <button type="submit" class="primary">Godkänn / አጽድቅ</button>
+          </form>
+          <form method="post" action="/sunday-school/enrollments/{{ p.enrollment_id }}/reject" class="inline-form">
+            <button type="submit" class="linkish">Avslå / ውድቅ አድርግ</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Inga väntande anmälningar. / በመጠባበቅ ላይ ያሉ ምዝገባዎች የሉም።</p>
+  {% endif %}
+</section>
+{% endif %}
+
 {% if session.role in ("admin", "pastor", "editor") %}
 <section class="card">
   <h2>Skapa grupp / ቡድን ፍጠር</h2>
