@@ -5,6 +5,7 @@ from app.ports.client_errors import ClientError
 from app.ports.sunday_school import (
     AttendanceRecord,
     AttendanceResult,
+    PendingEnrollment,
     SchoolEnrollment,
     SchoolGroup,
 )
@@ -71,6 +72,27 @@ class HttpxSundaySchoolClient:
             )
             for row in rows
         ]
+
+    def list_pending(self, token: str) -> list[PendingEnrollment]:
+        rows = self._get(token, "/sunday-school/pending")
+        return [
+            PendingEnrollment(
+                enrollment_id=row["enrollment_id"],
+                group_id=row["group_id"],
+                child_first_name=row["child_first_name"],
+                child_last_name=row["child_last_name"],
+                birth_year=row["birth_year"],
+                guardian_name=row.get("guardian_name", ""),
+                consent_timestamp=row.get("consent_timestamp", ""),
+            )
+            for row in rows
+        ]
+
+    def approve(self, token: str, enrollment_id: str) -> None:
+        self._post(token, f"/sunday-school/enrollments/{enrollment_id}/approve", {})
+
+    def reject(self, token: str, enrollment_id: str) -> None:
+        self._post(token, f"/sunday-school/enrollments/{enrollment_id}/reject", {})
 
     def list_enrollments(self, token: str, group_id: str) -> list[SchoolEnrollment]:
         rows = self._get(token, f"/sunday-school/groups/{group_id}/enrollments")

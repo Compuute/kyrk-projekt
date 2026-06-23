@@ -1708,11 +1708,57 @@ def sunday_school_groups(
         flash = flash or f"Kunde inte hämta grupper: {exc}"
         level = "error"
 
+    # Public Fredagsskola/Sunday-school applications awaiting staff approval
+    # (mirrors the membership-submission queue). Best-effort: a failure here
+    # must not blank the groups view.
+    try:
+        pending = school.list_pending(session.token)
+    except ClientError:
+        pending = []
+
     return TEMPLATES.TemplateResponse(
         request=request,
         name="sunday_school_groups.html",
-        context={"session": session, "groups": groups, "flash": flash, "level": level},
+        context={
+            "session": session,
+            "groups": groups,
+            "pending": pending,
+            "flash": flash,
+            "level": level,
+        },
     )
+
+
+@router.post("/sunday-school/enrollments/{enrollment_id}/approve")
+def approve_enrollment(
+    enrollment_id: str,
+    request: Request,
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    try:
+        school.approve(session.token, enrollment_id)
+    except ClientError as exc:
+        return _flash_redirect("/sunday-school", f"Godkännande misslyckades: {exc}", level="error")
+    return _flash_redirect("/sunday-school", "Anmälan godkänd — barnet är nu i gruppen.")
+
+
+@router.post("/sunday-school/enrollments/{enrollment_id}/reject")
+def reject_enrollment(
+    enrollment_id: str,
+    request: Request,
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    try:
+        school.reject(session.token, enrollment_id)
+    except ClientError as exc:
+        return _flash_redirect("/sunday-school", f"Avslag misslyckades: {exc}", level="error")
+    return _flash_redirect("/sunday-school", "Anmälan avslagen.")
 
 
 @router.get("/sunday-school/{group_id}", response_class=HTMLResponse)

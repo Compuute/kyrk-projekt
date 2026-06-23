@@ -298,3 +298,72 @@ def test_teacher_cannot_create_group(teacher_client, sunday_school):
     assert r.status_code == 303
     assert "level=error" in r.headers["location"]
     assert sunday_school.created_groups == []
+
+
+# ---------------------------- pending public applications + staff approval
+
+
+@pytest.fixture
+def admin_client(client):
+    client.cookies.set("kyrk_session", "a1:c1:admin")
+    return client
+
+
+def _seed_pending(sunday_school, eid="p1", group_id="g-grunderna"):
+    from app.ports.sunday_school import PendingEnrollment
+
+    sunday_school.seed_pending(PendingEnrollment(
+        enrollment_id=eid,
+        group_id=group_id,
+        child_first_name="Naomi",
+        child_last_name="Abebe",
+        birth_year=2016,
+        guardian_name="Lidya Abebe",
+        consent_timestamp="2026-06-24T10:00:00+00:00",
+    ))
+
+
+def test_pending_section_lists_applications(admin_client, seeded_school):
+    _seed_pending(seeded_school)
+    r = admin_client.get("/sunday-school")
+    assert r.status_code == 200
+    assert "Väntande anmälningar" in r.text
+    assert "Naomi Abebe" in r.text
+    assert "Lidya Abebe" in r.text
+
+
+def test_approve_calls_client_and_redirects(admin_client, seeded_school):
+    _seed_pending(seeded_school)
+    r = admin_client.post("/sunday-school/enrollments/p1/approve")
+    assert r.status_code in (302, 303)
+    assert r.headers["location"].startswith("/sunday-school")
+    assert seeded_school.approved == ["p1"]
+    # Approved child is now in the roster and gone from the pending queue.
+    assert seeded_school.list_pending("a1:c1:admin") == []
+
+
+def test_reject_calls_client_and_redirects(admin_client, seeded_school):
+    _seed_pending(seeded_school)
+    r = admin_client.post("/sunday-school/enrollments/p1/reject")
+    assert r.status_code in (302, 303)
+    assert seeded_school.rejected == ["p1"]
+
+
+def test_approve_unknown_enrollment_flashes_error(admin_client, seeded_school):
+    r = admin_client.post("/sunday-school/enrollments/nope/approve")
+    assert r.status_code in (302, 303)
+    assert seeded_school.approved == []
+
+
+def test_approve_requires_session(client, seeded_school):
+    _seed_pending(seeded_school)
+    r = client.post("/sunday-school/enrollments/p1/approve")
+    assert r.status_code == 302
+    assert r.headers["location"] == "/login"
+    assert seeded_school.approved == []
+
+
+def test_pending_section_hidden_when_empty(admin_client, seeded_school):
+    r = admin_client.get("/sunday-school")
+    assert r.status_code == 200
+    assert "Inga väntande anmälningar" in r.text
