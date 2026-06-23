@@ -1,0 +1,19 @@
+name = "kyrka-live-probe"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+# Runs every 2 minutes. Each tick scrapes each church's /live page (free) and,
+# only while a stream is live, confirms via the YouTube Data API.
+[triggers]
+crons = ["*/2 * * * *"]
+
+# Same KV namespace the Pages site reads (binding "kyrka_content").
+# The probe writes church.live_now / live_video_id into the existing per-church
+# doc; sync-church-kv.mjs never touches those fields, so content syncs are safe.
+[[kv_namespaces]]
+binding = "kyrka_content"
+id = "f40a72c8fa544cf6ba3ab9daeb8bb8fc"
+
+# Secret — NEVER commit the key. Set it with:
+#   wrangler secret put YT_API_KEY
+# Without it the probe still works via scraping alone (less robust).

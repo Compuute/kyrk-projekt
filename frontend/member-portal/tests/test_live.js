@@ -26,10 +26,26 @@ test('live page embeds via privacy-friendly nocookie domain', function () {
   assert.ok(html.includes('youtube-nocookie.com'), 'must use youtube-nocookie.com');
 });
 
-test('live page time-gates the embed by schedule (no error box off-hours)', function () {
+test('live page prefers the live-probe signal, schedule is only a fallback', function () {
+  // The probe (workers/live-probe) writes church.live_now to KV so the player
+  // shows ANY DAY a stream is on. The schedule window is only used when the
+  // probe has not run yet (live_now absent).
+  assert.ok(html.includes('church.live_now'), 'must read live_now from the probe');
+  assert.ok(html.includes('probeRan'), 'must branch on whether the probe has run');
+  assert.ok(html.includes('probeRan ? church.live_now : isLiveNow(schedule)'),
+    'probe is authoritative; isLiveNow(schedule) is the fallback');
+});
+
+test('live page still keeps the schedule fallback (church-local time)', function () {
   assert.ok(html.includes('live_schedule'), 'must read live_schedule from config');
   assert.ok(html.includes('Europe/Stockholm'), 'must evaluate the window in church-local time');
-  assert.ok(html.includes('isLiveNow'), 'must gate the embed behind a live-window check');
+  assert.ok(html.includes('isLiveNow'), 'must keep the schedule-window fallback');
+});
+
+test('live page embeds the exact video id when the probe found one', function () {
+  assert.ok(html.includes('live_video_id'), 'must read the probe-resolved video id');
+  assert.ok(html.includes('youtube-nocookie.com/embed/') ,
+    'must embed via nocookie domain (specific id or channel live_stream)');
 });
 
 test('live page honours live_embed=false (button instead of unembeddable iframe)', function () {

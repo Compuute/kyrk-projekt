@@ -839,3 +839,55 @@ trovärdighet.
 **When to revisit:**
 Vid styrelsegodkännandet / före onboarding av kyrka #3 — då genomförs
 cutovern och denna ADR uppdateras till att prod är den publika backenden.
+
+---
+
+## ADR-025: Automatisk live-detektering via schemalagd Worker (hybrid skrap + API)
+
+**Status:** Antagen 2026-06
+
+**Context:**
+Live-sidan (`/live`) grindade tidigare spelaren på ett fast veckoschema
+(`church.live_schedule`, t.ex. söndag 08:00) för att slippa ladda en
+YouTube-iframe — och sätta cookies — utanför gudstjänsttid. Men kyrkorna
+sänder även på vardagar och helgdagar. Schemat var alltså en proxy för "sänder
+förmodligen nu" som gav både falska negativ (sändning på en oschemalagd dag
+syntes inte) och en missvisande "Ingen sändning"-text mitt under en livesändning.
+
+Kravet: visa spelaren när kanalen faktiskt sänder, **vilken dag som helst**.
+En webbläsare kan inte avgöra om en YouTube-kanal är live utan att ladda
+YouTube. Det krävs alltså en server-sidig detektor.
+
+**Decision:**
+En schemalagd Cloudflare-Worker (`workers/live-probe`, cron var 2:a min) avgör
+live-läget och skriver `church.live_now` + `church.live_video_id` till samma
+KV-doc som Pages-middleware redan injicerar. Detektering är **hybrid**:
+
+1. **Skrapning** av kanalens `/live`-sida varje tick (gratis, snabb) — primär
+   detektor, det som gör "vilken dag som helst" billigt.
+2. **YouTube Data API** (`search.list`, `eventType=live`) bekräftar *bara när
+   skrapningen ser live* — auktoritativt läge + kanoniskt video-id.
+
+Motivet för hybriden är kvot: `search.list` kostar 100 enheter och gratiskvoten
+är 10 000/dag (= 100 anrop/dag totalt). Ren API-pollning var 2:a min skulle
+kräva ~144 000 enheter/dag. Genom att bara anropa API:et medan en sändning pågår
+hålls förbrukningen på en handfull anrop/dag.
+
+KV-skrivning sker **endast vid lägesändring** (KV gratis ≈ 1000 skrivningar/dag;
+cron-ticksen ensamma vore 720/dag/kyrka).
+
+Live-sidan läser `live_now` som primär signal och faller tillbaka på
+schemafönstret bara om proben inte kört (t.ex. innan Workern deployats) — så
+beteendet degraderar säkert.
+
+**Consequence:**
+- Detektering inom ~2 min av att en sändning startar/slutar, alla dagar.
+- Ny manuell driftsåtgärd: skapa YouTube-API-nyckel, sätt `YT_API_KEY` som
+  Worker-secret, `wrangler deploy` (cron registreras därmed). Se
+  `workers/live-probe/README.md`.
+- Integritetslöftet kvar: iframe laddas bara när kanalen faktiskt sänder.
+
+**When to revisit:**
+Om skrapningen visar sig ostabil (YouTube ändrar sidstruktur eller EU-consent
+blockerar) — då höjs API:et till primär detektor och en kvothöjning begärs hos
+Google (gratis formulär).

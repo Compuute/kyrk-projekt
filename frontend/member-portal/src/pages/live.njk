@@ -95,7 +95,16 @@ breadcrumb: "Gudstjanst"
           // live_embed:false and we surface a clean "watch on YouTube" button
           // instead — never a broken player. Default is true (embed).
           var canEmbed = church.live_embed !== false && !!channelId;
-          var inWindow = isLiveNow(schedule);
+
+          // Live-läge bestäms i FÖRSTA HAND av live-proben (Cloudflare-cron,
+          // workers/live-probe) som pollar kanalen och skriver church.live_now
+          // till KV. Då visas spelaren så fort kanalen sänder — VILKEN DAG SOM
+          // HELST, inte bara i ett fast schemafönster. Har proben inte kört än
+          // (live_now saknas) faller vi tillbaka på schemat så sidan ändå
+          // fungerar. Är proben aktiv har vi även det exakta video-id:t.
+          var probeRan = typeof church.live_now === 'boolean';
+          var liveVideoId = church.live_video_id || '';
+          var inWindow = probeRan ? church.live_now : isLiveNow(schedule);
 
           var watchUrl = channelId
             ? 'https://www.youtube.com/channel/' + channelId + '/live'
@@ -106,7 +115,9 @@ breadcrumb: "Gudstjanst"
             // (privacy: nocookie domain, no iframe loaded off-hours).
             videoArea.innerHTML =
               '<div class="video-container">' +
-              '<iframe src="https://www.youtube-nocookie.com/embed/live_stream?channel=' + channelId + '&autoplay=1" ' +
+              '<iframe src="' + (liveVideoId
+                ? 'https://www.youtube-nocookie.com/embed/' + liveVideoId + '?autoplay=1'
+                : 'https://www.youtube-nocookie.com/embed/live_stream?channel=' + channelId + '&autoplay=1') + '" ' +
               'allow="autoplay; encrypted-media" allowfullscreen></iframe>' +
               '</div>' +
               '<p style="font-size:12px;color:#888;text-align:center;">' +

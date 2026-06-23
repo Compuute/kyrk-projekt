@@ -130,6 +130,24 @@ jobs:
       - name: Run education hub tests (post-build — asserts against dist/)
         run: node tests/test_education.js
 
+      - name: Run livestream page tests (post-build — asserts against dist/)
+        run: node tests/test_live.js
+
+  live-probe-tests:
+    name: live-probe (Node)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/live-probe
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+      - name: Run live-detection unit tests
+        run: node test/detect.test.mjs
+
   syntax-check:
     name: python syntax check
     runs-on: ubuntu-latest
