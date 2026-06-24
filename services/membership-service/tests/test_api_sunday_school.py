@@ -612,3 +612,21 @@ def test_admin_creates_paid_activity(client):
     assert r.json()["fee_required"] is True
     listed = client.get("/sunday-school/groups", headers=_headers("admin")).json()
     assert next(x for x in listed if x["group_id"] == r.json()["group_id"])["fee_required"] is True
+
+
+def test_public_enroll_rate_limit_keys_on_forwarded_ip(client):
+    # Through the membership-intake proxy the real caller IP arrives in
+    # X-Forwarded-For; the limiter must key on it, not the proxy's IP.
+    _create_group(client)
+    ipA = {"X-Forwarded-For": "203.0.113.5"}
+    ipB = {"X-Forwarded-For": "203.0.113.9"}
+    # Fresh app per test: 5 from ipA allowed, 6th blocked, but ipB still allowed.
+    body = {
+        "church_id": "c1", "group_id": "g-grunderna",
+        "child_first_name": "N", "child_last_name": "A",
+        "birth_year": 2016, "guardian_name": "G", "guardian_consent": True,
+    }
+    for _ in range(5):
+        assert client.post("/sunday-school/public/enrollments", json=body, headers=ipA).status_code == 202
+    assert client.post("/sunday-school/public/enrollments", json=body, headers=ipA).status_code == 429
+    assert client.post("/sunday-school/public/enrollments", json=body, headers=ipB).status_code == 202

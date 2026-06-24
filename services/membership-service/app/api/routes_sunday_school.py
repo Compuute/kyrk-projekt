@@ -310,7 +310,12 @@ def public_enroll(
     tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
     limiter: InMemoryRateLimiter = Depends(get_rate_limiter),
 ) -> EnrollmentModel:
-    client_ip = request.client.host if request.client else "unknown"
+    # When called via the membership-intake public edge, the real caller IP is
+    # forwarded in X-Forwarded-For — key the limiter on that, not the proxy's IP.
+    fwd = request.headers.get("X-Forwarded-For", "")
+    client_ip = fwd.split(",")[0].strip() if fwd else (
+        request.client.host if request.client else "unknown"
+    )
     if not limiter.allow(client_ip):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,

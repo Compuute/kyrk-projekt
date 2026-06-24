@@ -11,13 +11,16 @@ from app.domain.errors import DownstreamFailure
 from app.ports.membership_client import (
     CreateMemberRequest,
     CreateMemberResult,
+    PublicEnrollmentRequest,
 )
 
 
 class FakeMembershipClient:
     def __init__(self, *, fail_with: Exception | None = None) -> None:
         self.calls: list[tuple[str, CreateMemberRequest]] = []
+        self.enrollments: list[tuple[PublicEnrollmentRequest, str]] = []
         self._fail_with = fail_with
+        self.enroll_fail_with: Exception | None = None
 
     def create_member(
         self,
@@ -28,3 +31,12 @@ class FakeMembershipClient:
         if self._fail_with is not None:
             raise DownstreamFailure(str(self._fail_with))
         return CreateMemberResult(member_id=str(uuid4()))
+
+    def create_public_enrollment(
+        self,
+        request: PublicEnrollmentRequest,
+        client_ip: str,
+    ) -> None:
+        self.enrollments.append((request, client_ip))
+        if self.enroll_fail_with is not None:
+            raise self.enroll_fail_with
