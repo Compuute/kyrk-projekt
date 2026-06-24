@@ -891,3 +891,49 @@ beteendet degraderar säkert.
 Om skrapningen visar sig ostabil (YouTube ändrar sidstruktur eller EU-consent
 blockerar) — då höjs API:et till primär detektor och en kvothöjning begärs hos
 Google (gratis formulär).
+
+---
+
+## ADR-026: Aktiviteter förblir generiska grupper — ingen Activity-primitiv
+
+**Status:** Antagen 2026-06
+
+**Context:**
+Frågan uppstod om funktionerna (anmälan, roster, närvaro, betald-status)
+gäller även nya aktiviteter lärare/personal skapar (t.ex. sommarläger). Ett
+fullt "Activity-primitiv" med kapabilitets-flaggor och självbetjänad publik
+yta utreddes.
+
+Två saker fällde det:
+1. **Kravet är mindre än antaget:** admin skapar grupper, lärare *konsumerar*
+   (ser sin grupp, tar närvaro, lägger till elev, ser betald-status). Allt det
+   är redan generiskt per `group_id` — en ny grupp ärver hela maskineriet utan
+   ny kod. Primitiven hade lösts ett problem vi inte har.
+2. **Den föreslagna primitiven bröt mot principer:** att lägga
+   `registration_open`/`fee_sek` på backend-gruppen hade duplicerat det som
+   redan bor i den git-ägda config:en (`registration_enabled`, `payment.tiers`)
+   — två sanningar för samma faktum — och låtit en aktör ändra registrering/
+   avgift förbi den git-ägda/granskade pengar- och RED-zon-grinden.
+
+**Decision:**
+Behåll den generiska grupp-modellen som den är. Gränsdragning:
+- **Config (git-ägd, granskad)** äger publik yta + pengar: vad som visas,
+  `registration_enabled`, avgifts-tiers.
+- **Backend-gruppen** äger operativ data: roster, närvaro, betald-status och
+  **`funding_tag`** (bidragskategori för rapportering).
+
+Den enda kodändringen: `funding_tag` per grupp (default "sondagsskola"), så
+närvaro→rapportering taggas korrekt per aktivitet i stället för hårdkodat
+(t.ex. ett sommarläger bokförs inte som söndagsskola). Admin sätter den vid
+skapande; lärare påverkas inte.
+
+**Consequence:**
+- Nya grupper får hela maskineriet automatiskt; ingen ny abstraktion att
+  underhålla.
+- Korrekt bidragstaggning per aktivitet.
+- Ingen dubblerad sanning; pengar/registrering förblir bakom git-grinden.
+
+**When to revisit:**
+Om lärare ska *självbetjänat skapa publika, avgiftsbelagda* aktiviteter — då
+måste governance (granskning av pengar/barndata) lösas först, och en riktig
+Activity-entitet med single-source-of-truth omprövas.

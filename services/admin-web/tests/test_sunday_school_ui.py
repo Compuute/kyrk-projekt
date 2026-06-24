@@ -419,3 +419,43 @@ def test_mark_paid_requires_session(client, seeded_school):
     assert r.status_code == 302
     assert r.headers["location"] == "/login"
     assert seeded_school.marked_paid == []
+
+
+# ------------------------------------- per-activity funding_tag in reporting (ADR-026)
+
+
+def test_attendance_reports_groups_funding_tag(teacher_client, seeded_school, activity):
+    # A non-Sunday-school activity is reported under its own grant tag.
+    seeded_school.seed_group(SchoolGroup(
+        group_id="g-lager", name="Sommarläger", teacher_user_ids=("t1",),
+        funding_tag="sommarlager",
+    ))
+    seeded_school.seed_enrollment("g-lager", SchoolEnrollment(
+        enrollment_id="x1", child_first_name="Sara", child_last_name="A", birth_year=2015,
+    ))
+    r = teacher_client.post(
+        "/sunday-school/g-lager/attendance",
+        data={"attendance_date": "2026-07-04", "present": ["x1"]},
+    )
+    assert r.status_code in (302, 303)
+    assert activity.logged[-1]["funding_tag"] == "sommarlager"
+
+
+def test_attendance_defaults_to_sondagsskola_tag(teacher_client, seeded_school, activity):
+    # g-grunderna seeded without an explicit tag → legacy default.
+    r = teacher_client.post(
+        "/sunday-school/g-grunderna/attendance",
+        data={"attendance_date": "2026-06-14", "present": []},
+    )
+    assert r.status_code in (302, 303)
+    assert activity.logged[-1]["funding_tag"] == "sondagsskola"
+
+
+def test_create_group_passes_funding_tag(admin_client, sunday_school):
+    r = admin_client.post(
+        "/sunday-school/groups",
+        data={"group_name": "Sommarläger", "description": "", "teacher_user_ids": "t1",
+              "funding_tag": "sommarlager"},
+    )
+    assert r.status_code in (302, 303)
+    assert sunday_school.created_groups[-1]["funding_tag"] == "sommarlager"

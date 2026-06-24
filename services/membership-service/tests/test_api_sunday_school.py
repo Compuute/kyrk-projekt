@@ -572,3 +572,24 @@ def test_apply_to_siblings_marks_same_guardian(client):
         headers=_headers("admin"),
     ).json()
     assert set(paid["paid_enrollment_ids"]) == {a, b}  # not the unrelated child c
+
+
+# ----------------------------------------- per-activity funding_tag (ADR-026 söm 4)
+
+
+def test_group_funding_tag_defaults_to_sondagsskola(client):
+    created = _create_group(client)
+    assert created["funding_tag"] == "sondagsskola"
+
+
+def test_admin_sets_funding_tag_per_activity(client):
+    r = client.post(
+        "/sunday-school/groups",
+        json={"name": "Sommarläger", "funding_tag": "barnverksamhet", "teacher_user_ids": ["t1"]},
+        headers=_headers("admin"),
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["funding_tag"] == "barnverksamhet"
+    listed = client.get("/sunday-school/groups", headers=_headers("admin")).json()
+    match = next(x for x in listed if x["group_id"] == r.json()["group_id"])
+    assert match["funding_tag"] == "barnverksamhet"

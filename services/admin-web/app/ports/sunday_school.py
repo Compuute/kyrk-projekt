@@ -15,6 +15,7 @@ class SchoolGroup:
     name: str
     description: str = ""
     teacher_user_ids: tuple[str, ...] = ()
+    funding_tag: str = "sondagsskola"  # grant-reporting category (ADR-026 söm 4)
 
 
 @dataclass(frozen=True)
@@ -82,5 +83,6 @@ class SundaySchoolClientPort(Protocol):
         guardian_consent: bool,
     ) -> SchoolEnrollment: ...
     def create_group(
-        self, token: str, name: str, description: str, teacher_user_ids: list[str]
+        self, token: str, name: str, description: str, teacher_user_ids: list[str],
+        funding_tag: str = "sondagsskola",
     ) -> SchoolGroup: ...

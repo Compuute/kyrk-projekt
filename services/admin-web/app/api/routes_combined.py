@@ -1842,6 +1842,7 @@ def sunday_school_create_group(
     group_name: str = Form(...),
     description: str = Form(default=""),
     teacher_user_ids: str = Form(default=""),
+    funding_tag: str = Form(default="sondagsskola"),
     school: SundaySchoolClientPort = Depends(get_sunday_school_client),
 ):
     session = _require_session(request)
@@ -1857,7 +1858,7 @@ def sunday_school_create_group(
     try:
         group = school.create_group(
             session.token, name=group_name, description=description,
-            teacher_user_ids=teachers,
+            teacher_user_ids=teachers, funding_tag=funding_tag,
         )
     except ClientError as exc:
         return _flash_redirect(
@@ -1892,11 +1893,15 @@ def sunday_school_record_attendance(
     # Report the aggregate (counts only — never names) to reporting-service
     # so every lesson automatically becomes grant evidence.
     group_name = group_id
+    # Grant-reporting tag comes from the activity itself (ADR-026 söm 4), so a
+    # summer camp is not mis-reported as Sunday school. Falls back to legacy tag.
+    funding_tag = "sondagsskola"
     try:
         groups = school.list_groups(session.token)
         match = next((g for g in groups if g.group_id == group_id), None)
         if match:
             group_name = match.name
+            funding_tag = match.funding_tag or funding_tag
     except ClientError:
         pass
     try:
@@ -1905,7 +1910,7 @@ def sunday_school_record_attendance(
             activity_type="sunday_school",
             date=result.date,
             location=group_name,
-            funding_tag="sondagsskola",
+            funding_tag=funding_tag,
             participants_total=result.participants_total,
             age_band_counts=result.age_band_counts,
         )
