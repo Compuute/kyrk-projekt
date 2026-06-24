@@ -22,7 +22,7 @@ def teacher_client(client):
 def seeded_school(sunday_school):
     sunday_school.seed_group(SchoolGroup(
         group_id="g-grunderna", name="Grunderna",
-        description="Grundkurs", teacher_user_ids=("t1",),
+        description="Grundkurs", teacher_user_ids=("t1",), fee_required=True,
     ))
     sunday_school.seed_group(SchoolGroup(
         group_id="g-krar", name="Krar",
@@ -459,3 +459,44 @@ def test_create_group_passes_funding_tag(admin_client, sunday_school):
     )
     assert r.status_code in (302, 303)
     assert sunday_school.created_groups[-1]["funding_tag"] == "sommarlager"
+
+
+# ------------------------------------------ optional fee per activity (ADR-026)
+
+
+def test_free_activity_hides_fee_section(teacher_client, sunday_school):
+    # A free activity (fee_required defaults False) shows no "Avgifter" section.
+    sunday_school.seed_group(SchoolGroup(
+        group_id="g-bon", name="Böneundervisning", teacher_user_ids=("t1",),
+    ))
+    sunday_school.seed_enrollment("g-bon", SchoolEnrollment(
+        enrollment_id="b1", child_first_name="Eden", child_last_name="K", birth_year=2014,
+    ))
+    r = teacher_client.get("/sunday-school/g-bon")
+    assert r.status_code == 200
+    assert "Avgifter" not in r.text  # free → no paid-status noise
+
+
+def test_paid_activity_shows_fee_section(teacher_client, seeded_school):
+    # g-grunderna is fee_required=True in the fixture.
+    r = teacher_client.get("/sunday-school/g-grunderna")
+    assert "Avgifter" in r.text
+
+
+def test_create_group_passes_fee_required(admin_client, sunday_school):
+    r = admin_client.post(
+        "/sunday-school/groups",
+        data={"group_name": "Fredagsskola", "description": "", "teacher_user_ids": "t1",
+              "funding_tag": "barnverksamhet", "fee_required": "true"},
+    )
+    assert r.status_code in (302, 303)
+    assert sunday_school.created_groups[-1]["fee_required"] is True
+
+
+def test_create_group_defaults_free(admin_client, sunday_school):
+    r = admin_client.post(
+        "/sunday-school/groups",
+        data={"group_name": "Bön", "description": "", "teacher_user_ids": "t1"},
+    )
+    assert r.status_code in (302, 303)
+    assert sunday_school.created_groups[-1]["fee_required"] is False

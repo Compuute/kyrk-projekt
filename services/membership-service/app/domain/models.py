@@ -93,6 +93,11 @@ class SundaySchoolGroup:
     # summer camp is not mis-reported as Sunday school. Purely operational —
     # no public/registration/fee state lives here (that stays git-owned config).
     funding_tag: str = "sondagsskola"
+    # Whether this activity charges a fee (ADR-026). Operational on/off only —
+    # it gates the paid-status section in the roster. The fee AMOUNT/tiers live
+    # in git-owned config, not here, so there is no duplicated money state.
+    # Default False = free activity (no paid-status tracking).
+    fee_required: bool = False
     group_id: str = field(default_factory=_new_id)
     created_at: datetime = field(default_factory=_now)
 

@@ -70,6 +70,7 @@ class HttpxSundaySchoolClient:
                 description=row.get("description", ""),
                 teacher_user_ids=tuple(row.get("teacher_user_ids", [])),
                 funding_tag=row.get("funding_tag", "sondagsskola"),
+                fee_required=row.get("fee_required", False),
             )
             for row in rows
         ]
@@ -184,7 +185,7 @@ class HttpxSundaySchoolClient:
 
     def create_group(
         self, token: str, name: str, description: str, teacher_user_ids: list[str],
-        funding_tag: str = "sondagsskola",
+        funding_tag: str = "sondagsskola", fee_required: bool = False,
     ) -> SchoolGroup:
         row = self._post(
             token,
@@ -194,6 +195,7 @@ class HttpxSundaySchoolClient:
                 "description": description,
                 "teacher_user_ids": teacher_user_ids,
                 "funding_tag": funding_tag,
+                "fee_required": fee_required,
             },
         )
         return SchoolGroup(
@@ -202,4 +204,5 @@ class HttpxSundaySchoolClient:
             description=row.get("description", ""),
             teacher_user_ids=tuple(row.get("teacher_user_ids", [])),
             funding_tag=row.get("funding_tag", "sondagsskola"),
+            fee_required=row.get("fee_required", False),
         )

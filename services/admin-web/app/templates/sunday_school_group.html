@@ -33,7 +33,7 @@
   {% endif %}
 </section>
 
-{% if enrollments %}
+{% if enrollments and group.fee_required %}
 <section class="card">
   <h2>Avgifter {{ paid_period }} / ክፍያዎች</h2>
   <p class="muted small">

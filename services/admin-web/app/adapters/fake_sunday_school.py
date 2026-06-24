@@ -204,7 +204,7 @@ class FakeSundaySchoolClient:
 
     def create_group(
         self, token: str, name: str, description: str, teacher_user_ids: list[str],
-        funding_tag: str = "sondagsskola",
+        funding_tag: str = "sondagsskola", fee_required: bool = False,
     ) -> SchoolGroup:
         _, role = self._token_parts(token)
         if role not in {"admin", "pastor", "editor"}:
@@ -215,6 +215,7 @@ class FakeSundaySchoolClient:
             description=description,
             teacher_user_ids=tuple(teacher_user_ids),
             funding_tag=funding_tag or "sondagsskola",
+            fee_required=fee_required,
         )
         self.seed_group(group)
         self.created_groups.append({
@@ -222,6 +223,7 @@ class FakeSundaySchoolClient:
             "description": description,
             "teacher_user_ids": list(teacher_user_ids),
             "funding_tag": funding_tag,
+            "fee_required": fee_required,
         })
         return group
 
