@@ -27,6 +27,7 @@ from app.ports.encryption import EncryptionPort
 from app.ports.member_repository import MemberRepository
 from app.ports.funeral_tracker import FuneralTrackerPort
 from app.ports.grant_tracker import GrantTrackerPort
+from app.ports.payment import PaymentPort
 from app.ports.sunday_school import SundaySchoolPort
 from app.services.membership_service import MembershipService
 
@@ -91,6 +92,21 @@ def get_sunday_school_tracker() -> SundaySchoolPort:
     if _SUNDAY_SCHOOL is None:
         _SUNDAY_SCHOOL = make_sunday_school_tracker()
     return _SUNDAY_SCHOOL
+
+
+_PAYMENT: PaymentPort | None = None
+
+
+def get_payment_port() -> PaymentPort:
+    # NOTE: in-memory only for now — there is no Firestore payment adapter yet.
+    # Acceptable while the Fredagsskola fee flow is gated/synthetic; durable
+    # persistence is a pre-go-live item (tracked with #156's RED-zone gaps).
+    global _PAYMENT
+    if _PAYMENT is None:
+        from app.adapters.fake_payment import FakePaymentAdapter
+
+        _PAYMENT = FakePaymentAdapter()
+    return _PAYMENT
 
 
 def get_rate_limiter(request: Request) -> "InMemoryRateLimiter":

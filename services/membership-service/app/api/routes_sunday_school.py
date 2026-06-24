@@ -13,7 +13,12 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
-from app.api.deps import current_actor, get_rate_limiter, get_sunday_school_tracker
+from app.api.deps import (
+    current_actor,
+    get_payment_port,
+    get_rate_limiter,
+    get_sunday_school_tracker,
+)
 from app.domain.models import (
     AGE_BANDS,
     Actor,
@@ -24,6 +29,13 @@ from app.domain.models import (
     age_band_for,
 )
 from app.domain.rate_limit import InMemoryRateLimiter
+from app.ports.payment import (
+    Payment,
+    PaymentCategory,
+    PaymentMethod,
+    PaymentPort,
+    PaymentStatus,
+)
 from app.ports.sunday_school import SundaySchoolPort
 
 router = APIRouter(prefix="/sunday-school", tags=["sunday-school"])
@@ -371,6 +383,102 @@ def reject_enrollment(
     enrollment.active = False
     tracker.save_enrollment(enrollment)
     return EnrollmentModel.from_domain(enrollment)
+
+
+# ----------------------------------------------- Fredagsskola/söndagsskola fee
+#
+# The fee goes to the activity org's OWN Swish/PlusGiro, which the platform
+# never sees automatically — so "paid" is human-confirmed by the kassör (same
+# principle as donation verification), recorded as a completed
+# Payment(category=SUNDAY_SCHOOL) linked to the enrollment + fee month. Teachers
+# can READ paid-status during attendance; only staff (kassör) can mark paid.
+
+
+class MarkPaidRequest(BaseModel):
+    period: str = Field(pattern=r"^\d{4}-\d{2}$")  # fee month, e.g. "2026-06"
+    amount_sek: int = Field(ge=0, le=100000)
+    # The fee is per family/month; mark same-guardian siblings in this group
+    # paid in one click.
+    apply_to_siblings: bool = False
+
+
+class PaidStatusModel(BaseModel):
+    period: str
+    paid_enrollment_ids: list[str]
+
+
+def _paid_ids(payments: PaymentPort, church_id: str, period: str) -> set[str]:
+    return {
+        p.enrollment_id
+        for p in payments.list_payments(church_id, category=PaymentCategory.SUNDAY_SCHOOL)
+        if p.period == period
+        and p.status == PaymentStatus.COMPLETED
+        and p.enrollment_id
+    }
+
+
+def _record_fee(
+    payments: PaymentPort, enrollment: SundaySchoolEnrollment, period: str,
+    amount_sek: int, actor: Actor,
+) -> None:
+    payment = Payment(
+        member_id=enrollment.member_id,  # "" for non-member children
+        church_id=enrollment.church_id,
+        amount_sek=amount_sek,
+        category=PaymentCategory.SUNDAY_SCHOOL,
+        method=PaymentMethod.MANUAL,
+        enrollment_id=enrollment.enrollment_id,
+        period=period,
+        description=f"Fredagsskola/söndagsskola {period}",
+    )
+    payment = payments.initiate_payment(payment)
+    payments.complete_payment(payment.payment_id, reference=f"kassor:{actor.user_id}")
+
+
+@router.post("/enrollments/{enrollment_id}/mark-paid", response_model=PaidStatusModel)
+def mark_enrollment_paid(
+    enrollment_id: str,
+    body: MarkPaidRequest,
+    actor: Actor = Depends(current_actor),
+    tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
+    payments: PaymentPort = Depends(get_payment_port),
+) -> PaidStatusModel:
+    _require_staff(actor)  # financial confirmation = kassör/staff, not teachers
+    enrollment = tracker.get_enrollment(actor.church_id, enrollment_id)
+    if not enrollment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="enrollment not found"
+        )
+    targets = [enrollment]
+    if body.apply_to_siblings and enrollment.guardian_name:
+        targets.extend(
+            e for e in tracker.list_enrollments(actor.church_id, enrollment.group_id)
+            if e.active
+            and e.guardian_name == enrollment.guardian_name
+            and e.enrollment_id != enrollment.enrollment_id
+        )
+    already = _paid_ids(payments, actor.church_id, body.period)
+    for e in targets:
+        if e.enrollment_id not in already:
+            _record_fee(payments, e, body.period, body.amount_sek, actor)
+    paid = _paid_ids(payments, actor.church_id, body.period)
+    return PaidStatusModel(period=body.period, paid_enrollment_ids=sorted(paid))
+
+
+@router.get("/groups/{group_id}/paid-status", response_model=PaidStatusModel)
+def group_paid_status(
+    group_id: str,
+    period: str,
+    actor: Actor = Depends(current_actor),
+    tracker: SundaySchoolPort = Depends(get_sunday_school_tracker),
+    payments: PaymentPort = Depends(get_payment_port),
+) -> PaidStatusModel:
+    _require_role(actor)  # teachers read paid-status during attendance
+    group = _get_group_or_404(tracker, actor.church_id, group_id)
+    _require_group_access(actor, group)
+    enrolled = {e.enrollment_id for e in tracker.list_enrollments(actor.church_id, group_id)}
+    paid = _paid_ids(payments, actor.church_id, period) & enrolled
+    return PaidStatusModel(period=period, paid_enrollment_ids=sorted(paid))
 
 
 @router.get("/groups/{group_id}/attendance", response_model=list[AttendanceModel])

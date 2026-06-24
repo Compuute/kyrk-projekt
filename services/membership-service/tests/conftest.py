@@ -37,6 +37,13 @@ def sunday_school() -> InMemorySundaySchoolTracker:
 
 
 @pytest.fixture
+def payment():
+    from app.adapters.fake_payment import FakePaymentAdapter
+
+    return FakePaymentAdapter()
+
+
+@pytest.fixture
 def encryption() -> InMemoryEncryptionAdapter:
     return InMemoryEncryptionAdapter()
 
@@ -57,7 +64,7 @@ def service(repo, encryption, audit) -> MembershipService:
 
 
 @pytest.fixture
-def client(repo, encryption, audit, auth, funeral_tracker, grant_tracker, sunday_school) -> TestClient:
+def client(repo, encryption, audit, auth, funeral_tracker, grant_tracker, sunday_school, payment) -> TestClient:
     app = create_app()
     app.dependency_overrides[deps.get_repo] = lambda: repo
     app.dependency_overrides[deps.get_encryption] = lambda: encryption
@@ -66,4 +73,5 @@ def client(repo, encryption, audit, auth, funeral_tracker, grant_tracker, sunday
     app.dependency_overrides[deps.get_funeral_tracker] = lambda: funeral_tracker
     app.dependency_overrides[deps.get_grant_tracker] = lambda: grant_tracker
     app.dependency_overrides[deps.get_sunday_school_tracker] = lambda: sunday_school
+    app.dependency_overrides[deps.get_payment_port] = lambda: payment
     return TestClient(app)

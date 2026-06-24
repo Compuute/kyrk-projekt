@@ -459,3 +459,116 @@ def test_public_enroll_is_rate_limited(client):
     for _ in range(5):
         assert _public_enroll(client).status_code == 202
     assert _public_enroll(client).status_code == 429
+
+
+# --------------------------------------------- Fredagsskola/söndagsskola fee
+#
+# Paid-status is human-confirmed by the kassör (staff) and read by teachers
+# during attendance. Fee is per family/month → "mark siblings" convenience.
+
+
+def _enroll_active(client, group_id="g-grunderna", child="Maria", guardian="Sara Tesfaye"):
+    body = {
+        "child_first_name": child,
+        "child_last_name": "Tesfaye",
+        "birth_year": 2016,
+        "guardian_name": guardian,
+        "guardian_phone": "+46700000001",
+        "guardian_consent": True,
+    }
+    r = client.post(
+        f"/sunday-school/groups/{group_id}/enrollments", json=body, headers=_headers("admin")
+    )
+    assert r.status_code == 201, r.text
+    return r.json()["enrollment_id"]
+
+
+def test_paid_status_empty_before_marking(client):
+    _create_group(client)
+    eid = _enroll_active(client)
+    r = client.get(
+        "/sunday-school/groups/g-grunderna/paid-status?period=2026-06",
+        headers=_headers("teacher", user="t1"),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json() == {"period": "2026-06", "paid_enrollment_ids": []}
+
+
+def test_staff_marks_enrollment_paid_and_teacher_sees_it(client):
+    _create_group(client)
+    eid = _enroll_active(client)
+    paid = client.post(
+        f"/sunday-school/enrollments/{eid}/mark-paid",
+        json={"period": "2026-06", "amount_sek": 100},
+        headers=_headers("admin"),
+    )
+    assert paid.status_code == 200, paid.text
+    assert eid in paid.json()["paid_enrollment_ids"]
+    # Teacher reads it during attendance.
+    seen = client.get(
+        "/sunday-school/groups/g-grunderna/paid-status?period=2026-06",
+        headers=_headers("teacher", user="t1"),
+    ).json()
+    assert seen["paid_enrollment_ids"] == [eid]
+    # ...but not for a different month.
+    other = client.get(
+        "/sunday-school/groups/g-grunderna/paid-status?period=2026-07",
+        headers=_headers("teacher", user="t1"),
+    ).json()
+    assert other["paid_enrollment_ids"] == []
+
+
+def test_teacher_cannot_mark_paid(client):
+    _create_group(client)
+    eid = _enroll_active(client)
+    r = client.post(
+        f"/sunday-school/enrollments/{eid}/mark-paid",
+        json={"period": "2026-06", "amount_sek": 100},
+        headers=_headers("teacher", user="t1"),
+    )
+    assert r.status_code == 403
+
+
+def test_mark_paid_requires_valid_period(client):
+    _create_group(client)
+    eid = _enroll_active(client)
+    r = client.post(
+        f"/sunday-school/enrollments/{eid}/mark-paid",
+        json={"period": "juni", "amount_sek": 100},
+        headers=_headers("admin"),
+    )
+    assert r.status_code == 422
+
+
+def test_mark_paid_unknown_enrollment_404(client):
+    _create_group(client)
+    r = client.post(
+        "/sunday-school/enrollments/nope/mark-paid",
+        json={"period": "2026-06", "amount_sek": 100},
+        headers=_headers("admin"),
+    )
+    assert r.status_code == 404
+
+
+def test_mark_paid_is_church_scoped(client):
+    _create_group(client)
+    eid = _enroll_active(client)
+    r = client.post(
+        f"/sunday-school/enrollments/{eid}/mark-paid",
+        json={"period": "2026-06", "amount_sek": 100},
+        headers=_headers("admin", church="c2"),
+    )
+    assert r.status_code == 404
+
+
+def test_apply_to_siblings_marks_same_guardian(client):
+    _create_group(client)
+    a = _enroll_active(client, child="Maria", guardian="Sara Tesfaye")
+    b = _enroll_active(client, child="Dawit", guardian="Sara Tesfaye")
+    c = _enroll_active(client, child="Ruth", guardian="Annan Förälder")
+    paid = client.post(
+        f"/sunday-school/enrollments/{a}/mark-paid",
+        json={"period": "2026-06", "amount_sek": 200, "apply_to_siblings": True},
+        headers=_headers("admin"),
+    ).json()
+    assert set(paid["paid_enrollment_ids"]) == {a, b}  # not the unrelated child c

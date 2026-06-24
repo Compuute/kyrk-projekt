@@ -76,6 +76,13 @@ class Payment:
     method: PaymentMethod
     reference: str = ""  # extern referens (Swish callback, autogiro batch)
     description: str = ""
+    # Sunday-school/Fredagsskola fees are tied to a child's enrollment rather
+    # than a Member (children are not members; minimal data). member_id stays
+    # "" for those; enrollment_id links the fee to the roster. period is the
+    # fee month ("YYYY-MM") the payment covers — distinct from created_at,
+    # which is when the kassör recorded it.
+    enrollment_id: str = ""
+    period: str = ""
     payment_id: str = field(default_factory=lambda: str(uuid4()))
     status: PaymentStatus = PaymentStatus.PENDING
     created_at: datetime | None = None
