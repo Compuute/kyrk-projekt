@@ -53,6 +53,7 @@ class GroupModel(BaseModel):
     teacher_user_ids: list[str] = Field(default_factory=list)
     active: bool = True
     funding_tag: str = "sondagsskola"  # grant-reporting category (ADR-026 söm 4)
+    fee_required: bool = False  # does this activity charge a fee (ADR-026)
 
     def to_domain(self, church_id: str) -> SundaySchoolGroup:
         group = SundaySchoolGroup(
@@ -62,6 +63,7 @@ class GroupModel(BaseModel):
             teacher_user_ids=self.teacher_user_ids,
             active=self.active,
             funding_tag=self.funding_tag or "sondagsskola",
+            fee_required=self.fee_required,
         )
         if self.group_id:
             group.group_id = self.group_id
@@ -77,6 +79,7 @@ class GroupModel(BaseModel):
             teacher_user_ids=g.teacher_user_ids,
             active=g.active,
             funding_tag=g.funding_tag,
+            fee_required=g.fee_required,
         )
 
 

@@ -1843,6 +1843,7 @@ def sunday_school_create_group(
     description: str = Form(default=""),
     teacher_user_ids: str = Form(default=""),
     funding_tag: str = Form(default="sondagsskola"),
+    fee_required: str = Form(default=""),
     school: SundaySchoolClientPort = Depends(get_sunday_school_client),
 ):
     session = _require_session(request)
@@ -1859,6 +1860,7 @@ def sunday_school_create_group(
         group = school.create_group(
             session.token, name=group_name, description=description,
             teacher_user_ids=teachers, funding_tag=funding_tag,
+            fee_required=bool(fee_required),
         )
     except ClientError as exc:
         return _flash_redirect(

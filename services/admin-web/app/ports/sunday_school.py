@@ -16,6 +16,7 @@ class SchoolGroup:
     description: str = ""
     teacher_user_ids: tuple[str, ...] = ()
     funding_tag: str = "sondagsskola"  # grant-reporting category (ADR-026 söm 4)
+    fee_required: bool = False  # does this activity charge a fee (ADR-026)
 
 
 @dataclass(frozen=True)
@@ -84,5 +85,5 @@ class SundaySchoolClientPort(Protocol):
     ) -> SchoolEnrollment: ...
     def create_group(
         self, token: str, name: str, description: str, teacher_user_ids: list[str],
-        funding_tag: str = "sondagsskola",
+        funding_tag: str = "sondagsskola", fee_required: bool = False,
     ) -> SchoolGroup: ...

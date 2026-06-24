@@ -593,3 +593,22 @@ def test_admin_sets_funding_tag_per_activity(client):
     listed = client.get("/sunday-school/groups", headers=_headers("admin")).json()
     match = next(x for x in listed if x["group_id"] == r.json()["group_id"])
     assert match["funding_tag"] == "barnverksamhet"
+
+
+# ---------------------------------------- optional fee per activity (ADR-026)
+
+
+def test_group_fee_required_defaults_false(client):
+    assert _create_group(client)["fee_required"] is False
+
+
+def test_admin_creates_paid_activity(client):
+    r = client.post(
+        "/sunday-school/groups",
+        json={"name": "Fredagsskola", "fee_required": True, "funding_tag": "barnverksamhet"},
+        headers=_headers("admin"),
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["fee_required"] is True
+    listed = client.get("/sunday-school/groups", headers=_headers("admin")).json()
+    assert next(x for x in listed if x["group_id"] == r.json()["group_id"])["fee_required"] is True

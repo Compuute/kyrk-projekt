@@ -36,6 +36,7 @@ def _group_to_doc(g: SundaySchoolGroup) -> dict:
         "teacher_user_ids": g.teacher_user_ids,
         "active": g.active,
         "funding_tag": g.funding_tag,
+        "fee_required": g.fee_required,
         "created_at": g.created_at.isoformat(),
     }
 
@@ -48,6 +49,7 @@ def _doc_to_group(data: dict) -> SundaySchoolGroup:
         teacher_user_ids=data.get("teacher_user_ids", []),
         active=data.get("active", True),
         funding_tag=data.get("funding_tag", "sondagsskola"),
+        fee_required=data.get("fee_required", False),
         group_id=data["group_id"],
         created_at=_parse_created_at(data.get("created_at")),
     )
