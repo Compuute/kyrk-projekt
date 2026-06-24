@@ -88,6 +88,11 @@ class SundaySchoolGroup:
     description: str = ""
     teacher_user_ids: list[str] = field(default_factory=list)
     active: bool = True
+    # Grant-reporting category for this group's attendance (ADR-026 söm 4).
+    # Defaults to "sondagsskola"; an admin sets it per activity so e.g. a
+    # summer camp is not mis-reported as Sunday school. Purely operational —
+    # no public/registration/fee state lives here (that stays git-owned config).
+    funding_tag: str = "sondagsskola"
     group_id: str = field(default_factory=_new_id)
     created_at: datetime = field(default_factory=_now)
 

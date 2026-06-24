@@ -52,6 +52,7 @@ class GroupModel(BaseModel):
     description: str = ""
     teacher_user_ids: list[str] = Field(default_factory=list)
     active: bool = True
+    funding_tag: str = "sondagsskola"  # grant-reporting category (ADR-026 söm 4)
 
     def to_domain(self, church_id: str) -> SundaySchoolGroup:
         group = SundaySchoolGroup(
@@ -60,6 +61,7 @@ class GroupModel(BaseModel):
             description=self.description,
             teacher_user_ids=self.teacher_user_ids,
             active=self.active,
+            funding_tag=self.funding_tag or "sondagsskola",
         )
         if self.group_id:
             group.group_id = self.group_id
@@ -74,6 +76,7 @@ class GroupModel(BaseModel):
             description=g.description,
             teacher_user_ids=g.teacher_user_ids,
             active=g.active,
+            funding_tag=g.funding_tag,
         )
 
 
