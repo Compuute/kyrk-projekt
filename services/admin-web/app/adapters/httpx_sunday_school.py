@@ -94,6 +94,23 @@ class HttpxSundaySchoolClient:
     def reject(self, token: str, enrollment_id: str) -> None:
         self._post(token, f"/sunday-school/enrollments/{enrollment_id}/reject", {})
 
+    def list_paid_status(self, token: str, group_id: str, period: str) -> list[str]:
+        data = self._get(
+            token, f"/sunday-school/groups/{group_id}/paid-status?period={period}"
+        )
+        return list(data.get("paid_enrollment_ids", []))
+
+    def mark_paid(
+        self, token: str, enrollment_id: str, period: str,
+        amount_sek: int, apply_to_siblings: bool,
+    ) -> list[str]:
+        data = self._post(
+            token,
+            f"/sunday-school/enrollments/{enrollment_id}/mark-paid",
+            {"period": period, "amount_sek": amount_sek, "apply_to_siblings": apply_to_siblings},
+        )
+        return list(data.get("paid_enrollment_ids", []))
+
     def list_enrollments(self, token: str, group_id: str) -> list[SchoolEnrollment]:
         rows = self._get(token, f"/sunday-school/groups/{group_id}/enrollments")
         return [

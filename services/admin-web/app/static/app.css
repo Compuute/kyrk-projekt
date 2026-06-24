@@ -299,6 +299,16 @@ button.danger:hover { background: var(--danger-hover); }
 .deadline-yellow { background: #fff8e1; color: #7c6b00; }
 .deadline-red { background: var(--error-bg); color: var(--error-fg); }
 
+.badge-paid {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
 .grant-status-badge {
   display: inline-block;
   padding: 2px 8px;

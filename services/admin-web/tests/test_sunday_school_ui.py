@@ -367,3 +367,55 @@ def test_pending_section_hidden_when_empty(admin_client, seeded_school):
     r = admin_client.get("/sunday-school")
     assert r.status_code == 200
     assert "Inga väntande anmälningar" in r.text
+
+
+# -------------------------------------------------- fee paid-status in roster
+
+
+def _current_period():
+    from datetime import date
+    t = date.today()
+    return f"{t.year:04d}-{t.month:02d}"
+
+
+def test_roster_shows_paid_badge_for_paid_child(admin_client, seeded_school):
+    seeded_school.seed_paid("e1", _current_period())
+    r = admin_client.get("/sunday-school/g-grunderna")
+    assert r.status_code == 200
+    assert "Avgifter" in r.text
+    assert "✓ Betald" in r.text  # e1 is paid
+    assert "Ej betald" in r.text  # e2 is not
+
+
+def test_teacher_sees_status_but_no_mark_button(teacher_client, seeded_school):
+    r = teacher_client.get("/sunday-school/g-grunderna")
+    assert r.status_code == 200
+    assert "Avgifter" in r.text
+    assert "Markera betald" not in r.text  # teachers read-only on payments
+
+
+def test_staff_sees_mark_paid_button(admin_client, seeded_school):
+    r = admin_client.get("/sunday-school/g-grunderna")
+    assert "Markera betald" in r.text
+
+
+def test_mark_paid_posts_to_client_and_redirects(admin_client, seeded_school):
+    period = _current_period()
+    r = admin_client.post(
+        "/sunday-school/g-grunderna/mark-paid",
+        data={"enrollment_id": "e1", "period": period, "amount_sek": "100", "apply_to_siblings": "true"},
+    )
+    assert r.status_code in (302, 303)
+    assert r.headers["location"].startswith("/sunday-school/g-grunderna")
+    assert seeded_school.marked_paid[0]["enrollment_id"] == "e1"
+    assert seeded_school.marked_paid[0]["apply_to_siblings"] is True
+
+
+def test_mark_paid_requires_session(client, seeded_school):
+    r = client.post(
+        "/sunday-school/g-grunderna/mark-paid",
+        data={"enrollment_id": "e1", "period": "2026-06", "amount_sek": "100"},
+    )
+    assert r.status_code == 302
+    assert r.headers["location"] == "/login"
+    assert seeded_school.marked_paid == []

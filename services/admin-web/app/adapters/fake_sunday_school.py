@@ -44,6 +44,8 @@ class FakeSundaySchoolClient:
         self.pending: list[PendingEnrollment] = []
         self.approved: list[str] = []
         self.rejected: list[str] = []
+        self.paid: set[tuple[str, str]] = set()  # (enrollment_id, period)
+        self.marked_paid: list[dict] = []
         self.list_error: ClientError | None = None
         self.record_error: ClientError | None = None
         self.enroll_error: ClientError | None = None
@@ -88,6 +90,26 @@ class FakeSundaySchoolClient:
             raise ClientError("pending enrollment not found", status_code=404)
         self.pending = [p for p in self.pending if p.enrollment_id != enrollment_id]
         self.rejected.append(enrollment_id)
+
+    def seed_paid(self, enrollment_id: str, period: str) -> None:
+        self.paid.add((enrollment_id, period))
+
+    def list_paid_status(self, token: str, group_id: str, period: str) -> list[str]:
+        ids = {e.enrollment_id for e in self.enrollments.get(group_id, [])}
+        return [eid for eid in ids if (eid, period) in self.paid]
+
+    def mark_paid(
+        self, token: str, enrollment_id: str, period: str,
+        amount_sek: int, apply_to_siblings: bool,
+    ) -> list[str]:
+        self.paid.add((enrollment_id, period))
+        self.marked_paid.append({
+            "enrollment_id": enrollment_id,
+            "period": period,
+            "amount_sek": amount_sek,
+            "apply_to_siblings": apply_to_siblings,
+        })
+        return [eid for (eid, p) in self.paid if p == period]
 
     @staticmethod
     def _token_parts(token: str) -> tuple[str, str]:
