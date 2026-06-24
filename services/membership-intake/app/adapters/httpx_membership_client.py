@@ -8,10 +8,11 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
-from app.domain.errors import DownstreamFailure
+from app.domain.errors import DownstreamFailure, RateLimited
 from app.ports.membership_client import (
     CreateMemberRequest,
     CreateMemberResult,
+    PublicEnrollmentRequest,
 )
 
 
@@ -44,3 +45,28 @@ class HttpxMembershipClient:
             )
         data = response.json()
         return CreateMemberResult(member_id=data["member_id"])
+
+    def create_public_enrollment(
+        self,
+        request: PublicEnrollmentRequest,
+        client_ip: str,
+    ) -> None:
+        import httpx  # lazy — keeps tests dependency-free
+
+        try:
+            response = httpx.post(
+                f"{self._base_url}/sunday-school/public/enrollments",
+                json=asdict(request),
+                headers={"X-Forwarded-For": client_ip},
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise DownstreamFailure(f"network error: {exc}") from exc
+
+        if response.status_code == 202:
+            return
+        if response.status_code == 429:
+            raise RateLimited("downstream rate limit")
+        raise DownstreamFailure(
+            f"membership-service returned {response.status_code}: {response.text}"
+        )
