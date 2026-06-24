@@ -1783,6 +1783,15 @@ def sunday_school_group_detail(
     except ClientError as exc:
         return _flash_redirect("/sunday-school", f"Fel: {exc}", level="error")
 
+    # Paid-status for the current fee month, so teachers see "betald" right in
+    # the roster during attendance. Best-effort — never blank the page on error.
+    today = date.today()
+    paid_period = f"{today.year:04d}-{today.month:02d}"
+    try:
+        paid_ids = school.list_paid_status(session.token, group_id, paid_period)
+    except ClientError:
+        paid_ids = []
+
     return TEMPLATES.TemplateResponse(
         request=request,
         name="sunday_school_group.html",
@@ -1793,11 +1802,38 @@ def sunday_school_group_detail(
             "records": sorted(records, key=lambda r: r.date, reverse=True),
             "monthly_stats": _monthly_stats(len(enrollments), records),
             "child_stats": _per_child_stats(enrollments, records),
-            "today": date.today().isoformat(),
+            "today": today.isoformat(),
+            "paid_ids": paid_ids,
+            "paid_period": paid_period,
             "flash": flash,
             "level": level,
         },
     )
+
+
+@router.post("/sunday-school/{group_id}/mark-paid")
+def sunday_school_mark_paid(
+    request: Request,
+    group_id: str,
+    enrollment_id: str = Form(...),
+    period: str = Form(...),
+    amount_sek: int = Form(...),
+    apply_to_siblings: str = Form(default=""),
+    school: SundaySchoolClientPort = Depends(get_sunday_school_client),
+):
+    session = _require_session(request)
+    if isinstance(session, RedirectResponse):
+        return session
+    try:
+        school.mark_paid(
+            session.token, enrollment_id, period, amount_sek,
+            apply_to_siblings=bool(apply_to_siblings),
+        )
+    except ClientError as exc:
+        return _flash_redirect(
+            f"/sunday-school/{group_id}", f"Kunde inte markera betald: {exc}", level="error"
+        )
+    return _flash_redirect(f"/sunday-school/{group_id}", "Betalning registrerad.")
 
 
 @router.post("/sunday-school/groups")

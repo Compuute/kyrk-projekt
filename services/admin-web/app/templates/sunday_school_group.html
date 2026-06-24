@@ -33,6 +33,53 @@
   {% endif %}
 </section>
 
+{% if enrollments %}
+<section class="card">
+  <h2>Avgifter {{ paid_period }} / ክፍያዎች</h2>
+  <p class="muted small">
+    Betald-status för fredags-/söndagsskoleavgiften denna månad. Bekräftas av
+    kassör (pengarna går till verksamhetens eget konto). /
+    የዚህ ወር የክፍያ ሁኔታ። በገንዘብ ያዥ ይረጋገጣል።
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Barn / ልጅ</th>
+        <th>Status</th>
+        {% if session.role in ("admin", "pastor", "editor") %}<th></th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in enrollments %}
+      <tr>
+        <td>{{ e.child_first_name }} {{ e.child_last_name }}</td>
+        <td>
+          {% if e.enrollment_id in paid_ids %}
+          <span class="badge-paid">✓ Betald / ተከፍሏል</span>
+          {% else %}
+          <span class="muted">Ej betald / አልተከፈለም</span>
+          {% endif %}
+        </td>
+        {% if session.role in ("admin", "pastor", "editor") %}
+        <td>
+          {% if e.enrollment_id not in paid_ids %}
+          <form method="post" action="/sunday-school/{{ group.group_id }}/mark-paid" class="inline-form">
+            <input type="hidden" name="enrollment_id" value="{{ e.enrollment_id }}" />
+            <input type="hidden" name="period" value="{{ paid_period }}" />
+            <input type="number" name="amount_sek" value="100" min="0" max="100000" style="width:90px" aria-label="Belopp kr" />
+            <label class="checkbox"><input type="checkbox" name="apply_to_siblings" value="true" /> syskon</label>
+            <button type="submit" class="primary">Markera betald / ተከፍሏል ምልክት</button>
+          </form>
+          {% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
 <section class="card">
   <h2>Registrera nytt barn / አዲስ ልጅ መዝግብ</h2>
   <form method="post" action="/sunday-school/{{ group.group_id }}/enroll" class="stacked">
