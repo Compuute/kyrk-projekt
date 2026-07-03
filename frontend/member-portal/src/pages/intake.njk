@@ -287,7 +287,7 @@ breadcrumb: "Bli medlem"
         document.getElementById('field-church-id').value = church;
       }
 
-      var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
+      var API_URL = (window.API_BASE_URL || 'https://api.kyrka.compuute.net') + '/intake';
 
       document.getElementById('field-church-id').value = getSelectedChurch();
 

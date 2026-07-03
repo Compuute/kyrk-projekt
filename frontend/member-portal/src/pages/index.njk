@@ -226,7 +226,7 @@ activePage: "home"
         return false;
       }
 
-      var API_URL = 'https://membership-intake-479770870521.europe-north1.run.app/intake';
+      var API_URL = (window.API_BASE_URL || 'https://api.kyrka.compuute.net') + '/intake';
       var churchId = getSelectedChurch();
 
       var payload = {

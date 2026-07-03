@@ -464,7 +464,8 @@ function showUpdateBanner(reg: ServiceWorkerRegistration): void {
 function setupErrorMonitoring(): void {
   if (typeof window === 'undefined') return;
   window.addEventListener('error', () => {
-    navigator.sendBeacon?.('https://membership-intake-479770870521.europe-north1.run.app/healthz', '');
+    const base = (window as any).API_BASE_URL || 'https://api.kyrka.compuute.net';
+    navigator.sendBeacon?.(base + '/healthz', '');
   });
 }
 
@@ -653,6 +654,7 @@ function showChurchDetail(church: Church, modal: HTMLElement, lang: Lang): void 
 
 // Browser exposure
 if (typeof window !== 'undefined') {
+  (window as any).API_BASE_URL          = 'https://api.kyrka.compuute.net';
   (window as any).validateName          = validateName;
   (window as any).validatePhone         = validatePhone;
   (window as any).validatePersonnummer  = validatePersonnummer;

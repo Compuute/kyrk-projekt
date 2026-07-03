@@ -170,9 +170,7 @@ breadcrumb: "Ge en gava"
 
     updateSwishLink();
 
-    // --- Gåvokvitto: register the reported gift; the receipt email is sent
-    // once the kassör has matched it against the bank statement.
-    var DONATIONS_URL = 'https://membership-intake-479770870521.europe-north1.run.app/donations';
+    var DONATIONS_URL = (window.API_BASE_URL || 'https://api.kyrka.compuute.net') + '/donations';
 
     document.getElementById('receipt-form').addEventListener('submit', function (e) {
       e.preventDefault();

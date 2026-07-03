@@ -317,7 +317,8 @@ function showUpdateBanner(reg) {
 function setupErrorMonitoring() {
   if (typeof window === "undefined") return;
   window.addEventListener("error", () => {
-    navigator.sendBeacon?.("https://membership-intake-479770870521.europe-north1.run.app/healthz", "");
+    const base = window.API_BASE_URL || "https://api.kyrka.compuute.net";
+    navigator.sendBeacon?.(base + "/healthz", "");
   });
 }
 function getSelectedChurch() {
@@ -449,6 +450,7 @@ function showChurchDetail(church, modal, lang) {
   });
 }
 if (typeof window !== "undefined") {
+  window.API_BASE_URL = "https://api.kyrka.compuute.net";
   window.validateName = validateName;
   window.validatePhone = validatePhone;
   window.validatePersonnummer = validatePersonnummer;

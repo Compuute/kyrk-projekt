@@ -211,9 +211,7 @@ breadcrumb: "Utbildning"
       return card;
     }
 
-    // Den publika anmälningsdelen. Skickar en PENDING-anmälan som personal
-    // godkänner (speglar medlemsansökan); återanvänder samma intake-mönster.
-    var REGISTRATION_URL = 'https://membership-intake-479770870521.europe-north1.run.app/education-registration';
+    var REGISTRATION_URL = (window.API_BASE_URL || 'https://api.kyrka.compuute.net') + '/education-registration';
 
     function buildRegistration(a) {
       var wrap = document.createElement('div');
