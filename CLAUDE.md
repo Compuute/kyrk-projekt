@@ -72,3 +72,12 @@ Arbetsregler som håller nere tokenkostnaden oavsett modell:
   settings och git-kontexten laddas automatiskt.
 - Modellval i **produktkod** hårdkodas aldrig i anropet — modell-id per
   användningsfall ligger i konfig/env så att byten är en konfigändring.
+
+---
+
+## 5. Domain & API Configuration
+
+To update the domain names (e.g. from test subdomains to `kyrka.se`):
+1. **Frontend API URL**: Change the `API_BASE_URL` constant inside [app.ts](file:///Users/compuute/DevWorkspace/projects/kyrk-projekt/frontend/member-portal/app.ts) (around line 656) to the new domain, e.g., `'https://api.kyrka.se'`.
+2. **Recompile Frontend**: Run `make build-js` to compile `app.ts` -> `app.js`. Commit both files.
+3. **Google Cloud Run Domain Mappings**: Set up custom domain mappings for the services using `gcloud beta run domain-mappings create` and configure corresponding CNAME DNS records (pointing to `ghs.googlehosted.com.`) in your domain registrar (e.g. Squarespace/Cloudflare).
