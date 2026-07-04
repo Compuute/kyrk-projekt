@@ -514,7 +514,7 @@ class HtmlPdfGenerator:
             if not checklist_items:
                 checklist_items.append('<li><span class="check-mark">✓</span> Genomförd söndagsskolenivå / የሰንበት ትምህርት ደረጃን ያጠናቀቀ</li>')
             
-            checklist_html = "\\n".join(checklist_items)
+            checklist_html = "\n".join(checklist_items)
             
             html = _SUNDAY_SCHOOL_TEMPLATE.format(
                 cert_type_sv=cert_type_sv,
