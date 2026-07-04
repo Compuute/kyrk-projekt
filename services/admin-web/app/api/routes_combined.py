@@ -2067,3 +2067,9 @@ def sunday_school_enroll(
 @router.get("/healthz")
 def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    from fastapi import Response
+    return Response(status_code=204)

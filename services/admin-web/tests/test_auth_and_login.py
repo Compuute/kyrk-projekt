@@ -58,3 +58,8 @@ def test_get_logout_clears_cookie(client, auth_cookies):
     assert r.headers["location"] == "/login"
     set_cookie = r.headers.get("set-cookie", "")
     assert "kyrk_session=" in set_cookie
+
+
+def test_favicon(client):
+    r = client.get("/favicon.ico")
+    assert r.status_code == 204
