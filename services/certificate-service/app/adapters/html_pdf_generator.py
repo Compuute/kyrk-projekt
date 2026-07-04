@@ -191,8 +191,26 @@ body {{
   background: #7a0000;
 }}
 @media print {{
-  body {{ background: white; padding: 0; }}
-  .certificate {{ box-shadow: none; }}
+  body {{
+    background: white;
+    padding: 0;
+    margin: 0;
+    display: block;
+    min-height: auto;
+  }}
+  .certificate {{
+    box-shadow: none;
+    width: 297mm;
+    height: 210mm;
+    margin: 0;
+    padding: 35px 45px;
+    border: 8px double #8b6914;
+    border-radius: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    page-break-inside: avoid;
+  }}
   .print-actions {{ display: none; }}
 }}
 </style>
@@ -421,8 +439,26 @@ body {{
   filter: brightness(0.85);
 }}
 @media print {{
-  body {{ background: white; padding: 0; }}
-  .certificate {{ box-shadow: none; }}
+  body {{
+    background: white;
+    padding: 0;
+    margin: 0;
+    display: block;
+    min-height: auto;
+  }}
+  .certificate {{
+    box-shadow: none;
+    width: 297mm;
+    height: 210mm;
+    margin: 0;
+    padding: 40px;
+    border: 6px solid {theme_color};
+    border-radius: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    page-break-inside: avoid;
+  }}
   .print-actions {{ display: none; }}
 }}
 </style>
