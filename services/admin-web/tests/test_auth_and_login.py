@@ -50,3 +50,11 @@ def test_logout_clears_cookie(client, auth_cookies):
     assert r.headers["location"] == "/login"
     set_cookie = r.headers.get("set-cookie", "")
     assert "kyrk_session=" in set_cookie
+
+
+def test_get_logout_clears_cookie(client, auth_cookies):
+    r = client.get("/logout", cookies=auth_cookies)
+    assert r.status_code == 303
+    assert r.headers["location"] == "/login"
+    set_cookie = r.headers.get("set-cookie", "")
+    assert "kyrk_session=" in set_cookie

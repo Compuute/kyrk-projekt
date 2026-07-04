@@ -151,7 +151,7 @@ def login_callback(
     return response
 
 
-@router.post("/logout")
+@router.api_route("/logout", methods=["GET", "POST"])
 def logout(settings: Settings = Depends(get_settings)):
     if os.getenv("ADAPTER_MODE", "memory").lower() == "production" and settings.zitadel_issuer_url:
         post_logout = settings.zitadel_redirect_uri.replace("/login/callback", "/login")
