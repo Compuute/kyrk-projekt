@@ -71,30 +71,40 @@ def get_login(
     request: Request,
     flash: str | None = None,
     level: str = "error",
-    settings: Settings = Depends(get_settings),
 ):
-    if os.getenv("ADAPTER_MODE", "memory").lower() == "production":
-        # Construct OIDC authorization redirect URL
-        scope = "openid+profile+email+urn:zitadel:iam:org:project:roles+urn:zitadel:iam:org:id"
-        redirect_uri = settings.zitadel_redirect_uri
-        if not redirect_uri:
-            # Fallback dynamic construction
-            redirect_uri = str(request.url_for("login_callback"))
-        auth_url = (
-            f"{settings.zitadel_issuer_url.rstrip('/')}/oauth/v2/authorize"
-            f"?client_id={settings.zitadel_client_id}"
-            f"&response_type=code"
-            f"&scope={scope}"
-            f"&redirect_uri={redirect_uri}"
-            f"&state=mystate"
-        )
-        return RedirectResponse(auth_url)
-
+    is_prod = os.getenv("ADAPTER_MODE", "memory").lower() == "production"
     return TEMPLATES.TemplateResponse(
         request=request,
         name="login.html",
-        context={"flash": flash, "level": level},
+        context={
+            "flash": flash,
+            "level": level,
+            "is_production": is_prod,
+        },
     )
+
+
+@router.get("/login/sso")
+def login_sso(
+    request: Request,
+    settings: Settings = Depends(get_settings),
+):
+    if os.getenv("ADAPTER_MODE", "memory").lower() != "production":
+        return RedirectResponse(url="/login")
+
+    scope = "openid+profile+email+urn:zitadel:iam:org:project:roles+urn:zitadel:iam:org:id"
+    redirect_uri = settings.zitadel_redirect_uri
+    if not redirect_uri:
+        redirect_uri = str(request.url_for("login_callback"))
+    auth_url = (
+        f"{settings.zitadel_issuer_url.rstrip('/')}/oauth/v2/authorize"
+        f"?client_id={settings.zitadel_client_id}"
+        f"&response_type=code"
+        f"&scope={scope}"
+        f"&redirect_uri={redirect_uri}"
+        f"&state=mystate"
+    )
+    return RedirectResponse(auth_url)
 
 
 @router.post("/login")
@@ -146,7 +156,7 @@ def logout(settings: Settings = Depends(get_settings)):
     if os.getenv("ADAPTER_MODE", "memory").lower() == "production" and settings.zitadel_issuer_url:
         post_logout = settings.zitadel_redirect_uri.replace("/login/callback", "/login")
         logout_url = (
-            f"{settings.zitadel_issuer_url.rstrip('/')}/oauth/v2/logout"
+            f"{settings.zitadel_issuer_url.rstrip('/')}/oidc/v1/end_session"
             f"?client_id={settings.zitadel_client_id}"
             f"&post_logout_redirect_uri={post_logout}"
         )

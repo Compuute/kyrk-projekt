@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Logga in — kyrk-projekt admin{% endblock %}
 {% block content %}
-<section class="card centered">
+<section class="card centered" style="max-width: 400px; margin: 60px auto; text-align: center;">
   <h1>Logga in</h1>
+  
+  {% if is_production %}
+  <p class="muted" style="margin-bottom: 24px;">
+    Klicka nedan för att logga in säkert via Zitadel (OIDC).
+  </p>
+  <div style="margin: 24px 0;">
+    <a href="/login/sso" class="button primary" style="display: block; text-decoration: none; padding: 12px; font-weight: bold; background-color: #2e7d32; color: white; border-radius: 4px; text-align: center;">Logga in med Zitadel</a>
+  </div>
+  {% else %}
   <p class="muted">
     MVP använder ett lokalt test-token. I produktion ersätts detta med
     Zitadel-inloggning (OIDC).
@@ -28,5 +37,6 @@
     </label>
     <button type="submit" class="primary">Logga in</button>
   </form>
+  {% endif %}
 </section>
 {% endblock %}
