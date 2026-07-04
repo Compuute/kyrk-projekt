@@ -168,6 +168,7 @@ body {{
   color: #8b6914;
   text-align: center;
   line-height: 1.2;
+}}
 .print-actions {{
   position: fixed;
   top: 20px;
