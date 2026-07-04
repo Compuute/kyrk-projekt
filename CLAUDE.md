@@ -81,3 +81,23 @@ To update the domain names (e.g. from test subdomains to `kyrka.se`):
 1. **Frontend API URL**: Change the `API_BASE_URL` constant inside [app.ts](file:///Users/compuute/DevWorkspace/projects/kyrk-projekt/frontend/member-portal/app.ts) (around line 656) to the new domain, e.g., `'https://api.kyrka.se'`.
 2. **Recompile Frontend**: Run `make build-js` to compile `app.ts` -> `app.js`. Commit both files.
 3. **Google Cloud Run Domain Mappings**: Set up custom domain mappings for the services using `gcloud beta run domain-mappings create` and configure corresponding CNAME DNS records (pointing to `ghs.googlehosted.com.`) in your domain registrar (e.g. Squarespace/Cloudflare).
+
+---
+
+## 6. Authentication, Logouts & Serverless Routing
+
+### Secure Logouts & Zitadel SSO Redirection
+When users log out in production:
+1. **Cookie Deletion**: The `kyrk_session` cookie is secure on HTTPS. You must explicitly pass `secure=settings.cookie_secure`, `httponly=True`, and `samesite="lax"` to `delete_cookie()` to ensure modern browsers clear it.
+2. **SSO Session End**: Redirecting to `/login` immediately sends the user back to Zitadel, which logs them back in because they have an active SSO session. To prevent this loop, redirect the user to Zitadel's end-session endpoint `/oauth/v2/logout` with `client_id` and `post_logout_redirect_uri` configured.
+
+### Service-to-Service Calls & GCP IAM Ingress
+Google Cloud Run services (like `membership-service`) sit behind GCP Cloud Run IAM (`--no-allow-unauthenticated`) and require authorization on the GCP resource layer:
+- **`X-Serverless-Authorization`**: Set to `Bearer <GCP_ID_TOKEN>` fetched from the metadata server. This handles GCP gateway authentication.
+- **`Authorization`**: Houses the user's Zitadel bearer token, which is passed untouched to the application.
+- All HTTP clients calling private services (`HttpxSundaySchoolClient`, `HttpxGrantTracker`, `HttpxFuneralTracker`, `HttpxMembershipClient`) must accept `id_token_provider` and construct these headers. They are wired via `factory.py` with `metadata_id_token_provider`.
+
+### GDPR-Safe Certificate Verification & Previews
+- Route: `/certificates/verify/{certificate_id}` in `admin-web`.
+- **Authenticated Staff**: Dynamically queries the member's full name from `membership-service`, then fetches the full HTML certificate from `certificate-service` for preview/printing.
+- **Anonymous Visitors**: Fetches only public verification metadata and renders a privacy-preserving confirmation page ([verification_public.html](file:///Users/compuute/DevWorkspace/projects/kyrk-projekt/services/admin-web/app/templates/verification_public.html)), completely hiding names and personal numbers.
