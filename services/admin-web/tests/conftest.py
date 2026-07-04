@@ -114,12 +114,16 @@ def seeded_submission(intake) -> PendingSubmission:
 
 @pytest.fixture
 def seeded_activities(activity) -> list[ActivityAggregate]:
+    from datetime import date, timedelta
+    today = date.today()
+    date1 = (today - timedelta(days=5)).isoformat()
+    date2 = (today - timedelta(days=10)).isoformat()
     items = [
         ActivityAggregate(
             activity_id="act-1",
             church_id="c1",
             activity_type="youth_tech",
-            date="2025-06-05",
+            date=date1,
             location="Storgatan 1",
             funding_tag="arvsfonden",
             participants_total=20,
@@ -129,7 +133,7 @@ def seeded_activities(activity) -> list[ActivityAggregate]:
             activity_id="act-2",
             church_id="c1",
             activity_type="coding",
-            date="2025-06-10",
+            date=date2,
             location="Storgatan 1",
             funding_tag="kommunala",
             participants_total=10,

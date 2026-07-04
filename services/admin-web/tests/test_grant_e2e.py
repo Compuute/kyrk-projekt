@@ -42,9 +42,10 @@ def realistic_activities(activity):
     """Seed 12 months of realistic activity data covering all types."""
     # Use dates within the last 12 months from "today" so the generate
     # route's lookback window finds them.
+    from datetime import timedelta
     today = date.today()
-    m1 = f"{today.year}-{today.month:02d}-05"
-    m2 = f"{today.year}-{today.month:02d}-12"
+    m1 = (today - timedelta(days=5)).isoformat()
+    m2 = (today - timedelta(days=15)).isoformat()
     items = [
         ActivityAggregate(
             activity_id=f"act-{i}",

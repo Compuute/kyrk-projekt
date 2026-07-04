@@ -29,10 +29,11 @@ def test_kpi_form_accepts_period_override(client, auth_cookies):
 def test_kpi_generate_calls_downstreams_and_renders(
     client, activity, reporting, seeded_activities, auth_cookies
 ):
+    period = seeded_activities[0].date[:7]
     r = client.post(
         "/kpi",
         data={
-            "period": "2025-06",
+            "period": period,
             "operating_cost": "30000",
             "grants": "20000",
             "own_contribution": "10000",
@@ -46,7 +47,7 @@ def test_kpi_generate_calls_downstreams_and_renders(
 
     # reporting-service was called once with the right payload shape
     assert reporting.last_call is not None
-    assert reporting.last_call["period"] == "2025-06"
+    assert reporting.last_call["period"] == period
     assert reporting.last_call["finance"]["operating_cost"] == 30000.0
     assert len(reporting.last_call["activities"]) == 2
 
