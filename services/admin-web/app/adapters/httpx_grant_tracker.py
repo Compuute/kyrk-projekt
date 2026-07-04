@@ -59,13 +59,25 @@ def _json_to_app(data: dict) -> GrantApplication:
 
 
 class HttpxGrantTracker:
-    def __init__(self, base_url: str, token: str, timeout_seconds: float = 5.0) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        token: str,
+        timeout_seconds: float = 5.0,
+        id_token_provider=None,
+    ) -> None:
         self._base_url = base_url.rstrip("/")
         self._token = token
         self._timeout = timeout_seconds
+        self._id_token_provider = id_token_provider
 
     def _headers(self) -> dict[str, str]:
-        return {"Authorization": f"Bearer {self._token}"}
+        headers = {"Authorization": f"Bearer {self._token}"}
+        if self._id_token_provider is not None:
+            id_token = self._id_token_provider(self._base_url)
+            if id_token:
+                headers["X-Serverless-Authorization"] = f"Bearer {id_token}"
+        return headers
 
     def list_applications(self, church_id: str) -> list[GrantApplication]:  # noqa: ARG002
         import httpx

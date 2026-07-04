@@ -23,6 +23,7 @@ from app.ports.clients import (
     CertificateClientPort,
     IntakeClientPort,
     ReportingClientPort,
+    MembershipClientPort,
 )
 from app.ports.content_store import ContentStorePort
 from app.ports.funeral_tracker import FuneralTrackerPort
@@ -98,10 +99,12 @@ def make_notification() -> NotificationPort:
 def make_funeral_tracker(token: str | None = None) -> FuneralTrackerPort:
     if _mode() == "production":
         from app.adapters.httpx_funeral_tracker import HttpxFuneralTracker
+        from app.adapters.gcp_identity import metadata_id_token_provider
 
         return HttpxFuneralTracker(
             base_url=_require_env("MEMBERSHIP_BASE_URL"),
             token=token or "",
+            id_token_provider=metadata_id_token_provider,
         )
     from app.adapters.fake_funeral_tracker import FakeFuneralTracker
 
@@ -129,10 +132,12 @@ def make_grant_tracker(token: str | None = None) -> GrantTrackerPort:
     Firestore credentials itself (same pattern as the funeral tracker)."""
     if _mode() == "production":
         from app.adapters.httpx_grant_tracker import HttpxGrantTracker
+        from app.adapters.gcp_identity import metadata_id_token_provider
 
         return HttpxGrantTracker(
             base_url=_require_env("MEMBERSHIP_BASE_URL"),
             token=token or "",
+            id_token_provider=metadata_id_token_provider,
         )
     from app.adapters.fake_grant_tracker import FakeGrantTracker
 
@@ -207,3 +212,15 @@ def _require_env(name: str) -> str:
         )
         raise RuntimeError(f"missing required env var: {name}")
     return value
+
+
+def make_membership_client() -> MembershipClientPort:
+    if _mode() == "production":
+        from app.adapters.httpx_clients import HttpxMembershipClient
+        from app.adapters.gcp_identity import metadata_id_token_provider
+        return HttpxMembershipClient(
+            base_url=_require_env("MEMBERSHIP_BASE_URL"),
+            id_token_provider=metadata_id_token_provider,
+        )
+    from app.adapters.fake_clients import FakeMembershipClient
+    return FakeMembershipClient()

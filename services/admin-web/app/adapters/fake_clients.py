@@ -142,9 +142,31 @@ class FakeCertificateClient:
             issued_date=request.issued_date,
             status="valid",
             verification_url=f"/certificates/verify/{cert_id}",
+            member_id=request.member_id,
         )
         self.issued.append(issued)
         return issued
+
+    def download(self, token: str, certificate_id: str, member_name: str | None = None) -> bytes:  # noqa: ARG002
+        name = member_name or "Mock Member"
+        return f"<html><body><h1>Certificate {certificate_id}</h1><p>Issued to {name}</p></body></html>".encode("utf-8")
+
+    def verify_public(self, certificate_id: str) -> dict:  # noqa: ARG002
+        for cert in self.issued:
+            if cert.certificate_id == certificate_id:
+                return {
+                    "certificate_type": cert.certificate_type,
+                    "issued_date": cert.issued_date,
+                    "issuing_church_name": "Sankt Johannes",
+                    "status": cert.status,
+                }
+        raise ClientError("not found", status_code=404)
+
+    def get_certificate_metadata(self, token: str, certificate_id: str) -> IssuedCertificate:  # noqa: ARG002
+        for cert in self.issued:
+            if cert.certificate_id == certificate_id:
+                return cert
+        raise ClientError("not found", status_code=404)
 
 
 class FakeActivityClient:
@@ -242,3 +264,8 @@ class FakeReportingClient:
                 "grant_leverage_ratio": leverage,
             },
         )
+
+
+class FakeMembershipClient:
+    def get_member_name(self, token: str, member_id: str) -> str:  # noqa: ARG002
+        return f"Daniel Abbay ({member_id})"

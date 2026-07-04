@@ -16,6 +16,7 @@ from app.adapters.factory import (
     make_session_adapter,
     make_sunday_school_client,
     make_translator,
+    make_membership_client,
 )
 from app.config import Settings, load_settings
 from app.ports.clients import (
@@ -23,6 +24,7 @@ from app.ports.clients import (
     CertificateClientPort,
     IntakeClientPort,
     ReportingClientPort,
+    MembershipClientPort,
 )
 from app.ports.content_store import ContentStorePort
 from app.ports.funeral_tracker import FuneralTrackerPort
@@ -45,6 +47,7 @@ _CONTENT_STORE: ContentStorePort | None = None
 _TRANSLATOR: TranslationPort | None = None
 _SESSION: SessionPort | None = None
 _SUNDAY_SCHOOL: SundaySchoolClientPort | None = None
+_MEMBERSHIP: MembershipClientPort | None = None
 _SETTINGS: Settings = load_settings()
 
 
@@ -64,6 +67,13 @@ def get_certificate_client() -> CertificateClientPort:
     if _CERTIFICATE is None:
         _CERTIFICATE = make_certificate_client()
     return _CERTIFICATE
+
+
+def get_membership_client() -> MembershipClientPort:
+    global _MEMBERSHIP
+    if _MEMBERSHIP is None:
+        _MEMBERSHIP = make_membership_client()
+    return _MEMBERSHIP
 
 
 def get_activity_client() -> ActivityClientPort:

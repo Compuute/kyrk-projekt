@@ -192,6 +192,65 @@ class HttpxCertificateClient:
             issued_date=data["issued_date"],
             status=data["status"],
             verification_url=data["verification_url"],
+            member_id=data.get("member_id", ""),
+        )
+
+    def download(self, token: str, certificate_id: str, member_name: str | None = None) -> bytes:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        params = {}
+        if member_name:
+            params["member_name"] = member_name
+        try:
+            r = httpx.get(
+                f"{self._base_url}/certificates/{certificate_id}/download",
+                headers=headers,
+                params=params,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        return r.content
+
+    def verify_public(self, certificate_id: str) -> dict:
+        import httpx
+
+        try:
+            r = httpx.get(
+                f"{self._base_url}/certificates/verify/{certificate_id}",
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        return r.json()
+
+    def get_certificate_metadata(self, token: str, certificate_id: str) -> IssuedCertificate:
+        import httpx
+
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            r = httpx.get(
+                f"{self._base_url}/certificates/{certificate_id}",
+                headers=headers,
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        data = r.json()
+        return IssuedCertificate(
+            certificate_id=data["certificate_id"],
+            certificate_type=data["certificate_type"],
+            issued_date=data["issued_date"],
+            status=data["status"],
+            verification_url=f"/certificates/verify/{data['certificate_id']}",
+            member_id=data["member_id"],
         )
 
 
@@ -316,3 +375,39 @@ class HttpxReportingClient:
             period=data["period"],
             payload=data["payload"],
         )
+
+
+class HttpxMembershipClient:
+    def __init__(
+        self,
+        base_url: str,
+        timeout_seconds: float = 3.0,
+        id_token_provider=None,
+    ) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._timeout = timeout_seconds
+        self._id_token_provider = id_token_provider
+
+    def _headers(self, token: str) -> dict[str, str]:
+        headers = {"Authorization": f"Bearer {token}"}
+        if self._id_token_provider is not None:
+            id_token = self._id_token_provider(self._base_url)
+            if id_token:
+                headers["X-Serverless-Authorization"] = f"Bearer {id_token}"
+        return headers
+
+    def get_member_name(self, token: str, member_id: str) -> str:
+        import httpx
+
+        try:
+            r = httpx.get(
+                f"{self._base_url}/members/{member_id}",
+                headers=self._headers(token),
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise ClientError(f"network error: {exc}") from exc
+        if r.status_code != 200:
+            raise ClientError(r.text, status_code=r.status_code)
+        data = r.json()
+        return f"{data.get('first_name', '')} {data.get('last_name', '')}".strip()

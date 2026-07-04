@@ -70,6 +70,10 @@ class IntakeClientPort(Protocol):
     def dismiss_donation(self, token: str, donation_id: str) -> DismissDonationResult: ...
 
 
+class MembershipClientPort(Protocol):
+    def get_member_name(self, token: str, member_id: str) -> str: ...
+
+
 # ---------------------------------------------------------------- certificates
 
 
@@ -88,10 +92,14 @@ class IssuedCertificate:
     issued_date: str
     status: str
     verification_url: str
+    member_id: str = ""
 
 
 class CertificateClientPort(Protocol):
     def issue(self, token: str, request: IssueCertificateRequest) -> IssuedCertificate: ...
+    def download(self, token: str, certificate_id: str, member_name: str | None = None) -> bytes: ...
+    def verify_public(self, certificate_id: str) -> dict: ...
+    def get_certificate_metadata(self, token: str, certificate_id: str) -> IssuedCertificate: ...
 
 
 # -------------------------------------------------------------------- activity

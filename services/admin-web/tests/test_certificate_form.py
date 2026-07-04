@@ -46,3 +46,34 @@ def test_issue_error_shows_flash(client, certificates, auth_cookies):
     )
     assert r.status_code == 303
     assert "level=error" in r.headers["location"]
+
+
+def test_verify_unauthenticated_shows_public_page(client, certificates):
+    from app.ports.clients import IssueCertificateRequest
+    cert = certificates.issue("mock-token", IssueCertificateRequest(
+        certificate_type="baptism",
+        issued_date="2025-06-01",
+        member_id="m-1",
+        church_name="Sankt Johannes",
+    ))
+    
+    r = client.get(f"/certificates/verify/{cert.certificate_id}")
+    assert r.status_code == 200
+    assert "Verifierat kyrkligt certifikat" in r.text
+    assert "Sankt Johannes" in r.text
+    assert "m-1" not in r.text
+
+
+def test_verify_authenticated_renders_full_certificate(client, certificates, auth_cookies):
+    from app.ports.clients import IssueCertificateRequest
+    cert = certificates.issue("mock-token", IssueCertificateRequest(
+        certificate_type="baptism",
+        issued_date="2025-06-01",
+        member_id="m-1",
+        church_name="Sankt Johannes",
+    ))
+    
+    r = client.get(f"/certificates/verify/{cert.certificate_id}", cookies=auth_cookies)
+    assert r.status_code == 200
+    assert "Certificate" in r.text
+    assert "Daniel Abbay" in r.text

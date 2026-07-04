@@ -26,6 +26,7 @@ from app.api.deps import (
     get_settings,
     get_sunday_school_client,
     get_translator,
+    get_membership_client,
 )
 from app.ports.session import SessionInfo, SessionPort
 from app.ports.sunday_school import SundaySchoolClientPort
@@ -37,6 +38,7 @@ from app.ports.clients import (
     IntakeClientPort,
     IssueCertificateRequest,
     ReportingClientPort,
+    MembershipClientPort,
 )
 from app.ports.content_store import ContentStorePort
 from app.ports.notification import NotificationPort
@@ -141,8 +143,23 @@ def login_callback(
 
 @router.post("/logout")
 def logout(settings: Settings = Depends(get_settings)):
-    response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
-    response.delete_cookie(settings.cookie_name)
+    if os.getenv("ADAPTER_MODE", "memory").lower() == "production" and settings.zitadel_issuer_url:
+        post_logout = settings.zitadel_redirect_uri.replace("/login/callback", "/login")
+        logout_url = (
+            f"{settings.zitadel_issuer_url.rstrip('/')}/oauth/v2/logout"
+            f"?client_id={settings.zitadel_client_id}"
+            f"&post_logout_redirect_uri={post_logout}"
+        )
+        response = RedirectResponse(url=logout_url, status_code=status.HTTP_303_SEE_OTHER)
+    else:
+        response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    response.delete_cookie(
+        key=settings.cookie_name,
+        secure=settings.cookie_secure,
+        httponly=True,
+        samesite="lax",
+    )
     return response
 
 
@@ -406,6 +423,72 @@ def issue_certificate(
         f"Utfärdat. Verifieringslänk: {issued.verification_url}",
         level="success",
     )
+
+
+@router.get("/certificates/verify/{certificate_id}", response_class=HTMLResponse)
+def verify_or_download_certificate(
+    request: Request,
+    certificate_id: str,
+    certs: CertificateClientPort = Depends(get_certificate_client),
+    members: MembershipClientPort = Depends(get_membership_client),
+    settings: Settings = Depends(get_settings),
+):
+    # Check if visitor is authenticated as pastor/admin
+    session = _require_session(request)
+    if not isinstance(session, RedirectResponse):
+        try:
+            # 1. Fetch certificate metadata
+            meta = certs.get_certificate_metadata(session.token, certificate_id)
+            
+            # 2. Get member full name (query membership-service using client port)
+            try:
+                member_name = members.get_member_name(session.token, meta.member_id)
+            except Exception:
+                member_name = f"Member {meta.member_id}"
+
+            # 3. Download rendered template from certificate-service
+            html_content = certs.download(session.token, certificate_id, member_name)
+            return HTMLResponse(content=html_content.decode("utf-8"))
+        except ClientError as exc:
+            return _flash_redirect(
+                "/certificates/new",
+                f"Kunde inte hämta certifikat: {exc}",
+                level="error",
+            )
+    else:
+        # Public View (no auth): GDPR safe verification card
+        try:
+            public_info = certs.verify_public(certificate_id)
+            
+            # Map type names for friendly display
+            type_display = public_info.get("certificate_type", certificate_id)
+            if public_info.get("certificate_type") == "baptism":
+                type_display = "Dopbevis / Certificate of Baptism"
+            elif public_info.get("certificate_type") == "confirmation":
+                type_display = "Konfirmationsbevis / Certificate of Confirmation"
+            elif public_info.get("certificate_type") == "marriage":
+                type_display = "Vigselbevis / Certificate of Marriage"
+            elif public_info.get("certificate_type") == "funeral":
+                type_display = "Begravningsbevis / Certificate of Funeral"
+            elif public_info.get("certificate_type", "").startswith("sunday_school_"):
+                type_display = f"Söndagsskola / Sunday School ({type_display.replace('sunday_school_', '').replace('_', ' ').capitalize()})"
+
+            return TEMPLATES.TemplateResponse(
+                request=request,
+                name="verification_public.html",
+                context={
+                    "certificate_id": certificate_id,
+                    "cert_type": type_display,
+                    "issued_date": public_info.get("issued_date"),
+                    "issuing_church_name": public_info.get("issuing_church_name"),
+                    "status": public_info.get("status"),
+                },
+            )
+        except ClientError as exc:
+            return HTMLResponse(
+                content=f"<h1>Verifiering misslyckades</h1><p>Certifikatet hittades inte eller är ogiltigt: {exc}</p>",
+                status_code=404
+            )
 
 
 # ------------------------------------------------------------------- KPI dash

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Verifiering av certifikat — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="card" style="max-width: 550px; margin: 40px auto; text-align: center; border-top: 5px solid #2e7d32;">
+  <div style="font-size: 56px; color: #2e7d32; margin-bottom: 8px;">✠</div>
+  <h1 style="color: #2e7d32; margin-bottom: 8px; font-size: 24px;">Verifierat kyrkligt certifikat</h1>
+  <p class="muted small" style="margin-bottom: 24px;">Detta bevis är äkta och registrerat i kyrkans medlemsregister.</p>
+  
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; text-align: left; font-size: 14px;">
+    <tr style="border-bottom: 1px solid #eee;">
+      <th style="padding: 12px 8px; font-weight: 600; color: #555;">Certifikat-ID</th>
+      <td style="padding: 12px 8px; font-family: monospace; font-size: 12px; color: #111;">{{ certificate_id }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #eee;">
+      <th style="padding: 12px 8px; font-weight: 600; color: #555;">Typ</th>
+      <td style="padding: 12px 8px; color: #111; font-weight: 600;">{{ cert_type }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #eee;">
+      <th style="padding: 12px 8px; font-weight: 600; color: #555;">Utfärdat datum</th>
+      <td style="padding: 12px 8px; color: #111;">{{ issued_date }}</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #eee;">
+      <th style="padding: 12px 8px; font-weight: 600; color: #555;">Församling</th>
+      <td style="padding: 12px 8px; color: #111;">{{ issuing_church_name }}</td>
+    </tr>
+    <tr>
+      <th style="padding: 12px 8px; font-weight: 600; color: #555;">Status</th>
+      <td style="padding: 12px 8px; color: #2e7d32; font-weight: bold; text-transform: uppercase;">
+        <span style="display: inline-block; width: 8px; height: 8px; background-color: #2e7d32; border-radius: 50%; margin-right: 6px; vertical-align: middle;"></span>{{ status }}
+      </td>
+    </tr>
+  </table>
+
+  <div style="background-color: #f9f9f9; padding: 12px; border-radius: 6px; text-align: left; font-size: 11px; color: #666; border-left: 3px solid #8b6914;">
+    <strong>Integritetsmeddelande (GDPR):</strong><br/>
+    Av personuppgiftsskäl visas inte medlemmens namn eller personnummer i denna offentliga vy. Pastorer och administratörer kan logga in i admin-panelen för att förhandsgranska det fullständiga dokumentet.
+  </div>
+</section>
+{% endblock %}

@@ -109,6 +109,7 @@ def freeze_certificate(
 @router.get("/{certificate_id}/download")
 def download_certificate(
     certificate_id: str,
+    member_name: str | None = None,
     actor: Actor = Depends(current_actor),
     svc: CertificateService = Depends(get_service),
     pdf: PdfGeneratorPort = Depends(get_pdf_generator),
@@ -120,13 +121,47 @@ def download_certificate(
         raise _translate(exc) from exc
     except CertificateNotFound as exc:
         raise _translate(exc) from exc
-    rendered = pdf.render(cert, member_full_name=f"Member {cert.member_id}")
+    
+    name_to_render = member_name or f"Member {cert.member_id}"
+    rendered = pdf.render(cert, member_full_name=name_to_render)
     return Response(
         content=rendered,
         media_type="text/html; charset=utf-8",
         headers={
             "Content-Disposition": f'inline; filename="certificate-{certificate_id}.html"',
         },
+    )
+
+
+class CertificateMetadataResponse(BaseModel):
+    certificate_id: str
+    church_id: str
+    certificate_type: str
+    issued_date: str
+    member_id: str
+    status: str
+
+
+@router.get("/{certificate_id}", response_model=CertificateMetadataResponse)
+def get_certificate_metadata(
+    certificate_id: str,
+    actor: Actor = Depends(current_actor),
+    svc: CertificateService = Depends(get_service),
+) -> CertificateMetadataResponse:
+    """Secure endpoint to get certificate metadata (requires pastor/admin role)."""
+    try:
+        cert = svc.get_for_download(actor, certificate_id)
+    except NotAuthorized as exc:
+        raise _translate(exc) from exc
+    except CertificateNotFound as exc:
+        raise _translate(exc) from exc
+    return CertificateMetadataResponse(
+        certificate_id=cert.certificate_id,
+        church_id=cert.church_id,
+        certificate_type=cert.certificate_type.value,
+        issued_date=cert.issued_date.isoformat(),
+        member_id=cert.member_id,
+        status=cert.status.value,
     )
 
 
