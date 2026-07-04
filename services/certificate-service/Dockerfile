@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app/ ./app/
 # Templates folder is shipped for the future real PDF generator.
 COPY templates/ ./templates/
+COPY certificate-types.json .
 
 ENV PORT=8080
 ENV PYTHONUNBUFFERED=1
