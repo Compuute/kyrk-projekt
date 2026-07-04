@@ -515,6 +515,9 @@ class HtmlPdfGenerator:
         self._cert_types = _load_certificate_types()
 
     def render(self, certificate: Certificate, member_full_name: str) -> bytes:
+        import re
+        member_full_name = re.sub(r"^member\s+", "", member_full_name, flags=re.IGNORECASE)
+
         cert_type_key = certificate.certificate_type.value
         type_meta = self._cert_types.get(cert_type_key, {})
 
