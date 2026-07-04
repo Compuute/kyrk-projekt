@@ -430,7 +430,7 @@ def issue_certificate(
 
     return _flash_redirect(
         "/certificates/new",
-        f"Utfärdat. Verifieringslänk: {issued.verification_url}",
+        f"Utfärdat. Verifieringslänk: <a href=\"{issued.verification_url}\" target=\"_blank\">{issued.verification_url}</a>",
         level="success",
     )
 

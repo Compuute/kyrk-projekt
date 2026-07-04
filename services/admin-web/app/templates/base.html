@@ -34,7 +34,7 @@
 
   <main class="container">
     {% if flash %}
-    <div class="flash flash-{{ level or 'success' }}">{{ flash }}</div>
+    <div class="flash flash-{{ level or 'success' }}">{{ flash|safe }}</div>
     {% endif %}
     {% block content %}{% endblock %}
   </main>

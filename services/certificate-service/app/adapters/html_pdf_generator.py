@@ -168,14 +168,38 @@ body {{
   color: #8b6914;
   text-align: center;
   line-height: 1.2;
+.print-actions {{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}}
+.print-actions button {{
+  background: #a30000;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 14px;
+  font-family: inherit;
+}}
+.print-actions button:hover {{
+  background: #7a0000;
 }}
 @media print {{
   body {{ background: white; padding: 0; }}
   .certificate {{ box-shadow: none; }}
+  .print-actions {{ display: none; }}
 }}
 </style>
 </head>
 <body>
+<div class="print-actions">
+  <button onclick="window.print()">Skriv ut / Spara PDF</button>
+</div>
 <div class="certificate">
   <div class="cross">✠</div>
   <div class="church-name-am">{church_name_am}</div>
@@ -374,13 +398,38 @@ body {{
   color: {theme_color};
   text-decoration: none;
 }}
+.print-actions {{
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}}
+.print-actions button {{
+  background: {theme_color};
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 14px;
+  font-family: inherit;
+}}
+.print-actions button:hover {{
+  filter: brightness(0.85);
+}}
 @media print {{
   body {{ background: white; padding: 0; }}
   .certificate {{ box-shadow: none; }}
+  .print-actions {{ display: none; }}
 }}
 </style>
 </head>
 <body>
+<div class="print-actions">
+  <button onclick="window.print()">Skriv ut / Spara PDF</button>
+</div>
 <div class="certificate">
   <div class="inner-border"></div>
   
