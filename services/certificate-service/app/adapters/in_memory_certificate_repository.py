@@ -15,3 +15,6 @@ class InMemoryCertificateRepository:
 
     def update(self, certificate: Certificate) -> None:
         self._items[certificate.certificate_id] = certificate
+
+    def list_by_church(self, church_id: str) -> list[Certificate]:
+        return [c for c in self._items.values() if c.church_id == church_id]

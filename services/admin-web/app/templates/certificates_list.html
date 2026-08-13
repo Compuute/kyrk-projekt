@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Utfärdade certifikat — kyrk-projekt admin{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Utfärdade certifikat</h1>
+  <p class="muted small">
+    Endast din egen kyrkas certifikat visas. /
+    የራስዎ ቤተ ክርስቲያን ሰርተፊኬቶች ብቻ።
+    <a href="/certificates/new">Utfärda nytt →</a>
+  </p>
+
+  {% if error_message %}
+  <p class="flash flash-error">{{ error_message }}</p>
+  {% endif %}
+
+  {% if certificates %}
+  <table>
+    <thead>
+      <tr>
+        <th>Typ</th>
+        <th>Datum</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in certificates %}
+      <tr>
+        <td>{{ c.certificate_type }}</td>
+        <td>{{ c.issued_date }}</td>
+        <td>{{ c.status }}</td>
+        <td>
+          <a href="/certificates/{{ c.certificate_id }}/download" target="_blank">
+            Förhandsgranska ↗
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Inga certifikat utfärdade ännu. / እስካሁን ምንም ሰርተፊኬት የለም።</p>
+  {% endif %}
+</section>
+{% endblock %}

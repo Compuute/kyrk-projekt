@@ -81,3 +81,32 @@ def test_download_returns_html(client):
 def test_download_unknown_is_404(client):
     r = client.get("/certificates/does-not-exist/download", headers=_headers("admin"))
     assert r.status_code == 404
+
+
+# ---------------------------------------------------------------- list (scoped)
+
+
+def test_list_requires_issue_role(client):
+    assert client.get("/certificates", headers=_headers("viewer")).status_code == 403
+
+
+def test_list_returns_only_own_church(client):
+    # c1 issues one, c2 issues one.
+    client.post("/certificates", json=_body(), headers=_headers("pastor", "c1"))
+    client.post("/certificates", json=_body(), headers=_headers("pastor", "c2"))
+
+    r1 = client.get("/certificates", headers=_headers("admin", "c1"))
+    assert r1.status_code == 200
+    rows1 = r1.json()
+    assert len(rows1) == 1
+    assert all(row["church_id"] == "c1" for row in rows1)
+
+    r2 = client.get("/certificates", headers=_headers("admin", "c2"))
+    assert all(row["church_id"] == "c2" for row in r2.json())
+
+
+def test_list_empty_for_church_with_none(client):
+    client.post("/certificates", json=_body(), headers=_headers("pastor", "c1"))
+    r = client.get("/certificates", headers=_headers("admin", "c2"))
+    assert r.status_code == 200
+    assert r.json() == []

@@ -105,3 +105,34 @@ def test_issue_error_shows_flash(client, certificates, auth_cookies):
     )
     assert r.status_code == 303
     assert "level=error" in r.headers["location"]
+
+
+def test_certificates_list_redirects_when_anonymous(client):
+    assert client.get("/certificates").status_code == 302
+
+
+def test_certificates_list_shows_issued(client, certificates, auth_cookies):
+    from app.ports.clients import IssuedCertificate
+    certificates.issued.append(IssuedCertificate(
+        certificate_id="cert-1", certificate_type="baptism",
+        issued_date="2026-06-01", status="valid", verification_url="/v/cert-1",
+    ))
+    r = client.get("/certificates", cookies=auth_cookies)
+    assert r.status_code == 200
+    assert "Utfärdade certifikat" in r.text
+    assert "baptism" in r.text
+    assert "/certificates/cert-1/download" in r.text
+
+
+def test_certificates_list_empty_state(client, auth_cookies):
+    r = client.get("/certificates", cookies=auth_cookies)
+    assert r.status_code == 200
+    assert "Inga certifikat" in r.text
+
+
+def test_certificates_list_handles_downstream_error(client, certificates, auth_cookies):
+    from app.ports.client_errors import ClientError
+    certificates.list_error = ClientError("boom", status_code=500)
+    r = client.get("/certificates", cookies=auth_cookies)
+    assert r.status_code == 200
+    assert "Kunde inte hämta" in r.text

@@ -121,6 +121,11 @@ class CertificateService:
         self._require_role(actor, _ISSUE_ROLES)
         return self._load_scoped(actor, certificate_id)
 
+    def list_for_church(self, actor: Actor) -> list[Certificate]:
+        """List certificates issued by the caller's own church only."""
+        self._require_role(actor, _ISSUE_ROLES)
+        return self._repo.list_by_church(actor.church_id)
+
     # --------------------------------------------------------------- internals
 
     def _require_role(self, actor: Actor, allowed: set[Role]) -> None:
