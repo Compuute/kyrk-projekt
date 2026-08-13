@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Warn if code changed without docs/runbooks
@@ -54,7 +54,7 @@ jobs:
       run:
         working-directory: services/${{ matrix.service }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -80,7 +80,7 @@ jobs:
       run:
         working-directory: frontend/wifi-intake-portal
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -100,7 +100,7 @@ jobs:
       run:
         working-directory: frontend/member-portal
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -140,7 +140,7 @@ jobs:
       run:
         working-directory: workers/live-probe
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
@@ -152,7 +152,7 @@ jobs:
     name: python syntax check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -172,7 +172,7 @@ jobs:
       run:
         working-directory: infra/terraform
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: hashicorp/setup-terraform@v4
         with:
@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -210,7 +210,7 @@ jobs:
       run:
         working-directory: .
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
