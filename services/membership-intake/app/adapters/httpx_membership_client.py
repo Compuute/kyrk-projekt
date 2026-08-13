@@ -17,9 +17,24 @@ from app.ports.membership_client import (
 
 
 class HttpxMembershipClient:
-    def __init__(self, base_url: str, timeout_seconds: float = 5.0) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        timeout_seconds: float = 5.0,
+        id_token_provider=None,
+    ) -> None:
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout_seconds
+        # Optional: mints a Google ID token for Cloud Run IAM. membership-service
+        # is --no-allow-unauthenticated, so without this the forward gets a 403.
+        # None off-GCP (local/tests) — the fake client is used there anyway.
+        self._id_token_provider = id_token_provider
+
+    def _serverless_headers(self) -> dict[str, str]:
+        if self._id_token_provider is None:
+            return {}
+        token = self._id_token_provider(self._base_url)
+        return {"X-Serverless-Authorization": f"Bearer {token}"} if token else {}
 
     def create_member(
         self,
@@ -28,7 +43,7 @@ class HttpxMembershipClient:
     ) -> CreateMemberResult:
         import httpx  # lazy — keeps tests dependency-free
 
-        headers = {"Authorization": f"Bearer {actor_token}"}
+        headers = {"Authorization": f"Bearer {actor_token}", **self._serverless_headers()}
         try:
             response = httpx.post(
                 f"{self._base_url}/members",
@@ -57,7 +72,7 @@ class HttpxMembershipClient:
             response = httpx.post(
                 f"{self._base_url}/sunday-school/public/enrollments",
                 json=asdict(request),
-                headers={"X-Forwarded-For": client_ip},
+                headers={"X-Forwarded-For": client_ip, **self._serverless_headers()},
                 timeout=self._timeout,
             )
         except httpx.HTTPError as exc:

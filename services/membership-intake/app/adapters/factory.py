@@ -96,10 +96,13 @@ def make_auth() -> AuthPort:
 
 def make_membership_client() -> MembershipClientPort:
     if _mode() == "production":
+        from app.adapters.gcp_identity import metadata_id_token_provider
         from app.adapters.httpx_membership_client import HttpxMembershipClient
 
         url = _require_env("MEMBERSHIP_SERVICE_URL")
-        return HttpxMembershipClient(base_url=url)
+        return HttpxMembershipClient(
+            base_url=url, id_token_provider=metadata_id_token_provider
+        )
     from app.adapters.fake_membership_client import FakeMembershipClient
 
     return FakeMembershipClient()
