@@ -78,6 +78,12 @@ class IntakeService:
         if not payload.gdpr_consent:
             raise ConsentMissing("gdpr_consent is required")
 
+        # Switching church tax to the parish (Lag 1999:291) requires the
+        # explicit tax consent — belt-and-suspenders behind the frontend gate,
+        # so a direct API call can't queue a switch without it.
+        if payload.action in ("register_and_switch", "already_member") and not payload.tax_consent:
+            raise ConsentMissing("tax_consent is required to switch church tax")
+
         # Rate limit on a composite key: per-IP abuse and per-church floods.
         ip_key = f"ip:{client_ip}"
         church_key = f"church:{payload.church_id}"

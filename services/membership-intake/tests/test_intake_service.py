@@ -77,6 +77,37 @@ def test_missing_consent_rejected(service):
         service.submit(_payload(gdpr_consent=False), client_ip="1.2.3.4")
 
 
+def test_register_and_switch_requires_tax_consent(service):
+    with pytest.raises(ConsentMissing):
+        service.submit(
+            _payload(action="register_and_switch", tax_consent=False), client_ip="1.2.3.4"
+        )
+
+
+def test_already_member_switch_requires_tax_consent(service):
+    with pytest.raises(ConsentMissing):
+        service.submit(
+            _payload(action="already_member", tax_consent=False, monthly_fee_sek=0),
+            client_ip="1.2.3.4",
+        )
+
+
+def test_switch_with_tax_consent_is_accepted(service, repo):
+    submission = service.submit(
+        _payload(action="register_and_switch", tax_consent=True), client_ip="1.2.3.4"
+    )
+    assert submission.action == "register_and_switch"
+    assert submission.tax_consent is True
+
+
+def test_register_only_does_not_require_tax_consent(service):
+    # The default action must remain low-friction — no tax consent needed.
+    submission = service.submit(
+        _payload(action="register_only", tax_consent=False), client_ip="1.2.3.4"
+    )
+    assert submission.tax_consent is False
+
+
 def test_duplicate_personnummer_rejected(service):
     pnr = "19800101-1231"
     service.submit(_payload(personal_number=pnr), client_ip="1.2.3.4")
