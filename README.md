@@ -220,6 +220,7 @@ En ny kyrka = kopiera content.json + byt 5 värden + deploy. 5 minuter.
 | [`32-driftoverlamning-och-portabilitet.md`](docs/32-driftoverlamning-och-portabilitet.md) | **Driftöverlämning & portabilitet: flytta till kyrkans egna konton/API-nycklar, ägarskapsmatris, agent-körbar runbook (ingen persondependens)** |
 | [`33-prod-bootstrap.md`](docs/33-prod-bootstrap.md) | **Prod-bootstrap: få `plan/apply (prod)` grön — sa-terraform, WIF, state-bucket-IAM, workspace, prod-environment-secrets** |
 | [`34-webbmigrering.md`](docs/34-webbmigrering.md) | **Webbmigrering: ersätt gamla WordPress-sajten (`teklehaymanot.se/a/`) — inventering, återanvändningsmatris, kurering + AI-översättning, domän-cutover** |
+| [`35-kyrko-multitenancy-och-onboarding.md`](docs/35-kyrko-multitenancy-och-onboarding.md) | **Kyrko-multitenancy och onboarding: hur kyrkorna hålls åtskilda + vad som krävs för att lägga till en ny** |
 | [`architecture/cloudflare-edge.md`](docs/architecture/cloudflare-edge.md) | Sekvensdiagram, DNS, felsökning |
 | [`architecture/threat-model.md`](docs/architecture/threat-model.md) | STRIDE |
 | [`governance/gdpr-register.md`](docs/governance/gdpr-register.md) | **Art. 30 registerförteckning** |

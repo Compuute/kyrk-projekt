@@ -62,10 +62,10 @@ Detta är inte ett grönfältsprojekt. Befintliga byggstenar:
 
 | Klassisk tjänst | Vår motsvarighet | Status |
 |---|---|---|
-| Dop-/vigsel-/medlemsintyg ur arkiv | certificate-service med publik verifiering utan identitetsläcka | Byggt |
-| Kollekt och gåvor | Donationsflöde med verifierat e-kvitto | Byggt, aktivering pågår (issue #27) |
+| Dop-/vigsel-/medlemsintyg ur arkiv | certificate-service: kyrkoval + språk (sv/am), preview/nedladdning, kyrko-scopad lista, publik verifiering utan identitetsläcka | Byggt |
+| Kollekt och gåvor | Donationsflöde med verifierat e-kvitto (manuell avstämning mot kontoutdrag, ingen Swish-settlement-API) | Byggt, aktivering pågår (issue #27) |
 | Begravningsstöd | Funeral-tracker: paket, program, repatriering | Byggt |
-| Katekes/söndagsskola | Endast aggregatrapportering; roster, närvaro, föräldranotiser saknas | Grönfält |
+| Katekes/söndagsskola | Kurser/grupper + inskrivning (vårdnadshavarsamtycke) + lärarnärvaro per kyrka; närvaro deriverar YELLOW-aggregat till bidragsrapporten. Föräldranotiser + individuell progression saknas | Byggt (notiser grönfält) |
 | Flerspråkig församlingskommunikation | Translator-adapter + content.json (sv/am) | Delvis |
 | Själavård/bokning | — | Grönfält |
 
