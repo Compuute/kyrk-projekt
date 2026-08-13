@@ -38,6 +38,12 @@ def test_consent_required_returns_400(client):
     assert r.status_code == 400
 
 
+def test_switch_without_tax_consent_returns_400(client):
+    r = client.post("/intake", json=_body(action="register_and_switch", tax_consent=False))
+    assert r.status_code == 400
+    assert "tax_consent" in r.json()["detail"]
+
+
 def test_invalid_email_returns_422(client):
     r = client.post("/intake", json=_body(email="not-an-email"))
     assert r.status_code == 422
